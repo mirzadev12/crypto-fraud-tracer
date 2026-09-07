@@ -1,69 +1,89 @@
-import Image from "next/image";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-[#080b14] text-white">
+      <Navbar />
+
+      {/* Hero Section */}
+      <section className="mx-auto flex min-h-[75vh] max-w-7xl items-center px-6 py-20">
+        <div className="max-w-4xl">
+
+          {/* Badge */}
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/5 px-4 py-2 text-xs text-cyan-300">
+            <span className="h-2 w-2 rounded-full bg-cyan-400" />
+            REAL-TIME BLOCKCHAIN INVESTIGATION
+          </div>
+
+          {/* Heading */}
+          <h2 className="text-5xl font-bold leading-tight tracking-tight md:text-7xl">
+            Trace the money.
+            <br />
+            <span className="text-cyan-400">Expose the flow.</span>
+          </h2>
+
+          {/* Description */}
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-400">
+            A blockchain intelligence platform that helps investigators trace
+            cryptocurrency fraud, analyze fund movement, and identify likely
+            exchange destinations.
           </p>
+
+          {/* Buttons */}
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <Link
+              href="/investigate"
+              className="rounded-xl bg-cyan-400 px-7 py-3.5 text-center font-semibold text-black transition hover:bg-cyan-300"
+            >
+              Start Investigation →
+            </Link>
+
+            <Link
+              href="/dashboard"
+              className="rounded-xl border border-white/10 px-7 py-3.5 text-center font-semibold text-gray-300 transition hover:bg-white/5"
+            >
+              Explore Platform
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Workflow Section */}
+      <section className="border-t border-white/10 bg-white/[0.02]">
+        <div className="mx-auto max-w-7xl px-6 py-16">
+
+          <p className="mb-8 text-xs font-semibold uppercase tracking-[0.3em] text-gray-500">
+            Investigation Workflow
+          </p>
+
+          <div className="grid gap-4 md:grid-cols-4">
+            {[
+              ["01", "Report", "Victim-reported wallet"],
+              ["02", "Trace", "Follow fund movement"],
+              ["03", "Attribute", "Identify likely VASP"],
+              ["04", "Analyze", "Generate risk intelligence"],
+            ].map(([number, title, description]) => (
+              <div
+                key={number}
+                className="rounded-2xl border border-white/10 bg-[#0d111c] p-6"
+              >
+                <span className="text-sm text-cyan-400">
+                  {number}
+                </span>
+
+                <h3 className="mt-4 text-lg font-semibold">
+                  {title}
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-gray-500">
+                  {description}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }
