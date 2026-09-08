@@ -1,0 +1,66 @@
+[
+  {
+    "caseId": "FX-2026-0421",
+    "inputAddress": "TYz6M2Fn2egsb15oNZdACtABKotmheGQiD",
+    "reportedAmountUsdt": 18500,
+    "fraudDate": "2026-09-06T17:40:00.000Z",
+    "triage": "HOT",
+    "terminalEntity": null
+  },
+  {
+    "caseId": "FX-2026-0420",
+    "inputAddress": "THDgxwhf5neEAEDm7VeVhxAk7XXqxqopQm",
+    "reportedAmountUsdt": 7400,
+    "fraudDate": "2026-09-06T11:05:00.000Z",
+    "triage": "HOT",
+    "terminalEntity": null
+  },
+  {
+    "caseId": "FX-2026-0419",
+    "inputAddress": "TVDQnzYGxoXYJ7bzhsJNUm2odya94LsoR3",
+    "reportedAmountUsdt": 132500,
+    "fraudDate": "2026-09-04T20:18:00.000Z",
+    "triage": "WARM",
+    "terminalEntity": "OKX"
+  },
+  {
+    "caseId": "FX-2026-0417",
+    "inputAddress": "TS27ffk2xJ95nTMYvLjBimcpqaLNHGiw2S",
+    "reportedAmountUsdt": 51200,
+    "fraudDate": "2026-08-29T09:14:00.000Z",
+    "triage": "WARM",
+    "terminalEntity": "Binance"
+  },
+  {
+    "caseId": "FX-2026-0415",
+    "inputAddress": "TMNeo6BBQb3bBeZqeKr3wtDKQ2P6y3ihJ1",
+    "reportedAmountUsdt": 26300,
+    "fraudDate": "2026-08-27T14:52:00.000Z",
+    "triage": "WARM",
+    "terminalEntity": "Bybit"
+  },
+  {
+    "caseId": "FX-2026-0412",
+    "inputAddress": "TAEX8NDwAUF4AwzsAvo17o2vnHCeGerg6M",
+    "reportedAmountUsdt": 89000,
+    "fraudDate": "2026-08-24T08:36:00.000Z",
+    "triage": "COLD",
+    "terminalEntity": "TRON mixing service"
+  },
+  {
+    "caseId": "FX-2026-0409",
+    "inputAddress": "TLtQgf2jiNt6aiAvuirZBwbL3SrBa5RKZS",
+    "reportedAmountUsdt": 240000,
+    "fraudDate": "2026-08-21T06:02:00.000Z",
+    "triage": "COLD",
+    "terminalEntity": "TRON mixing service"
+  },
+  {
+    "caseId": "FX-2026-0404",
+    "inputAddress": "TQGdaUeybYZQ8dD4jQaL2Zajuhun5hR6wz",
+    "reportedAmountUsdt": 15750,
+    "fraudDate": "2026-08-18T19:27:00.000Z",
+    "triage": "WARM",
+    "terminalEntity": "Kucoin"
+  }
+]

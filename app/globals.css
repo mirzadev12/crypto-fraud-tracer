@@ -1,26 +1,174 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ------------------------------------------------------------------ tokens */
+/* TraceX is a dark investigative console. It commits to one look on purpose:
+   officers use it beside a case file, and a light theme would wash out the
+   triage colours that carry meaning. */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: #070a12;
+  --color-surface: #0d111c;
+  --color-surface-2: #121a2a;
+  --color-line: #1d2536;
+  --color-line-soft: #161d2b;
+  --color-ink: #e8eef8;
+  --color-muted: #8a97ad;
+  --color-faint: #5c6880;
+
+  --color-brand: #22d3ee;
+  --color-brand-dim: #0e7490;
+
+  /* Triage scale — red is urgent, amber is actionable, slate is closed. */
+  --color-hot: #ff6b6b;
+  --color-warm: #f5b544;
+  --color-cold: #8fa3bf;
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle grid backdrop for the console shell. */
+.tx-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.tx-glow {
+  background:
+    radial-gradient(60rem 30rem at 15% -10%, rgba(34, 211, 238, 0.13), transparent 60%),
+    radial-gradient(45rem 25rem at 85% 0%, rgba(139, 92, 246, 0.08), transparent 60%);
+}
+
+/* Focus ring — visible on every interactive element, keyboard-first. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.28);
+}
+
+/* Scrollbars inside panels. */
+.tx-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #263047 transparent;
+}
+.tx-scroll::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.tx-scroll::-webkit-scrollbar-thumb {
+  background: #263047;
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+@keyframes tx-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.45); }
+  70% { box-shadow: 0 0 0 12px rgba(255, 107, 107, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+}
+.tx-pulse {
+  animation: tx-pulse-ring 2.4s infinite;
+}
+
+@keyframes tx-dash {
+  to { stroke-dashoffset: -24; }
+}
+
+@keyframes tx-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.tx-enter {
+  animation: tx-fade-up 0.28s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tx-pulse,
+  .tx-enter {
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------- react-flow */
+/* The graph inherits the console palette instead of the library defaults. */
+/* React Flow is MIT-licensed and asks that the attribution stay visible on the
+   free tier. We keep it, just toned down to match the console. */
+.react-flow__attribution {
+  background: transparent;
+  font-size: 10px;
+}
+.react-flow__attribution a {
+  color: var(--color-faint);
+}
+.react-flow__edge-path {
+  stroke-width: 1.6;
+}
+.react-flow__handle {
+  opacity: 0;
+  pointer-events: none;
+}
+.react-flow__controls-button {
+  background: var(--color-surface-2);
+  border-bottom: 1px solid var(--color-line);
+  fill: var(--color-muted);
+}
+.react-flow__controls-button:hover {
+  background: #182238;
+}
+
+/* ---------------------------------------------------------------- print */
+/* /report/[caseId] is meant to be printed and stapled to a freeze request. */
+@media print {
+  :root {
+    color-scheme: light;
+  }
+  body {
+    background: #ffffff;
+    color: #111827;
+  }
+  .print\:hidden,
+  nav,
+  footer {
+    display: none !important;
+  }
+  .tx-print-sheet {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  .tx-print-sheet * {
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+    background: transparent !important;
+  }
+  .tx-print-sheet .tx-print-keep {
+    background: #f3f4f6 !important;
+  }
+  .tx-print-block {
+    break-inside: avoid;
+  }
+  @page {
+    margin: 16mm;
+  }
 }
