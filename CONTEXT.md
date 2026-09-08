@@ -73,10 +73,15 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   suspicious `#c98a34`, confirmed `#4a7856`. Brass is structural only: a rule, a
   selected state, one call to action per eyeline. It is never decoration, and
   risk colour appears only where a finding is being stated.
-- **Contrast floor overrides the supplied dim grey.** The spec's dim grey
-  `#6b6660` measures ~3.4:1 on charcoal and this token carries every micro-label,
-  so `--color-faint` is `#8c867d` (~5.4:1) and `--color-dim` holds `#6b6660` for
-  rules and disabled states where contrast is not load-bearing. Do not merge them.
+- **Contrast floor overrides three supplied values, measured not guessed.** All
+  interface text clears 4.5:1 on charcoal: ink 15.3, muted 7.3, faint 6.1, brass
+  7.6, suspicious 6.3, critical 4.8, confirmed 4.9. Three spec values could not
+  be used as text and are kept for non-text duty instead — dim grey `#6b6660`
+  (3.2:1) lives on as `--color-dim` for rules and disabled states, and critical
+  `#b33a3a` (3.1:1) and confirmed `#4a7856` (3.6:1) as `--color-critical-deep`
+  and `--color-confirmed-deep` for borders, marks and graph edges. CRITICAL is
+  the most important word on the register; it cannot be the least legible one.
+  Do not "restore" the spec hexes onto text.
 - **Four faces, one job each**: Cinzel (`font-display`) for section titles and
   page headings only; Cormorant (`font-document`) for the printed evidence packet
   only; Inter (`font-sans`) for every functional surface; IBM Plex Mono

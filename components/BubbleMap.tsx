@@ -25,8 +25,8 @@ const KIND_COLOR: Record<NodeKind | "none", string> = {
   victim_reported: "#c6a15b", // brass — the subject of the file
   exchange_deposit: "#c98a34", // suspicious — the exit
   exchange_hot: "#a8a296",
-  mixer: "#b33a3a", // critical
-  sanctioned: "#b33a3a",
+  mixer: "#cf5f55", // critical
+  sanctioned: "#cf5f55",
   intermediary: "#6b6660",
   unknown: "#6b6660",
   none: "#6b6660",

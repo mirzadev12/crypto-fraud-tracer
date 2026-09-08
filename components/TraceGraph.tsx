@@ -52,17 +52,17 @@ const KIND_STYLE: Record<NodeKind | "none", Palette> = {
     caption: "Exchange hot wallet",
   },
   mixer: {
-    ring: "#b33a3a",
+    ring: "#cf5f55",
     bg: "#191111",
-    accent: "#b33a3a",
-    chip: "rgba(179,58,58,0.12)",
+    accent: "#cf5f55",
+    chip: "rgba(207,95,85,0.12)",
     caption: "Mixing service",
   },
   sanctioned: {
-    ring: "#b33a3a",
+    ring: "#cf5f55",
     bg: "#191111",
-    accent: "#b33a3a",
-    chip: "rgba(179,58,58,0.12)",
+    accent: "#cf5f55",
+    chip: "rgba(207,95,85,0.12)",
     caption: "Sanctioned entity",
   },
   intermediary: {

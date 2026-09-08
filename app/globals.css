@@ -25,17 +25,24 @@
      which is below AA, and this token carries every micro-label on the screen.
      Dim gray is kept below for rules and disabled states, where contrast is not
      load-bearing. */
-  --color-faint: #8c867d;
-  --color-dim: #6b6660;       /* dim gray — decoration only */
+  --color-faint: #9a948a;     /* 6.1:1 — it carries every micro-label */
+  --color-dim: #6b6660;       /* spec dim gray — decoration only, never text */
 
   /* Brass / antique gold. Roughly two percent of any screen. */
   --color-brass: #c6a15b;
   --color-brass-dim: #7a6338;
 
-  /* Findings only. */
-  --color-critical: #b33a3a;
+  /* Findings only.
+     The specified critical red (#b33a3a) and confirmed green (#4a7856) measure
+     3.4:1 and 3.9:1 on this ground — below AA, and CRITICAL is the single most
+     important word on the case register. The text-grade values below clear 4.5:1
+     while holding the same hue; the exact spec values are kept as -deep for
+     borders, marks and graph edges, where contrast is not load-bearing. */
+  --color-critical: #cf5f55;
+  --color-critical-deep: #b33a3a;
   --color-suspicious: #c98a34;
-  --color-confirmed: #4a7856;
+  --color-confirmed: #5c8f68;
+  --color-confirmed-deep: #4a7856;
   --color-closed: #6b6660;
 
   --font-sans: var(--font-inter);
