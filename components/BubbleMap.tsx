@@ -21,9 +21,9 @@ import { formatPercent, formatUsdt, formatUsdtCompact, shortAddress } from "@/li
  */
 
 const KIND_COLOR: Record<NodeKind | "none", string> = {
-  victim_reported: "#22d3ee",
+  victim_reported: "#7aa2d6",
   exchange_deposit: "#f5b544",
-  exchange_hot: "#a78bfa",
+  exchange_hot: "#8fa3bf",
   mixer: "#ff6b6b",
   sanctioned: "#ff6b6b",
   intermediary: "#8fa3bf",
@@ -225,15 +225,6 @@ export default function BubbleMap({
         role="img"
         aria-label="Bubble map of wallets on the traced path, sized by the victim funds that reached each one"
       >
-        <defs>
-          {bubbles.map((b) => (
-            <radialGradient key={b.address} id={`bub-${b.address}`} cx="35%" cy="30%">
-              <stop offset="0%" stopColor={colorFor(b.kind)} stopOpacity="0.55" />
-              <stop offset="100%" stopColor={colorFor(b.kind)} stopOpacity="0.12" />
-            </radialGradient>
-          ))}
-        </defs>
-
         {/* Hop rings, so distance from the centre reads as hops from the victim. */}
         {hopRings.map((ring, i) => (
           <ellipse
@@ -260,7 +251,9 @@ export default function BubbleMap({
                 stroke={l.fast ? "#f5b544" : "#3a4763"}
                 strokeWidth={l.width}
                 strokeLinecap="round"
-                opacity={l.fast ? 0.85 : 0.6}
+                strokeDasharray={l.fast ? "10 6" : undefined}
+                className={l.fast ? "tx-dash" : undefined}
+                opacity={l.fast ? 0.9 : 0.6}
               />
             </g>
           );
@@ -270,10 +263,12 @@ export default function BubbleMap({
           const dim = connected ? !connected.has(b.address) : false;
           const isSelected = selected === b.address;
           const color = colorFor(b.kind);
+          // Barely-tainted wallets stay on the canvas but step out of the way.
+          const background = b.taintFraction < 0.01;
           return (
             <g
               key={b.address}
-              opacity={dim ? 0.28 : 1}
+              opacity={background ? 0.12 : dim ? 0.25 : 1}
               className="cursor-pointer"
               onMouseEnter={() => setHovered(b.address)}
               onMouseLeave={() => setHovered(null)}
@@ -288,15 +283,26 @@ export default function BubbleMap({
                 }
               }}
             >
+              {/* Flat low-alpha fill, full-strength ring. No gradient, no glow. */}
               <circle
                 cx={b.x}
                 cy={b.y}
                 r={b.r}
-                fill={`url(#bub-${b.address})`}
+                fill={color}
+                fillOpacity={0.12}
                 stroke={color}
-                strokeWidth={isSelected ? 2.5 : 1.4}
-                strokeOpacity={isSelected ? 1 : 0.7}
+                strokeWidth={isSelected ? 3 : 2}
               />
+              {isSelected ? (
+                <circle
+                  cx={b.x}
+                  cy={b.y}
+                  r={b.r + 4}
+                  fill="none"
+                  stroke="var(--color-ink)"
+                  strokeWidth={1}
+                />
+              ) : null}
               {/* Money that arrived but never left is what an officer is hunting. */}
               {b.outflowCount === 0 && b.depth > 0 ? (
                 <circle
@@ -327,14 +333,15 @@ export default function BubbleMap({
               >
                 {formatUsdtCompact(b.taintedValueUsdt)}
               </text>
+              {background ? null : (
               <text
                 x={b.x}
                 y={b.labelAbove ? b.y - b.r - 11 : b.y + b.r + 17}
                 textAnchor="middle"
                 className="pointer-events-none select-none"
                 style={{
-                  fill: "#8a97ad",
-                  fontSize: 11,
+                  fill: "#9aa6bb",
+                  fontSize: 12,
                   // Halo, so a caption stays readable where it crosses an edge.
                   paintOrder: "stroke",
                   stroke: "#070a12",
@@ -344,6 +351,7 @@ export default function BubbleMap({
               >
                 {b.kind ? b.entity : shortAddress(b.address, 6, 4)}
               </text>
+              )}
             </g>
           );
         })}
@@ -351,9 +359,9 @@ export default function BubbleMap({
 
       {/* Detail card for whatever is under the cursor. */}
       {activeBubble ? (
-        <div className="pointer-events-none absolute left-4 top-4 max-w-xs rounded-xl border border-line bg-surface/95 p-4 shadow-xl backdrop-blur">
+        <div className="pointer-events-none absolute left-4 top-4 max-w-xs rounded-panel border border-line bg-surface/95 p-4 shadow-xl backdrop-blur">
           <p className="text-sm font-semibold text-ink">{activeBubble.entity}</p>
-          <p className="mt-0.5 font-mono text-[11px] text-faint">
+          <p className="mt-0.5 font-mono text-xs text-faint">
             {shortAddress(activeBubble.address, 10, 8)}
           </p>
           <dl className="mt-3 space-y-1.5 text-xs">
@@ -390,7 +398,7 @@ export default function BubbleMap({
 
 export function BubbleLegend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-faint">
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-faint">
       <span>Circle size = victim funds that reached the wallet</span>
       <span>Distance from centre = hops</span>
       <span className="inline-flex items-center gap-1.5">

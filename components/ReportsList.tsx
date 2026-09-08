@@ -78,7 +78,7 @@ export default function ReportsList() {
           {cases.map((c) => (
             <li
               key={c.caseId}
-              className="flex flex-col rounded-xl border border-line bg-surface-2/50 p-5"
+              className="flex flex-col rounded-panel border border-line bg-surface-2/50 p-5"
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="font-mono text-xs text-faint">{c.caseId}</span>
@@ -91,7 +91,7 @@ export default function ReportsList() {
 
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <dt className="text-[11px] uppercase tracking-[0.14em] text-faint">
+                  <dt className="text-xs uppercase tracking-[0.14em] text-faint">
                     Reported
                   </dt>
                   <dd className="mt-1 font-mono text-ink">
@@ -99,7 +99,7 @@ export default function ReportsList() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-[11px] uppercase tracking-[0.14em] text-faint">
+                  <dt className="text-xs uppercase tracking-[0.14em] text-faint">
                     Destination
                   </dt>
                   <dd className="mt-1 truncate text-muted">

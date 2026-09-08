@@ -106,14 +106,14 @@ export default function FundFlowExplorer({
                     >
                       <div className="flex items-center justify-between gap-2">
                         <TriageBadge level={c.triage} />
-                        <span className="font-mono text-[10px] text-faint">
+                        <span className="font-mono text-xs text-faint">
                           {c.caseId}
                         </span>
                       </div>
                       <p className="mt-2 font-mono text-xs text-muted">
                         {shortAddress(c.inputAddress, 8, 6)}
                       </p>
-                      <p className="mt-1 flex items-center justify-between gap-2 text-[11px] text-faint">
+                      <p className="mt-1 flex items-center justify-between gap-2 text-xs text-faint">
                         <span>{c.terminalEntity ?? "Funds at rest"}</span>
                         <span className="font-mono">
                           {formatUsdtCompact(c.reportedAmountUsdt)}
@@ -172,6 +172,7 @@ export default function FundFlowExplorer({
                 onSelect={(node) =>
                   setSelection(node ? { address, node } : null)
                 }
+                source={current.result.source}
                 height="h-[620px]"
               />
             </Panel>
@@ -246,7 +247,7 @@ export default function FundFlowExplorer({
                       </dd>
                     </div>
                     {selected.label?.evidence ? (
-                      <p className="rounded-lg border border-line bg-surface-2/60 px-3 py-2 font-mono text-[11px] leading-5 text-muted">
+                      <p className="rounded-lg border border-line bg-surface-2/60 px-3 py-2 font-mono text-xs leading-5 text-muted">
                         {selected.label.evidence}
                       </p>
                     ) : null}
@@ -265,7 +266,7 @@ export default function FundFlowExplorer({
                 </p>
                 {current.result.data.terminal?.depositAddress ? (
                   <div className="mt-4 rounded-lg border border-warm/30 bg-warm/[0.06] p-3">
-                    <p className="text-[11px] uppercase tracking-[0.16em] text-warm">
+                    <p className="text-xs uppercase tracking-[0.16em] text-warm">
                       {current.result.data.terminal.label.entity} deposit address
                     </p>
                     <code className="mt-1.5 block break-all font-mono text-xs text-ink">

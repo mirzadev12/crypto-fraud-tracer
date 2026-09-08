@@ -3,7 +3,12 @@
 /* ------------------------------------------------------------------ tokens */
 /* TraceX is a dark investigative console. It commits to one look on purpose:
    officers use it beside a case file, and a light theme would wash out the
-   triage colours that carry meaning. */
+   triage colours that carry meaning.
+
+   The rule that governs every colour below: hue means triage. Interface chrome
+   is near-monochrome, and the only saturated colour on screen belongs to HOT,
+   WARM, COLD and the risk flags. That is what lets a triage call read from the
+   back of a room. */
 
 @theme inline {
   --color-bg: #070a12;
@@ -12,11 +17,12 @@
   --color-line: #1d2536;
   --color-line-soft: #161d2b;
   --color-ink: #e8eef8;
-  --color-muted: #8a97ad;
-  --color-faint: #5c6880;
+  --color-muted: #9aa6bb;
+  --color-faint: #8b97b0;   /* ~6.4:1 on surface — these carry the micro-labels */
 
-  --color-brand: #22d3ee;
-  --color-brand-dim: #0e7490;
+  /* Steel, not cyan: chrome must never compete with a triage colour. */
+  --color-brand: #7aa2d6;
+  --color-brand-dim: #3f5f8a;
 
   /* Triage scale — red is urgent, amber is actionable, slate is closed. */
   --color-hot: #ff6b6b;
@@ -25,6 +31,12 @@
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Report only — see CONTEXT.md §3. Zero network cost. */
+  --font-serif: ui-serif, Georgia, "Times New Roman", serif;
+
+  /* Instruments have tight corners. rounded-full stays for status dots and the
+     triage pill; everything else uses this. */
+  --radius-panel: 6px;
 }
 
 :root {
@@ -41,15 +53,14 @@ body {
 /* Subtle grid backdrop for the console shell. */
 .tx-grid {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 44px 44px;
 }
 
 .tx-glow {
-  background:
-    radial-gradient(60rem 30rem at 15% -10%, rgba(34, 211, 238, 0.13), transparent 60%),
-    radial-gradient(45rem 25rem at 85% 0%, rgba(139, 92, 246, 0.08), transparent 60%);
+  /* Structure carries the hero, not bloom. */
+  background: linear-gradient(to bottom, rgba(122, 162, 214, 0.05), transparent 45%);
 }
 
 /* Focus ring — visible on every interactive element, keyboard-first. */
@@ -60,7 +71,7 @@ body {
 }
 
 ::selection {
-  background: rgba(34, 211, 238, 0.28);
+  background: rgba(122, 162, 214, 0.30);
 }
 
 /* Scrollbars inside panels. */
@@ -91,6 +102,9 @@ body {
 @keyframes tx-dash {
   to { stroke-dashoffset: -24; }
 }
+.tx-dash {
+  animation: tx-dash 1.1s linear infinite;
+}
 
 @keyframes tx-fade-up {
   from { opacity: 0; transform: translateY(6px); }
@@ -102,7 +116,9 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .tx-pulse,
-  .tx-enter {
+  .tx-enter,
+  .tx-dash,
+  .react-flow__edge-path {
     animation: none !important;
   }
 }
@@ -151,19 +167,16 @@ body {
   }
   .tx-print-sheet {
     background: #ffffff !important;
-    color: #111827 !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
     max-width: none !important;
   }
+  /* The sheet is already a light document on screen, so print only has to strip
+     the page background and keep the rules hairline. Colours are left alone so
+     the serif hierarchy survives onto paper. */
   .tx-print-sheet * {
-    color: #111827 !important;
-    border-color: #d1d5db !important;
     background: transparent !important;
-  }
-  .tx-print-sheet .tx-print-keep {
-    background: #f3f4f6 !important;
   }
   .tx-print-block {
     break-inside: avoid;

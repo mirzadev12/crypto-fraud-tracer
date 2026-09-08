@@ -30,10 +30,10 @@ type Palette = {
 
 const KIND_STYLE: Record<NodeKind | "none", Palette> = {
   victim_reported: {
-    ring: "#22d3ee",
-    bg: "#0b1c22",
-    accent: "#22d3ee",
-    chip: "rgba(34,211,238,0.14)",
+    ring: "#7aa2d6",
+    bg: "#0e1622",
+    accent: "#7aa2d6",
+    chip: "rgba(122,162,214,0.14)",
     caption: "Victim-reported",
   },
   exchange_deposit: {
@@ -44,10 +44,10 @@ const KIND_STYLE: Record<NodeKind | "none", Palette> = {
     caption: "Exchange deposit address",
   },
   exchange_hot: {
-    ring: "#a78bfa",
-    bg: "#161231",
-    accent: "#a78bfa",
-    chip: "rgba(167,139,250,0.16)",
+    ring: "#5f7fa8",
+    bg: "#111826",
+    accent: "#8fa3bf",
+    chip: "rgba(143,163,191,0.14)",
     caption: "Exchange hot wallet",
   },
   mixer: {
@@ -87,6 +87,14 @@ const KIND_STYLE: Record<NodeKind | "none", Palette> = {
   },
 };
 
+/** #rrggbb -> rgba(), for the low-alpha fills below. */
+function alpha(hex: string, a: number): string {
+  const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+  if (!m) return `rgba(143,163,191,${a})`;
+  const [r, g, b] = [m[1], m[2], m[3]].map((h) => parseInt(h, 16));
+  return `rgba(${r},${g},${b},${a})`;
+}
+
 function paletteFor(kind: NodeKind | null | undefined): Palette {
   const p = KIND_STYLE[(kind ?? "none") as NodeKind | "none"] ?? KIND_STYLE.none;
   // Guard against a typo'd hex ever reaching the DOM.
@@ -106,32 +114,39 @@ type TxNodeData = {
   depth: number;
   isTerminal: boolean;
   outflowCount: number;
+  /** Something else is selected — this node steps back. */
+  dimmed: boolean;
+  /** Barely any of the victim's money came here. */
+  background: boolean;
 };
 
 type TxNode = Node<TxNodeData, "tx">;
 
 function TxNodeView({ data, selected }: NodeProps<TxNode>) {
   const p = paletteFor(data.kind);
+  // The ring carries the weight — no shadow, no glow. Fill is a low-alpha wash
+  // of the same hue so the card reads as a tint of its category.
+  const opacity = data.background ? 0.12 : data.dimmed ? 0.25 : 1;
   return (
     <div
-      className="w-[236px] rounded-xl border px-3.5 py-3 text-left shadow-lg transition"
+      className="w-[236px] rounded-panel px-3.5 py-3 text-left transition"
       style={{
-        borderColor: selected ? p.accent : `${p.ring}66`,
-        background: p.bg,
-        boxShadow: selected
-          ? `0 0 0 2px ${p.accent}55, 0 12px 32px rgba(0,0,0,0.45)`
-          : "0 10px 24px rgba(0,0,0,0.35)",
+        border: `${selected ? 3 : 2}px solid ${p.accent}`,
+        outline: selected ? "1px solid var(--color-ink)" : undefined,
+        outlineOffset: selected ? "2px" : undefined,
+        background: alpha(p.accent, 0.12),
+        opacity,
       }}
     >
       <Handle type="target" position={Position.Left} />
       <div className="flex items-center justify-between gap-2">
         <span
-          className="truncate rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em]"
+          className="truncate rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]"
           style={{ background: p.chip, color: p.accent }}
         >
           {data.caption}
         </span>
-        <span className="shrink-0 font-mono text-[10px] text-[#5c6880]">
+        <span className="shrink-0 font-mono text-xs text-[#8b97b0]">
           hop {data.depth}
         </span>
       </div>
@@ -139,17 +154,19 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
       <p className="mt-2 truncate text-[13px] font-semibold text-[#e8eef8]" title={data.entity}>
         {data.entity}
       </p>
-      <p className="font-mono text-[11px] text-[#8a97ad]" title={data.address}>
-        {shortAddress(data.address, 8, 6)}
-      </p>
+      {data.background ? null : (
+        <p className="font-mono text-xs text-[#9aa6bb]" title={data.address}>
+          {shortAddress(data.address, 8, 6)}
+        </p>
+      )}
 
       <div className="mt-2.5 flex items-baseline justify-between gap-2">
         <span className="font-mono text-[13px] font-semibold" style={{ color: p.accent }}>
           {formatUsdtCompact(data.taintedValueUsdt)}
-          <span className="ml-1 text-[9px] font-normal text-[#5c6880]">USDT tainted</span>
+          <span className="ml-1 text-[10px] font-normal text-[#8b97b0]">USDT tainted</span>
         </span>
         {data.confidence !== null ? (
-          <span className="font-mono text-[10px] text-[#8a97ad]">
+          <span className="font-mono text-xs text-[#9aa6bb]">
             conf {data.confidence.toFixed(2)}
           </span>
         ) : null}
@@ -215,6 +232,8 @@ function buildGraph(trace: TraceResult, selected: string | null): {
           depth: n.depth,
           isTerminal: n.address === terminalAddress,
           outflowCount: n.outflowCount,
+          dimmed: selected !== null && selected !== n.address,
+          background: n.taintFraction < 0.01,
         },
       });
     });
@@ -236,7 +255,7 @@ function buildGraph(trace: TraceResult, selected: string | null): {
       labelBgPadding: [6, 3] as [number, number],
       labelBgBorderRadius: 6,
       labelBgStyle: { fill: "#0d111c", stroke: "#1d2536" },
-      labelStyle: { fill: "#8a97ad", fontSize: 10, fontFamily: "var(--font-geist-mono)" },
+      labelStyle: { fill: "#9aa6bb", fontSize: 12, fontFamily: "var(--font-geist-mono)" },
       style: { stroke, strokeWidth: fast ? 2 : 1.5 },
       markerEnd: { type: MarkerType.ArrowClosed, color: stroke, width: 16, height: 16 },
     };
@@ -314,7 +333,7 @@ export function GraphLegend() {
     { kind: "mixer", text: "Mixer / sanctioned" },
   ];
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-faint">
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-faint">
       {items.map((i) => (
         <span key={i.kind} className="inline-flex items-center gap-1.5">
           <span

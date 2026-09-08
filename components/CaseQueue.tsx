@@ -185,7 +185,7 @@ export default function CaseQueue() {
           <div className="tx-scroll overflow-x-auto">
             <table className="w-full min-w-[820px] border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-line text-[11px] uppercase tracking-[0.14em] text-faint">
+                <tr className="border-b border-line text-xs uppercase tracking-[0.14em] text-faint">
                   <th className="px-5 py-3 font-medium">Triage</th>
                   <th className="px-5 py-3 font-medium">Case</th>
                   <th className="px-5 py-3 font-medium">Victim-reported address</th>
@@ -199,31 +199,31 @@ export default function CaseQueue() {
                 {rows.map((c) => (
                   <tr
                     key={c.caseId}
-                    className="border-b border-line-soft transition last:border-0 hover:bg-white/[0.03]"
+                    className="h-11 border-b border-line-soft transition last:border-0 hover:bg-surface-2"
                   >
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-0">
                       <TriageBadge level={c.triage} />
                     </td>
-                    <td className="px-5 py-3.5 font-mono text-xs text-muted">
+                    <td className="px-5 py-0 font-mono text-xs text-muted">
                       {c.caseId}
                     </td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-0">
                       <AddressChip address={c.inputAddress} explorer={false} />
                     </td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-0">
                       {c.terminalEntity ? (
                         <span className="text-ink">{c.terminalEntity}</span>
                       ) : (
                         <span className="text-faint">Funds at rest</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 text-right font-mono tabular-nums text-ink">
+                    <td className="px-5 py-0 text-right font-mono tabular-nums text-ink">
                       {formatUsdt(c.reportedAmountUsdt, { symbol: false })}
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-muted">
+                    <td className="px-5 py-0 text-xs text-muted">
                       {formatDateTime(c.fraudDate)}
                     </td>
-                    <td className="px-5 py-3.5 text-right">
+                    <td className="px-5 py-0 text-right">
                       <Link
                         href={`/trace/${encodeURIComponent(c.inputAddress)}`}
                         className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-muted transition hover:border-brand/40 hover:text-brand"

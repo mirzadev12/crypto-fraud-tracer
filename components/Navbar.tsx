@@ -26,7 +26,7 @@ export default function Navbar() {
           <h1 className="text-lg font-bold tracking-wide text-ink">
             TRACE<span className="text-brand">X</span>
           </h1>
-          <p className="text-[9px] uppercase tracking-[0.25em] text-faint">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
             Blockchain Intelligence
           </p>
         </Link>
@@ -55,7 +55,7 @@ export default function Navbar() {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          <span className="hidden items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 text-[11px] text-faint lg:inline-flex">
+          <span className="hidden items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 text-xs text-faint lg:inline-flex">
             <span className="h-1.5 w-1.5 rounded-full bg-brand" />
             TRON · USDT (TRC-20)
           </span>

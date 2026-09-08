@@ -10,6 +10,24 @@ import {
 import { NoTraceState, TraceSkeleton, useTrace } from "./TraceLoader";
 import { DataSourceBadge, TRIAGE_META, TriageBadge, buttonStyles } from "./ui";
 
+/**
+ * The evidence packet is the one place in the product that is a document rather
+ * than an instrument, and it is styled as one: serif headings, a light sheet,
+ * hairline rules, no fills.
+ *
+ * The sheet is light even inside the dark console on purpose — what an officer
+ * sees here is what comes out of the printer. Its palette is written as explicit
+ * values rather than the app tokens, because the tokens are dark by design.
+ */
+
+const SHEET = {
+  ink: "text-[#141412]",
+  body: "text-[#4a4741]",
+  faint: "text-[#75726a]",
+  rule: "border-[#d9d5cb]",
+  ruleSoft: "border-[#e6e2d8]",
+};
+
 function Section({
   n,
   title,
@@ -20,11 +38,14 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="tx-print-block border-t border-line pt-6">
-      <h2 className="text-[11px] font-semibold uppercase tracking-[0.24em] text-faint">
-        {n} · {title}
-      </h2>
-      <div className="mt-3.5">{children}</div>
+    <section className={`tx-print-block mt-9 border-t pt-6 ${SHEET.rule}`}>
+      <div className="flex items-baseline gap-3">
+        <span className={`font-mono text-xs tracking-[0.2em] ${SHEET.faint}`}>{n}</span>
+        <h2 className={`font-serif text-xl leading-tight tracking-tight ${SHEET.ink}`}>
+          {title}
+        </h2>
+      </div>
+      <div className="mt-4">{children}</div>
     </section>
   );
 }
@@ -32,8 +53,10 @@ function Section({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-[11px] uppercase tracking-[0.14em] text-faint">{label}</dt>
-      <dd className="mt-1 text-sm text-ink">{children}</dd>
+      <dt className={`font-mono text-xs uppercase tracking-[0.16em] ${SHEET.faint}`}>
+        {label}
+      </dt>
+      <dd className={`mt-1 text-sm ${SHEET.ink}`}>{children}</dd>
     </div>
   );
 }
@@ -41,7 +64,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 export default function EvidencePacket({ address }: { address: string }) {
   const { current, retry } = useTrace(address);
 
-  if (!current) return <TraceSkeleton />;
+  if (!current) return <TraceSkeleton address={address} />;
   if (current.status === "error") {
     return <NoTraceState address={address} message={current.message} onRetry={retry} />;
   }
@@ -52,9 +75,12 @@ export default function EvidencePacket({ address }: { address: string }) {
     ? trace.nodes.find((n) => n.address === trace.terminal!.address)
     : null;
 
+  const generated = trace.provenance.generatedAt.replace(/\.\d+Z$/, "Z");
+  const caseRef = `CASE ${trace.inputAddress.slice(0, 6).toUpperCase()} · TRON · GENERATED ${generated}`;
+
   return (
     <div className="space-y-5">
-      {/* ------------------------------------------------------- toolbar */}
+      {/* Console chrome — stays dark, never prints. */}
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <div className="flex flex-wrap items-center gap-2">
           <DataSourceBadge source={current.result.source} note={current.result.note} />
@@ -77,36 +103,45 @@ export default function EvidencePacket({ address }: { address: string }) {
         </div>
       </div>
 
-      {/* --------------------------------------------------------- sheet */}
-      <article className="tx-print-sheet mx-auto max-w-4xl rounded-2xl border border-line bg-surface p-8 md:p-10">
-        <header className="tx-print-block flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
-          <div>
-            <p className="text-lg font-bold tracking-wide">
-              TRACE<span className="text-brand">X</span>
-            </p>
-            <p className="mt-1 text-[10px] uppercase tracking-[0.24em] text-faint">
-              Cryptocurrency fund-flow evidence packet
+      {/* ------------------------------------------------------------ sheet */}
+      <article
+        className={`tx-print-sheet mx-auto max-w-4xl rounded-panel bg-[#fafaf8] p-8 md:p-12 ${SHEET.ink}`}
+      >
+        <header className="tx-print-block">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <p className="text-lg font-bold tracking-[0.08em]">TRACEX</p>
+            <p className={`font-mono text-xs tracking-[0.14em] ${SHEET.faint}`}>
+              {caseRef}
             </p>
           </div>
-          <div className="text-right text-xs text-muted">
-            <p className="font-mono text-sm text-ink">{trace.caseId}</p>
-            <p className="mt-1">Generated {formatDateTime(trace.provenance.generatedAt)}</p>
-            <p className="mt-0.5">Chain: TRON · USDT (TRC-20)</p>
+          <div className={`mt-5 border-t-2 pt-5 ${SHEET.rule}`}>
+            <h1 className="font-serif text-4xl leading-[1.1] tracking-tight md:text-5xl">
+              Cryptocurrency fund-flow
+              <br />
+              evidence packet
+            </h1>
+            <p
+              className={`mt-4 font-mono text-xs uppercase tracking-[0.18em] ${SHEET.faint}`}
+            >
+              {trace.caseId} · TRON · USDT (TRC-20)
+            </p>
           </div>
         </header>
 
         {/* 1 — subject */}
         <Section n="1" title="Subject of the complaint">
-          <dl className="grid gap-4 sm:grid-cols-2">
+          <dl className="grid gap-5 sm:grid-cols-2">
             <Field label="Victim-reported address">
               <code className="break-all font-mono text-sm">{trace.inputAddress}</code>
             </Field>
             <Field label="Reported amount">
-              <span className="font-mono">{formatUsdt(trace.reportedAmountUsdt)}</span>
+              <span className="font-mono tabular-nums">
+                {formatUsdt(trace.reportedAmountUsdt)}
+              </span>
             </Field>
             <Field label="Date of fraud">{formatDateTime(trace.fraudDate)}</Field>
             <Field label="Wallets examined">
-              <span className="font-mono">
+              <span className="font-mono tabular-nums">
                 {trace.nodes.length} across {trace.edges.length} transfers
               </span>
             </Field>
@@ -115,62 +150,77 @@ export default function EvidencePacket({ address }: { address: string }) {
 
         {/* 2 — finding */}
         <Section n="2" title="Finding">
-          <div
-            className={`tx-print-keep rounded-xl border p-5 ${meta.ring} bg-surface-2/50`}
-          >
-            <p className={`text-sm font-semibold uppercase tracking-[0.16em] ${meta.text}`}>
+          <div className={`tx-print-keep border-l-2 pl-5 ${SHEET.rule}`}>
+            <p className="font-mono text-xs uppercase tracking-[0.2em]">
               {trace.triage} · {meta.action}
             </p>
-            <p className="mt-3 text-sm leading-7 text-ink">{trace.triageReason}</p>
+            <p className={`mt-3 font-serif text-lg leading-8 ${SHEET.ink}`}>
+              {trace.triageReason}
+            </p>
           </div>
 
           {trace.terminal ? (
-            <dl className="mt-5 grid gap-4 sm:grid-cols-2">
-              <Field label="Attributed entity">{trace.terminal.label.entity}</Field>
-              <Field label="Attribution type">
-                {trace.terminal.label.kind.replace(/_/g, " ")}
-              </Field>
-              <Field label="Terminal address">
-                <code className="break-all font-mono text-sm">
-                  {trace.terminal.address}
-                </code>
-              </Field>
-              <Field label="Customer deposit address">
-                {trace.terminal.depositAddress ? (
-                  <code className="break-all font-mono text-sm">
+            <>
+              {trace.terminal.depositAddress ? (
+                <div className={`mt-7 border-t pt-6 ${SHEET.ruleSoft}`}>
+                  <p
+                    className={`font-mono text-xs uppercase tracking-[0.18em] ${SHEET.faint}`}
+                  >
+                    Customer deposit address
+                  </p>
+                  <code className="mt-2 block break-all font-mono text-xl tracking-tight md:text-2xl">
                     {trace.terminal.depositAddress}
                   </code>
-                ) : (
-                  <span className="text-muted">Not applicable</span>
-                )}
-              </Field>
-              <Field label="Confidence">
-                <span className="font-mono">
-                  {trace.terminal.label.confidence.toFixed(2)}
-                </span>
-              </Field>
-              <Field label="Attribution source">
-                {trace.terminal.label.source.replace(/_/g, " ")}
-              </Field>
-              {terminalNode ? (
-                <Field label="Victim funds reaching this address">
-                  <span className="font-mono">
-                    {formatUsdt(terminalNode.taintedValueUsdt)} (
-                    {formatPercent(terminalNode.taintFraction)} of the reported
-                    amount)
+                  <p className={`mt-2 text-sm ${SHEET.body}`}>
+                    Held at {trace.terminal.label.entity}. This is the account the
+                    exchange can act on.
+                  </p>
+                </div>
+              ) : null}
+
+              <dl
+                className={`mt-7 grid gap-5 border-t pt-6 sm:grid-cols-2 ${SHEET.ruleSoft}`}
+              >
+                <Field label="Attributed entity">{trace.terminal.label.entity}</Field>
+                <Field label="Attribution type">
+                  {trace.terminal.label.kind.replace(/_/g, " ")}
+                </Field>
+                <Field label="Terminal address">
+                  <code className="break-all font-mono text-sm">
+                    {trace.terminal.address}
+                  </code>
+                </Field>
+                <Field label="Confidence">
+                  <span className="font-mono tabular-nums">
+                    {formatPercent(trace.terminal.label.confidence)} (
+                    {trace.terminal.label.confidence.toFixed(2)})
                   </span>
                 </Field>
-              ) : null}
-              {trace.terminal.label.evidence ? (
-                <Field label="Basis for attribution">
-                  <span className="font-mono text-xs leading-6">
-                    {trace.terminal.label.evidence}
-                  </span>
+                <Field label="Attribution source">
+                  {trace.terminal.label.source.replace(/_/g, " ")}
                 </Field>
-              ) : null}
-            </dl>
+                {terminalNode ? (
+                  <Field label="Victim funds reaching this address">
+                    <span className="font-mono tabular-nums">
+                      {formatUsdt(terminalNode.taintedValueUsdt)} (
+                      {formatPercent(terminalNode.taintFraction)} of the reported
+                      amount)
+                    </span>
+                  </Field>
+                ) : null}
+                {trace.terminal.label.evidence ? (
+                  <div className="sm:col-span-2">
+                    <Field label="Basis for attribution">
+                      <span className="font-mono text-xs leading-6">
+                        {trace.terminal.label.evidence}
+                      </span>
+                    </Field>
+                  </div>
+                ) : null}
+              </dl>
+            </>
           ) : (
-            <p className="mt-5 text-sm leading-7 text-muted">
+            <p className={`mt-6 text-sm leading-7 ${SHEET.body}`}>
               No exchange or labelled service was reached within the traced depth.
               The funds were last observed at rest, which is recorded in section 4.
             </p>
@@ -180,18 +230,20 @@ export default function EvidencePacket({ address }: { address: string }) {
         {/* 3 — risk indicators */}
         <Section n="3" title="Laundering indicators">
           {trace.riskFlags.length === 0 ? (
-            <p className="text-sm text-muted">
+            <p className={`text-sm ${SHEET.body}`}>
               No laundering patterns fired on this path.
             </p>
           ) : (
-            <ol className="space-y-3">
+            <ol className="space-y-5">
               {trace.riskFlags.map((f, i) => (
                 <li key={`${f.code}-${i}`} className="tx-print-block text-sm">
-                  <p className="font-mono text-[11px] uppercase tracking-wider text-faint">
+                  <p
+                    className={`font-mono text-xs uppercase tracking-[0.18em] ${SHEET.faint}`}
+                  >
                     {f.code}
                   </p>
-                  <p className="mt-1 leading-7 text-ink">{f.reason}</p>
-                  <p className="mt-0.5 break-all font-mono text-[11px] text-muted">
+                  <p className={`mt-1.5 leading-7 ${SHEET.ink}`}>{f.reason}</p>
+                  <p className={`mt-1 break-all font-mono text-xs ${SHEET.body}`}>
                     at {f.atAddress}
                   </p>
                 </li>
@@ -203,15 +255,17 @@ export default function EvidencePacket({ address }: { address: string }) {
         {/* 4 — path of funds */}
         <Section n="4" title="Path of funds">
           <div className="tx-scroll overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse text-left text-xs">
+            <table className="w-full min-w-[680px] border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-line text-[10px] uppercase tracking-[0.14em] text-faint">
-                  <th className="py-2 pr-3 font-medium">From</th>
-                  <th className="py-2 pr-3 font-medium">To</th>
-                  <th className="py-2 pr-3 text-right font-medium">Value (USDT)</th>
-                  <th className="py-2 pr-3 font-medium">Timestamp (UTC)</th>
-                  <th className="py-2 pr-3 font-medium">Held</th>
-                  <th className="py-2 font-medium">Transaction hash</th>
+                <tr
+                  className={`border-b ${SHEET.rule} font-mono uppercase tracking-[0.14em] ${SHEET.faint}`}
+                >
+                  <th className="py-2.5 pr-4 font-normal">From</th>
+                  <th className="py-2.5 pr-4 font-normal">To</th>
+                  <th className="py-2.5 pr-4 text-right font-normal">Value (USDT)</th>
+                  <th className="py-2.5 pr-4 font-normal">Timestamp (UTC)</th>
+                  <th className="py-2.5 pr-4 font-normal">Held</th>
+                  <th className="py-2.5 font-normal">Transaction hash</th>
                 </tr>
               </thead>
               <tbody>
@@ -221,15 +275,17 @@ export default function EvidencePacket({ address }: { address: string }) {
                       new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
                   )
                   .map((e, i) => (
-                    <tr key={`${e.txHash}-${i}`} className="border-b border-line-soft">
-                      <td className="py-2 pr-3 font-mono">{e.from}</td>
-                      <td className="py-2 pr-3 font-mono">{e.to}</td>
-                      <td className="py-2 pr-3 text-right font-mono tabular-nums">
+                    <tr key={`${e.txHash}-${i}`} className={`border-b ${SHEET.ruleSoft}`}>
+                      <td className="py-2.5 pr-4 font-mono">{e.from}</td>
+                      <td className="py-2.5 pr-4 font-mono">{e.to}</td>
+                      <td className="py-2.5 pr-4 text-right font-mono tabular-nums">
                         {formatUsdt(e.valueUsdt, { symbol: false })}
                       </td>
-                      <td className="py-2 pr-3">{formatDateTime(e.timestamp)}</td>
-                      <td className="py-2 pr-3">{formatDwell(e.dwellSeconds)}</td>
-                      <td className="py-2 font-mono break-all">{e.txHash}</td>
+                      <td className="py-2.5 pr-4">{formatDateTime(e.timestamp)}</td>
+                      <td className="py-2.5 pr-4 tabular-nums">
+                        {formatDwell(e.dwellSeconds)}
+                      </td>
+                      <td className="break-all py-2.5 font-mono">{e.txHash}</td>
                     </tr>
                   ))}
               </tbody>
@@ -240,26 +296,30 @@ export default function EvidencePacket({ address }: { address: string }) {
         {/* 5 — narrative */}
         {trace.narrative ? (
           <Section n="5" title="Summary">
-            <p className="text-sm leading-7 text-muted">{trace.narrative}</p>
+            <p className={`font-serif text-lg leading-8 ${SHEET.ink}`}>
+              {trace.narrative}
+            </p>
           </Section>
         ) : null}
 
         {/* 6 — custody */}
         <Section n={trace.narrative ? "6" : "5"} title="Chain of custody">
-          <dl className="grid gap-4 sm:grid-cols-3">
+          <dl className="grid gap-5 sm:grid-cols-3">
             <Field label="API calls made">
-              <span className="font-mono">{trace.provenance.apiCalls}</span>
+              <span className="font-mono tabular-nums">{trace.provenance.apiCalls}</span>
             </Field>
             <Field label="Responses hashed">
-              <span className="font-mono">{trace.provenance.responseHashes.length}</span>
+              <span className="font-mono tabular-nums">
+                {trace.provenance.responseHashes.length}
+              </span>
             </Field>
             <Field label="Generated at">
               {formatDateTime(trace.provenance.generatedAt)}
             </Field>
           </dl>
-          <div className="mt-4 space-y-1">
+          <div className={`mt-5 border-t pt-4 ${SHEET.ruleSoft}`}>
             {trace.provenance.responseHashes.map((h) => (
-              <p key={h} className="break-all font-mono text-[10px] leading-5 text-muted">
+              <p key={h} className={`break-all font-mono text-xs leading-6 ${SHEET.body}`}>
                 sha256 {h}
               </p>
             ))}
@@ -267,11 +327,8 @@ export default function EvidencePacket({ address }: { address: string }) {
         </Section>
 
         {/* limitations */}
-        <section className="tx-print-block mt-8 rounded-xl border border-line bg-surface-2/50 p-5">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.24em] text-faint">
-            Limitations
-          </h2>
-          <ul className="mt-3 space-y-2 text-xs leading-6 text-muted">
+        <Section n="—" title="Limitations">
+          <ul className={`space-y-2.5 text-sm leading-7 ${SHEET.body}`}>
             <li>
               Attribution is an investigative lead. It is not, on its own, grounds
               for freezing an account.
@@ -292,12 +349,14 @@ export default function EvidencePacket({ address }: { address: string }) {
               says so.
             </li>
           </ul>
-        </section>
+        </Section>
 
-        <footer className="mt-8 border-t border-line pt-4 text-[10px] leading-5 text-faint">
-          <p>
-            Prepared with TraceX · TRON / USDT (TRC-20) · Public blockchain data.
-            SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C · Team FineX.
+        <footer className={`mt-10 border-t pt-5 ${SHEET.rule}`}>
+          <p className={`font-serif text-sm italic leading-6 ${SHEET.body}`}>
+            Prepared with TraceX from public TRON blockchain data. This packet
+            records an investigative finding and does not constitute a legal
+            determination. SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C ·
+            Team FineX.
           </p>
         </footer>
       </article>

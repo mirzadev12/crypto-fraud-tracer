@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [unit, setUnit] = useState("");
 
   const field =
-    "w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-faint focus:border-brand/50 focus:outline-none";
+    "w-full rounded-panel border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-faint focus:border-brand/50 focus:outline-none";
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-ink">
@@ -32,7 +32,7 @@ export default function LoginPage() {
         <section className="relative hidden lg:block">
           <div className="tx-glow pointer-events-none absolute -inset-10" aria-hidden="true" />
           <div className="relative">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand">
               Investigator console
             </p>
             <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight">
@@ -62,7 +62,7 @@ export default function LoginPage() {
 
         {/* ---------------------------------------------------------- form */}
         <section className="w-full">
-          <div className="rounded-2xl border border-line bg-surface p-7 md:p-8">
+          <div className="rounded-panel border border-line bg-surface p-7 md:p-8">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold tracking-tight">

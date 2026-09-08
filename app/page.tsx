@@ -1,6 +1,6 @@
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
-import { Chip, Panel, SectionLabel, TriageBadge, buttonStyles } from "@/components/ui";
+import { Chip, Corners, Gutter, Panel, TriageBadge, buttonStyles } from "@/components/ui";
 import { DEMO_SAMPLES } from "@/lib/api";
 import { shortAddress } from "@/lib/format";
 
@@ -35,16 +35,18 @@ export default function Home() {
         <div className="tx-glow pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="tx-grid pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
         <div className="relative mx-auto max-w-4xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand/25 bg-brand/[0.06] px-4 py-1.5 text-[11px] font-medium tracking-wide text-brand">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            TRON · USDT (TRC-20) · PUBLIC DATA ONLY
-          </div>
+          <p className="font-mono text-xs uppercase tracking-[0.28em] text-faint">
+            [ TRON · USDT TRC-20 · PUBLIC DATA ONLY ]
+          </p>
 
-          <h2 className="mt-6 text-4xl font-semibold leading-[1.08] tracking-tight md:text-6xl">
-            Trace the money.
-            <br />
-            <span className="text-brand">Name the deposit address.</span>
-          </h2>
+          <div className="relative mt-6 px-5 py-4">
+            <Corners />
+            <h2 className="text-4xl font-semibold leading-[1.08] tracking-tight md:text-6xl">
+              <span className="text-ink/55">Trace the money.</span>
+              <br />
+              <span className="text-ink">Name the deposit address.</span>
+            </h2>
+          </div>
 
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
             Most tools stop at &ldquo;the funds went to Binance.&rdquo; TraceX goes one
@@ -63,7 +65,9 @@ export default function Home() {
             </Link>
           </div>
 
-          <dl className="mt-14 grid gap-6 border-t border-line pt-8 sm:grid-cols-3">
+          <Gutter index="01 / 05" label="What it does" className="mt-14" />
+
+          <dl className="mt-8 grid gap-6 sm:grid-cols-3">
             <div>
               <dt className="text-xs uppercase tracking-[0.16em] text-faint">
                 Attribution
@@ -97,8 +101,8 @@ export default function Home() {
 
       {/* --------------------------------------------------------- triage */}
       <section className="border-t border-line py-14">
-        <SectionLabel>The differentiator</SectionLabel>
-        <h3 className="mt-3 max-w-3xl text-2xl font-semibold tracking-tight md:text-3xl">
+        <Gutter index="02 / 05" label="The differentiator" />
+        <h3 className="mt-6 max-w-3xl text-2xl font-semibold tracking-tight md:text-3xl">
           Everyone traces. Nobody triages.
         </h3>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
@@ -127,7 +131,7 @@ export default function Home() {
           ].map((c) => (
             <div
               key={c.level}
-              className="rounded-2xl border border-line bg-surface p-6"
+              className="rounded-panel border border-line bg-surface p-6"
             >
               <TriageBadge level={c.level} size="lg" />
               <p className="mt-4 text-lg font-semibold tracking-tight text-ink">
@@ -141,11 +145,11 @@ export default function Home() {
 
       {/* -------------------------------------------------------- workflow */}
       <section className="border-t border-line py-14">
-        <SectionLabel>Investigation workflow</SectionLabel>
-        <div className="mt-8 grid gap-4 md:grid-cols-4">
+        <Gutter index="03 / 05" label="Investigation workflow" />
+        <div className="mt-10 grid gap-10 border-t border-line pt-8 md:grid-cols-4 md:gap-6">
           {WORKFLOW.map((w) => (
-            <div key={w.step} className="rounded-2xl border border-line bg-surface p-6">
-              <span className="font-mono text-sm text-brand">{w.step}</span>
+            <div key={w.step} className="relative md:pr-6">
+              <span className="font-mono text-4xl font-light text-faint">{w.step}</span>
               <h4 className="mt-4 text-base font-semibold tracking-tight">{w.title}</h4>
               <p className="mt-2 text-sm leading-6 text-muted">{w.body}</p>
             </div>
@@ -154,7 +158,9 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------- method */}
-      <section className="grid gap-5 border-t border-line py-14 lg:grid-cols-2">
+      <section className="border-t border-line py-14">
+        <Gutter index="04 / 05" label="Method and scope" />
+        <div className="mt-8 grid gap-5 lg:grid-cols-2">
         <Panel
           title="How a deposit address is identified"
           subtitle="The one piece of the pipeline that turns a graph into an action."
@@ -168,15 +174,15 @@ export default function Home() {
           </p>
           <ul className="mt-5 space-y-2.5 text-sm text-muted">
             <li className="flex gap-3">
-              <span className="font-mono text-brand">≥ 2</span>
+              <span className="font-mono text-ink">≥ 2</span>
               sweeps into the same tagged hot wallet
             </li>
             <li className="flex gap-3">
-              <span className="font-mono text-brand">≥ 90%</span>
+              <span className="font-mono text-ink">≥ 90%</span>
               of everything received forwarded onward
             </li>
             <li className="flex gap-3">
-              <span className="font-mono text-brand">0.5–0.95</span>
+              <span className="font-mono text-ink">0.5–0.95</span>
               confidence, scaled by how many sweeps were observed
             </li>
           </ul>
@@ -209,17 +215,18 @@ export default function Home() {
             </p>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Chip tone="brand">Public APIs only</Chip>
-            <Chip tone="brand">Self-hosted</Chip>
-            <Chip tone="brand">Zero licence cost</Chip>
+            <Chip>Public APIs only</Chip>
+            <Chip>Self-hosted</Chip>
+            <Chip>Zero licence cost</Chip>
           </div>
         </Panel>
+        </div>
       </section>
 
       {/* --------------------------------------------------------- samples */}
       <section className="border-t border-line py-14">
-        <SectionLabel>Try it now</SectionLabel>
-        <h3 className="mt-3 text-2xl font-semibold tracking-tight">
+        <Gutter index="05 / 05" label="Try it now" />
+        <h3 className="mt-6 text-2xl font-semibold tracking-tight">
           Three frozen cases, one of each triage level
         </h3>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
@@ -232,14 +239,14 @@ export default function Home() {
             <Link
               key={s.address}
               href={`/trace/${s.address}`}
-              className="group rounded-2xl border border-line bg-surface p-6 transition hover:border-brand/40"
+              className="group rounded-panel border border-line bg-surface p-6 transition hover:border-brand/40"
             >
               <TriageBadge level={s.triage} />
               <p className="mt-4 text-base leading-6 text-ink">{s.headline}</p>
               <p className="mt-3 font-mono text-xs text-faint">
                 {shortAddress(s.address, 10, 8)}
               </p>
-              <span className="mt-4 inline-block text-sm font-semibold text-brand opacity-0 transition group-hover:opacity-100">
+              <span className="mt-4 inline-block font-mono text-xs uppercase tracking-[0.2em] text-faint opacity-0 transition group-hover:opacity-100">
                 Open trace →
               </span>
             </Link>

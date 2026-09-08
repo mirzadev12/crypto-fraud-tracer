@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { TraceResult } from "@/lib/types";
+import type { DataSource } from "@/lib/api";
 import BubbleMap, { BubbleLegend } from "./BubbleMap";
 import TraceGraph, { GraphLegend } from "./TraceGraph";
 
@@ -18,11 +19,13 @@ export default function TraceCanvas({
   trace,
   selected,
   onSelect,
+  source,
   height = "h-[620px]",
 }: {
   trace: TraceResult;
   selected: string | null;
   onSelect: (address: string | null) => void;
+  source?: DataSource;
   height?: string;
 }) {
   const [view, setView] = useState<CanvasView>("flow");
@@ -49,6 +52,46 @@ export default function TraceCanvas({
           className={height}
         />
       )}
+
+      <Readout trace={trace} source={source} />
+    </div>
+  );
+}
+
+/**
+ * Telemetry gutter. Every figure is read straight off the TraceResult — nothing
+ * here is decorative or invented.
+ */
+function Readout({ trace, source }: { trace: TraceResult; source?: DataSource }) {
+  const depth = trace.nodes.reduce((max, n) => Math.max(max, n.depth), 0);
+  // Taint that actually landed: the terminal's share when there is one,
+  // otherwise the largest share held anywhere past the victim.
+  const terminalNode = trace.terminal
+    ? trace.nodes.find((n) => n.address === trace.terminal?.address)
+    : undefined;
+  const taint =
+    terminalNode?.taintFraction ??
+    Math.max(0, ...trace.nodes.filter((n) => n.depth > 0).map((n) => n.taintFraction));
+
+  const cells = [
+    ["NODES", String(trace.nodes.length)],
+    ["EDGES", String(trace.edges.length)],
+    ["DEPTH", String(depth)],
+    ["TAINT", `${(taint * 100).toFixed(1)}%`],
+    ["SRC", source === "demo" ? "FIXTURE" : source === "live" ? "TRONGRID" : "—"],
+    ["UTC", trace.provenance.generatedAt.replace(/\.\d+Z$/, "Z")],
+  ];
+
+  return (
+    <div className="tx-scroll flex h-9 items-center gap-4 overflow-x-auto border-t border-line px-5 font-mono text-xs whitespace-nowrap text-faint">
+      {cells.map(([k, v], i) => (
+        <span key={k} className="flex items-center gap-4">
+          {i > 0 ? <span aria-hidden="true">·</span> : null}
+          <span>
+            {k} <span className="text-muted">{v}</span>
+          </span>
+        </span>
+      ))}
     </div>
   );
 }

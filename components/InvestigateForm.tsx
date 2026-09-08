@@ -17,7 +17,7 @@ type Status =
   | { kind: "failed"; message: string };
 
 const FIELD =
-  "w-full rounded-xl border bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-faint focus:outline-none";
+  "w-full rounded-panel border bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-faint focus:outline-none";
 
 export default function InvestigateForm() {
   const [address, setAddress] = useState("");
@@ -210,11 +210,11 @@ export default function InvestigateForm() {
                 <button
                   type="button"
                   onClick={() => applySample(s.address)}
-                  className="w-full rounded-xl border border-line bg-surface-2/60 p-4 text-left transition hover:border-brand/40"
+                  className="w-full rounded-panel border border-line bg-surface-2/60 p-4 text-left transition hover:border-brand/40"
                 >
                   <TriageBadge level={s.triage} />
                   <p className="mt-2.5 text-sm leading-6 text-ink">{s.headline}</p>
-                  <p className="mt-1 font-mono text-[11px] text-faint">
+                  <p className="mt-1 font-mono text-xs text-faint">
                     {shortAddress(s.address, 10, 8)}
                   </p>
                 </button>
@@ -228,7 +228,7 @@ export default function InvestigateForm() {
         </Panel>
       </div>
 
-      {status.kind === "running" ? <TraceSkeleton /> : null}
+      {status.kind === "running" ? <TraceSkeleton address={address} /> : null}
 
       {status.kind === "failed" ? (
         <ErrorState

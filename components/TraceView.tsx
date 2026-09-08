@@ -18,7 +18,9 @@ import CopyButton from "./CopyButton";
 import TraceCanvas from "./TraceCanvas";
 import {
   Chip,
+  Corners,
   DataSourceBadge,
+  Gutter,
   Panel,
   SourceChip,
   StatCard,
@@ -62,11 +64,11 @@ export function RiskFlagList({
         return (
           <li
             key={`${f.code}-${f.atAddress}-${i}`}
-            className="rounded-xl border border-line bg-surface-2/60 p-4"
+            className="rounded-panel border border-line bg-surface-2/60 p-4"
           >
             <div className="flex flex-wrap items-center gap-2">
               <Chip tone={meta.tone}>{meta.title}</Chip>
-              <code className="font-mono text-[10px] uppercase tracking-wider text-faint">
+              <code className="font-mono text-xs uppercase tracking-wider text-faint">
                 {f.code}
               </code>
             </div>
@@ -76,7 +78,7 @@ export function RiskFlagList({
             <button
               type="button"
               onClick={() => onSelect?.(f.atAddress)}
-              className="mt-2 font-mono text-[11px] text-faint transition hover:text-brand"
+              className="mt-2 font-mono text-xs text-faint transition hover:text-brand"
               title={f.atAddress}
             >
               at {shortAddress(f.atAddress, 8, 6)}
@@ -99,9 +101,10 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
       .filter((n) => n.outflowCount === 0)
       .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
     return (
-      <div className={`rounded-2xl border bg-surface p-6 ${meta.ring}`}>
+      <div className={`relative rounded-panel border bg-surface p-6 ${meta.ring}`}>
+        <Corners />
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-faint">
+          <p className="font-mono text-xs uppercase tracking-[0.28em] text-faint">
             Where the money is now
           </p>
           <TriageBadge level={trace.triage} size="lg" />
@@ -134,33 +137,45 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
   const isDeposit = label.kind === "exchange_deposit" && Boolean(depositAddress);
 
   return (
-    <div className={`rounded-2xl border bg-surface p-6 ${meta.ring}`}>
+    <div className={`relative rounded-panel border bg-surface p-6 ${meta.ring}`}>
+      <Corners />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-faint">
+        <p className="font-mono text-xs uppercase tracking-[0.28em] text-faint">
           {isDeposit ? "Attributed destination" : "End of traceable path"}
         </p>
         <TriageBadge level={trace.triage} size="lg" />
       </div>
 
-      <div className="mt-4 flex flex-wrap items-baseline gap-3">
-        <p className="text-3xl font-semibold tracking-tight text-ink">{label.entity}</p>
-        <Chip tone={isDeposit ? "warm" : "hot"}>
-          {label.kind.replace(/_/g, " ")}
-        </Chip>
-      </div>
+      {isDeposit ? null : (
+        <div className="mt-4 flex flex-wrap items-baseline gap-3">
+          <p className="text-3xl font-semibold tracking-tight text-ink">{label.entity}</p>
+          <Chip tone="hot">{label.kind.replace(/_/g, " ")}</Chip>
+        </div>
+      )}
 
       {isDeposit ? (
-        <div className="mt-5 rounded-xl border border-warm/30 bg-warm/[0.06] p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-warm">
+        /* The whole product in one element. Nothing else in the app is set this
+           large, and that is deliberate — it is the account an exchange can
+           actually freeze. */
+        <div className="mt-5 border-t border-line pt-5">
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-warm">
             Customer deposit address
           </p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <code className="break-all font-mono text-base text-ink">
+          <div className="mt-3 flex flex-wrap items-start gap-3">
+            <code className="break-all font-mono text-2xl leading-tight tracking-tight text-ink md:text-3xl">
               {depositAddress}
             </code>
-            <CopyButton value={depositAddress!} label="Copy" />
+            <CopyButton value={depositAddress!} label="Copy" className="mt-1.5" />
           </div>
-          <p className="mt-2 text-xs leading-5 text-muted">
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted">
+            <span className="font-medium text-ink">{label.entity}</span>
+            <span className="text-faint">·</span>
+            <span className="font-mono tabular-nums">
+              {formatPercent(label.confidence)} confidence
+            </span>
+            <SourceChip source={label.source} />
+          </div>
+          <p className="mt-3 text-xs leading-5 text-muted">
             This is the account {label.entity} can freeze. Name it in the freeze
             request — not just the exchange.
           </p>
@@ -173,24 +188,28 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
       )}
 
       <dl className="mt-5 grid gap-4 border-t border-line pt-4 sm:grid-cols-3">
-        <div>
-          <dt className="text-[11px] uppercase tracking-[0.14em] text-faint">
-            Confidence
-          </dt>
-          <dd className="mt-1 font-mono text-lg text-ink">
-            {label.confidence.toFixed(2)}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-[11px] uppercase tracking-[0.14em] text-faint">
-            Attribution source
-          </dt>
-          <dd className="mt-1.5">
-            <SourceChip source={label.source} />
-          </dd>
-        </div>
+        {isDeposit ? null : (
+          <>
+            <div>
+              <dt className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
+                Confidence
+              </dt>
+              <dd className="mt-1 font-mono text-lg tabular-nums text-ink">
+                {formatPercent(label.confidence)}
+              </dd>
+            </div>
+            <div>
+              <dt className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
+                Attribution source
+              </dt>
+              <dd className="mt-1.5">
+                <SourceChip source={label.source} />
+              </dd>
+            </div>
+          </>
+        )}
         <div className="sm:col-span-1">
-          <dt className="text-[11px] uppercase tracking-[0.14em] text-faint">
+          <dt className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
             Time to destination
           </dt>
           <dd className="mt-1 font-mono text-lg text-ink">
@@ -235,7 +254,7 @@ function NodesTable({
     <div className="tx-scroll overflow-x-auto">
       <table className="w-full min-w-[640px] border-collapse text-left text-sm">
         <thead>
-          <tr className="border-b border-line text-[11px] uppercase tracking-[0.14em] text-faint">
+          <tr className="border-b border-line text-xs uppercase tracking-[0.14em] text-faint">
             <th className="px-4 py-3 font-medium">Hop</th>
             <th className="px-4 py-3 font-medium">Address</th>
             <th className="px-4 py-3 font-medium">Attribution</th>
@@ -262,7 +281,7 @@ function NodesTable({
                     tone={active ? "brand" : "strong"}
                     explorer={false}
                   />
-                  <p className="mt-0.5 text-[11px] text-faint">
+                  <p className="mt-0.5 text-xs text-faint">
                     First seen {formatDateTime(n.firstSeen)}
                   </p>
                 </td>
@@ -344,7 +363,7 @@ function MovementTimeline({
                 {formatUsdt(e.valueUsdt)}
               </span>
             </div>
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-faint">
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-faint">
               <span>{formatDateTime(e.timestamp)}</span>
               <span className={fast ? "text-warm" : ""}>
                 held {formatDwell(e.dwellSeconds)}
@@ -394,7 +413,7 @@ function ProvenancePanel({ trace }: { trace: TraceResult }) {
         </div>
       </dl>
       <div>
-        <p className="text-[11px] uppercase tracking-[0.14em] text-faint">
+        <p className="text-xs uppercase tracking-[0.14em] text-faint">
           SHA-256 of each API response
         </p>
         <div className="tx-scroll mt-2 max-h-40 space-y-1 overflow-y-auto rounded-lg border border-line bg-surface-2/60 p-3">
@@ -402,13 +421,13 @@ function ProvenancePanel({ trace }: { trace: TraceResult }) {
             <p className="text-xs text-faint">No response hashes were recorded.</p>
           ) : (
             trace.provenance.responseHashes.map((h) => (
-              <p key={h} className="break-all font-mono text-[10px] leading-5 text-muted">
+              <p key={h} className="break-all font-mono text-xs leading-5 text-muted">
                 {h}
               </p>
             ))
           )}
         </div>
-        <p className="mt-2 text-[11px] leading-5 text-faint">
+        <p className="mt-2 text-xs leading-5 text-faint">
           Each hash fixes the exact API response this trace was built from, so the
           evidence packet can be re-verified later.
         </p>
@@ -470,6 +489,7 @@ export default function TraceView({
       </div>
 
       {/* ------------------------------------------------------ money slide */}
+      <Gutter index="01 / 04" label="Finding" />
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <TerminalCard trace={trace} />
@@ -503,6 +523,7 @@ export default function TraceView({
       </div>
 
       {/* ------------------------------------------------------------ graph */}
+      <Gutter index="02 / 04" label="Fund flow" />
       <Panel
         title="Fund flow"
         subtitle="Click a wallet to highlight it in the tables below. Flow reads the path in order; Bubbles reads it by weight."
@@ -512,11 +533,13 @@ export default function TraceView({
           trace={trace}
           selected={selected}
           onSelect={setSelected}
+          source={source}
           height="h-[560px]"
         />
       </Panel>
 
       {/* ------------------------------------------------- tables & flags */}
+      <Gutter index="03 / 04" label="Wallets and risk" />
       <div className="grid gap-5 lg:grid-cols-3">
         <Panel
           title="Wallets on the path"
@@ -536,6 +559,7 @@ export default function TraceView({
       </div>
 
       {/* -------------------------------------------------------- timeline */}
+      <Gutter index="04 / 04" label="Timeline and custody" />
       <div className="grid gap-5 lg:grid-cols-3">
         <Panel title="Movement timeline" className="lg:col-span-2">
           <MovementTimeline trace={trace} onSelect={setSelected} />

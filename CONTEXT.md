@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 8 September 2026.
+Last updated: 8 September 2026 (aesthetic refinement pass).
 
 ---
 
@@ -63,12 +63,46 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
 
 ## 3. Decisions already made — do not re-litigate
 
-- **Dark theme only.** Committed on purpose; triage colour carries meaning and a
-  light theme washes it out. Tokens are in `app/globals.css` (`@theme inline`):
-  `bg`, `surface`, `surface-2`, `line`, `ink`, `muted`, `faint`, `brand`, and the
-  triage trio `hot` / `warm` / `cold`.
-- **Triage colour scale**: HOT red, WARM amber, COLD slate. A heat scale, not the
-  brand cyan — cyan stays a UI accent so it never competes with a triage call.
+- **Dark theme only, with one deliberate exception.** The console is dark because
+  triage colour carries meaning and a light theme washes it out. The exception is
+  the evidence packet sheet (see the serif rule below), which is light on screen
+  so that what an officer sees is what prints. Tokens are in `app/globals.css`
+  (`@theme inline`): `bg`, `surface`, `surface-2`, `line`, `ink`, `muted`,
+  `faint`, `brand`, the triage trio `hot` / `warm` / `cold`, plus
+  `--radius-panel` and `--font-serif`.
+- **Hue means triage. Nothing else.** Chrome is near-monochrome: `--color-brand`
+  is a desaturated steel (`#7aa2d6`), not cyan, and it never appears on headings,
+  section labels, source tags or primary buttons — those are ink or faint. The
+  only saturated colour on a screen belongs to HOT / WARM / COLD and the risk
+  flags. This is what makes a triage call read from across a room, and it is the
+  single decision that most separates this from a generic dark dashboard. If a
+  future change wants an accent-coloured heading or button, the answer is no.
+- **Triage colour scale**: HOT red, WARM amber, COLD slate. A heat scale.
+- **Contrast floor.** `--color-faint` is `#8b97b0` (~6.4:1 on surface) because it
+  carries every micro-label, and the judge is five metres from a projector. No
+  interface text below `text-xs` (12px) except two chips inside a graph node,
+  noted below. Do not darken these tokens back down.
+- **Tight geometry.** Panels, cards and inputs use `rounded-panel` (6px) — an
+  instrument does not have soft corners. `rounded-full` is kept only for status
+  dots and the triage pill.
+- **Data typography.** Figures are mono, light, tabular and large
+  (`StatCard` in `ui.tsx`), with the fractional part dropped to `text-faint` so
+  the eye lands on the magnitude. Size steps down by string length so a long
+  figure does not overflow its card.
+- **Instrument chrome.** `Corners` (four bracket marks) and `Gutter`
+  (`[ 02 / 04 ] ──── [ FUND FLOW ]`) live in `ui.tsx`. Use them rather than
+  scattering one-off markup, and keep the hairline grid doing the work that a
+  glow used to — `.tx-glow` is now a single faint vertical falloff on purpose.
+- **Serif appears in exactly one place**: the evidence packet, for the document
+  title, section headings, the triage sentence, the summary and the legal
+  footer. Everywhere else is sans, and every address, hash and figure stays mono.
+  Do not let serif leak into the console.
+- **The deposit address is the loudest element in the app.** In `TraceView`'s
+  terminal card it is set at `text-2xl md:text-3xl` mono — larger than any
+  heading anywhere. That is the product; nothing may out-shout it.
+- **The loading sequence in `TraceLoader` is display copy, not telemetry.** It
+  runs on a fixed timer and observes nothing. The file says so in a comment;
+  keep that comment.
 - **Two canvas views behind one toggle** (`components/TraceCanvas.tsx`): Flow
   (`TraceGraph.tsx`, react-flow) and Bubbles (`BubbleMap.tsx`, hand-drawn SVG, no
   dependency). They share one selection, so clicking a wallet in either keeps it
