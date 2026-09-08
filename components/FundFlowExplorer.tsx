@@ -130,7 +130,7 @@ export default function FundFlowExplorer({
       </Panel>
 
       {/* ------------------------------------------------------------ graph */}
-      <div className="space-y-6">
+      <div className="min-w-0 space-y-6">
         {!address ? (
           <Panel title="Fund flow">
             <EmptyState
