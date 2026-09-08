@@ -23,13 +23,11 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur">
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-6 px-6">
-        <Link href="/" className="flex shrink-0 items-baseline gap-2">
-          <span className="font-display text-lg uppercase tracking-[0.32em] text-ink">
-            FineX
-          </span>
-          <span className="hidden font-mono text-xs uppercase tracking-[0.24em] text-faint sm:inline">
-            {"//"} Blockchain Intelligence
-          </span>
+        <Link
+          href="/"
+          className="shrink-0 font-display text-lg uppercase tracking-[0.32em] text-ink"
+        >
+          FineX
         </Link>
 
         <div className="hidden items-center gap-10 md:flex">
