@@ -1,0 +1,218 @@
+[
+  {
+    "address": "TMEkGd5AqQoLf6ygbDtzFez5i4MuokM7i3",
+    "exchange": "Binance",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TBkTuVQJXxNz58MvaRcW116KMUVY3geC7a",
+    "exchange": "Binance",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TSu8wTwNtp6MKDMJaYZ16G5727Axcp8RQy",
+    "exchange": "Binance",
+    "sweepCount": 20,
+    "confidence": 0.95,
+    "evidence": "20 sweeps, 100% of inflow forwarded to Binance-Hot 7 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TNccrmdSmZVfwq7C8Ei1Ak41tkavrHFd2u",
+    "exchange": "Binance",
+    "sweepCount": 23,
+    "confidence": 0.95,
+    "evidence": "23 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TGsnATDN5w7Cq6BeCtWF8JpJiriAK29WYp",
+    "exchange": "Binance",
+    "sweepCount": 5,
+    "confidence": 0.65,
+    "evidence": "5 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TAjhW8yogLs47UorPWZD51Ph1DCQpGpMR2",
+    "exchange": "Binance",
+    "sweepCount": 6,
+    "confidence": 0.6799999999999999,
+    "evidence": "6 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TCPiS68cwdfddBmdRW9wAacfufqCPMHrRD",
+    "exchange": "Binance",
+    "sweepCount": 43,
+    "confidence": 0.95,
+    "evidence": "43 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TEkeWW7FrX9hGNt2r1pCFgnn3xGRVFCbec",
+    "exchange": "Binance",
+    "sweepCount": 23,
+    "confidence": 0.95,
+    "evidence": "23 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TT46oTSrg1PLnefDLyWqXjDcw4eg8AwzpF",
+    "exchange": "Binance",
+    "sweepCount": 15,
+    "confidence": 0.95,
+    "evidence": "15 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TAxcboFKt7vg5MvucdzKQTehfXfq6ufV85",
+    "exchange": "Binance",
+    "sweepCount": 14,
+    "confidence": 0.9199999999999999,
+    "evidence": "14 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TSwL42qzL1KLnsWEXnZi8nnvaHJbcAk19Q",
+    "exchange": "Binance",
+    "sweepCount": 59,
+    "confidence": 0.95,
+    "evidence": "59 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TCfThm6G4jMobgGhModThHjgi8rS4AYnhj",
+    "exchange": "Binance",
+    "sweepCount": 145,
+    "confidence": 0.95,
+    "evidence": "145 sweeps, 100% of inflow forwarded to Binance-Hot 7 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TAMhqQkptHz8UaZtKG4VnVDuBNWkG2Xu6J",
+    "exchange": "Binance",
+    "sweepCount": 84,
+    "confidence": 0.95,
+    "evidence": "84 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TVwXdkbvCXQPNKe5bG17GerQGHYeg3T1KM",
+    "exchange": "Binance",
+    "sweepCount": 103,
+    "confidence": 0.95,
+    "evidence": "103 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TKkSS1BMqkEweigbUT5nBsWRtjbFbpzrtw",
+    "exchange": "Binance",
+    "sweepCount": 131,
+    "confidence": 0.95,
+    "evidence": "131 sweeps, 100% of inflow forwarded to Binance-Hot 7 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TY9k4HEsntQsppW6EiYZo89vBXBRfH9XGN",
+    "exchange": "Binance",
+    "sweepCount": 36,
+    "confidence": 0.95,
+    "evidence": "36 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TGRCieVqWHqeSAAZv5wUznuxf3pEmGEqhL",
+    "exchange": "Binance",
+    "sweepCount": 5,
+    "confidence": 0.65,
+    "evidence": "5 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TN6125frFNGvCw4rVmJq9xgJyRCGTWMzr4",
+    "exchange": "Binance",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TXUeTY9L3m6uGF5iQyFkdTYxAyDVUbkUMM",
+    "exchange": "Binance",
+    "sweepCount": 17,
+    "confidence": 0.95,
+    "evidence": "17 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TK8Soe7ndF58x43VYhXKph3y4vRB4YN7GU",
+    "exchange": "Binance",
+    "sweepCount": 24,
+    "confidence": 0.95,
+    "evidence": "24 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TCmkn8bmzGJzqokVm3f2PPuiMg3C6Hz6GH",
+    "exchange": "Binance",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Binance-Hot 7",
+    "windowTruncated": false,
+    "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+  },
+  {
+    "address": "TVWgkJkupvqdrt9iXpzRmpkQtK4gi9sbvd",
+    "exchange": "Bybit",
+    "sweepCount": 41,
+    "confidence": 0.95,
+    "evidence": "41 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TYeZR5QRknQL3DM7n54d7C7rmsqCKDjAM7",
+    "exchange": "Bybit",
+    "sweepCount": 4,
+    "confidence": 0.62,
+    "evidence": "4 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TXLaFqG9r1zmZse1KKLK25mX3MhHL9Uv51",
+    "exchange": "Bybit",
+    "sweepCount": 16,
+    "confidence": 0.95,
+    "evidence": "16 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  }
+]
