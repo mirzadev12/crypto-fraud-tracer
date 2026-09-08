@@ -463,11 +463,16 @@ export function Spinner({ className = "" }: { className?: string }) {
 /* ---------------------------------------------------------------- buttons */
 
 const BUTTON_BASE =
-  "inline-flex items-center justify-center gap-2 px-6 py-4 font-mono text-xs uppercase tracking-[0.2em] transition disabled:cursor-not-allowed disabled:opacity-40";
+  "inline-flex items-center justify-center gap-2 px-6 py-4 font-mono text-xs uppercase tracking-[0.2em] transition disabled:cursor-not-allowed";
 
 export const buttonStyles = {
   /** Brass. One per eyeline, never more. */
-  primary: `${BUTTON_BASE} bg-brass text-bg hover:bg-[#c9a468]`,
+    // Disabled is an outline rather than faded brass: a muddy gold plate reads as
+  // a broken control, and this way the action visibly lights up the moment the
+  // docket is complete.
+  primary:
+    `${BUTTON_BASE} bg-brass text-bg hover:bg-[#d3af6d] ` +
+    "disabled:border disabled:border-line disabled:bg-transparent disabled:text-dim",
   secondary: `${BUTTON_BASE} border border-line text-ink hover:border-brass-dim hover:text-brass`,
   ghost: `${BUTTON_BASE} px-2 text-faint hover:text-ink`,
 };

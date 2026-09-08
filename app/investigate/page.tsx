@@ -13,9 +13,9 @@ export default function InvestigatePage() {
   return (
     <AppShell>
       <PageHeader
-        eyebrow="New case"
-        title="Investigate a reported wallet"
-        description="Enter the wallet address exactly as it appears on the complaint. The trace follows USDT forward from the date of the fraud and stops at the first address we can attribute."
+        eyebrow="Case intake"
+        title="Open a case"
+        description="Enter the wallet exactly as it appears on the complaint. The trace follows USDT forward from the date of the fraud and stops at the first address it can attribute."
       />
       <div className="mt-6">
         <InvestigateForm />
