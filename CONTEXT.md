@@ -100,6 +100,13 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   faded brass hairline, `SectionHeader` is index + lozenge + display title + rule.
   Deco should read as about a tenth of the design. No gradients, no glow, no
   glassmorphism, no floating blobs, no icon soup.
+- **The landing page carries the argument, not the manual.** Detail an
+  investigator wants once — how the pipeline works, how an exit is named — sits
+  behind a `SectionDialog` row and opens over the page. Built on the native
+  `<dialog>` element, so focus trapping, Escape and an inert background come
+  from the platform rather than a dependency; note that Tailwind preflight
+  zeroes the `margin: auto` a modal dialog centres itself with, which
+  `app/globals.css` puts back. Content stays in the document when closed.
 - **Containers must earn themselves.** `Panel` takes `framed={false}` for the
   common case — a label, a hairline, and the content. Only a canvas, a scrolling
   table or the document sheet gets a border. Do not card-ify a screen.

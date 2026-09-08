@@ -4,12 +4,12 @@ import {
   Chip,
   Designation,
   Diamond,
-  Panel,
   Rule,
   SectionHeader,
   TriageBadge,
   buttonStyles,
 } from "@/components/ui";
+import SectionDialog from "@/components/SectionDialog";
 import { DEMO_SAMPLES } from "@/lib/api";
 import { shortAddress } from "@/lib/format";
 
@@ -85,7 +85,7 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ triage */}
-      <section className="border-t border-line py-24">
+      <section className="border-t border-line pt-24 pb-16">
         <SectionHeader index="01" title="Disposition" kicker="Every case, one of three" />
         <div className="mt-16 grid gap-16 lg:grid-cols-[1fr_1.4fr]">
           <p className="max-w-sm text-sm leading-7 text-muted">
@@ -124,81 +124,90 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ method */}
-      <section className="border-t border-line py-24">
-        <SectionHeader index="02" title="Method" kicker="Complaint to packet" />
-        <ol className="mt-16 grid gap-x-16 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
-          {METHOD.map((m) => (
-            <li key={m.step} className="border-t border-line pt-4">
-              <div className="flex items-baseline gap-4">
-                <span className="font-mono text-2xl font-light text-brass">{m.step}</span>
-                <h3 className="text-sm uppercase tracking-[0.16em] text-ink">{m.title}</h3>
-              </div>
-              <p className="mt-4 text-sm leading-7 text-faint">{m.body}</p>
-            </li>
-          ))}
-        </ol>
+      <section className="pt-16">
+        <SectionDialog
+          index="02"
+          title="Method"
+          kicker="Complaint to packet"
+          summary="Six stages carry a pasted wallet to a printed packet. Open it if you want the pipeline; skip it if you want the finding."
+        >
+          <ol className="grid gap-x-16 gap-y-10 sm:grid-cols-2">
+            {METHOD.map((m) => (
+              <li key={m.step} className="border-t border-line pt-4">
+                <div className="flex items-baseline gap-4">
+                  <span className="font-mono text-2xl font-light text-brass">{m.step}</span>
+                  <h3 className="text-sm uppercase tracking-[0.16em] text-ink">{m.title}</h3>
+                </div>
+                <p className="mt-4 text-sm leading-7 text-faint">{m.body}</p>
+              </li>
+            ))}
+          </ol>
+        </SectionDialog>
       </section>
 
       {/* ------------------------------------------------------- attribution */}
-      <section className="border-t border-line py-24">
-        <SectionHeader index="03" title="Attribution" kicker="How an exit is named" />
-        <div className="mt-16 grid gap-16 lg:grid-cols-[1.3fr_1fr]">
-          <div>
-            <p className="max-w-2xl text-sm leading-8 text-muted">
-              Exchanges issue every customer a unique deposit address and later
-              sweep it into a main hot wallet. An address that receives from many
-              unrelated sources and forwards almost all of it to one known
-              exchange wallet, repeatedly, is{" "}
-              <span className="text-ink">very likely</span> a customer deposit
-              address at that exchange.
+      <section className="pt-16">
+        <SectionDialog
+          index="03"
+          title="Attribution"
+          kicker="How an exit is named"
+          summary="Sweep-pattern clustering over public data, stated as a likelihood and never as a fact. Open it for the thresholds and the scope we hold ourselves to."
+        >
+          <p className="text-sm leading-8 text-muted">
+            Exchanges issue every customer a unique deposit address and later
+            sweep it into a main hot wallet. An address that receives from many
+            unrelated sources and forwards almost all of it to one known exchange
+            wallet, repeatedly, is <span className="text-ink">very likely</span> a
+            customer deposit address at that exchange.
+          </p>
+
+          <dl className="mt-10 divide-y divide-line border-y border-line">
+            {[
+              ["≥ 2", "sweeps into the same tagged exchange wallet"],
+              ["≥ 90%", "of everything received forwarded onward"],
+              ["0.50 – 0.95", "confidence, scaled by how many sweeps were observed"],
+            ].map(([figure, text]) => (
+              <div key={figure} className="flex items-baseline gap-6 py-4">
+                <dt className="w-32 shrink-0 font-mono text-sm text-brass">{figure}</dt>
+                <dd className="text-sm leading-6 text-faint">{text}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <p className="mt-6 text-xs leading-6 text-faint">
+            Every attribution carries a confidence and the tier of evidence behind
+            it. An explorer tag and a clustering heuristic are not the same claim,
+            and the interface never lets them look like one.
+          </p>
+
+          <div className="mt-16 space-y-6 border-t border-line pt-10 text-sm leading-7 text-muted">
+            <p>
+              <span className="text-ink">TRON and USDT only.</span> That is where
+              the proceeds move. Another chain is an adapter on the same pipeline,
+              not a new product.
             </p>
-            <dl className="mt-10 max-w-lg divide-y divide-line border-y border-line">
-              {[
-                ["≥ 2", "sweeps into the same tagged exchange wallet"],
-                ["≥ 90%", "of everything received forwarded onward"],
-                ["0.50 – 0.95", "confidence, scaled by how many sweeps were observed"],
-              ].map(([figure, text]) => (
-                <div key={figure} className="flex items-baseline gap-6 py-4">
-                  <dt className="w-32 shrink-0 font-mono text-sm text-brass">{figure}</dt>
-                  <dd className="text-sm leading-6 text-faint">{text}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className="mt-6 max-w-2xl text-xs leading-6 text-faint">
-              Stated as a likelihood, never as a fact. Every attribution in this
-              system carries a confidence and the tier of evidence behind it.
+            <p>
+              <span className="text-ink">Rules, not a model.</span> An
+              asset-freezing tool cannot hand a court a black box. Every score here
+              is a rule that can be defended line by line.
+            </p>
+            <p>
+              <span className="text-ink">No model decides attribution.</span> A
+              summary may be generated; the entity name is a deterministic lookup
+              against a provenance-tagged table.
             </p>
           </div>
 
-          <Panel title="Scope" framed={false}>
-            <div className="space-y-6 pt-6 text-sm leading-7 text-muted">
-              <p>
-                <span className="text-ink">TRON and USDT only.</span> That is where
-                the proceeds move. Another chain is an adapter on the same
-                pipeline, not a new product.
-              </p>
-              <p>
-                <span className="text-ink">Rules, not a model.</span> An
-                asset-freezing tool cannot hand a court a black box. Every score
-                here is a rule that can be defended line by line.
-              </p>
-              <p>
-                <span className="text-ink">No model decides attribution.</span> A
-                summary may be generated; the entity name is a deterministic
-                lookup against a provenance-tagged table.
-              </p>
-            </div>
-            <div className="mt-10 flex flex-wrap gap-2">
-              <Chip>Public data</Chip>
-              <Chip>Self-hosted</Chip>
-              <Chip>No licence cost</Chip>
-            </div>
-          </Panel>
-        </div>
+          <div className="mt-10 flex flex-wrap gap-2">
+            <Chip>Public data</Chip>
+            <Chip>Self-hosted</Chip>
+            <Chip>No licence cost</Chip>
+          </div>
+        </SectionDialog>
       </section>
 
       {/* ----------------------------------------------------------- samples */}
-      <section className="border-t border-line py-24">
+      <section className="pt-24">
         <SectionHeader index="04" title="Case files" kicker="One of each disposition" />
         <ul className="mt-16 divide-y divide-line border-y border-line">
           {DEMO_SAMPLES.map((s) => (

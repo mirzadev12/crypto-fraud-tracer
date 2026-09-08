@@ -87,6 +87,13 @@ body {
   background-size: 64px 64px;
 }
 
+/* Native <dialog> centres itself with `margin: auto` against the UA's
+   `inset: 0`. Tailwind's preflight zeroes every margin, which pins the modal to
+   the top-left corner — put it back. */
+dialog {
+  margin: auto;
+}
+
 /* Focus ring — brass, visible, keyboard-first. */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 1px solid var(--color-brass);
