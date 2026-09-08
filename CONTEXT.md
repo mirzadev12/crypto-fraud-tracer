@@ -82,6 +82,12 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   and `--color-confirmed-deep` for borders, marks and graph edges. CRITICAL is
   the most important word on the register; it cannot be the least legible one.
   Do not "restore" the spec hexes onto text.
+- **Colour literals in the two canvases are drift-prone.** `TraceGraph.tsx` and
+  `BubbleMap.tsx` set colour as hex strings (SVG attributes and react-flow style
+  objects cannot take Tailwind classes), so a token change does not reach them.
+  Three restyles left eight stale literals behind, including a faint value one
+  contrast step below the token. After any palette change, grep both files for
+  `#[0-9a-f]{6}` and reconcile every hit against `app/globals.css`.
 - **Four faces, one job each**: Cinzel (`font-display`) for section titles and
   page headings only; Cormorant (`font-document`) for the printed evidence packet
   only; Inter (`font-sans`) for every functional surface; IBM Plex Mono

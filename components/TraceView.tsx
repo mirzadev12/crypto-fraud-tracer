@@ -365,7 +365,7 @@ function MovementTimeline({
         return (
           <li key={`${e.txHash}-${i}`} className="relative">
             <span
-              className={`absolute -left-[29px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-bg ${
+              className={`absolute -left-[29px] top-2 h-2 w-2 rotate-45 border border-bg ${
                 fast ? "bg-suspicious" : "bg-closed"
               }`}
             />

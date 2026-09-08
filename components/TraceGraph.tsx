@@ -139,7 +139,7 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
         >
           {data.caption}
         </span>
-        <span className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-[#8c867d]">
+        <span className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-[#9a948a]">
           HOP {data.depth}
         </span>
       </div>
@@ -148,7 +148,7 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
         {data.entity}
       </p>
       {data.background ? null : (
-        <p className="mt-1 font-mono text-xs text-[#8c867d]" title={data.address}>
+        <p className="mt-1 font-mono text-xs text-[#9a948a]" title={data.address}>
           {shortAddress(data.address, 8, 6)}
         </p>
       )}
@@ -156,12 +156,12 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
       <div className="mt-4 flex items-baseline justify-between gap-2 border-t border-line pt-2">
         <span className="font-mono text-sm text-[#f0ead8]">
           {formatUsdtCompact(data.taintedValueUsdt)}
-          <span className="ml-2 font-mono text-[10px] tracking-[0.14em] text-[#8c867d]">
+          <span className="ml-2 font-mono text-[10px] tracking-[0.14em] text-[#9a948a]">
             TAINTED
           </span>
         </span>
         {data.confidence !== null ? (
-          <span className="font-mono text-[10px] tracking-[0.14em] text-[#8c867d]">
+          <span className="font-mono text-[10px] tracking-[0.14em] text-[#9a948a]">
             {(data.confidence * 100).toFixed(0)}%
           </span>
         ) : null}
@@ -238,8 +238,8 @@ function buildGraph(trace: TraceResult, selected: string | null): {
       labelShowBg: true,
       labelBgPadding: [6, 3] as [number, number],
       labelBgBorderRadius: 6,
-      labelBgStyle: { fill: "#0a0a0a", stroke: "#262523" },
-      labelStyle: { fill: "#8c867d", fontSize: 12, fontFamily: "var(--font-plex-mono)" },
+      labelBgStyle: { fill: "#0a0a0a", stroke: "#2a2a28" },
+      labelStyle: { fill: "#9a948a", fontSize: 12, fontFamily: "var(--font-plex-mono)" },
       style: { stroke, strokeWidth: fast ? 2 : 1.5 },
       markerEnd: { type: MarkerType.ArrowClosed, color: stroke, width: 16, height: 16 },
     };

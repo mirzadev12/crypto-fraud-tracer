@@ -252,7 +252,7 @@ export default function BubbleMap({
             rx={ring.rx}
             ry={ring.ry}
             fill="none"
-            stroke="#1b2334"
+            stroke="#2a2a28"
             strokeDasharray="3 7"
           />
         ))}
@@ -266,7 +266,7 @@ export default function BubbleMap({
               <path
                 d={arcPath(l)}
                 fill="none"
-                stroke={l.fast ? "#f5b544" : "#3a4763"}
+                stroke={l.fast ? "#c98a34" : "#3a3936"}
                 strokeWidth={l.width}
                 strokeLinecap="round"
                 strokeDasharray={l.fast ? "10 6" : undefined}
@@ -339,12 +339,12 @@ export default function BubbleMap({
                 textAnchor="middle"
                 className="pointer-events-none select-none"
                 style={{
-                  fill: "#e8eef8",
+                  fill: "#f0ead8",
                   fontSize: b.r > 26 ? 12 : 10,
                   fontFamily: "var(--font-geist-mono)",
                   fontWeight: 600,
                   paintOrder: "stroke",
-                  stroke: "#070a12",
+                  stroke: "#0a0a0a",
                   strokeWidth: 3,
                   strokeLinejoin: "round",
                 }}
@@ -358,11 +358,11 @@ export default function BubbleMap({
                 textAnchor="middle"
                 className="pointer-events-none select-none"
                 style={{
-                  fill: "#9aa6bb",
+                  fill: "#a8a296",
                   fontSize: 12,
                   // Halo, so a caption stays readable where it crosses an edge.
                   paintOrder: "stroke",
-                  stroke: "#070a12",
+                  stroke: "#0a0a0a",
                   strokeWidth: 3.5,
                   strokeLinejoin: "round",
                 }}

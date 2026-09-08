@@ -52,7 +52,7 @@ export default function LoginPage() {
                 "Every API response hashed for chain of custody",
               ].map((line) => (
                 <li key={line} className="flex items-start gap-4">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brass" />
+                  <span className="mt-2 h-1 w-1 shrink-0 rotate-45 bg-brass" />
                   {line}
                 </li>
               ))}
