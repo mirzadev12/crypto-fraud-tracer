@@ -13,9 +13,9 @@ export default function ReportsPage() {
   return (
     <AppShell>
       <PageHeader
-        eyebrow="Investigation records"
-        title="Evidence packets"
-        description="Each packet states the finding, the basis for the attribution, the laundering indicators and the exact API responses it was built from — then states its own limitations in writing."
+        eyebrow="Records"
+        title="Evidence register"
+        description="One packet per complaint, print-ready and filed newest first."
       />
       <div className="mt-6">
         <ReportsList />
