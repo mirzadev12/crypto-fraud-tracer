@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Diamond } from "./ui";
 
 /* Bureau designations, not product names. */
 const navItems = [
@@ -51,11 +50,7 @@ export default function Navbar() {
           })}
         </div>
 
-        <div className="hidden items-center gap-4 md:flex">
-          <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-faint">
-            <Diamond className="fx-mark bg-confirmed" size={5} />
-            System online
-          </span>
+        <div className="hidden md:block">
           <Link
             href="/login"
             className="border border-line px-4 py-2 font-mono text-xs uppercase tracking-[0.2em] text-faint transition hover:border-brass-dim hover:text-brass"
@@ -97,10 +92,6 @@ export default function Navbar() {
               Sign in
             </Link>
           </div>
-          <p className="mt-6 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-faint">
-            <Diamond className="bg-confirmed" size={5} />
-            System online
-          </p>
         </div>
       ) : null}
     </nav>
