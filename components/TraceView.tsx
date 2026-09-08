@@ -15,7 +15,7 @@ import {
 } from "@/lib/format";
 import AddressChip from "./AddressChip";
 import CopyButton from "./CopyButton";
-import TraceGraph, { GraphLegend } from "./TraceGraph";
+import TraceCanvas from "./TraceCanvas";
 import {
   Chip,
   DataSourceBadge,
@@ -505,11 +505,15 @@ export default function TraceView({
       {/* ------------------------------------------------------------ graph */}
       <Panel
         title="Fund flow"
-        subtitle="Left to right, victim-reported address first. Click a wallet to highlight it in the tables below."
-        actions={<GraphLegend />}
+        subtitle="Click a wallet to highlight it in the tables below. Flow reads the path in order; Bubbles reads it by weight."
         bodyClassName="p-0"
       >
-        <TraceGraph trace={trace} selected={selected} onSelect={setSelected} />
+        <TraceCanvas
+          trace={trace}
+          selected={selected}
+          onSelect={setSelected}
+          height="h-[560px]"
+        />
       </Panel>
 
       {/* ------------------------------------------------- tables & flags */}

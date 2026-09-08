@@ -19,7 +19,7 @@ Last updated: 8 September 2026.
 | Address validation | `lib/tron.ts` | Full base58check, synchronous, no dependencies. Verified against Node's `crypto` for SHA-256 and against real TRON addresses. |
 | Formatting | `lib/format.ts` | UTC-only, deterministic — no locale or `Date.now()` in render, so SSR and hydration always agree. |
 | Screens | `app/**` | `/`, `/login`, `/dashboard`, `/investigate`, `/trace/[address]`, `/fund-flow`, `/reports`, `/report/[address]`, plus `not-found` and `error`. |
-| Components | `components/**` | Shell, graph, trace view, case queue, evidence packet, primitives in `ui.tsx`. |
+| Components | `components/**` | Shell, flow graph, bubble map, trace view, case queue, evidence packet, primitives in `ui.tsx`. |
 
 ### Not done — the backend, exactly as AGENTS.md describes it
 
@@ -69,10 +69,20 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   triage trio `hot` / `warm` / `cold`.
 - **Triage colour scale**: HOT red, WARM amber, COLD slate. A heat scale, not the
   brand cyan — cyan stays a UI accent so it never competes with a triage call.
-- **`@xyflow/react`** is the only dependency added, which AGENTS.md §3 allows.
-  Layout is computed by depth (column) and index (row) in `TraceGraph.tsx`, not by
-  a layout engine. Edges forwarded in under ten minutes are drawn amber and
-  animated — the "automated laundering" signal is visible before any text is read.
+- **Two canvas views behind one toggle** (`components/TraceCanvas.tsx`): Flow
+  (`TraceGraph.tsx`, react-flow) and Bubbles (`BubbleMap.tsx`, hand-drawn SVG, no
+  dependency). They share one selection, so clicking a wallet in either keeps it
+  selected in the other and in the tables. The bubble layout is deterministic —
+  one ellipse ring per hop, wallets spaced evenly in depth-first order, each ring
+  rotated by 0.31 of a slot. Two earlier attempts failed and are worth not
+  repeating: a radial tree put every node on one ray (only children inherit the
+  parent's angle), and a half-slot parity offset put single-node rings back on the
+  same axis.
+- **`@xyflow/react`** is the only dependency added, which AGENTS.md §3 allows. The
+  flow layout is computed by depth (column) and index (row) in `TraceGraph.tsx`,
+  not by a layout engine. In both views, transfers forwarded in under ten minutes
+  are drawn amber — the "automated laundering" signal is visible before any text
+  is read.
 - **React Flow's attribution stays visible.** It is MIT-licensed and asks for it
   on the free tier; `globals.css` tones it down rather than hiding it.
 - **The login screen has no password field.** A prototype has no business

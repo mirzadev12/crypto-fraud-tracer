@@ -13,7 +13,7 @@ import {
   shortAddress,
 } from "@/lib/format";
 import AddressChip from "./AddressChip";
-import TraceGraph, { GraphLegend } from "./TraceGraph";
+import TraceCanvas from "./TraceCanvas";
 import { NoTraceState, useTrace } from "./TraceLoader";
 import {
   Chip,
@@ -166,17 +166,14 @@ export default function FundFlowExplorer({
               }
               bodyClassName="p-0"
             >
-              <TraceGraph
+              <TraceCanvas
                 trace={current.result.data}
                 selected={selectedNode}
                 onSelect={(node) =>
                   setSelection(node ? { address, node } : null)
                 }
-                className="h-[620px]"
+                height="h-[620px]"
               />
-              <div className="border-t border-line-soft px-5 py-3">
-                <GraphLegend />
-              </div>
             </Panel>
 
             <div className="grid gap-5 md:grid-cols-2">

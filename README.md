@@ -42,8 +42,8 @@ they are listed on the Investigate screen.
 | `/` | The pitch: what the tool does and where its limits are. |
 | `/dashboard` | Today's complaint queue, ordered by triage rather than arrival. |
 | `/investigate` | Address, amount and fraud date in; a full trace out. The address checksum is verified in the browser before anything is sent. |
-| `/trace/[address]` | The full result: destination, fund-flow graph, wallet table, risk flags, movement timeline, chain of custody. |
-| `/fund-flow` | Graph-first explorer with a case rail and a wallet inspector. |
+| `/trace/[address]` | The full result: destination, fund-flow canvas, wallet table, risk flags, movement timeline, chain of custody. |
+| `/fund-flow` | Canvas-first explorer with a case rail and a wallet inspector. |
 | `/reports` | Every case as an evidence packet. |
 | `/report/[address]` | The packet itself — print-ready, and it states its own limitations. |
 
@@ -101,5 +101,18 @@ npx tsc --noEmit
 npx eslint .
 ```
 
+### Two ways to read one trace
+
+The fund-flow canvas has a **Flow / Bubbles** toggle, and both views share one
+selection — click a wallet in either and it highlights in the tables beside them.
+
+- **Flow** — hop-by-hop graph, left to right. Answers *where did it go, in what
+  order*. Transfers forwarded in under ten minutes are drawn amber.
+- **Bubbles** — the victim at the centre, one ring per hop, every wallet sized by
+  the share of the victim's money that reached it. Answers *where did the money
+  end up*. A dashed ring means nothing ever left that wallet.
+
 Stack: Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4,
-`@xyflow/react` for the fund-flow graph.
+`@xyflow/react` for the flow graph. The bubble map is hand-drawn SVG with a
+deterministic layout — no extra dependency, and the same trace always draws the
+same picture, which matters when the image goes into an evidence packet.
