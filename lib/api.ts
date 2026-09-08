@@ -11,6 +11,7 @@
  * changes and no screen changes. The badge just flips to "Live".
  */
 
+import { checkTronAddress } from "./tron";
 import type {
   CaseSummary,
   Label,
@@ -28,6 +29,28 @@ export interface Sourced<T> {
   /** Why we fell back, when we did. Shown in a tooltip, never swallowed. */
   note?: string;
 }
+
+/**
+ * What a trace lookup can come back as.
+ *
+ * Three outcomes, not two. A valid address nobody has prepared a trace for is
+ * not an error and must never be rendered as one: an evaluator pasting a wallet
+ * we have never seen is the most likely single moment of the demo, and the
+ * honest answer — "valid address, service not deployed, here is what it would
+ * do" — says more about the engineering than a fixture would.
+ *
+ * `TraceResult` itself is untouched; this discriminates at the API layer only.
+ */
+export type TraceLookup =
+  | ({ status: "resolved" } & Sourced<TraceResult>)
+  | {
+      status: "unresolved";
+      address: string;
+      /** The endpoint that would answer this once it is deployed. */
+      endpoint: string;
+      detail: string;
+    }
+  | { status: "invalid"; address: string; reason: string };
 
 export interface TraceRequest {
   address: string;
@@ -252,51 +275,79 @@ export async function getCases(): Promise<Sourced<CaseSummary[]>> {
 
 /* ------------------------------------------------------------------ traces */
 
-async function demoTrace(address: string, note: string): Promise<Sourced<TraceResult>> {
+/**
+ * The committed-trace path, unchanged for the three recorded addresses: same
+ * file map, same validation, same `normalizeTrace`. The only difference is that
+ * "we hold no trace for this address" now returns an outcome instead of
+ * throwing, so the UI can render it as a state rather than an error.
+ */
+async function recordedTrace(
+  address: string,
+  endpoint: string,
+  note: string,
+  detail: string,
+): Promise<TraceLookup> {
   const file = MOCK_TRACE_FILES[address.trim()];
   if (!file) {
-    throw new TraceUnavailableError(
-      address,
-      "The trace API is not reachable and no committed trace exists for this address.",
-    );
+    return { status: "unresolved", address, endpoint, detail };
   }
   const json = await fixture(file);
   if (!isTraceLike(json)) {
-    throw new TraceUnavailableError(address, "The committed fixture is malformed.");
+    return {
+      status: "unresolved",
+      address,
+      endpoint,
+      detail: "A recorded trace exists for this address but could not be read.",
+    };
   }
-  return { data: normalizeTrace(json), source: "demo", note };
+  return { status: "resolved", data: normalizeTrace(json), source: "demo", note };
 }
 
-export async function getTrace(address: string): Promise<Sourced<TraceResult>> {
+export async function getTrace(address: string): Promise<TraceLookup> {
   const clean = address.trim();
+
+  // Checked here so a malformed address is never confused with an unknown one.
+  const check = checkTronAddress(clean);
+  if (!check.valid) return { status: "invalid", address: clean, reason: check.reason };
+
   try {
     const json = await getJson(`/api/trace/${encodeURIComponent(clean)}`);
-    if (isTraceLike(json)) return { data: normalizeTrace(json), source: "live" };
+    if (isTraceLike(json)) {
+      return { status: "resolved", data: normalizeTrace(json), source: "live" };
+    }
     throw new Error("response did not match TraceResult");
   } catch (err) {
-    if (err instanceof TraceUnavailableError) throw err;
-    return demoTrace(
+    return recordedTrace(
       clean,
-      `/api/trace/${clean} unavailable (${describe(err)}) — showing the committed trace.`,
+      "GET /api/trace/[address]",
+      `The trace service did not answer (${describe(err)}) — showing the recorded trace.`,
+      `The trace service is not deployed on this build (${describe(err)}).`,
     );
   }
 }
 
-export async function runTrace(req: TraceRequest): Promise<Sourced<TraceResult>> {
+export async function runTrace(req: TraceRequest): Promise<TraceLookup> {
   const clean = req.address.trim();
+
+  const check = checkTronAddress(clean);
+  if (!check.valid) return { status: "invalid", address: clean, reason: check.reason };
+
   try {
     const json = await getJson("/api/trace", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...req, address: clean }),
     });
-    if (isTraceLike(json)) return { data: normalizeTrace(json), source: "live" };
+    if (isTraceLike(json)) {
+      return { status: "resolved", data: normalizeTrace(json), source: "live" };
+    }
     throw new Error("response did not match TraceResult");
   } catch (err) {
-    if (err instanceof TraceUnavailableError) throw err;
-    return demoTrace(
+    return recordedTrace(
       clean,
-      `POST /api/trace unavailable (${describe(err)}) — showing the committed trace.`,
+      "POST /api/trace",
+      `The trace service did not answer (${describe(err)}) — showing the recorded trace.`,
+      `The trace service is not deployed on this build (${describe(err)}).`,
     );
   }
 }

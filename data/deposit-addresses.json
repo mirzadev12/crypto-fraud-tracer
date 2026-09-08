@@ -189,16 +189,79 @@
     "hotWallet": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
   },
   {
-    "address": "TVWgkJkupvqdrt9iXpzRmpkQtK4gi9sbvd",
+    "address": "TV2tuU8ywcUQ9bZUtBf1M4QjKZ2adq9myJ",
     "exchange": "Bybit",
-    "sweepCount": 41,
+    "sweepCount": 138,
     "confidence": 0.95,
-    "evidence": "41 sweeps, 100% of inflow forwarded to Bybit",
+    "evidence": "138 sweeps, 100% of inflow forwarded to Bybit (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TC8L5QXq9PzjAooCFZUBWyy9P5XDXZaDTx",
+    "exchange": "Bybit",
+    "sweepCount": 95,
+    "confidence": 0.95,
+    "evidence": "95 sweeps, 100% of inflow forwarded to Bybit",
     "windowTruncated": false,
     "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
   },
   {
-    "address": "TYeZR5QRknQL3DM7n54d7C7rmsqCKDjAM7",
+    "address": "TSiFS7P2ZNsKSstCYfYp2YqEERLGDw6uk3",
+    "exchange": "Bybit",
+    "sweepCount": 47,
+    "confidence": 0.95,
+    "evidence": "47 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TH86JimdpeMB1C2YrSniV7cWxX2gmdN5iR",
+    "exchange": "Bybit",
+    "sweepCount": 47,
+    "confidence": 0.95,
+    "evidence": "47 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TAuMKwQ3wdQhnqXdkLq8GoSqG7sia2JtP5",
+    "exchange": "Bybit",
+    "sweepCount": 12,
+    "confidence": 0.86,
+    "evidence": "12 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TL7q2iVXzp9VSfAw64pHeCLMpC9vvKnj2A",
+    "exchange": "Bybit",
+    "sweepCount": 64,
+    "confidence": 0.95,
+    "evidence": "64 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TGEBXLrsQtHBic5V3x791zMW68PN2KjNd1",
+    "exchange": "Bybit",
+    "sweepCount": 95,
+    "confidence": 0.95,
+    "evidence": "95 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "THtgGqVayd69qiUoDLx9mzFxeAETZD99Ug",
+    "exchange": "Bybit",
+    "sweepCount": 47,
+    "confidence": 0.95,
+    "evidence": "47 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TEHnyQP51M7PhJ2LKgisNLVLfTRzyMLaGW",
     "exchange": "Bybit",
     "sweepCount": 4,
     "confidence": 0.62,
@@ -207,12 +270,1218 @@
     "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
   },
   {
-    "address": "TXLaFqG9r1zmZse1KKLK25mX3MhHL9Uv51",
+    "address": "TR9YxqmAbHhcKQUTfeSzfNhmFL43omVEh9",
     "exchange": "Bybit",
-    "sweepCount": 16,
+    "sweepCount": 33,
     "confidence": 0.95,
-    "evidence": "16 sweeps, 100% of inflow forwarded to Bybit",
+    "evidence": "33 sweeps, 100% of inflow forwarded to Bybit",
     "windowTruncated": false,
     "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TSTt4VwpdE1i92Z5tiQDD1NpqThJREYR1C",
+    "exchange": "Bybit",
+    "sweepCount": 57,
+    "confidence": 0.95,
+    "evidence": "57 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TXXwMpkvha6xvjZqrStuXFswZGGBTET9xU",
+    "exchange": "Bybit",
+    "sweepCount": 64,
+    "confidence": 0.95,
+    "evidence": "64 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TWJvZiEsi3sKhFqbLLBDtZ76xYBKMqnKJ2",
+    "exchange": "Bybit",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TYbQ82gprAZ16m9a5svGCzWCew3DQqG1J8",
+    "exchange": "Bybit",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TUfYLTFdKyaq7fWMP7jzstHoN9wLwswrb7",
+    "exchange": "Bybit",
+    "sweepCount": 53,
+    "confidence": 0.95,
+    "evidence": "53 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TENjy1YZkiaRmRg3oaf3dgsqyfmavdrL54",
+    "exchange": "Bybit",
+    "sweepCount": 190,
+    "confidence": 0.95,
+    "evidence": "190 sweeps, 100% of inflow forwarded to Bybit (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TBjRZTneozjb3thL8NbHeb1x1CLX5M8Upf",
+    "exchange": "Bybit",
+    "sweepCount": 122,
+    "confidence": 0.95,
+    "evidence": "122 sweeps, 94% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TR2Fg1EqzCz7Ye3V6xvuk2F84RRwzyoGEa",
+    "exchange": "Bybit",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TMfZiGd8GUL7NPY4ERwgNsDBhuK2H12v4t",
+    "exchange": "Bybit",
+    "sweepCount": 76,
+    "confidence": 0.95,
+    "evidence": "76 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TBDFN5vys9C78F22gmJBWmXp1GwkuWKi7t",
+    "exchange": "Bybit",
+    "sweepCount": 7,
+    "confidence": 0.71,
+    "evidence": "7 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TGCLVfrmsV37BMP2JpH5WbQGiaRkQPJfmk",
+    "exchange": "Bybit",
+    "sweepCount": 77,
+    "confidence": 0.95,
+    "evidence": "77 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TPKfs1LH5VibkwJ56MGw9pniv5puwmdDG5",
+    "exchange": "Bybit",
+    "sweepCount": 107,
+    "confidence": 0.95,
+    "evidence": "107 sweeps, 100% of inflow forwarded to Bybit (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TEqE8r1R99m5hpkwRde7p57u2sbX1mz4Ji",
+    "exchange": "Bybit",
+    "sweepCount": 35,
+    "confidence": 0.95,
+    "evidence": "35 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TF2dkBwXTSysoQuhzyHQ3ys73ZCZX9msLk",
+    "exchange": "Bybit",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TTGEeY99WrGApSkWsQWMiQFwwqJiVBsLrb",
+    "exchange": "Bybit",
+    "sweepCount": 191,
+    "confidence": 0.95,
+    "evidence": "191 sweeps, 100% of inflow forwarded to Bybit (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TCDvJvnzcjEtp9eYtKAFVNjW8bLTRR4aF4",
+    "exchange": "Bybit",
+    "sweepCount": 32,
+    "confidence": 0.95,
+    "evidence": "32 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TYL3FNGkmsKW5y6K9HWtTVEyUnBokDfvkQ",
+    "exchange": "Bybit",
+    "sweepCount": 146,
+    "confidence": 0.95,
+    "evidence": "146 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TYBiSZ6wx461XQMhwdvDt6cKcaPbRy6r53",
+    "exchange": "Bybit",
+    "sweepCount": 9,
+    "confidence": 0.77,
+    "evidence": "9 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TMt8PXtrGBFTGhGcGn4mEyTi1tR2vxzhc3",
+    "exchange": "Bybit",
+    "sweepCount": 21,
+    "confidence": 0.95,
+    "evidence": "21 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TGLQBQi1sLrmrTqs9m5RbfEA9YS9pBASNk",
+    "exchange": "Bybit",
+    "sweepCount": 18,
+    "confidence": 0.95,
+    "evidence": "18 sweeps, 100% of inflow forwarded to Bybit",
+    "windowTruncated": false,
+    "hotWallet": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+  },
+  {
+    "address": "TW66n3KektNkeH3Ci8y8v2UkZjhZ3fmTBe",
+    "exchange": "Kraken",
+    "sweepCount": 107,
+    "confidence": 0.95,
+    "evidence": "107 sweeps, 91% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TUEB3vjcMx7mPvc9DmeDLevZU4wEnkZ8zs",
+    "exchange": "Kraken",
+    "sweepCount": 200,
+    "confidence": 0.95,
+    "evidence": "200 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TL7iZza5Q8jq3cMkSsTtwzisf6zm7WW5zH",
+    "exchange": "Kraken",
+    "sweepCount": 81,
+    "confidence": 0.95,
+    "evidence": "81 sweeps, 96% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TMeju24m388aYUpQw96gMToote7Gxmb2vg",
+    "exchange": "Kraken",
+    "sweepCount": 6,
+    "confidence": 0.6799999999999999,
+    "evidence": "6 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TPeUEMyHCzHc4c2MyRy776opoe1GwA6ZrR",
+    "exchange": "Kraken",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TUPSVqaXaesRcUKpUagmDdgZuc5pQg2ezR",
+    "exchange": "Kraken",
+    "sweepCount": 200,
+    "confidence": 0.95,
+    "evidence": "200 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TXfp6jrzWtdCZL9bFqat5bKfjAVwruYbos",
+    "exchange": "Kraken",
+    "sweepCount": 113,
+    "confidence": 0.95,
+    "evidence": "113 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TLSCgCNHPAhHYScVBGxKS13mtcMDDY6WYv",
+    "exchange": "Kraken",
+    "sweepCount": 200,
+    "confidence": 0.95,
+    "evidence": "200 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "THhRuKVxKthQwEUhZMRjiS5bggebSbHs6g",
+    "exchange": "Kraken",
+    "sweepCount": 4,
+    "confidence": 0.62,
+    "evidence": "4 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TJGk1zXn66NEptE9wmE1WzhmiR1zX2r8eB",
+    "exchange": "Kraken",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TLVknBe3bBjcXnCDp1tXrtYfhxXt2pmh9Q",
+    "exchange": "Kraken",
+    "sweepCount": 47,
+    "confidence": 0.95,
+    "evidence": "47 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TKi5oTsch3sM99PGp567aWdqNNsdE8qynh",
+    "exchange": "Kraken",
+    "sweepCount": 200,
+    "confidence": 0.95,
+    "evidence": "200 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TSpGsF5Q1JLPDJ11vn4z4MhA31LmWTaVyC",
+    "exchange": "Kraken",
+    "sweepCount": 200,
+    "confidence": 0.95,
+    "evidence": "200 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TLtkzhqzLCZuQwnBSZmF4SJMWSCFbqbcJT",
+    "exchange": "Kraken",
+    "sweepCount": 36,
+    "confidence": 0.95,
+    "evidence": "36 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TUi8RxMGYTq8MS7GBc22eEAE3dWswiB9cz",
+    "exchange": "Kraken",
+    "sweepCount": 34,
+    "confidence": 0.95,
+    "evidence": "34 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TMjiGz5bwnYdTAFBHuMaM7fLtjjccPPYUG",
+    "exchange": "Kraken",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TC4P2VfWqsdaMaXCbDekK726Uk6hpoK4PZ",
+    "exchange": "Kraken",
+    "sweepCount": 11,
+    "confidence": 0.83,
+    "evidence": "11 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TA1K3MhozPEdmXNaxEN1AJPmNoraZr5EmR",
+    "exchange": "Kraken",
+    "sweepCount": 97,
+    "confidence": 0.95,
+    "evidence": "97 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TChEZELHByDxXtsNRAywNYUW3DT4yHPDuD",
+    "exchange": "Kraken",
+    "sweepCount": 18,
+    "confidence": 0.95,
+    "evidence": "18 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TPwV2UyiWUcW3jMQ3kPktos1RLN3knQurx",
+    "exchange": "Kraken",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TSoNyM4RTpadwCnRdCG8LVZK7gizHTtZHs",
+    "exchange": "Kraken",
+    "sweepCount": 6,
+    "confidence": 0.6799999999999999,
+    "evidence": "6 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TFRYYt1uE3YCmq3yqvVyBabp6wZyiGU6b3",
+    "exchange": "Kraken",
+    "sweepCount": 7,
+    "confidence": 0.71,
+    "evidence": "7 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TBQiPEy499D6HezdpqHAairefnzn8zdhZM",
+    "exchange": "Kraken",
+    "sweepCount": 5,
+    "confidence": 0.65,
+    "evidence": "5 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TNxZJbwwqa5ykbhCMk7fQoNeoLEsSzyaX5",
+    "exchange": "Kraken",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TDJ3meeaSdHpEScHQ1kNsg2kCmLr4Y4oZc",
+    "exchange": "Kraken",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TGKHsjQStxxA43UtuuQknL9VSS3PvrWn8t",
+    "exchange": "Kraken",
+    "sweepCount": 6,
+    "confidence": 0.6799999999999999,
+    "evidence": "6 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TERnbC3yhSwNRKZ4B2b6jok5bWeWd7BepK",
+    "exchange": "Kraken",
+    "sweepCount": 101,
+    "confidence": 0.95,
+    "evidence": "101 sweeps, 100% of inflow forwarded to Kraken: Hot Wallet",
+    "windowTruncated": false,
+    "hotWallet": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+  },
+  {
+    "address": "TFRfRbNqZEQScb3Zdv8Z2n2MseYNGSx6ui",
+    "exchange": "KuCoin",
+    "sweepCount": 116,
+    "confidence": 0.95,
+    "evidence": "116 sweeps, 100% of inflow forwarded to Kucoin 4 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TD398tm45wkYT293scCRJJ4RdgfG3cK7PW",
+    "exchange": "KuCoin",
+    "sweepCount": 12,
+    "confidence": 0.86,
+    "evidence": "12 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TVd8Ge4gSsmoeE7GXkneA5YcXUiPaQedqU",
+    "exchange": "KuCoin",
+    "sweepCount": 162,
+    "confidence": 0.95,
+    "evidence": "162 sweeps, 92% of inflow forwarded to Kucoin 4 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TKqwxRQDmMVdsRLhU4PkT1DHoehJPwZ29H",
+    "exchange": "KuCoin",
+    "sweepCount": 88,
+    "confidence": 0.95,
+    "evidence": "88 sweeps, 99% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TSSjJfsmLQLYqQ7EaEkZ1EErDMNeUzQrrP",
+    "exchange": "KuCoin",
+    "sweepCount": 23,
+    "confidence": 0.95,
+    "evidence": "23 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TQkPZMaJ56SF2rTteuWMtpLDxfZHuUAa6M",
+    "exchange": "KuCoin",
+    "sweepCount": 47,
+    "confidence": 0.95,
+    "evidence": "47 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TFbqYSz5LkdGNVApMteRmaN7oWRMqZdJvH",
+    "exchange": "KuCoin",
+    "sweepCount": 177,
+    "confidence": 0.95,
+    "evidence": "177 sweeps, 100% of inflow forwarded to Kucoin 4 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TRvAPeeofbr9JGqHgvxY4f824JAtupwNoQ",
+    "exchange": "KuCoin",
+    "sweepCount": 6,
+    "confidence": 0.6799999999999999,
+    "evidence": "6 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TEAHHfsApYtHGcUTo2bXiZ6tZouVE85cR6",
+    "exchange": "KuCoin",
+    "sweepCount": 68,
+    "confidence": 0.95,
+    "evidence": "68 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TMaMyqgBvijJLdQbvi1P3mHmrbXaG2Y4Ui",
+    "exchange": "KuCoin",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TX7TQbYtKn2L14CR7kenUdY1JJAYR4Sx2N",
+    "exchange": "KuCoin",
+    "sweepCount": 10,
+    "confidence": 0.8,
+    "evidence": "10 sweeps, 94% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TB43FWoddXjGjf8Muf4VYVqmHs7ZiRJoia",
+    "exchange": "KuCoin",
+    "sweepCount": 99,
+    "confidence": 0.95,
+    "evidence": "99 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TVj2WZySVEqNTA6KRDRRHZ3k1yAdG1czc1",
+    "exchange": "KuCoin",
+    "sweepCount": 6,
+    "confidence": 0.6799999999999999,
+    "evidence": "6 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TX5doZmx5YiJvySWrrcFa63AtxTgbkAtCL",
+    "exchange": "KuCoin",
+    "sweepCount": 19,
+    "confidence": 0.95,
+    "evidence": "19 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TD6ERg1atDYzsYxpgcyCwmkzssmH8CJTHp",
+    "exchange": "KuCoin",
+    "sweepCount": 7,
+    "confidence": 0.71,
+    "evidence": "7 sweeps, 95% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TTFZa9P2CR9Jp3urXDoVJqrsSW892Hvdjz",
+    "exchange": "KuCoin",
+    "sweepCount": 92,
+    "confidence": 0.95,
+    "evidence": "92 sweeps, 100% of inflow forwarded to Kucoin 4 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TNFDnqDkEpuLjiXnPcBSzNhhAwCk6suG7y",
+    "exchange": "KuCoin",
+    "sweepCount": 4,
+    "confidence": 0.62,
+    "evidence": "4 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TH26p3YDtbiLDGZzLU5pgvjJQzTvRwyqBo",
+    "exchange": "KuCoin",
+    "sweepCount": 44,
+    "confidence": 0.95,
+    "evidence": "44 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TJMzGxPL7uWqRxEnYU9xHB5Dp6pENxgjUj",
+    "exchange": "KuCoin",
+    "sweepCount": 9,
+    "confidence": 0.77,
+    "evidence": "9 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TXZZCe1Ge13EFeWKdDawURSvqjrYbNDhNY",
+    "exchange": "KuCoin",
+    "sweepCount": 63,
+    "confidence": 0.95,
+    "evidence": "63 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TV4bKuZcPtU2hetT51QKg7cQekdHMGDioE",
+    "exchange": "KuCoin",
+    "sweepCount": 17,
+    "confidence": 0.95,
+    "evidence": "17 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TGFjQZGtv1WiF3BQbkdvtdRSaYx7NHdVEH",
+    "exchange": "KuCoin",
+    "sweepCount": 159,
+    "confidence": 0.95,
+    "evidence": "159 sweeps, 100% of inflow forwarded to Kucoin 4",
+    "windowTruncated": false,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TK8ptXHfpZhiW1ppWHL2wFr4S5aUyqXEm5",
+    "exchange": "KuCoin",
+    "sweepCount": 110,
+    "confidence": 0.95,
+    "evidence": "110 sweeps, 100% of inflow forwarded to Kucoin 4 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TUpHuDkiCCmwaTZBHZvQdwWzGNm5t8J2b9"
+  },
+  {
+    "address": "TXzANSXkidZQuQ3P6HpqjW2mRcxoBTTw7G",
+    "exchange": "Gate.io",
+    "sweepCount": 8,
+    "confidence": 0.74,
+    "evidence": "8 sweeps, 100% of inflow forwarded to Gate",
+    "windowTruncated": false,
+    "hotWallet": "TBA6CypYJizwA9XdC7Ubgc5F1bxrQ7SqPt"
+  },
+  {
+    "address": "TYJ1r6hL4rAE5L1E718ByhyV6FpLbYU79k",
+    "exchange": "Gate.io",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Gate",
+    "windowTruncated": false,
+    "hotWallet": "TBA6CypYJizwA9XdC7Ubgc5F1bxrQ7SqPt"
+  },
+  {
+    "address": "TTopHssfYmo4tghxHKkhZqoBojdwdmTooM",
+    "exchange": "Gate.io",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Gate",
+    "windowTruncated": false,
+    "hotWallet": "TBA6CypYJizwA9XdC7Ubgc5F1bxrQ7SqPt"
+  },
+  {
+    "address": "TDpsLwUHcsGBKS53FnVEyaY6tpDRFZes5B",
+    "exchange": "Gate.io",
+    "sweepCount": 8,
+    "confidence": 0.74,
+    "evidence": "8 sweeps, 100% of inflow forwarded to Gate",
+    "windowTruncated": false,
+    "hotWallet": "TBA6CypYJizwA9XdC7Ubgc5F1bxrQ7SqPt"
+  },
+  {
+    "address": "TXH7tUhMz1Vxe2PdrNYAnvj5EH3h8ScjuS",
+    "exchange": "Gate.io",
+    "sweepCount": 24,
+    "confidence": 0.95,
+    "evidence": "24 sweeps, 100% of inflow forwarded to Gate",
+    "windowTruncated": false,
+    "hotWallet": "TBA6CypYJizwA9XdC7Ubgc5F1bxrQ7SqPt"
+  },
+  {
+    "address": "TLaadpWsnNzVi85oVfF7j1cqKnENCYSfC6",
+    "exchange": "Gate.io",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Gate",
+    "windowTruncated": false,
+    "hotWallet": "TBA6CypYJizwA9XdC7Ubgc5F1bxrQ7SqPt"
+  },
+  {
+    "address": "THiZM2acqTqQ9rfZrEQLyHgg5tk8qrADsC",
+    "exchange": "Gate.io",
+    "sweepCount": 12,
+    "confidence": 0.86,
+    "evidence": "12 sweeps, 100% of inflow forwarded to Gate",
+    "windowTruncated": false,
+    "hotWallet": "TBA6CypYJizwA9XdC7Ubgc5F1bxrQ7SqPt"
+  },
+  {
+    "address": "TQkdknVnoDQucAR4gye21NiABvwYz9RUmp",
+    "exchange": "Gate.io",
+    "sweepCount": 15,
+    "confidence": 0.95,
+    "evidence": "15 sweeps, 100% of inflow forwarded to Gate",
+    "windowTruncated": false,
+    "hotWallet": "TBA6CypYJizwA9XdC7Ubgc5F1bxrQ7SqPt"
+  },
+  {
+    "address": "TB2KqizJz6U45EvL5a7NUKmpFNths9DgX1",
+    "exchange": "Gate.io",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Gate",
+    "windowTruncated": false,
+    "hotWallet": "TBA6CypYJizwA9XdC7Ubgc5F1bxrQ7SqPt"
+  },
+  {
+    "address": "TWfeuBfRAf7uC4NaxyCgyjHNxfWNycFGbs",
+    "exchange": "Gate.io",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to Gate",
+    "windowTruncated": false,
+    "hotWallet": "TBA6CypYJizwA9XdC7Ubgc5F1bxrQ7SqPt"
+  },
+  {
+    "address": "TQFmtJ6FTsWTewhuAdgSfegyvWv4BxZWwS",
+    "exchange": "MEXC",
+    "sweepCount": 4,
+    "confidence": 0.62,
+    "evidence": "4 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TVUWsMps1cn5EcbnAvr4ZSvvASbSfjPvEV",
+    "exchange": "MEXC",
+    "sweepCount": 12,
+    "confidence": 0.86,
+    "evidence": "12 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TWq7VLEr7dNCt6kdDhR1P9VE1vTGBFiScX",
+    "exchange": "MEXC",
+    "sweepCount": 92,
+    "confidence": 0.95,
+    "evidence": "92 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TUy2YmtqtM8DFFwUaJ6AgHqu5GN387hb4k",
+    "exchange": "MEXC",
+    "sweepCount": 94,
+    "confidence": 0.95,
+    "evidence": "94 sweeps, 98% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TV7837bfXCE5vc99tHPPtbsGvakhkWSwjt",
+    "exchange": "MEXC",
+    "sweepCount": 5,
+    "confidence": 0.65,
+    "evidence": "5 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TMGSU14kwhhDWixLbKV7Mg3yiAi8BYrJWD",
+    "exchange": "MEXC",
+    "sweepCount": 93,
+    "confidence": 0.95,
+    "evidence": "93 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TUSk1MbTANodhCSqViyMR4a162Pau8oo13",
+    "exchange": "MEXC",
+    "sweepCount": 51,
+    "confidence": 0.95,
+    "evidence": "51 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TXgWyVbPPTBCf9cM4M9GpyWZGeBbfzRoQL",
+    "exchange": "MEXC",
+    "sweepCount": 26,
+    "confidence": 0.95,
+    "evidence": "26 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TX69SkoYvp4upmJqqRgh4UorrtJJbSKqCp",
+    "exchange": "MEXC",
+    "sweepCount": 28,
+    "confidence": 0.95,
+    "evidence": "28 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TEN7iCKbbnsbjim4UzW6b6AmLo2zn9xT2f",
+    "exchange": "MEXC",
+    "sweepCount": 60,
+    "confidence": 0.95,
+    "evidence": "60 sweeps, 97% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN",
+    "exchange": "MEXC",
+    "sweepCount": 35,
+    "confidence": 0.95,
+    "evidence": "35 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TZ87ftj7mQpncBuVnDEraYaFxqrGNwv81g",
+    "exchange": "MEXC",
+    "sweepCount": 29,
+    "confidence": 0.95,
+    "evidence": "29 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TX2HkV8XzSfAn84iMY17X8WVQTTRNxCMJP",
+    "exchange": "MEXC",
+    "sweepCount": 142,
+    "confidence": 0.95,
+    "evidence": "142 sweeps, 99% of inflow forwarded to MXC (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TUQrAJxwzG5voM7BnZw6R34CjnyPeKYp24",
+    "exchange": "MEXC",
+    "sweepCount": 6,
+    "confidence": 0.6799999999999999,
+    "evidence": "6 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TB7FapK9mZPauA5bXR2z2GrjE8F41vYK1w",
+    "exchange": "MEXC",
+    "sweepCount": 100,
+    "confidence": 0.95,
+    "evidence": "100 sweeps, 90% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TWak6b7gSMswhprfwp1Fuc54k17s9S2uW9",
+    "exchange": "MEXC",
+    "sweepCount": 14,
+    "confidence": 0.9199999999999999,
+    "evidence": "14 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TT6v6F5oHfkcbjVJSFxX1vR1m38TketkCS",
+    "exchange": "MEXC",
+    "sweepCount": 50,
+    "confidence": 0.95,
+    "evidence": "50 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TAdWyoCxRx7ETCPjmiZUExXdDS6TgZVu2X",
+    "exchange": "MEXC",
+    "sweepCount": 44,
+    "confidence": 0.95,
+    "evidence": "44 sweeps, 96% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TBYBR9WKGYe8y8zGwmS2X7BT9orHBJMDGS",
+    "exchange": "MEXC",
+    "sweepCount": 172,
+    "confidence": 0.95,
+    "evidence": "172 sweeps, 98% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TZFhEs9tHN3vUrPeF94GpfbLvN9xftK7AH",
+    "exchange": "MEXC",
+    "sweepCount": 40,
+    "confidence": 0.95,
+    "evidence": "40 sweeps, 96% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TVqrF9uvgYmcjBzZoxFH3H6ryM3k97Ucd4",
+    "exchange": "MEXC",
+    "sweepCount": 178,
+    "confidence": 0.95,
+    "evidence": "178 sweeps, 99% of inflow forwarded to MXC (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TMc8gCHd1wiBoXPYMQXbpBevby6f14DeyH",
+    "exchange": "MEXC",
+    "sweepCount": 31,
+    "confidence": 0.95,
+    "evidence": "31 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TCrGYRFV8dYBSouaugTCtsh6urV8jRJ6ed",
+    "exchange": "MEXC",
+    "sweepCount": 8,
+    "confidence": 0.74,
+    "evidence": "8 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TSvMNZPyk2fE8PLXb72RV9MJcRY9GGUATp",
+    "exchange": "MEXC",
+    "sweepCount": 167,
+    "confidence": 0.95,
+    "evidence": "167 sweeps, 99% of inflow forwarded to MXC (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "THyPVxLzxRuy6YcKizpZkuyYSNFQP3oj1Y",
+    "exchange": "MEXC",
+    "sweepCount": 47,
+    "confidence": 0.95,
+    "evidence": "47 sweeps, 99% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TFVPnoejBCesCetCo1GMhqHV8XZKpWPfmv",
+    "exchange": "MEXC",
+    "sweepCount": 22,
+    "confidence": 0.95,
+    "evidence": "22 sweeps, 100% of inflow forwarded to MXC",
+    "windowTruncated": false,
+    "hotWallet": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+  },
+  {
+    "address": "TTUQzvKhym3qWMLFAKSKtu2j9ofL3CEsCv",
+    "exchange": "Bitget",
+    "sweepCount": 9,
+    "confidence": 0.77,
+    "evidence": "9 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TRrgj9Mxj1rVVVNWFCV3tgKcMBACty38Kf",
+    "exchange": "Bitget",
+    "sweepCount": 179,
+    "confidence": 0.95,
+    "evidence": "179 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TNGn8FRTB78W1TDWvrah81P7xkVagrMd5q",
+    "exchange": "Bitget",
+    "sweepCount": 180,
+    "confidence": 0.95,
+    "evidence": "180 sweeps, 100% of inflow forwarded to Bitget 9 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TREg4ybChJU52Sq22pkJY75dCDbFDB2yVx",
+    "exchange": "Bitget",
+    "sweepCount": 53,
+    "confidence": 0.95,
+    "evidence": "53 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TFjhhys3Qa7Zg22w13wpAvU1ikLbwRB5gS",
+    "exchange": "Bitget",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TH7PjkvND8wHqw2Ga8E13CawKXhgHRAkmZ",
+    "exchange": "Bitget",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TJPRK5EtbcVUxdaFe9t3Pmdyd1TanTCh5p",
+    "exchange": "Bitget",
+    "sweepCount": 4,
+    "confidence": 0.62,
+    "evidence": "4 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TC8tFpSHwJQTd4CUdagR4bX1XSuwNVpegm",
+    "exchange": "Bitget",
+    "sweepCount": 34,
+    "confidence": 0.95,
+    "evidence": "34 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TVg3KPcr4GAYSxFE4SdzCYEFDwsJ6N8Vd5",
+    "exchange": "Bitget",
+    "sweepCount": 42,
+    "confidence": 0.95,
+    "evidence": "42 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TN8zkAdjtQWc6nzdChTJqc9nUrRiV6RaYi",
+    "exchange": "Bitget",
+    "sweepCount": 53,
+    "confidence": 0.95,
+    "evidence": "53 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TMrVpMYxFCJ5Em2qy2N6Y4WyBcQaB3wYBh",
+    "exchange": "Bitget",
+    "sweepCount": 10,
+    "confidence": 0.8,
+    "evidence": "10 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TUJQ8AUAw19q2upo3EGyZZzjFsseRpdapD",
+    "exchange": "Bitget",
+    "sweepCount": 7,
+    "confidence": 0.71,
+    "evidence": "7 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TQBm5UJtTwjxkzFYfrtcbX2A7cCkSSbCMG",
+    "exchange": "Bitget",
+    "sweepCount": 52,
+    "confidence": 0.95,
+    "evidence": "52 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TCpnrbN6uiy6XFF9t5M8B4DSy84m6uHxuD",
+    "exchange": "Bitget",
+    "sweepCount": 48,
+    "confidence": 0.95,
+    "evidence": "48 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TERFFtxedwRpSsbbRLq8vv6KL99aHaUHNJ",
+    "exchange": "Bitget",
+    "sweepCount": 24,
+    "confidence": 0.95,
+    "evidence": "24 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TBCaHnbooqu16KWsUtYvSUdjNxcE1VBjsy",
+    "exchange": "Bitget",
+    "sweepCount": 34,
+    "confidence": 0.95,
+    "evidence": "34 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TLhwrcSgvjomaiuosqXbTXJNxYecWU1i2R",
+    "exchange": "Bitget",
+    "sweepCount": 12,
+    "confidence": 0.86,
+    "evidence": "12 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TAern8zAHfeyFGW8UjqACVM4CyYawLFgxy",
+    "exchange": "Bitget",
+    "sweepCount": 71,
+    "confidence": 0.95,
+    "evidence": "71 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TSt1D91A3qAx9SLhsL3SB4MtXPMZv9ZSdN",
+    "exchange": "Bitget",
+    "sweepCount": 49,
+    "confidence": 0.95,
+    "evidence": "49 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TW8M6CrQnMag31TXNRDSdMuQKvLp4Annmh",
+    "exchange": "Bitget",
+    "sweepCount": 200,
+    "confidence": 0.95,
+    "evidence": "200 sweeps, 100% of inflow forwarded to Bitget 9 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TBGmKmptediW4YUa4K1YGvcySunhNhHKSG",
+    "exchange": "Bitget",
+    "sweepCount": 177,
+    "confidence": 0.95,
+    "evidence": "177 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TZ2bX7Q5KUaZ6wJD7LcFXAhaWJE3JjFLtK",
+    "exchange": "Bitget",
+    "sweepCount": 14,
+    "confidence": 0.9199999999999999,
+    "evidence": "14 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TMmREvrb3uvtYYfMT67ykGApX8JxWq8CJW",
+    "exchange": "Bitget",
+    "sweepCount": 35,
+    "confidence": 0.95,
+    "evidence": "35 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TEqH5SJ8rHg4KSmnViaV3byr2jeSXMN7GN",
+    "exchange": "Bitget",
+    "sweepCount": 189,
+    "confidence": 0.95,
+    "evidence": "189 sweeps, 100% of inflow forwarded to Bitget 9 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TXUZhVcT5z2uPG5kyxhNYALc8cAYx1cwFA",
+    "exchange": "Bitget",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TYz6RBrEnJCsDzSo5nHvzhugNzNvodYfpj",
+    "exchange": "Bitget",
+    "sweepCount": 26,
+    "confidence": 0.95,
+    "evidence": "26 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TP315ser1pNtudAEovgrmsYJ8HfZ9sUEB6",
+    "exchange": "Bitget",
+    "sweepCount": 166,
+    "confidence": 0.95,
+    "evidence": "166 sweeps, 100% of inflow forwarded to Bitget 9 (first 400 transfers examined)",
+    "windowTruncated": true,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
+  },
+  {
+    "address": "TCqmaeMQ4KJQ9Aij1NggLJTHxM1V9epbac",
+    "exchange": "Bitget",
+    "sweepCount": 56,
+    "confidence": 0.95,
+    "evidence": "56 sweeps, 100% of inflow forwarded to Bitget 9",
+    "windowTruncated": false,
+    "hotWallet": "TJ7hhYhVhaxNx6BPyq7yFpqZrQULL3JSdb"
   }
 ]

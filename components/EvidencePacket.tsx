@@ -7,7 +7,12 @@ import {
   formatPercent,
   formatUsdt,
 } from "@/lib/format";
-import { NoTraceState, TraceSkeleton, useTrace } from "./TraceLoader";
+import {
+  InvalidAddressState,
+  NoTraceState,
+  TraceSkeleton,
+  useTrace,
+} from "./TraceLoader";
 import { DataSourceBadge, TRIAGE_META, TriageBadge, buttonStyles } from "./ui";
 
 /**
@@ -65,11 +70,23 @@ export default function EvidencePacket({ address }: { address: string }) {
   const { current, retry } = useTrace(address);
 
   if (!current) return <TraceSkeleton address={address} />;
-  if (current.status === "error") {
-    return <NoTraceState address={address} message={current.message} onRetry={retry} />;
+  if (current.lookup.status === "invalid") {
+    return (
+      <InvalidAddressState address={current.lookup.address} reason={current.lookup.reason} />
+    );
+  }
+  if (current.lookup.status === "unresolved") {
+    return (
+      <NoTraceState
+        address={current.lookup.address}
+        endpoint={current.lookup.endpoint}
+        detail={current.lookup.detail}
+        onRetry={retry}
+      />
+    );
   }
 
-  const trace = current.result.data;
+  const trace = current.lookup.data;
   const meta = TRIAGE_META[trace.triage];
   const terminalNode = trace.terminal
     ? trace.nodes.find((n) => n.address === trace.terminal!.address)
@@ -83,7 +100,7 @@ export default function EvidencePacket({ address }: { address: string }) {
       {/* Console chrome — stays dark, never prints. */}
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div className="flex flex-wrap items-center gap-2">
-          <DataSourceBadge source={current.result.source} note={current.result.note} />
+          <DataSourceBadge source={current.lookup.source} note={current.lookup.note} />
           <TriageBadge level={trace.triage} withAction />
         </div>
         <div className="flex gap-2">

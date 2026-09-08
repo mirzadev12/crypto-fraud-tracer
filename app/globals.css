@@ -48,6 +48,9 @@
   --font-sans: var(--font-inter);
   --font-mono: var(--font-plex-mono);
   --font-display: var(--font-cinzel);
+  /* Small uppercase interface labels. Stands in for Eurostile, which is
+     licensed and cannot ship here. */
+  --font-label: var(--font-saira);
   --font-document: var(--font-cormorant);
 
   /* Art Deco is geometry, not curvature. */
@@ -140,9 +143,60 @@ dialog {
   animation: fx-mark 3s ease-in-out infinite;
 }
 
+/* Bubbles arrive rather than appear: a short staggered settle on mount, and a
+   slow sonar on the subject wallet so the eye starts at the centre. Restrained
+   on purpose — this is an instrument, and motion here has to earn itself. */
+@keyframes fx-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.fx-settle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fx-settle 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fx-sonar {
+  0% {
+    opacity: 0.5;
+    r: var(--fx-r0);
+  }
+  100% {
+    opacity: 0;
+    r: var(--fx-r1);
+  }
+}
+.fx-sonar {
+  animation: fx-sonar 3.2s ease-out infinite;
+}
+
+/* Content settles in on route change. One short movement, no bounce. */
+@keyframes fx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fx-rise {
+  animation: fx-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fx-flow,
   .fx-mark,
+  .fx-settle,
+  .fx-sonar,
+  .fx-rise,
   .react-flow__edge-path {
     animation: none !important;
   }

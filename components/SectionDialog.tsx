@@ -46,11 +46,11 @@ export default function SectionDialog({
           </span>
           <span className="h-px flex-1 bg-line transition group-hover:bg-brass-dim" />
           {kicker ? (
-            <span className="hidden font-mono text-xs uppercase tracking-[0.24em] text-faint sm:block">
+            <span className="hidden font-label text-xs uppercase tracking-[0.24em] text-faint sm:block">
               {kicker}
             </span>
           ) : null}
-          <span className="flex shrink-0 items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-faint transition group-hover:text-brass">
+          <span className="flex shrink-0 items-center gap-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition group-hover:text-brass">
             Open
             <Diamond className="bg-brass-dim" size={4} />
           </span>
@@ -78,7 +78,7 @@ export default function SectionDialog({
           <button
             type="button"
             onClick={() => ref.current?.close()}
-            className="font-mono text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
+            className="font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
           >
             Close
           </button>

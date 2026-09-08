@@ -64,7 +64,7 @@ export function SectionHeader({
       </h2>
       <div className="h-px flex-1 bg-line" />
       {kicker ? (
-        <span className="hidden font-mono text-xs uppercase tracking-[0.24em] text-faint sm:block">
+        <span className="hidden font-label text-xs uppercase tracking-[0.24em] text-faint sm:block">
           {kicker}
         </span>
       ) : null}
@@ -81,7 +81,7 @@ export function Designation({
   className?: string;
 }) {
   return (
-    <p className={`font-mono text-xs uppercase tracking-[0.28em] text-faint ${className}`}>
+    <p className={`font-label text-xs font-medium uppercase tracking-[0.28em] text-faint ${className}`}>
       {children}
     </p>
   );
@@ -151,7 +151,7 @@ export function Panel({
           <div className="flex min-w-0 items-center gap-2">
             <Diamond className="bg-brass-dim" size={5} />
             <div className="min-w-0">
-              <h2 className="font-mono text-xs uppercase tracking-[0.24em] text-ink">
+              <h2 className="font-label text-xs font-semibold uppercase tracking-[0.24em] text-ink">
                 {title}
               </h2>
               {subtitle ? (
@@ -162,7 +162,7 @@ export function Panel({
           <div className="flex items-center gap-4">
             {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
             {code ? (
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-faint">
+              <span className="font-label text-xs uppercase tracking-[0.2em] text-faint">
                 {code}
               </span>
             ) : null}
@@ -275,7 +275,7 @@ export function TriageBadge({
   const pad = size === "lg" ? "px-4 py-2" : "px-2 py-1";
   return (
     <span
-      className={`inline-flex items-center gap-2 border font-mono text-xs uppercase tracking-[0.2em] ${meta.chip} ${pad}`}
+      className={`inline-flex items-center gap-2 border font-label text-xs font-semibold uppercase tracking-[0.2em] ${meta.chip} ${pad}`}
     >
       <span
         className={`h-1 w-1 rotate-45 ${meta.dot} ${level === "HOT" ? "fx-mark" : ""}`}
@@ -312,7 +312,7 @@ export function Chip({
   return (
     <span
       title={title}
-      className={`inline-flex items-center gap-2 border px-2 py-1 font-mono text-xs uppercase tracking-[0.16em] ${tones[tone]}`}
+      className={`inline-flex items-center gap-2 border px-2 py-1 font-label text-xs uppercase tracking-[0.16em] ${tones[tone]}`}
     >
       {children}
     </span>
@@ -347,7 +347,7 @@ export function SourceChip({ source }: { source: string }) {
   return (
     <span
       title={meta.title}
-      className={`inline-flex items-center gap-2 border px-2 py-1 font-mono text-xs uppercase tracking-[0.16em] ${
+      className={`inline-flex items-center gap-2 border px-2 py-1 font-label text-xs uppercase tracking-[0.16em] ${
         meta.confirmed ? "border-confirmed/50 text-confirmed" : "border-line text-faint"
       }`}
     >
@@ -355,6 +355,14 @@ export function SourceChip({ source }: { source: string }) {
     </span>
   );
 }
+
+/** What each disposition proves — the five-minute narrative, used on the
+ *  landing rows, the intake screen and the trace header. */
+export const CASE_PROOF: Record<string, string> = {
+  WARM: "Proves attribution — names the customer deposit cluster inside the exchange",
+  HOT: "Proves triage — funds still at rest, this is where the next hour goes",
+  COLD: "Proves honesty — the trail enters a mixer and we say so instead of guessing",
+};
 
 /* -------------------------------------------------------- attribution voice */
 
@@ -405,7 +413,7 @@ export function EmptyState({
 }) {
   return (
     <div className="flex min-h-40 flex-col items-start justify-center border-l border-brass-dim py-10 pl-6">
-      <p className="font-mono text-xs uppercase tracking-[0.24em] text-ink">{title}</p>
+      <p className="font-label text-xs font-semibold uppercase tracking-[0.24em] text-ink">{title}</p>
       <p className="mt-4 max-w-md text-sm leading-6 text-faint">{description}</p>
       {action ? <div className="mt-6">{action}</div> : null}
     </div>
@@ -423,7 +431,7 @@ export function ErrorState({
 }) {
   return (
     <div className="border-l-2 border-critical py-10 pl-6">
-      <p className="font-mono text-xs uppercase tracking-[0.24em] text-critical">
+      <p className="font-label text-xs font-semibold uppercase tracking-[0.24em] text-critical">
         {title}
       </p>
       <p className="mt-4 max-w-xl text-sm leading-6 text-muted">{description}</p>
@@ -463,7 +471,7 @@ export function Spinner({ className = "" }: { className?: string }) {
 /* ---------------------------------------------------------------- buttons */
 
 const BUTTON_BASE =
-  "inline-flex items-center justify-center gap-2 px-6 py-4 font-mono text-xs uppercase tracking-[0.2em] transition disabled:cursor-not-allowed";
+  "inline-flex items-center justify-center gap-2 px-6 py-4 font-label text-xs font-semibold uppercase tracking-[0.2em] transition disabled:cursor-not-allowed";
 
 export const buttonStyles = {
   /** Brass. One per eyeline, never more. */
@@ -479,6 +487,14 @@ export const buttonStyles = {
 
 /* ------------------------------------------------------------ data source */
 
+/**
+ * Provenance, not an apology.
+ *
+ * "Demo data" ends a conversation with an evaluator; naming the source does the
+ * opposite. A recorded trace was captured from the chain, its response hashes
+ * travel into the evidence packet, and it can be re-verified — so the badge says
+ * that rather than confessing to a fixture.
+ */
 export function DataSourceBadge({
   source,
   note,
@@ -489,21 +505,24 @@ export function DataSourceBadge({
   if (source === "live") {
     return (
       <span
-        title="Served by the trace service on this deployment."
-        className="inline-flex items-center gap-2 border border-line px-2 py-1 font-mono text-xs uppercase tracking-[0.16em] text-faint"
+        title="Read from the chain by the trace service on this deployment."
+        className="inline-flex items-center gap-2 border border-line px-2 py-1 font-label text-xs uppercase tracking-[0.16em] text-faint"
       >
         <span className="h-1 w-1 rotate-45 bg-confirmed" />
-        Live feed
+        Live trace
       </span>
     );
   }
   return (
     <span
-      title={note ?? "Serving committed fixtures."}
-      className="inline-flex items-center gap-2 border border-suspicious/40 px-2 py-1 font-mono text-xs uppercase tracking-[0.16em] text-suspicious"
+      title={
+        note ??
+        "Recorded trace: captured from the TRON chain on 29 August 2026, committed to the repository, and re-verifiable — the SHA-256 of every response it was built from is carried into the evidence packet."
+      }
+      className="inline-flex items-center gap-2 border border-line px-2 py-1 font-label text-xs uppercase tracking-[0.16em] text-faint"
     >
-      <span className="h-1 w-1 rotate-45 bg-suspicious" />
-      Demo feed
+      <span className="h-1 w-1 rotate-45 bg-brass" />
+      Recorded trace
     </span>
   );
 }

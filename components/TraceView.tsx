@@ -17,6 +17,7 @@ import AddressChip from "./AddressChip";
 import CopyButton from "./CopyButton";
 import TraceCanvas, { ViewToggle, type CanvasView } from "./TraceCanvas";
 import {
+  CASE_PROOF,
   Chip,
   Designation,
   Diamond,
@@ -79,7 +80,7 @@ export function RiskFlagList({
                 <span className={`text-sm ${meta.tone === "hot" ? "text-critical" : "text-ink"}`}>
                   {meta.title}
                 </span>
-                <code className="shrink-0 font-mono text-xs uppercase tracking-[0.16em] text-faint">
+                <code className="shrink-0 font-label text-xs uppercase tracking-[0.16em] text-faint">
                   {f.code}
                 </code>
               </div>
@@ -106,7 +107,7 @@ export function RiskFlagList({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="mt-6 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-brass transition hover:text-ink"
+        className="mt-6 flex items-center gap-2 font-label text-xs uppercase tracking-[0.2em] text-brass transition hover:text-ink"
         aria-expanded={open}
       >
         {open ? "Hide evidence" : "View evidence"}
@@ -129,7 +130,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
     return (
       <div className={`relative  border bg-surface p-6 ${meta.ring}`}>
           <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="font-mono text-xs uppercase tracking-[0.28em] text-faint">
+          <p className="font-label text-xs uppercase tracking-[0.28em] text-faint">
             Where the money is now
           </p>
           <TriageBadge level={trace.triage} size="lg" />
@@ -164,7 +165,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
   return (
     <div className={`relative  border bg-surface p-6 ${meta.ring}`}>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="font-mono text-xs uppercase tracking-[0.28em] text-faint">
+        <p className="font-label text-xs uppercase tracking-[0.28em] text-faint">
           {isDeposit ? "Attributed destination" : "End of traceable path"}
         </p>
         <TriageBadge level={trace.triage} size="lg" />
@@ -184,7 +185,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
            large, and that is deliberate — it is the account an exchange can
            actually freeze. */
         <div className="mt-6 border-t border-line pt-6">
-          <p className="font-mono text-xs uppercase tracking-[0.22em] text-suspicious">
+          <p className="font-label text-xs uppercase tracking-[0.22em] text-suspicious">
             Customer deposit address
           </p>
           <div className="mt-4 flex flex-wrap items-start gap-4">
@@ -217,7 +218,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
         {isDeposit ? null : (
           <>
             <div>
-              <dt className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
+              <dt className="font-label text-xs uppercase tracking-[0.18em] text-faint">
                 Confidence
               </dt>
               <dd className="mt-1 font-mono text-lg tabular-nums text-ink">
@@ -225,7 +226,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
               </dd>
             </div>
             <div>
-              <dt className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
+              <dt className="font-label text-xs uppercase tracking-[0.18em] text-faint">
                 Attribution source
               </dt>
               <dd className="mt-2">
@@ -235,7 +236,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
           </>
         )}
         <div className="sm:col-span-1">
-          <dt className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
+          <dt className="font-label text-xs uppercase tracking-[0.18em] text-faint">
             Time to destination
           </dt>
           <dd className="mt-1 font-mono text-lg text-ink">
@@ -494,8 +495,11 @@ export default function TraceView({
           <h1 className="mt-4 font-display text-3xl uppercase tracking-[0.08em] text-ink md:text-4xl">
             Case file
           </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-faint">Victim-reported address</span>
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
+            {CASE_PROOF[trace.triage]}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-muted">
+            <span className="font-label text-xs uppercase tracking-[0.2em] text-faint">Victim-reported address</span>
             <AddressChip address={trace.inputAddress} tone="strong" full />
           </div>
         </div>
@@ -550,8 +554,26 @@ export default function TraceView({
         </div>
       </div>
 
+      {/* ------------------------------------------------------------ signals */}
+      <SectionHeader index="02" title="Why" kicker="Behavioural signals" />
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
+        <Panel
+          title="Behavioural signals"
+          subtitle="Rule-based. Every one of them explainable in court."
+        >
+          <RiskFlagList flags={trace.riskFlags} onSelect={setSelected} />
+        </Panel>
+        <Panel
+          title="Wallets on the path"
+          subtitle="Taint is the share of the victim's money that reached each address."
+          bodyClassName="p-0"
+        >
+          <NodesTable trace={trace} selected={selected} onSelect={setSelected} />
+        </Panel>
+      </div>
+
       {/* ------------------------------------------------------------ graph */}
-      <SectionHeader index="02" title="Fund flow" />
+      <SectionHeader index="03" title="Fund flow" kicker="The working" />
       <Panel
         title="Fund flow"
         subtitle="Click a wallet to highlight it in the tables below. Flow reads the path in order; Bubbles reads it by weight."
@@ -568,26 +590,6 @@ export default function TraceView({
           height="h-[560px]"
         />
       </Panel>
-
-      {/* ------------------------------------------------- tables & flags */}
-      <SectionHeader index="03" title="Wallets and risk" />
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Panel
-          title="Wallets on the path"
-          subtitle="Taint is the share of the victim's money that reached each address."
-          className="lg:col-span-2"
-          bodyClassName="p-0"
-        >
-          <NodesTable trace={trace} selected={selected} onSelect={setSelected} />
-        </Panel>
-
-        <Panel
-          title="Behavioural signals"
-          subtitle="Rule-based. Every one of them explainable in court."
-        >
-          <RiskFlagList flags={trace.riskFlags} onSelect={setSelected} />
-        </Panel>
-      </div>
 
       {/* -------------------------------------------------------- timeline */}
       <SectionHeader index="04" title="Timeline and custody" />

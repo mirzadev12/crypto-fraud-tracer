@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
 import { buttonStyles } from "@/components/ui";
 
@@ -29,9 +30,17 @@ export default function Error({
           </span>
         ) : null}
       </p>
-      <button type="button" onClick={reset} className={`${buttonStyles.primary} mt-6`}>
-        Try again
-      </button>
+      <div className="mt-10 flex flex-wrap justify-center gap-4">
+        <button type="button" onClick={reset} className={buttonStyles.primary}>
+          Try again
+        </button>
+        <Link href="/" className={buttonStyles.secondary}>
+          Overview
+        </Link>
+        <Link href="/dashboard" className={buttonStyles.secondary}>
+          Case queue
+        </Link>
+      </div>
     </div>
   );
 }

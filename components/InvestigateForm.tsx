@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { DEMO_SAMPLES, runTrace, type Sourced } from "@/lib/api";
-import type { TraceResult } from "@/lib/types";
+import { DEMO_SAMPLES, runTrace, type TraceLookup } from "@/lib/api";
 import { checkTronAddress } from "@/lib/tron";
 import { shortAddress, toDateInputValue } from "@/lib/format";
 import TraceView from "./TraceView";
-import { TraceSkeleton } from "./TraceLoader";
 import {
+  InvalidAddressState,
+  NoTraceState,
+  TraceSkeleton,
+} from "./TraceLoader";
+import {
+  CASE_PROOF,
   Designation,
   Diamond,
   ErrorState,
@@ -21,7 +25,7 @@ import {
 type Status =
   | { kind: "idle" }
   | { kind: "running" }
-  | { kind: "done"; result: Sourced<TraceResult> }
+  | { kind: "done"; lookup: TraceLookup }
   | { kind: "failed"; message: string };
 
 /**
@@ -67,7 +71,7 @@ export default function InvestigateForm() {
         // Send a full ISO timestamp — the backend filters transfers by it.
         fraudDate: new Date(`${fraudDate}T00:00:00.000Z`).toISOString(),
       });
-      setStatus({ kind: "done", result });
+      setStatus({ kind: "done", lookup: result });
     } catch (err) {
       setStatus({
         kind: "failed",
@@ -202,9 +206,9 @@ export default function InvestigateForm() {
                     "Run trace"
                   )}
                 </button>
-                {status.kind === "done" ? (
+                {status.kind === "done" && status.lookup.status === "resolved" ? (
                   <Link
-                    href={`/trace/${encodeURIComponent(status.result.data.inputAddress)}`}
+                    href={`/trace/${encodeURIComponent(status.lookup.data.inputAddress)}`}
                     className={buttonStyles.secondary}
                   >
                     Permalink
@@ -219,7 +223,7 @@ export default function InvestigateForm() {
               <dl className="mt-6 divide-y divide-line border-y border-line">
                 {PARAMETERS.map(([term, value]) => (
                   <div key={term} className="flex items-baseline gap-6 py-4">
-                    <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-[0.16em] text-faint">
+                    <dt className="w-24 shrink-0 font-label text-xs uppercase tracking-[0.16em] text-faint">
                       {term}
                     </dt>
                     <dd className="text-xs leading-5 text-muted">{value}</dd>
@@ -240,8 +244,8 @@ export default function InvestigateForm() {
       <section>
         <SectionHeader
           index="02"
-          title="Frozen case files"
-          kicker="Run with the service offline"
+          title="Recorded traces"
+          kicker="Captured from the chain"
         />
         <ul className="mt-16 divide-y divide-line border-y border-line">
           {DEMO_SAMPLES.map((s) => (
@@ -254,11 +258,11 @@ export default function InvestigateForm() {
                 <span className="w-40 shrink-0">
                   <TriageBadge level={s.triage} />
                 </span>
-                <span className="flex-1 text-sm leading-6 text-ink">{s.headline}</span>
+                <span className="flex-1 text-sm leading-6 text-ink">{CASE_PROOF[s.triage]}</span>
                 <span className="font-mono text-xs text-faint">
                   {shortAddress(s.address, 10, 8)}
                 </span>
-                <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-faint transition group-hover:text-brass">
+                <span className="flex items-center gap-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition group-hover:text-brass">
                   Load
                   <Diamond className="bg-brass-dim" size={4} />
                 </span>
@@ -267,7 +271,7 @@ export default function InvestigateForm() {
           ))}
         </ul>
         <p className="mt-6 max-w-2xl text-xs leading-6 text-faint">
-          Any other address is traced live once the trace service is connected.
+          Any other address is traced live against the chain once the trace service is connected.
         </p>
       </section>
 
@@ -283,11 +287,24 @@ export default function InvestigateForm() {
 
       {status.kind === "done" ? (
         <div className="border-t border-line pt-16">
-          <TraceView
-            trace={status.result.data}
-            source={status.result.source}
-            note={status.result.note}
-          />
+          {status.lookup.status === "resolved" ? (
+            <TraceView
+              trace={status.lookup.data}
+              source={status.lookup.source}
+              note={status.lookup.note}
+            />
+          ) : status.lookup.status === "invalid" ? (
+            <InvalidAddressState
+              address={status.lookup.address}
+              reason={status.lookup.reason}
+            />
+          ) : (
+            <NoTraceState
+              address={status.lookup.address}
+              endpoint={status.lookup.endpoint}
+              detail={status.lookup.detail}
+            />
+          )}
         </div>
       ) : null}
     </div>

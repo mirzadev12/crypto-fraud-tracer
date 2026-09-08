@@ -14,7 +14,7 @@ import {
 } from "@/lib/format";
 import AddressChip from "./AddressChip";
 import TraceCanvas, { ViewToggle, type CanvasView } from "./TraceCanvas";
-import { NoTraceState, useTrace } from "./TraceLoader";
+import { InvalidAddressState, NoTraceState, useTrace } from "./TraceLoader";
 import {
   Chip,
   DataSourceBadge,
@@ -74,7 +74,7 @@ export default function FundFlowExplorer({
   const selectedNode =
     selection && selection.address === address ? selection.node : null;
 
-  const trace = current?.status === "ready" ? current.result : null;
+  const trace = current?.lookup.status === "resolved" ? current.lookup : null;
   const selected =
     trace && selectedNode
       ? (trace.data.nodes.find((n) => n.address === selectedNode) ?? null)
@@ -145,23 +145,33 @@ export default function FundFlowExplorer({
           </Panel>
         ) : !current ? (
           <Skeleton className="h-[620px]" />
-        ) : current.status === "error" ? (
-          <NoTraceState address={address} message={current.message} onRetry={retry} />
+        ) : current.lookup.status === "invalid" ? (
+          <InvalidAddressState
+            address={current.lookup.address}
+            reason={current.lookup.reason}
+          />
+        ) : current.lookup.status === "unresolved" ? (
+          <NoTraceState
+            address={current.lookup.address}
+            endpoint={current.lookup.endpoint}
+            detail={current.lookup.detail}
+            onRetry={retry}
+          />
         ) : (
           <>
             <Panel
               title="Fund flow"
-              subtitle={`${current.result.data.nodes.length} wallets · ${current.result.data.edges.length} transfers · ${current.result.data.caseId}`}
+              subtitle={`${current.lookup.data.nodes.length} wallets · ${current.lookup.data.edges.length} transfers · ${current.lookup.data.caseId}`}
               actions={
                 <div className="flex flex-wrap items-center gap-2">
                   <ViewToggle view={view} onChange={setView} />
                   <DataSourceBadge
-                    source={current.result.source}
-                    note={current.result.note}
+                    source={current.lookup.source}
+                    note={current.lookup.note}
                   />
-                  <TriageBadge level={current.result.data.triage} />
+                  <TriageBadge level={current.lookup.data.triage} />
                   <Link
-                    href={`/trace/${encodeURIComponent(current.result.data.inputAddress)}`}
+                    href={`/trace/${encodeURIComponent(current.lookup.data.inputAddress)}`}
                     className="border border-line px-4 py-2 text-xs font-semibold text-muted transition hover:border-faint hover:text-ink"
                   >
                     Full result
@@ -171,12 +181,12 @@ export default function FundFlowExplorer({
               bodyClassName="p-0"
             >
               <TraceCanvas
-                trace={current.result.data}
+                trace={current.lookup.data}
                 selected={selectedNode}
                 onSelect={(node) =>
                   setSelection(node ? { address, node } : null)
                 }
-                source={current.result.source}
+                source={current.lookup.source}
                 view={view}
                 height="h-[620px]"
               />
@@ -265,17 +275,17 @@ export default function FundFlowExplorer({
               </Panel>
 
               <Panel title="Triage call">
-                <TriageBadge level={current.result.data.triage} size="lg" withAction />
+                <TriageBadge level={current.lookup.data.triage} size="lg" withAction />
                 <p className="mt-4 text-sm leading-7 text-muted">
-                  {current.result.data.triageReason}
+                  {current.lookup.data.triageReason}
                 </p>
-                {current.result.data.terminal?.depositAddress ? (
+                {current.lookup.data.terminal?.depositAddress ? (
                   <div className="mt-4 border border-suspicious/30 bg-suspicious/[0.06] p-4">
                     <p className="text-xs uppercase tracking-[0.16em] text-suspicious">
-                      {current.result.data.terminal.label.entity} deposit address
+                      {current.lookup.data.terminal.label.entity} deposit address
                     </p>
                     <code className="mt-2 block break-all font-mono text-xs text-ink">
-                      {current.result.data.terminal.depositAddress}
+                      {current.lookup.data.terminal.depositAddress}
                     </code>
                   </div>
                 ) : null}

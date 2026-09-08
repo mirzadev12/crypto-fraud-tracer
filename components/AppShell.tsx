@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import Navbar from "./Navbar";
 
 export default function AppShell({
@@ -12,7 +13,7 @@ export default function AppShell({
     <div className="flex min-h-screen flex-col bg-bg text-ink">
       <Navbar />
       <main
-        className={`mx-auto w-full flex-1 px-6 py-10 ${wide ? "max-w-[1600px]" : "max-w-7xl"}`}
+        className={`fx-rise mx-auto w-full flex-1 px-6 py-10 ${wide ? "max-w-[1600px]" : "max-w-7xl"}`}
       >
         {children}
       </main>
@@ -39,10 +40,16 @@ export function Footer() {
             confidence. It is not, on its own, grounds for freezing an account.
           </p>
         </div>
-        <div className="mt-16 border-t border-line pt-6">
+        <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-faint">
             SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C
           </p>
+          <Link
+            href="/operations"
+            className="font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
+          >
+            How this runs · operating notes
+          </Link>
         </div>
       </div>
     </footer>

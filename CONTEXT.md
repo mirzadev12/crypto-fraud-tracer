@@ -100,6 +100,27 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   faded brass hairline, `SectionHeader` is index + lozenge + display title + rule.
   Deco should read as about a tenth of the design. No gradients, no glow, no
   glassmorphism, no floating blobs, no icon soup.
+- **An unresolved address is a first-class state, not an error.** `lib/api.ts`
+  returns a discriminated `TraceLookup` — `resolved` / `unresolved` / `invalid` —
+  and never throws for a valid address it holds no trace for. The unresolved
+  screen echoes the address, confirms base58check passed, names the endpoint
+  that would answer it, and states what the pipeline would do. It must never
+  serve another address's recorded trace in its place: the moment a demo answers
+  for an address it does not hold, nothing else on screen can be trusted.
+  `normalizeTrace`, the real-API-first ordering and the fixture path for the
+  three `DEMO_ADDRESSES` are unchanged.
+- **Provenance language, never demo language.** Nothing user-visible says "demo
+  data", "dummy" or "sample". A fixture is a *recorded trace*: captured from the
+  chain on a stated date, committed, and re-verifiable from the response hashes
+  in its packet. Code identifiers (`DEMO_ADDRESSES`, `public/mock/`) keep their
+  names; only the copy changed.
+- **`/operations` is the jury-question surface** and doubles as the officer's
+  standing instructions: who runs it, where data sits, what a year costs, what
+  breaks in the field, what is not built yet, and — stated plainly — which parts
+  are AI-assisted and which are hand-specified. No attribution decision is made
+  by a language model. Keep that row honest; one caught omission puts every
+  other claim in doubt. The recorded case files live here too, and deliberately
+  not on the landing page.
 - **The landing page carries the argument, not the manual.** Detail an
   investigator wants once — how the pipeline works, how an exit is named — sits
   behind a `SectionDialog` row and opens over the page. Built on the native

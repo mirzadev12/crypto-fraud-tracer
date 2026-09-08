@@ -3,15 +3,12 @@ import AppShell from "@/components/AppShell";
 import {
   Chip,
   Designation,
-  Diamond,
   Rule,
   SectionHeader,
   TriageBadge,
   buttonStyles,
 } from "@/components/ui";
 import SectionDialog from "@/components/SectionDialog";
-import { DEMO_SAMPLES } from "@/lib/api";
-import { shortAddress } from "@/lib/format";
 
 const METHOD = [
   {
@@ -68,9 +65,9 @@ export default function Home() {
 
           <p className="mt-10 max-w-xl text-base leading-8 text-muted">
             Most tools stop at the exchange. FineX carries the trail one step
-            further — to the customer deposit cluster the funds actually landed
-            in — and states, for every case on the desk, whether the money can
-            still be reached.
+            further — to the <strong className="font-semibold text-ink">customer deposit cluster</strong> the funds
+            actually landed in — and states, for every case on the desk, whether
+            the money can <strong className="font-semibold text-ink">still be reached</strong>.
           </p>
 
           <div className="mt-16 flex flex-col gap-4 sm:flex-row">
@@ -89,9 +86,9 @@ export default function Home() {
         <SectionHeader index="01" title="Disposition" kicker="Every case, one of three" />
         <div className="mt-16 grid gap-16 lg:grid-cols-[1fr_1.4fr]">
           <p className="max-w-sm text-sm leading-7 text-muted">
-            Hundreds of complaints arrive a day and a freeze window is measured
-            in hours. A graph of wallets does not tell an investigator where the
-            next hour is worth spending. A disposition does.
+            Hundreds of complaints arrive a day and a <strong className="font-semibold text-ink">freeze window is measured in
+            hours</strong>. A graph of wallets does not tell an investigator where the
+            next hour is worth spending. A <strong className="font-semibold text-ink">disposition</strong> does.
           </p>
           <dl className="space-y-10">
             {[
@@ -206,37 +203,6 @@ export default function Home() {
         </SectionDialog>
       </section>
 
-      {/* ----------------------------------------------------------- samples */}
-      <section className="pt-24">
-        <SectionHeader index="04" title="Case files" kicker="One of each disposition" />
-        <ul className="mt-16 divide-y divide-line border-y border-line">
-          {DEMO_SAMPLES.map((s) => (
-            <li key={s.address}>
-              <Link
-                href={`/trace/${s.address}`}
-                className="group flex flex-col gap-4 py-6 transition hover:bg-surface md:flex-row md:items-center md:gap-16"
-              >
-                <span className="w-40 shrink-0">
-                  <TriageBadge level={s.triage} />
-                </span>
-                <span className="flex-1 text-sm leading-6 text-ink">{s.headline}</span>
-                <span className="font-mono text-xs text-faint">
-                  {shortAddress(s.address, 10, 8)}
-                </span>
-                <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-faint transition group-hover:text-brass">
-                  Open
-                  <Diamond className="bg-brass-dim" size={4} />
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-6 max-w-2xl text-xs leading-6 text-faint">
-          These three run from committed case files, so they work with the
-          network down. Live tracing takes over as soon as the trace service is
-          connected — no screen in this console changes when it does.
-        </p>
-      </section>
     </AppShell>
   );
 }

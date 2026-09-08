@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import type { NodeKind, TraceResult } from "@/lib/types";
 import { formatPercent, formatUsdt, formatUsdtCompact, shortAddress } from "@/lib/format";
 import { entityPhrase } from "./ui";
@@ -269,15 +269,16 @@ export default function BubbleMap({
                 stroke={l.fast ? "#c98a34" : "#3a3936"}
                 strokeWidth={l.width}
                 strokeLinecap="round"
-                strokeDasharray={l.fast ? "10 6" : undefined}
-                className={l.fast ? "fx-flow" : undefined}
-                opacity={l.fast ? 0.9 : 0.6}
+                strokeDasharray={l.fast ? "10 6" : "2 10"}
+                className="fx-flow"
+                style={{ animationDuration: l.fast ? "1.1s" : "3.4s" }}
+                opacity={l.fast ? 0.9 : 0.5}
               />
             </g>
           );
         })}
 
-        {bubbles.map((b) => {
+        {bubbles.map((b, i) => {
           const dim = connected ? !connected.has(b.address) : false;
           const isSelected = selected === b.address;
           const color = colorFor(b.kind);
@@ -286,8 +287,9 @@ export default function BubbleMap({
           return (
             <g
               key={b.address}
+              className="fx-settle cursor-pointer"
+              style={{ animationDelay: `${Math.min(i, 12) * 45}ms` }}
               opacity={background ? 0.12 : dim ? 0.25 : 1}
-              className="cursor-pointer"
               onMouseEnter={() => setHovered(b.address)}
               onMouseLeave={() => setHovered(null)}
               onClick={() => onSelect?.(b.address)}
@@ -301,6 +303,25 @@ export default function BubbleMap({
                 }
               }}
             >
+              {/* A slow sonar on the subject wallet — the eye should start at
+                  the centre of the file and work outward. */}
+              {b.kind === "victim_reported" ? (
+                <circle
+                  className="fx-sonar"
+                  cx={b.x}
+                  cy={b.y}
+                  r={b.r}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth={1}
+                  style={
+                    {
+                      ["--fx-r0"]: `${b.r}px`,
+                      ["--fx-r1"]: `${b.r + 26}px`,
+                    } as CSSProperties
+                  }
+                />
+              ) : null}
               {/* Flat low-alpha fill, full-strength ring. No gradient, no glow. */}
               <circle
                 cx={b.x}
@@ -310,6 +331,7 @@ export default function BubbleMap({
                 fillOpacity={0.1}
                 stroke={color}
                 strokeWidth={isSelected ? 3 : 2}
+                className="transition-[stroke-width] duration-200"
               />
               {isSelected ? (
                 <circle
@@ -354,7 +376,7 @@ export default function BubbleMap({
               {background ? null : (
               <text
                 x={b.x}
-                y={b.labelAbove ? b.y - b.r - 11 : b.y + b.r + 17}
+                y={b.labelAbove ? b.y - b.r - (b.kind === "victim_reported" ? 22 : 11) : b.y + b.r + 17}
                 textAnchor="middle"
                 className="pointer-events-none select-none"
                 style={{
