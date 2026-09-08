@@ -141,7 +141,13 @@ export function Panel({
   bodyClassName?: string;
 }) {
   return (
-    <section className={`${framed ? "border border-line bg-surface" : ""} ${className}`}>
+    // min-w-0: a grid or flex child defaults to min-width:auto and refuses to
+    // shrink below its content, so a wide table or a nowrap readout inside a
+    // panel pushes the whole page sideways on a phone. This lets the panel
+    // shrink and its own overflow-x-auto do the scrolling.
+    <section
+      className={`min-w-0 ${framed ? "border border-line bg-surface" : ""} ${className}`}
+    >
       {title ? (
         <header
           className={`flex flex-wrap items-center justify-between gap-4 ${

@@ -140,7 +140,6 @@ export default function OperationsPage() {
       <PageHeader
         eyebrow="Operations"
         title="How this runs"
-        description="The questions a review board asks, answered against what the repository actually contains."
       />
 
       <dl className="mt-16 divide-y divide-line border-y border-line">
