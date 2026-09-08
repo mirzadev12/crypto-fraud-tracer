@@ -31,9 +31,6 @@ export function Footer() {
             <p className="font-display text-sm uppercase tracking-[0.32em] text-ink">
               FineX
             </p>
-            <p className="mt-2 font-mono text-xs uppercase tracking-[0.24em] text-faint">
-              Blockchain Intelligence · TRON · USDT TRC-20
-            </p>
           </div>
           <p className="max-w-md text-xs leading-6 text-faint">
             Attribution stated here is an investigative lead carrying a stated

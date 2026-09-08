@@ -53,8 +53,6 @@ export default function Home() {
           aria-hidden="true"
         />
         <div className="relative max-w-4xl">
-          <Designation>Bureau of blockchain intelligence · TRON · USDT TRC-20</Designation>
-
           <h1 className="mt-10 font-display text-4xl uppercase leading-[1.15] tracking-[0.06em] text-ink md:text-6xl">
             Follow the money.
             <br />
@@ -201,6 +199,11 @@ export default function Home() {
             <Chip>No licence cost</Chip>
           </div>
         </SectionDialog>
+      </section>
+
+      {/* ---------------------------------------------------------- colophon */}
+      <section className="mt-24 border-t border-line pt-6 pb-6">
+        <Designation>Bureau of blockchain intelligence · TRON · USDT TRC-20</Designation>
       </section>
 
     </AppShell>
