@@ -14,16 +14,16 @@ export default function DashboardPage() {
   return (
     <AppShell>
       <PageHeader
-        eyebrow="Investigation dashboard"
-        title="Today's case queue"
-        description="Sorted by triage, not by time of arrival — HOT cases still have money sitting somewhere and are worth the next hour of an officer's day."
+        eyebrow="Case register"
+        title="Case queue"
+        description="Ordered by disposition, not by time of arrival. Critical cases still have money sitting somewhere and are worth the next hour on the desk."
         actions={
           <Link href="/investigate" className={buttonStyles.primary}>
-            New investigation
+            Open a case
           </Link>
         }
       />
-      <div className="mt-8">
+      <div className="mt-6">
         <CaseQueue />
       </div>
     </AppShell>

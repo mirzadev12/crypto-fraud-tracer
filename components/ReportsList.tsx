@@ -78,18 +78,18 @@ export default function ReportsList() {
           {cases.map((c) => (
             <li
               key={c.caseId}
-              className="flex flex-col rounded-panel border border-line bg-surface-2/50 p-5"
+              className="flex flex-col border border-line bg-surface-2/50 p-6"
             >
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-4">
                 <span className="font-mono text-xs text-faint">{c.caseId}</span>
                 <TriageBadge level={c.triage} />
               </div>
 
-              <div className="mt-3">
+              <div className="mt-4">
                 <AddressChip address={c.inputAddress} tone="strong" explorer={false} />
               </div>
 
-              <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <dt className="text-xs uppercase tracking-[0.14em] text-faint">
                     Reported
@@ -108,13 +108,13 @@ export default function ReportsList() {
                 </div>
               </dl>
 
-              <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
+              <div className="mt-6 flex items-center justify-between gap-4 border-t border-line pt-4">
                 <span className="text-xs text-faint">
                   Fraud reported {formatDate(c.fraudDate)}
                 </span>
                 <Link
                   href={`/report/${encodeURIComponent(c.inputAddress)}`}
-                  className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-muted transition hover:border-brand/40 hover:text-brand"
+                  className="border border-line px-4 py-2 text-xs font-semibold text-muted transition hover:border-brass/40 hover:text-brass"
                 >
                   Open packet
                 </Link>

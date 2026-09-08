@@ -19,11 +19,11 @@ export default async function FundFlowPage({ searchParams }: Props) {
   return (
     <AppShell wide>
       <PageHeader
-        eyebrow="Blockchain analysis"
+        eyebrow="Intelligence"
         title="Fund flow"
-        description="Victim-reported wallet on the left, the off-ramp on the right. Amber edges are transfers forwarded in under ten minutes — the signature of an automated laundering script."
+        description="Victim-reported wallet on the left, the exit on the right. Amber edges are transfers forwarded in under ten minutes — the signature of an automated forwarding script."
       />
-      <div className="mt-8">
+      <div className="mt-6">
         <FundFlowExplorer initialAddress={raw} />
       </div>
     </AppShell>

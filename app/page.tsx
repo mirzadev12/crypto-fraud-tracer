@@ -1,257 +1,232 @@
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
-import { Chip, Corners, Gutter, Panel, TriageBadge, buttonStyles } from "@/components/ui";
+import {
+  Chip,
+  Designation,
+  Diamond,
+  Panel,
+  Rule,
+  SectionHeader,
+  TriageBadge,
+  buttonStyles,
+} from "@/components/ui";
 import { DEMO_SAMPLES } from "@/lib/api";
 import { shortAddress } from "@/lib/format";
 
-const WORKFLOW = [
+const METHOD = [
   {
     step: "01",
-    title: "Report",
-    body: "An officer pastes the victim-reported TRON wallet from the NCRP complaint, with the amount and the date of the fraud.",
+    title: "Victim wallet",
+    body: "The address as it appears on the complaint, with the amount reported and the date the fraud occurred.",
   },
   {
     step: "02",
-    title: "Trace",
-    body: "We follow USDT hop by hop — depth 3, top five outflows per wallet, dust dropped — and carry the victim's taint along every edge.",
+    title: "Blockchain activity",
+    body: "Every USDT transfer out of that address after the fraud date, followed hop by hop to a fixed depth.",
   },
   {
     step: "03",
-    title: "Attribute",
-    body: "The path stops at the first labelled address and names the exchange, and where possible the customer deposit address inside it.",
+    title: "Taint analysis",
+    body: "Each hop inherits the share of the victim's money that reached it, so the trail carries a value, not just a shape.",
   },
   {
     step: "04",
-    title: "Triage",
-    body: "Each case is called HOT, WARM or COLD by whether the money can still be frozen, with one sentence explaining the call.",
+    title: "Behavioural analysis",
+    body: "Six rules read the path for dwell time, fan-out, peel chains, round amounts, address age and sanctioned contact.",
+  },
+  {
+    step: "05",
+    title: "Entity attribution",
+    body: "Where the trail ends at an exchange, sweep-pattern clustering names the likely customer deposit cluster inside it.",
+  },
+  {
+    step: "06",
+    title: "Evidence packet",
+    body: "A printed document stating the finding, the basis for it, the transaction trail and its own limitations.",
   },
 ];
 
 export default function Home() {
   return (
     <AppShell>
-      {/* ------------------------------------------------------------- hero */}
-      <section className="relative -mx-6 -mt-10 overflow-hidden px-6 pb-16 pt-16">
-        <div className="tx-glow pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div className="tx-grid pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
-        <div className="relative mx-auto max-w-4xl">
-          <p className="font-mono text-xs uppercase tracking-[0.28em] text-faint">
-            [ TRON · USDT TRC-20 · PUBLIC DATA ONLY ]
+      {/* -------------------------------------------------------------- hero */}
+      <section className="relative -mx-6 -mt-10 overflow-hidden px-6 pb-24 pt-24">
+        <div
+          className="fx-grid pointer-events-none absolute inset-0 opacity-70"
+          aria-hidden="true"
+        />
+        <div className="relative max-w-4xl">
+          <Designation>Bureau of blockchain intelligence · TRON · USDT TRC-20</Designation>
+
+          <h1 className="mt-10 font-display text-4xl uppercase leading-[1.15] tracking-[0.06em] text-ink md:text-6xl">
+            Follow the money.
+            <br />
+            <span className="text-brass">Find the exit.</span>
+          </h1>
+
+          <Rule className="mt-10 max-w-md" />
+
+          <p className="mt-10 max-w-xl text-base leading-8 text-muted">
+            Most tools stop at the exchange. FineX carries the trail one step
+            further — to the customer deposit cluster the funds actually landed
+            in — and states, for every case on the desk, whether the money can
+            still be reached.
           </p>
 
-          <div className="relative mt-6 px-5 py-4">
-            <Corners />
-            <h2 className="text-4xl font-semibold leading-[1.08] tracking-tight md:text-6xl">
-              <span className="text-ink/55">Trace the money.</span>
-              <br />
-              <span className="text-ink">Name the deposit address.</span>
-            </h2>
-          </div>
-
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
-            Most tools stop at &ldquo;the funds went to Binance.&rdquo; TraceX goes one
-            step further and names the customer deposit address inside the
-            exchange — the account that can actually be frozen — then tells the
-            investigator which of today&rsquo;s complaints still have recoverable
-            money.
-          </p>
-
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-16 flex flex-col gap-4 sm:flex-row">
             <Link href="/investigate" className={buttonStyles.primary}>
-              Start investigation →
+              Open a case
             </Link>
             <Link href="/dashboard" className={buttonStyles.secondary}>
-              Open today&rsquo;s case queue
+              Case queue
             </Link>
           </div>
+        </div>
+      </section>
 
-          <Gutter index="01 / 05" label="What it does" className="mt-14" />
-
-          <dl className="mt-8 grid gap-6 sm:grid-cols-3">
-            <div>
-              <dt className="text-xs uppercase tracking-[0.16em] text-faint">
-                Attribution
-              </dt>
-              <dd className="mt-2 text-sm leading-6 text-muted">
-                Explorer tags as ground truth, extended by sweep-pattern
-                clustering. Every label carries a confidence and a source.
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs uppercase tracking-[0.16em] text-faint">
-                Explainability
-              </dt>
-              <dd className="mt-2 text-sm leading-6 text-muted">
-                Rules, not a model. Every risk flag comes with the plain-English
-                reason it fired, ready to read out in court.
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs uppercase tracking-[0.16em] text-faint">
-                Chain of custody
-              </dt>
-              <dd className="mt-2 text-sm leading-6 text-muted">
-                Every API response is SHA-256 hashed and carried into the
-                evidence packet so a trace can be re-verified later.
-              </dd>
-            </div>
+      {/* ------------------------------------------------------------ triage */}
+      <section className="border-t border-line py-24">
+        <SectionHeader index="01" title="Disposition" kicker="Every case, one of three" />
+        <div className="mt-16 grid gap-16 lg:grid-cols-[1fr_1.4fr]">
+          <p className="max-w-sm text-sm leading-7 text-muted">
+            Hundreds of complaints arrive a day and a freeze window is measured
+            in hours. A graph of wallets does not tell an investigator where the
+            next hour is worth spending. A disposition does.
+          </p>
+          <dl className="space-y-10">
+            {[
+              {
+                level: "HOT" as const,
+                headline: "Funds still at rest",
+                body: "No exit reached. The money is sitting at an address with no outgoing transfers.",
+              },
+              {
+                level: "WARM" as const,
+                headline: "Exit identified",
+                body: "The trail terminates at a likely exchange deposit cluster. The packet names it so the exchange can act.",
+              },
+              {
+                level: "COLD" as const,
+                headline: "Trail ends",
+                body: "The path enters a mixing service. Nothing can be followed deterministically past that point, and we do not pretend otherwise.",
+              },
+            ].map((c) => (
+              <div key={c.level} className="border-t border-line pt-6">
+                <dt className="flex flex-wrap items-center gap-4">
+                  <TriageBadge level={c.level} />
+                  <span className="text-lg text-ink">{c.headline}</span>
+                </dt>
+                <dd className="mt-2 max-w-xl text-sm leading-7 text-faint">{c.body}</dd>
+              </div>
+            ))}
           </dl>
         </div>
       </section>
 
-      {/* --------------------------------------------------------- triage */}
-      <section className="border-t border-line py-14">
-        <Gutter index="02 / 05" label="The differentiator" />
-        <h3 className="mt-6 max-w-3xl text-2xl font-semibold tracking-tight md:text-3xl">
-          Everyone traces. Nobody triages.
-        </h3>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
-          NCRP receives hundreds of complaints a day and a freeze window is
-          measured in hours. A graph of wallets does not tell an officer where to
-          spend the next hour. A triage call does.
-        </p>
+      {/* ------------------------------------------------------------ method */}
+      <section className="border-t border-line py-24">
+        <SectionHeader index="02" title="Method" kicker="Complaint to packet" />
+        <ol className="mt-16 grid gap-x-16 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
+          {METHOD.map((m) => (
+            <li key={m.step} className="border-t border-line pt-4">
+              <div className="flex items-baseline gap-4">
+                <span className="font-mono text-2xl font-light text-brass">{m.step}</span>
+                <h3 className="text-sm uppercase tracking-[0.16em] text-ink">{m.title}</h3>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-faint">{m.body}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {[
-            {
-              level: "HOT" as const,
-              headline: "Funds still at rest",
-              body: "No off-ramp reached. The money is sitting at an address with no outgoing transfers — this is where an officer's next hour is worth the most.",
-            },
-            {
-              level: "WARM" as const,
-              headline: "Freeze request viable",
-              body: "The path terminates at an exchange customer deposit address. The packet names that address so the exchange can act on it.",
-            },
-            {
-              level: "COLD" as const,
-              headline: "Document and close",
-              body: "The path enters a mixer or a sanctioned address. Nobody can trace deterministically past that point, and we do not pretend otherwise.",
-            },
-          ].map((c) => (
-            <div
-              key={c.level}
-              className="rounded-panel border border-line bg-surface p-6"
-            >
-              <TriageBadge level={c.level} size="lg" />
-              <p className="mt-4 text-lg font-semibold tracking-tight text-ink">
-                {c.headline}
+      {/* ------------------------------------------------------- attribution */}
+      <section className="border-t border-line py-24">
+        <SectionHeader index="03" title="Attribution" kicker="How an exit is named" />
+        <div className="mt-16 grid gap-16 lg:grid-cols-[1.3fr_1fr]">
+          <div>
+            <p className="max-w-2xl text-sm leading-8 text-muted">
+              Exchanges issue every customer a unique deposit address and later
+              sweep it into a main hot wallet. An address that receives from many
+              unrelated sources and forwards almost all of it to one known
+              exchange wallet, repeatedly, is{" "}
+              <span className="text-ink">very likely</span> a customer deposit
+              address at that exchange.
+            </p>
+            <dl className="mt-10 max-w-lg divide-y divide-line border-y border-line">
+              {[
+                ["≥ 2", "sweeps into the same tagged exchange wallet"],
+                ["≥ 90%", "of everything received forwarded onward"],
+                ["0.50 – 0.95", "confidence, scaled by how many sweeps were observed"],
+              ].map(([figure, text]) => (
+                <div key={figure} className="flex items-baseline gap-6 py-4">
+                  <dt className="w-32 shrink-0 font-mono text-sm text-brass">{figure}</dt>
+                  <dd className="text-sm leading-6 text-faint">{text}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-6 max-w-2xl text-xs leading-6 text-faint">
+              Stated as a likelihood, never as a fact. Every attribution in this
+              system carries a confidence and the tier of evidence behind it.
+            </p>
+          </div>
+
+          <Panel title="Scope" framed={false}>
+            <div className="space-y-6 pt-6 text-sm leading-7 text-muted">
+              <p>
+                <span className="text-ink">TRON and USDT only.</span> That is where
+                the proceeds move. Another chain is an adapter on the same
+                pipeline, not a new product.
               </p>
-              <p className="mt-2 text-sm leading-6 text-muted">{c.body}</p>
+              <p>
+                <span className="text-ink">Rules, not a model.</span> An
+                asset-freezing tool cannot hand a court a black box. Every score
+                here is a rule that can be defended line by line.
+              </p>
+              <p>
+                <span className="text-ink">No model decides attribution.</span> A
+                summary may be generated; the entity name is a deterministic
+                lookup against a provenance-tagged table.
+              </p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* -------------------------------------------------------- workflow */}
-      <section className="border-t border-line py-14">
-        <Gutter index="03 / 05" label="Investigation workflow" />
-        <div className="mt-10 grid gap-10 border-t border-line pt-8 md:grid-cols-4 md:gap-6">
-          {WORKFLOW.map((w) => (
-            <div key={w.step} className="relative md:pr-6">
-              <span className="font-mono text-4xl font-light text-faint">{w.step}</span>
-              <h4 className="mt-4 text-base font-semibold tracking-tight">{w.title}</h4>
-              <p className="mt-2 text-sm leading-6 text-muted">{w.body}</p>
+            <div className="mt-10 flex flex-wrap gap-2">
+              <Chip>Public data</Chip>
+              <Chip>Self-hosted</Chip>
+              <Chip>No licence cost</Chip>
             </div>
-          ))}
+          </Panel>
         </div>
       </section>
 
-      {/* ---------------------------------------------------------- method */}
-      <section className="border-t border-line py-14">
-        <Gutter index="04 / 05" label="Method and scope" />
-        <div className="mt-8 grid gap-5 lg:grid-cols-2">
-        <Panel
-          title="How a deposit address is identified"
-          subtitle="The one piece of the pipeline that turns a graph into an action."
-        >
-          <p className="text-sm leading-7 text-muted">
-            Exchanges give every customer a unique deposit address and later sweep
-            it into a main hot wallet. So an address that receives from many
-            unrelated sources and forwards almost all of it to one known exchange
-            hot wallet, repeatedly, <span className="text-ink">is</span> a customer
-            deposit address at that exchange.
-          </p>
-          <ul className="mt-5 space-y-2.5 text-sm text-muted">
-            <li className="flex gap-3">
-              <span className="font-mono text-ink">≥ 2</span>
-              sweeps into the same tagged hot wallet
-            </li>
-            <li className="flex gap-3">
-              <span className="font-mono text-ink">≥ 90%</span>
-              of everything received forwarded onward
-            </li>
-            <li className="flex gap-3">
-              <span className="font-mono text-ink">0.5–0.95</span>
-              confidence, scaled by how many sweeps were observed
-            </li>
-          </ul>
-          <p className="mt-5 rounded-lg border border-line bg-surface-2/60 px-4 py-3 text-xs leading-6 text-faint">
-            Derived from public block-explorer data. Commercial vendors sell this
-            dataset; the method behind it is not a secret, and neither is ours.
-          </p>
-        </Panel>
-
-        <Panel
-          title="Scope, stated up front"
-          subtitle="Confident scoping beats a long feature list."
-        >
-          <div className="space-y-4 text-sm leading-7 text-muted">
-            <p>
-              <span className="text-ink">TRON and USDT only.</span> That is where
-              Indian cyber-fraud proceeds actually move — near-zero fees, fast
-              transfers, easy off-ramps. Another chain is an adapter on the same
-              pipeline, not a new product.
-            </p>
-            <p>
-              <span className="text-ink">No machine learning.</span> An asset-freezing
-              tool cannot hand a judge a black box. Every score here is a rule we
-              can defend line by line.
-            </p>
-            <p>
-              <span className="text-ink">No attribution by language model.</span> A
-              summary may be written by one; the exchange name never is. It is a
-              deterministic lookup against a provenance-tagged table.
-            </p>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Chip>Public APIs only</Chip>
-            <Chip>Self-hosted</Chip>
-            <Chip>Zero licence cost</Chip>
-          </div>
-        </Panel>
-        </div>
-      </section>
-
-      {/* --------------------------------------------------------- samples */}
-      <section className="border-t border-line py-14">
-        <Gutter index="05 / 05" label="Try it now" />
-        <h3 className="mt-6 text-2xl font-semibold tracking-tight">
-          Three frozen cases, one of each triage level
-        </h3>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-          These traces are served from committed fixtures, so they work with the
-          network off. Live tracing takes over as soon as the trace API is
-          deployed — no screen in this app changes when it does.
-        </p>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+      {/* ----------------------------------------------------------- samples */}
+      <section className="border-t border-line py-24">
+        <SectionHeader index="04" title="Case files" kicker="One of each disposition" />
+        <ul className="mt-16 divide-y divide-line border-y border-line">
           {DEMO_SAMPLES.map((s) => (
-            <Link
-              key={s.address}
-              href={`/trace/${s.address}`}
-              className="group rounded-panel border border-line bg-surface p-6 transition hover:border-brand/40"
-            >
-              <TriageBadge level={s.triage} />
-              <p className="mt-4 text-base leading-6 text-ink">{s.headline}</p>
-              <p className="mt-3 font-mono text-xs text-faint">
-                {shortAddress(s.address, 10, 8)}
-              </p>
-              <span className="mt-4 inline-block font-mono text-xs uppercase tracking-[0.2em] text-faint opacity-0 transition group-hover:opacity-100">
-                Open trace →
-              </span>
-            </Link>
+            <li key={s.address}>
+              <Link
+                href={`/trace/${s.address}`}
+                className="group flex flex-col gap-4 py-6 transition hover:bg-surface md:flex-row md:items-center md:gap-16"
+              >
+                <span className="w-40 shrink-0">
+                  <TriageBadge level={s.triage} />
+                </span>
+                <span className="flex-1 text-sm leading-6 text-ink">{s.headline}</span>
+                <span className="font-mono text-xs text-faint">
+                  {shortAddress(s.address, 10, 8)}
+                </span>
+                <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-faint transition group-hover:text-brass">
+                  Open
+                  <Diamond className="bg-brass-dim" size={4} />
+                </span>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
+        <p className="mt-6 max-w-2xl text-xs leading-6 text-faint">
+          These three run from committed case files, so they work with the
+          network down. Live tracing takes over as soon as the trace service is
+          connected — no screen in this console changes when it does.
+        </p>
       </section>
     </AppShell>
   );

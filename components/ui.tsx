@@ -1,59 +1,87 @@
 import type { ReactNode } from "react";
 import type { TriageLevel } from "@/lib/types";
 
-/* ------------------------------------------------------- instrument chrome */
+/* ============================================================================
+ * FineX primitives.
+ *
+ * Two rules govern everything here:
+ *   1. Type and rules carry the structure. A bordered box has to earn itself —
+ *      containers are the exception, not the default.
+ *   2. Brass is structural: a rule, a selected state, a call to action. It is
+ *      never decoration, and never twice in the same eyeline.
+ * ========================================================================= */
 
-/**
- * Four corner brackets. Purely decorative — it is the detail that makes a panel
- * read as an instrument rather than a card. The parent must be `relative`.
- */
-export function Corners({ className = "" }: { className?: string }) {
-  const arms = [
-    "left-0 top-0 border-l border-t",
-    "right-0 top-0 border-r border-t",
-    "left-0 bottom-0 border-l border-b",
-    "right-0 bottom-0 border-r border-b",
-  ];
+/* ------------------------------------------------------------------- marks */
+
+/** Art Deco lozenge. The bureau's tick mark. */
+export function Diamond({
+  className = "",
+  size = 6,
+}: {
+  className?: string;
+  size?: number;
+}) {
   return (
-    <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${className}`}>
-      {arms.map((arm) => (
-        <span key={arm} className={`absolute h-2.5 w-2.5 border-line ${arm}`} />
-      ))}
-    </div>
+    <span
+      aria-hidden="true"
+      className={`inline-block shrink-0 rotate-45 ${className}`}
+      style={{ width: size, height: size }}
+    />
   );
 }
 
+/** Brass hairline, faded at both ends. */
+export function Rule({ className = "" }: { className?: string }) {
+  return <div aria-hidden="true" className={`fx-rule ${className}`} />;
+}
+
+/* ---------------------------------------------------------------- headings */
+
 /**
- * Section gutter: index on the left, label on the right, hairline between.
- *
- *   [ 02 / 04 ] ───────────────────────────────── [ FUND FLOW ]
+ * Section header: index, lozenge, display title, and a rule running to the end
+ * of the measure. This is the only place display serif appears on a console
+ * screen.
  */
-export function Gutter({
+export function SectionHeader({
   index,
-  label,
+  title,
+  kicker,
   className = "",
 }: {
   index?: string;
-  label: string;
+  title: string;
+  kicker?: string;
   className?: string;
 }) {
   return (
-    <div
-      className={`flex items-center gap-4 font-mono text-xs uppercase tracking-[0.28em] text-faint ${className}`}
-    >
-      {index ? <span className="shrink-0">[ {index} ]</span> : null}
-      <span className="h-px flex-1 bg-line" />
-      <span className="shrink-0">[ {label} ]</span>
+    <div className={`flex items-center gap-4 ${className}`}>
+      {index ? (
+        <span className="font-mono text-xs tracking-[0.32em] text-brass">{index}</span>
+      ) : null}
+      <Diamond className="bg-brass" />
+      <h2 className="font-display text-xl uppercase tracking-[0.14em] text-ink md:text-2xl">
+        {title}
+      </h2>
+      <div className="h-px flex-1 bg-line" />
+      {kicker ? (
+        <span className="hidden font-mono text-xs uppercase tracking-[0.24em] text-faint sm:block">
+          {kicker}
+        </span>
+      ) : null}
     </div>
   );
 }
 
-/* ------------------------------------------------------------------ layout */
-
-/** Chrome gets no accent colour — hue is reserved for triage. */
-export function SectionLabel({ children }: { children: ReactNode }) {
+/** Mono designation strip — used above headings and beside data. */
+export function Designation({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <p className="font-mono text-xs font-medium uppercase tracking-[0.28em] text-faint">
+    <p className={`font-mono text-xs uppercase tracking-[0.28em] text-faint ${className}`}>
       {children}
     </p>
   );
@@ -71,14 +99,14 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-5 border-b border-line pb-7 sm:flex-row sm:items-end sm:justify-between">
-      <div className="min-w-0">
-        <SectionLabel>{eyebrow}</SectionLabel>
-        <h1 className="mt-2.5 text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+    <div className="flex flex-col gap-6 border-b border-line pb-10 lg:flex-row lg:items-end lg:justify-between">
+      <div className="min-w-0 max-w-2xl">
+        <Designation>{eyebrow}</Designation>
+        <h1 className="mt-4 font-display text-3xl uppercase tracking-[0.08em] text-ink md:text-4xl">
           {title}
         </h1>
         {description ? (
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{description}</p>
+          <p className="mt-4 text-sm leading-6 text-muted">{description}</p>
         ) : null}
       </div>
       {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
@@ -86,62 +114,70 @@ export function PageHeader({
   );
 }
 
+/* ----------------------------------------------------------------- regions */
+
+/**
+ * A region of the page. Pass `framed={false}` for the common case — a label and
+ * a rule, no box. Keep the frame for content that genuinely needs a container:
+ * a canvas, a scrolling table, a document sheet.
+ */
 export function Panel({
   title,
   subtitle,
   code,
   actions,
-  corners = false,
+  framed = true,
   children,
   className = "",
-  bodyClassName = "p-5",
+  bodyClassName = "p-6",
 }: {
   title?: ReactNode;
   subtitle?: ReactNode;
-  /** Mono reference shown right-aligned in the header, e.g. a case id. */
   code?: ReactNode;
   actions?: ReactNode;
-  corners?: boolean;
+  framed?: boolean;
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
 }) {
   return (
-    <section
-      className={`relative overflow-hidden rounded-panel border border-line bg-surface ${className}`}
-    >
-      {corners ? <Corners /> : null}
+    <section className={`${framed ? "border border-line bg-surface" : ""} ${className}`}>
       {title ? (
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line-soft px-5 py-4">
-          <div className="min-w-0">
-            <h2 className="text-sm font-semibold tracking-tight text-ink">{title}</h2>
-            {subtitle ? (
-              <p className="mt-1 text-xs leading-5 text-faint">{subtitle}</p>
-            ) : null}
+        <header
+          className={`flex flex-wrap items-center justify-between gap-4 ${
+            framed ? "border-b border-line px-6 py-4" : "border-b border-line pb-4"
+          }`}
+        >
+          <div className="flex min-w-0 items-center gap-2">
+            <Diamond className="bg-brass-dim" size={5} />
+            <div className="min-w-0">
+              <h2 className="font-mono text-xs uppercase tracking-[0.24em] text-ink">
+                {title}
+              </h2>
+              {subtitle ? (
+                <p className="mt-1 text-xs leading-5 text-faint">{subtitle}</p>
+              ) : null}
+            </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
             {code ? (
-              <span className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
+              <span className="font-mono text-xs uppercase tracking-[0.2em] text-faint">
                 {code}
               </span>
             ) : null}
           </div>
         </header>
       ) : null}
-      <div className={bodyClassName}>{children}</div>
+      <div className={framed ? bodyClassName : ""}>{children}</div>
     </section>
   );
 }
 
-/* ------------------------------------------------------------------- stats */
+/* ------------------------------------------------------------------ figures */
 
-/**
- * Institutional number treatment: the figure is the loudest thing in the card,
- * set light and monospaced, with the fractional part dropped back so the eye
- * lands on the magnitude first. Values without a decimal render unchanged.
- */
-function Figure({ value }: { value: string }) {
+/** The fractional part drops back so the eye lands on the magnitude. */
+function Split({ value }: { value: string }) {
   const cut = value.lastIndexOf(".");
   if (cut === -1) return <>{value}</>;
   return (
@@ -152,6 +188,7 @@ function Figure({ value }: { value: string }) {
   );
 }
 
+/** A figure, report style: label, rule, number. No card. */
 export function StatCard({
   label,
   value,
@@ -163,67 +200,65 @@ export function StatCard({
   hint?: string;
   tone?: "default" | "hot" | "warm" | "cold" | "brand";
 }) {
-  // Every card carries the same hairline. Only a HOT or WARM figure takes hue —
-  // colour on this screen means triage and nothing else.
   const toneText: Record<string, string> = {
     default: "text-ink",
     brand: "text-ink",
     cold: "text-ink",
-    hot: "text-hot",
-    warm: "text-warm",
+    hot: "text-critical",
+    warm: "text-suspicious",
   };
-  // A count of 4 and a figure of 251,650.00 cannot take the same size in a
-  // four-across grid; step down once the string gets long rather than clipping.
   const size =
     value.length > 9
-      ? "text-3xl md:text-4xl"
+      ? "text-2xl md:text-3xl"
       : value.length > 6
-        ? "text-4xl md:text-5xl"
-        : "text-5xl md:text-6xl";
+        ? "text-3xl md:text-4xl"
+        : "text-4xl md:text-5xl";
   return (
-    <div className="rounded-panel border border-line bg-surface p-6">
-      <p className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
-        {label}
-      </p>
+    <div className="border-t border-line pt-4">
+      <Designation>{label}</Designation>
       <p
-        className={`mt-3 font-mono font-light tabular-nums tracking-tight ${size} ${toneText[tone]}`}
+        className={`mt-4 font-mono font-light tabular-nums tracking-tight ${size} ${toneText[tone]}`}
       >
-        <Figure value={value} />
+        <Split value={value} />
       </p>
-      {hint ? <p className="mt-3 text-xs leading-5 text-muted">{hint}</p> : null}
+      {hint ? <p className="mt-2 text-xs leading-5 text-faint">{hint}</p> : null}
     </div>
   );
 }
 
-/* ------------------------------------------------------------------ triage */
+/* ------------------------------------------------------------------- status */
 
+/**
+ * Case status. Red is critical, amber is suspicious, grey is closed — the only
+ * saturated colour on a screen, and it always states a finding.
+ */
 export const TRIAGE_META: Record<
   TriageLevel,
   { label: string; action: string; chip: string; dot: string; text: string; ring: string }
 > = {
   HOT: {
-    label: "HOT",
-    action: "Act now — funds still at rest",
-    chip: "border-hot/40 bg-hot/12 text-hot",
-    dot: "bg-hot",
-    text: "text-hot",
-    ring: "border-hot/40",
+    label: "CRITICAL",
+    action: "Funds still at rest — act now",
+    chip: "border-critical/50 text-critical",
+    dot: "bg-critical",
+    text: "text-critical",
+    ring: "border-critical/50",
   },
   WARM: {
-    label: "WARM",
-    action: "Freeze request viable",
-    chip: "border-warm/40 bg-warm/12 text-warm",
-    dot: "bg-warm",
-    text: "text-warm",
-    ring: "border-warm/40",
+    label: "SUSPICIOUS",
+    action: "Exit identified — freeze request viable",
+    chip: "border-suspicious/50 text-suspicious",
+    dot: "bg-suspicious",
+    text: "text-suspicious",
+    ring: "border-suspicious/50",
   },
   COLD: {
-    label: "COLD",
-    action: "Document and close",
-    chip: "border-cold/35 bg-cold/10 text-cold",
-    dot: "bg-cold",
-    text: "text-cold",
-    ring: "border-cold/35",
+    label: "CLOSED",
+    action: "Trail ends — document and close",
+    chip: "border-closed/60 text-closed",
+    dot: "bg-closed",
+    text: "text-closed",
+    ring: "border-closed/50",
   },
 };
 
@@ -237,18 +272,18 @@ export function TriageBadge({
   withAction?: boolean;
 }) {
   const meta = TRIAGE_META[level];
-  const pad = size === "lg" ? "px-3.5 py-1.5 text-sm" : "px-2.5 py-1 text-xs";
+  const pad = size === "lg" ? "px-4 py-2" : "px-2 py-1";
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full border font-semibold uppercase tracking-[0.12em] ${meta.chip} ${pad}`}
+      className={`inline-flex items-center gap-2 border font-mono text-xs uppercase tracking-[0.2em] ${meta.chip} ${pad}`}
     >
       <span
-        className={`h-1.5 w-1.5 rounded-full ${meta.dot} ${level === "HOT" ? "tx-pulse" : ""}`}
+        className={`h-1 w-1 rotate-45 ${meta.dot} ${level === "HOT" ? "fx-mark" : ""}`}
       />
       {meta.label}
       {withAction ? (
-        <span className="font-normal normal-case tracking-normal opacity-80">
-          · {meta.action}
+        <span className="font-sans normal-case tracking-normal text-muted">
+          {meta.action}
         </span>
       ) : null}
     </span>
@@ -267,17 +302,17 @@ export function Chip({
   title?: string;
 }) {
   const tones: Record<string, string> = {
-    neutral: "border-line bg-surface-2 text-muted",
-    brand: "border-brand/30 bg-brand/10 text-brand",
-    hot: "border-hot/35 bg-hot/10 text-hot",
-    warm: "border-warm/35 bg-warm/10 text-warm",
-    cold: "border-cold/30 bg-cold/10 text-cold",
-    violet: "border-violet-400/30 bg-violet-400/10 text-violet-300",
+    neutral: "border-line text-faint",
+    brand: "border-brass-dim text-brass",
+    hot: "border-critical/50 text-critical",
+    warm: "border-suspicious/50 text-suspicious",
+    cold: "border-closed/50 text-closed",
+    violet: "border-line text-faint",
   };
   return (
     <span
       title={title}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${tones[tone]}`}
+      className={`inline-flex items-center gap-2 border px-2 py-1 font-mono text-xs uppercase tracking-[0.16em] ${tones[tone]}`}
     >
       {children}
     </span>
@@ -285,16 +320,15 @@ export function Chip({
 }
 
 /**
- * Attribution provenance — we show our uncertainty rather than hide it.
- *
- * Outlined mono, no fill, no hue: the tier is stated in words, and colour on
- * this screen is reserved for triage.
+ * Attribution provenance. The tier is stated in words rather than implied by
+ * colour — an explorer tag and a clustering heuristic are not the same claim.
  */
 export function SourceChip({ source }: { source: string }) {
-  const map: Record<string, { text: string; title: string }> = {
+  const map: Record<string, { text: string; title: string; confirmed?: boolean }> = {
     ground_truth: {
       text: "Ground truth",
       title: "Public block-explorer tag — treated as fact.",
+      confirmed: true,
     },
     heuristic: {
       text: "Heuristic",
@@ -302,7 +336,7 @@ export function SourceChip({ source }: { source: string }) {
     },
     sanctions: {
       text: "Sanctions list",
-      title: "Published sanctions listing (e.g. OFAC SDN).",
+      title: "Published sanctions listing.",
     },
     community: {
       text: "Community report",
@@ -313,11 +347,49 @@ export function SourceChip({ source }: { source: string }) {
   return (
     <span
       title={meta.title}
-      className="inline-flex items-center rounded-panel border border-line px-2 py-0.5 font-mono text-xs uppercase tracking-[0.16em] text-faint"
+      className={`inline-flex items-center gap-2 border px-2 py-1 font-mono text-xs uppercase tracking-[0.16em] ${
+        meta.confirmed ? "border-confirmed/50 text-confirmed" : "border-line text-faint"
+      }`}
     >
       {meta.text}
     </span>
   );
+}
+
+/* -------------------------------------------------------- attribution voice */
+
+/**
+ * How an attribution is allowed to be worded.
+ *
+ * A clustering heuristic supports "likely X deposit cluster". It does not
+ * support "this wallet is X". The distinction is the difference between an
+ * investigative lead and a claim we would have to defend in court, so the
+ * phrasing lives in one place and every screen uses it.
+ */
+export function entityPhrase(
+  label:
+    | { entity: string; kind: string | null; source: string | null }
+    | null
+    | undefined,
+): string {
+  if (!label || !label.kind) return "Unlabelled wallet";
+  const certain = label.source === "ground_truth" || label.source === "sanctions";
+  switch (label.kind) {
+    case "victim_reported":
+      return "Victim-reported wallet";
+    case "exchange_deposit":
+      return certain
+        ? `${label.entity} deposit address`
+        : `Likely ${label.entity} deposit cluster`;
+    case "exchange_hot":
+      return certain ? `${label.entity} hot wallet` : `Likely ${label.entity} hot wallet`;
+    case "mixer":
+      return certain ? label.entity : `Likely mixing service`;
+    case "sanctioned":
+      return `${label.entity} — sanctioned`;
+    default:
+      return label.entity;
+  }
 }
 
 /* --------------------------------------------------------------- feedback */
@@ -332,10 +404,10 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-56 flex-col items-center justify-center rounded-panel border border-dashed border-line px-6 py-12 text-center">
-      <p className="text-sm font-medium text-ink">{title}</p>
-      <p className="mt-2 max-w-md text-sm leading-6 text-faint">{description}</p>
-      {action ? <div className="mt-5">{action}</div> : null}
+    <div className="flex min-h-40 flex-col items-start justify-center border-l border-brass-dim py-10 pl-6">
+      <p className="font-mono text-xs uppercase tracking-[0.24em] text-ink">{title}</p>
+      <p className="mt-4 max-w-md text-sm leading-6 text-faint">{description}</p>
+      {action ? <div className="mt-6">{action}</div> : null}
     </div>
   );
 }
@@ -350,10 +422,12 @@ export function ErrorState({
   action?: ReactNode;
 }) {
   return (
-    <div className="rounded-panel border border-hot/30 bg-hot/[0.06] px-6 py-8 text-center">
-      <p className="text-sm font-semibold text-hot">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
-      {action ? <div className="mt-5 flex justify-center">{action}</div> : null}
+    <div className="border-l-2 border-critical py-10 pl-6">
+      <p className="font-mono text-xs uppercase tracking-[0.24em] text-critical">
+        {title}
+      </p>
+      <p className="mt-4 max-w-xl text-sm leading-6 text-muted">{description}</p>
+      {action ? <div className="mt-6">{action}</div> : null}
     </div>
   );
 }
@@ -361,7 +435,7 @@ export function ErrorState({
 export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded-lg bg-surface-2 ${className}`}
+      className={`animate-pulse border border-line-soft bg-surface-2 ${className}`}
       aria-hidden="true"
     />
   );
@@ -375,11 +449,11 @@ export function Spinner({ className = "" }: { className?: string }) {
       fill="none"
       aria-hidden="true"
     >
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" opacity="0.25" />
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" opacity="0.25" />
       <path
         d="M21 12a9 9 0 0 0-9-9"
         stroke="currentColor"
-        strokeWidth="3"
+        strokeWidth="2"
         strokeLinecap="round"
       />
     </svg>
@@ -389,12 +463,13 @@ export function Spinner({ className = "" }: { className?: string }) {
 /* ---------------------------------------------------------------- buttons */
 
 const BUTTON_BASE =
-  "inline-flex items-center justify-center gap-2 rounded-panel px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 px-6 py-4 font-mono text-xs uppercase tracking-[0.2em] transition disabled:cursor-not-allowed disabled:opacity-40";
 
 export const buttonStyles = {
-  primary: `${BUTTON_BASE} bg-ink text-bg hover:bg-white`,
-  secondary: `${BUTTON_BASE} border border-line bg-surface-2 text-ink hover:border-faint`,
-  ghost: `${BUTTON_BASE} text-muted hover:bg-white/5 hover:text-ink`,
+  /** Brass. One per eyeline, never more. */
+  primary: `${BUTTON_BASE} bg-brass text-bg hover:bg-[#c9a468]`,
+  secondary: `${BUTTON_BASE} border border-line text-ink hover:border-brass-dim hover:text-brass`,
+  ghost: `${BUTTON_BASE} px-2 text-faint hover:text-ink`,
 };
 
 /* ------------------------------------------------------------ data source */
@@ -408,19 +483,22 @@ export function DataSourceBadge({
 }) {
   if (source === "live") {
     return (
-      <Chip tone="brand" title="Served by the trace API on this deployment.">
-        <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-        Live API
-      </Chip>
+      <span
+        title="Served by the trace service on this deployment."
+        className="inline-flex items-center gap-2 border border-line px-2 py-1 font-mono text-xs uppercase tracking-[0.16em] text-faint"
+      >
+        <span className="h-1 w-1 rotate-45 bg-confirmed" />
+        Live feed
+      </span>
     );
   }
   return (
-    <Chip
-      tone="warm"
-      title={note ?? "Serving committed fixtures from /public/mock."}
+    <span
+      title={note ?? "Serving committed fixtures."}
+      className="inline-flex items-center gap-2 border border-suspicious/40 px-2 py-1 font-mono text-xs uppercase tracking-[0.16em] text-suspicious"
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-warm" />
-      Demo data
-    </Chip>
+      <span className="h-1 w-1 rotate-45 bg-suspicious" />
+      Demo feed
+    </span>
   );
 }

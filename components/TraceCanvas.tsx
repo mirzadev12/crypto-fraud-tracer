@@ -41,7 +41,7 @@ export default function TraceCanvas({
   return (
     <div>
       {controlledView === undefined ? (
-        <div className="flex justify-end border-b border-line-soft px-5 py-3">
+        <div className="flex justify-end border-b border-line-soft px-6 py-4">
           <ViewToggle view={view} onChange={setOwnView} />
         </div>
       ) : null}
@@ -105,9 +105,9 @@ function Readout({
   ];
 
   return (
-    <div className="tx-scroll flex h-9 items-center gap-4 overflow-x-auto border-t border-line px-5 font-mono text-xs whitespace-nowrap text-faint">
-      <span className="flex items-center gap-1.5">
-        <span className="h-px w-5 bg-warm" />
+    <div className="fx-scroll flex h-9 items-center gap-4 overflow-x-auto border-t border-line px-6 font-mono text-xs whitespace-nowrap text-faint">
+      <span className="flex items-center gap-2">
+        <span className="h-px w-5 bg-suspicious" />
         {"<10 MIN"}
       </span>
       {view === "bubbles" ? (
@@ -145,7 +145,7 @@ export function ViewToggle({
   ];
   return (
     <div
-      className="flex shrink-0 rounded-lg border border-line bg-surface-2 p-1"
+      className="flex shrink-0 border border-line bg-surface-2 p-1"
       role="group"
       aria-label="Graph view"
     >
@@ -156,7 +156,7 @@ export function ViewToggle({
           title={o.title}
           aria-pressed={view === o.id}
           onClick={() => onChange(o.id)}
-          className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+          className={` px-4 py-2 text-xs font-semibold transition ${
             view === o.id
               ? "bg-white/10 text-ink"
               : "text-faint hover:text-ink"

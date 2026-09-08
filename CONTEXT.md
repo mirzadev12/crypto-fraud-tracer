@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 8 September 2026 (aesthetic refinement pass).
+Last updated: 8 September 2026 (FineX visual system).
 
 ---
 
@@ -63,43 +63,58 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
 
 ## 3. Decisions already made — do not re-litigate
 
-- **Dark theme only, with one deliberate exception.** The console is dark because
-  triage colour carries meaning and a light theme washes it out. The exception is
-  the evidence packet sheet (see the serif rule below), which is light on screen
-  so that what an officer sees is what prints. Tokens are in `app/globals.css`
-  (`@theme inline`): `bg`, `surface`, `surface-2`, `line`, `ink`, `muted`,
-  `faint`, `brand`, the triage trio `hot` / `warm` / `cold`, plus
-  `--radius-panel` and `--font-serif`.
-- **Hue means triage. Nothing else.** Chrome is near-monochrome: `--color-brand`
-  is a desaturated steel (`#7aa2d6`), not cyan, and it never appears on headings,
-  section labels, source tags or primary buttons — those are ink or faint. The
-  only saturated colour on a screen belongs to HOT / WARM / COLD and the risk
-  flags. This is what makes a triage call read from across a room, and it is the
-  single decision that most separates this from a generic dark dashboard. If a
-  future change wants an accent-coloured heading or button, the answer is no.
-- **Triage colour scale**: HOT red, WARM amber, COLD slate. A heat scale.
-- **Contrast floor.** `--color-faint` is `#8b97b0` (~6.4:1 on surface) because it
-  carries every micro-label, and the judge is five metres from a projector. No
-  interface text below `text-xs` (12px) except two chips inside a graph node,
-  noted below. Do not darken these tokens back down.
-- **Tight geometry.** Panels, cards and inputs use `rounded-panel` (6px) — an
-  instrument does not have soft corners. `rounded-full` is kept only for status
-  dots and the triage pill.
-- **Data typography.** Figures are mono, light, tabular and large
-  (`StatCard` in `ui.tsx`), with the fractional part dropped to `text-faint` so
-  the eye lands on the magnitude. Size steps down by string length so a long
-  figure does not overflow its card.
-- **Instrument chrome.** `Corners` (four bracket marks) and `Gutter`
-  (`[ 02 / 04 ] ──── [ FUND FLOW ]`) live in `ui.tsx`. Use them rather than
-  scattering one-off markup, and keep the hairline grid doing the work that a
-  glow used to — `.tx-glow` is now a single faint vertical falloff on purpose.
-- **Serif appears in exactly one place**: the evidence packet, for the document
-  title, section headings, the triage sentence, the summary and the legal
-  footer. Everywhere else is sans, and every address, hash and figure stays mono.
-  Do not let serif leak into the console.
+- **The product is FineX // Blockchain Intelligence.** A bureau instrument, not a
+  SaaS dashboard. The gut check before shipping any screen: would this look at
+  home in a government financial-crime unit? Fewer boxes, more rules, more
+  negative space.
+- **Palette, and it is a budget** (`app/globals.css`): ~90% near-black `#0a0a0a`
+  / deep charcoal `#141414` / panel charcoal `#1e1e1e`; ~7% warm ivory `#f0ead8`
+  and greys; ~2% brass `#c6a15b`; ~1% risk colour — critical `#b33a3a`,
+  suspicious `#c98a34`, confirmed `#4a7856`. Brass is structural only: a rule, a
+  selected state, one call to action per eyeline. It is never decoration, and
+  risk colour appears only where a finding is being stated.
+- **Contrast floor overrides the supplied dim grey.** The spec's dim grey
+  `#6b6660` measures ~3.4:1 on charcoal and this token carries every micro-label,
+  so `--color-faint` is `#8c867d` (~5.4:1) and `--color-dim` holds `#6b6660` for
+  rules and disabled states where contrast is not load-bearing. Do not merge them.
+- **Four faces, one job each**: Cinzel (`font-display`) for section titles and
+  page headings only; Cormorant (`font-document`) for the printed evidence packet
+  only; Inter (`font-sans`) for every functional surface; IBM Plex Mono
+  (`font-mono`) for addresses, hashes and figures. Display serif never appears in
+  body copy, and the document serif never leaves the packet.
+- **Spacing is 4 / 8 / 16 / 24 / 40 / 64 / 96 / 128** — Tailwind 1, 2, 4, 6, 10,
+  16, 24, 32. No arbitrary values. A sweep enforces this; keep it enforced.
+- **Art Deco is geometry, not ornament.** `--radius-panel` is `0`; corners are
+  square everywhere. `Diamond` (rotated lozenge) is the tick mark, `Rule` is the
+  faded brass hairline, `SectionHeader` is index + lozenge + display title + rule.
+  Deco should read as about a tenth of the design. No gradients, no glow, no
+  glassmorphism, no floating blobs, no icon soup.
+- **Containers must earn themselves.** `Panel` takes `framed={false}` for the
+  common case — a label, a hairline, and the content. Only a canvas, a scrolling
+  table or the document sheet gets a border. Do not card-ify a screen.
+- **Layout is asymmetric on purpose.** No equal three-column grids of cards; the
+  trace page runs a wide finding against a narrow figure column, and the landing
+  page leaves real space to the right of the measure.
+- **Data typography.** Figures are mono, light, tabular, large, with the
+  fractional part dropped to faint (`StatCard`), sized down by string length so a
+  long figure cannot overflow.
+- **Attribution voice is a safety rule, not a style choice.** `entityPhrase()` in
+  `ui.tsx` is the only place wording is decided: a clustering heuristic yields
+  "Likely Binance deposit cluster", never "this wallet is Binance". Ground-truth
+  and sanctions sources may state the entity plainly. Every attribution carries a
+  confidence and a source tier. Do not write entity names into JSX directly.
+- **One status vocabulary**: CRITICAL / SUSPICIOUS / CLOSED on screen, mapped from
+  the frozen contract's HOT / WARM / COLD in `TRIAGE_META`. The contract keeps its
+  names; the interface never shows them.
+- **Progressive disclosure in the signals panel.** Count and rule names first;
+  "VIEW EVIDENCE" reveals the reasons and the addresses. An investigator wants to
+  know which rules fired before reading why.
+- **Graph node size is banded by kind, then scaled by taint** (`BubbleMap`):
+  subject 46px, exchange 32–40px, unlabelled 16–24px, background under 5% taint
+  8–12px. Size is always the victim's money, never arbitrary.
 - **The deposit address is the loudest element in the app.** In `TraceView`'s
-  terminal card it is set at `text-2xl md:text-3xl` mono — larger than any
-  heading anywhere. That is the product; nothing may out-shout it.
+  terminal card it is set larger than any heading. That is the product.
+
 - **The interface names no data provider.** This is a tool for professional
   investigators, not a showcase for the stack behind it: no screen says TronGrid
   or Tronscan. The telemetry gutter reports `FEED LIVE` / `FEED DEMO`, the

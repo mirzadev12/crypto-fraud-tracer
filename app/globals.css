@@ -1,42 +1,50 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ tokens */
-/* TraceX is a dark investigative console. It commits to one look on purpose:
-   officers use it beside a case file, and a light theme would wash out the
-   triage colours that carry meaning.
-
-   The rule that governs every colour below: hue means triage. Interface chrome
-   is near-monochrome, and the only saturated colour on screen belongs to HOT,
-   WARM, COLD and the risk flags. That is what lets a triage call read from the
-   back of a room. */
+/* FineX is a bureau instrument, not a product dashboard.
+ *
+ * The budget, and it is a budget: ~90% near-black and charcoal, ~7% ivory and
+ * grey text, ~2% brass, ~1% risk colour. Brass is structural — a rule, a
+ * selected state, a call to action — and never decoration. Risk colour appears
+ * only where a finding is being stated.
+ *
+ * Spacing is 4 / 8 / 16 / 24 / 40 / 64 / 96 / 128 and nothing else. In Tailwind
+ * terms: 1, 2, 4, 6, 10, 16, 24, 32. No arbitrary pixel values.
+ */
 
 @theme inline {
-  --color-bg: #070a12;
-  --color-surface: #0d111c;
-  --color-surface-2: #121a2a;
-  --color-line: #1d2536;
-  --color-line-soft: #161d2b;
-  --color-ink: #e8eef8;
-  --color-muted: #9aa6bb;
-  --color-faint: #8b97b0;   /* ~6.4:1 on surface — these carry the micro-labels */
+  --color-bg: #0a0a0a;        /* almost black */
+  --color-surface: #141414;   /* deep charcoal */
+  --color-surface-2: #1e1e1e; /* panel charcoal */
+  --color-line: #2a2a28;
+  --color-line-soft: #1e1e1c;
 
-  /* Steel, not cyan: chrome must never compete with a triage colour. */
-  --color-brand: #7aa2d6;
-  --color-brand-dim: #3f5f8a;
+  --color-ink: #f0ead8;       /* warm ivory */
+  --color-muted: #a8a296;     /* muted gray */
+  /* Between muted and dim: the specified dim gray measures ~3.4:1 on charcoal,
+     which is below AA, and this token carries every micro-label on the screen.
+     Dim gray is kept below for rules and disabled states, where contrast is not
+     load-bearing. */
+  --color-faint: #8c867d;
+  --color-dim: #6b6660;       /* dim gray — decoration only */
 
-  /* Triage scale — red is urgent, amber is actionable, slate is closed. */
-  --color-hot: #ff6b6b;
-  --color-warm: #f5b544;
-  --color-cold: #8fa3bf;
+  /* Brass / antique gold. Roughly two percent of any screen. */
+  --color-brass: #c6a15b;
+  --color-brass-dim: #7a6338;
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  /* Report only — see CONTEXT.md §3. Zero network cost. */
-  --font-serif: ui-serif, Georgia, "Times New Roman", serif;
+  /* Findings only. */
+  --color-critical: #b33a3a;
+  --color-suspicious: #c98a34;
+  --color-confirmed: #4a7856;
+  --color-closed: #6b6660;
 
-  /* Instruments have tight corners. rounded-full stays for status dots and the
-     triage pill; everything else uses this. */
-  --radius-panel: 6px;
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
+  --font-display: var(--font-cinzel);
+  --font-document: var(--font-cormorant);
+
+  /* Art Deco is geometry, not curvature. */
+  --radius-panel: 0px;
 }
 
 :root {
@@ -46,96 +54,96 @@
 body {
   background: var(--color-bg);
   color: var(--color-ink);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Subtle grid backdrop for the console shell. */
-.tx-grid {
+/* --------------------------------------------------------------- deco rules */
+
+/* A brass hairline that fades at both ends — the bureau divider. */
+.fx-rule {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-brass-dim) 12%,
+    var(--color-brass-dim) 88%,
+    transparent
+  );
+}
+
+/* Faint engraved grid. Structure, never atmosphere. */
+.fx-grid {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 44px 44px;
+    linear-gradient(to right, rgba(236, 231, 221, 0.022) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(236, 231, 221, 0.022) 1px, transparent 1px);
+  background-size: 64px 64px;
 }
 
-.tx-glow {
-  /* Structure carries the hero, not bloom. */
-  background: linear-gradient(to bottom, rgba(122, 162, 214, 0.05), transparent 45%);
-}
-
-/* Focus ring — visible on every interactive element, keyboard-first. */
+/* Focus ring — brass, visible, keyboard-first. */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-brand);
+  outline: 1px solid var(--color-brass);
   outline-offset: 2px;
-  border-radius: 0.5rem;
 }
 
 ::selection {
-  background: rgba(122, 162, 214, 0.30);
+  background: rgba(184, 147, 90, 0.3);
 }
 
-/* Scrollbars inside panels. */
-.tx-scroll {
+.fx-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #263047 transparent;
+  scrollbar-color: #2c2b28 transparent;
 }
-.tx-scroll::-webkit-scrollbar {
-  height: 10px;
-  width: 10px;
+.fx-scroll::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
 }
-.tx-scroll::-webkit-scrollbar-thumb {
-  background: #263047;
-  border-radius: 999px;
-  border: 3px solid transparent;
-  background-clip: content-box;
+.fx-scroll::-webkit-scrollbar-thumb {
+  background: #2c2b28;
 }
 
-@keyframes tx-pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.45); }
-  70% { box-shadow: 0 0 0 12px rgba(255, 107, 107, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+/* ------------------------------------------------------------------ motion */
+
+@keyframes fx-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
 }
-.tx-pulse {
-  animation: tx-pulse-ring 2.4s infinite;
+.fx-flow {
+  animation: fx-flow 1.4s linear infinite;
 }
 
-@keyframes tx-dash {
-  to { stroke-dashoffset: -24; }
+@keyframes fx-mark {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
 }
-.tx-dash {
-  animation: tx-dash 1.1s linear infinite;
-}
-
-@keyframes tx-fade-up {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
-}
-.tx-enter {
-  animation: tx-fade-up 0.28s ease-out both;
+.fx-mark {
+  animation: fx-mark 3s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tx-pulse,
-  .tx-enter,
-  .tx-dash,
+  .fx-flow,
+  .fx-mark,
   .react-flow__edge-path {
     animation: none !important;
   }
 }
 
 /* ------------------------------------------------------------- react-flow */
-/* The graph inherits the console palette instead of the library defaults. */
+
 /* React Flow is MIT-licensed and asks that the attribution stay visible on the
-   free tier. We keep it, just toned down to match the console. */
+   free tier. We keep it, toned down to the bureau palette. */
 .react-flow__attribution {
   background: transparent;
   font-size: 10px;
 }
 .react-flow__attribution a {
   color: var(--color-faint);
-}
-.react-flow__edge-path {
-  stroke-width: 1.6;
 }
 .react-flow__handle {
   opacity: 0;
@@ -147,38 +155,35 @@ body {
   fill: var(--color-muted);
 }
 .react-flow__controls-button:hover {
-  background: #182238;
+  background: #1f1e1c;
 }
 
 /* ---------------------------------------------------------------- print */
-/* /report/[caseId] is meant to be printed and stapled to a freeze request. */
+/* The evidence packet is meant to be printed and stapled to a freeze request. */
 @media print {
   :root {
     color-scheme: light;
   }
   body {
     background: #ffffff;
-    color: #111827;
+    color: #111111;
   }
   .print\:hidden,
   nav,
   footer {
     display: none !important;
   }
-  .tx-print-sheet {
+  .fx-print-sheet {
     background: #ffffff !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
     max-width: none !important;
   }
-  /* The sheet is already a light document on screen, so print only has to strip
-     the page background and keep the rules hairline. Colours are left alone so
-     the serif hierarchy survives onto paper. */
-  .tx-print-sheet * {
+  .fx-print-sheet * {
     background: transparent !important;
   }
-  .tx-print-block {
+  .fx-print-block {
     break-inside: avoid;
   }
   @page {

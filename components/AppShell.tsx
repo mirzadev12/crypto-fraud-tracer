@@ -23,15 +23,27 @@ export default function AppShell({
 
 export function Footer() {
   return (
-    <footer className="border-t border-line bg-surface/40">
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
-        <p>
-          TraceX · Crypto Fraud Tracer — TRON / USDT (TRC-20). Attribution is an
-          investigative lead, not sole grounds for freezing an account.
-        </p>
-        <p className="shrink-0">
-          SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C · Team FineX
-        </p>
+    <footer className="border-t border-line">
+      <div className="mx-auto max-w-7xl px-6 py-16">
+        <div className="flex flex-col gap-10 md:flex-row md:justify-between">
+          <div>
+            <p className="font-display text-sm uppercase tracking-[0.32em] text-ink">
+              FineX
+            </p>
+            <p className="mt-2 font-mono text-xs uppercase tracking-[0.24em] text-faint">
+              Blockchain Intelligence · TRON · USDT TRC-20
+            </p>
+          </div>
+          <p className="max-w-md text-xs leading-6 text-faint">
+            Attribution stated here is an investigative lead carrying a stated
+            confidence. It is not, on its own, grounds for freezing an account.
+          </p>
+        </div>
+        <div className="mt-16 border-t border-line pt-6">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-faint">
+            SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C
+          </p>
+        </div>
       </div>
     </footer>
   );

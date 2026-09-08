@@ -23,12 +23,12 @@ export default function AddressChip({
 }) {
   const tones = {
     default: "text-muted",
-    brand: "text-brand",
+    brand: "text-brass",
     strong: "text-ink",
   };
 
   return (
-    <span className={`inline-flex items-center gap-1.5 ${className}`}>
+    <span className={`inline-flex items-center gap-2 ${className}`}>
       <span
         className={`font-mono text-[13px] tracking-tight ${tones[tone]} ${full ? "break-all" : ""}`}
         title={address}
@@ -43,7 +43,7 @@ export default function AddressChip({
           rel="noreferrer noopener"
           title="Open in block explorer"
           aria-label={`Open ${address} in a public block explorer`}
-          className="rounded-md p-1 text-faint transition hover:bg-white/5 hover:text-brand"
+          className="p-1 text-faint transition hover:bg-white/5 hover:text-brass"
         >
           <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" aria-hidden="true">
             <path

@@ -81,7 +81,7 @@ export default function FundFlowExplorer({
       : null;
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
+    <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
       {/* ------------------------------------------------------------- rail */}
       <Panel
         title="Cases"
@@ -89,7 +89,7 @@ export default function FundFlowExplorer({
         bodyClassName="p-0"
         className="lg:sticky lg:top-24 lg:self-start"
       >
-        <ul className="tx-scroll max-h-[70vh] divide-y divide-line-soft overflow-y-auto">
+        <ul className="fx-scroll max-h-[70vh] divide-y divide-line-soft overflow-y-auto">
           {cases.length === 0
             ? [0, 1, 2, 3].map((i) => (
                 <li key={i} className="p-4">
@@ -103,8 +103,8 @@ export default function FundFlowExplorer({
                     <button
                       type="button"
                       onClick={() => open(c.inputAddress)}
-                      className={`w-full px-4 py-3.5 text-left transition ${
-                        active ? "bg-brand/[0.08]" : "hover:bg-white/[0.03]"
+                      className={`w-full px-4 py-4.5 text-left transition ${
+                        active ? "bg-brass/[0.08]" : "hover:bg-white/[0.03]"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -130,7 +130,7 @@ export default function FundFlowExplorer({
       </Panel>
 
       {/* ------------------------------------------------------------ graph */}
-      <div className="space-y-5">
+      <div className="space-y-6">
         {!address ? (
           <Panel title="Fund flow">
             <EmptyState
@@ -162,7 +162,7 @@ export default function FundFlowExplorer({
                   <TriageBadge level={current.result.data.triage} />
                   <Link
                     href={`/trace/${encodeURIComponent(current.result.data.inputAddress)}`}
-                    className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-muted transition hover:border-faint hover:text-ink"
+                    className="border border-line px-4 py-2 text-xs font-semibold text-muted transition hover:border-faint hover:text-ink"
                   >
                     Full result
                   </Link>
@@ -182,15 +182,15 @@ export default function FundFlowExplorer({
               />
             </Panel>
 
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               <Panel title="Selected wallet">
                 {selected ? (
-                  <dl className="space-y-3 text-sm">
+                  <dl className="space-y-4 text-sm">
                     <div>
                       <dt className="text-xs uppercase tracking-[0.14em] text-faint">
                         Address
                       </dt>
-                      <dd className="mt-1.5">
+                      <dd className="mt-2">
                         <AddressChip address={selected.address} tone="strong" full />
                       </dd>
                     </div>
@@ -232,7 +232,7 @@ export default function FundFlowExplorer({
                       <dt className="text-xs uppercase tracking-[0.14em] text-faint">
                         Attribution
                       </dt>
-                      <dd className="mt-1.5 flex flex-wrap items-center gap-2">
+                      <dd className="mt-2 flex flex-wrap items-center gap-2">
                         {selected.label ? (
                           <>
                             <span className="text-ink">{selected.label.entity}</span>
@@ -252,7 +252,7 @@ export default function FundFlowExplorer({
                       </dd>
                     </div>
                     {selected.label?.evidence ? (
-                      <p className="rounded-lg border border-line bg-surface-2/60 px-3 py-2 font-mono text-xs leading-5 text-muted">
+                      <p className="border border-line bg-surface-2/60 px-4 py-2 font-mono text-xs leading-5 text-muted">
                         {selected.label.evidence}
                       </p>
                     ) : null}
@@ -270,11 +270,11 @@ export default function FundFlowExplorer({
                   {current.result.data.triageReason}
                 </p>
                 {current.result.data.terminal?.depositAddress ? (
-                  <div className="mt-4 rounded-lg border border-warm/30 bg-warm/[0.06] p-3">
-                    <p className="text-xs uppercase tracking-[0.16em] text-warm">
+                  <div className="mt-4 border border-suspicious/30 bg-suspicious/[0.06] p-4">
+                    <p className="text-xs uppercase tracking-[0.16em] text-suspicious">
                       {current.result.data.terminal.label.entity} deposit address
                     </p>
-                    <code className="mt-1.5 block break-all font-mono text-xs text-ink">
+                    <code className="mt-2 block break-all font-mono text-xs text-ink">
                       {current.result.data.terminal.depositAddress}
                     </code>
                   </div>

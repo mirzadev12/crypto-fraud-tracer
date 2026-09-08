@@ -110,21 +110,21 @@ export default function CaseQueue() {
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Act now (HOT)"
+          label="Critical"
           value={String(stats.hot)}
-          hint="Funds still at rest — no off-ramp reached"
+          hint="Funds still at rest — no exit reached"
           tone="hot"
         />
         <StatCard
-          label="Freeze viable (WARM)"
+          label="Suspicious"
           value={String(stats.warm)}
-          hint="Deposit address named — freeze request can be filed"
+          hint="Exit identified — freeze request viable"
           tone="warm"
         />
         <StatCard
-          label="Closed (COLD)"
+          label="Closed"
           value={String(stats.cold)}
-          hint="Path enters a mixer or sanctioned address"
+          hint="Trail enters a mixer or sanctioned address"
           tone="cold"
         />
         <StatCard
@@ -143,14 +143,14 @@ export default function CaseQueue() {
         }
         bodyClassName="p-0"
       >
-        <div className="flex flex-wrap items-center gap-3 border-b border-line-soft px-5 py-4">
-          <div className="flex rounded-lg border border-line bg-surface-2 p-1">
+        <div className="flex flex-wrap items-center gap-4 border-b border-line-soft px-6 py-4">
+          <div className="flex border border-line bg-surface-2 p-1">
             {FILTERS.map((f) => (
               <button
                 key={f}
                 type="button"
                 onClick={() => setFilter(f)}
-                className={`rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] transition ${
+                className={` px-4 py-2 text-xs font-semibold uppercase tracking-[0.1em] transition ${
                   filter === f
                     ? f === "ALL"
                       ? "bg-white/10 text-ink"
@@ -158,7 +158,7 @@ export default function CaseQueue() {
                     : "text-faint hover:text-ink"
                 }`}
               >
-                {f === "ALL" ? "All" : f}
+                {f === "ALL" ? "All" : TRIAGE_META[f].label}
               </button>
             ))}
           </div>
@@ -168,68 +168,72 @@ export default function CaseQueue() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search case ID, address or exchange"
-              className="w-full rounded-lg border border-line bg-surface-2 px-3.5 py-2 text-sm text-ink placeholder:text-faint focus:border-brand/50 focus:outline-none"
+              placeholder="Search case, wallet or destination"
+              className="w-full border border-line bg-surface-2 px-4.5 py-2 text-sm text-ink placeholder:text-faint focus:border-brass/50 focus:outline-none"
             />
           </label>
         </div>
 
         {rows.length === 0 ? (
-          <div className="p-5">
+          <div className="p-6">
             <EmptyState
               title="No complaints match this filter"
               description="Clear the search or switch the triage filter to see the rest of today's queue."
             />
           </div>
         ) : (
-          <div className="tx-scroll overflow-x-auto">
+          <div className="fx-scroll overflow-x-auto">
             <table className="w-full min-w-[820px] border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-line text-xs uppercase tracking-[0.14em] text-faint">
-                  <th className="px-5 py-3 font-medium">Triage</th>
-                  <th className="px-5 py-3 font-medium">Case</th>
-                  <th className="px-5 py-3 font-medium">Victim-reported address</th>
-                  <th className="px-5 py-3 font-medium">Destination</th>
-                  <th className="px-5 py-3 text-right font-medium">Reported</th>
-                  <th className="px-5 py-3 font-medium">Reported at</th>
-                  <th className="px-5 py-3" />
+                  <th className="px-6 py-4 font-normal">Case</th>
+                  <th className="px-6 py-4 font-normal">Wallet</th>
+                  <th className="px-6 py-4 font-normal">Chain</th>
+                  <th className="px-6 py-4 text-right font-normal">Amount</th>
+                  <th className="px-6 py-4 font-normal">Status</th>
+                  <th className="px-6 py-4 font-normal">Reported</th>
+                  <th className="px-6 py-4 font-normal">Destination</th>
+                  <th className="px-6 py-4" />
                 </tr>
               </thead>
               <tbody>
                 {rows.map((c) => (
                   <tr
                     key={c.caseId}
-                    className="h-11 border-b border-line-soft transition last:border-0 hover:bg-surface-2"
+                    className="h-10 border-b border-line-soft transition last:border-0 hover:bg-surface-2"
                   >
-                    <td className="px-5 py-0">
-                      <TriageBadge level={c.triage} />
-                    </td>
-                    <td className="px-5 py-0 font-mono text-xs text-muted">
+                    <td className="px-6 py-0 font-mono text-xs text-muted">
                       {c.caseId}
                     </td>
-                    <td className="px-5 py-0">
+                    <td className="px-6 py-0">
                       <AddressChip address={c.inputAddress} explorer={false} />
                     </td>
-                    <td className="px-5 py-0">
+                    <td className="px-6 py-0 font-mono text-xs uppercase tracking-[0.16em] text-faint">
+                      TRON
+                    </td>
+                    <td className="px-6 py-0 text-right font-mono tabular-nums text-ink">
+                      {formatUsdt(c.reportedAmountUsdt, { symbol: false })}
+                    </td>
+                    <td className="px-6 py-0">
+                      <TriageBadge level={c.triage} />
+                    </td>
+                    <td className="px-6 py-0 font-mono text-xs text-faint">
+                      {formatDateTime(c.fraudDate)}
+                    </td>
+                    <td className="px-6 py-0 text-sm">
                       {c.terminalEntity ? (
                         <span className="text-ink">{c.terminalEntity}</span>
                       ) : (
                         <span className="text-faint">Funds at rest</span>
                       )}
                     </td>
-                    <td className="px-5 py-0 text-right font-mono tabular-nums text-ink">
-                      {formatUsdt(c.reportedAmountUsdt, { symbol: false })}
-                    </td>
-                    <td className="px-5 py-0 text-xs text-muted">
-                      {formatDateTime(c.fraudDate)}
-                    </td>
-                    <td className="px-5 py-0 text-right">
+                    <td className="px-6 py-0 text-right">
                       <Link
                         href={`/trace/${encodeURIComponent(c.inputAddress)}`}
-                        className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-muted transition hover:border-brand/40 hover:text-brand"
-                        aria-label={`Open trace for case ${c.caseId}, address ${shortAddress(c.inputAddress)}`}
+                        className="border border-line px-4 py-2 font-mono text-xs uppercase tracking-[0.16em] text-faint transition hover:border-brass-dim hover:text-brass"
+                        aria-label={`Open for case ${c.caseId}, address ${shortAddress(c.inputAddress)}`}
                       >
-                        Open trace
+                        Open
                       </Link>
                     </td>
                   </tr>

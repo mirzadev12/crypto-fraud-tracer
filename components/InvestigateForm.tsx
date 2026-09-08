@@ -17,7 +17,7 @@ type Status =
   | { kind: "failed"; message: string };
 
 const FIELD =
-  "w-full rounded-panel border bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-faint focus:outline-none";
+  "w-full  border bg-surface-2 px-4 py-4 text-sm text-ink placeholder:text-faint focus:outline-none";
 
 export default function InvestigateForm() {
   const [address, setAddress] = useState("");
@@ -79,13 +79,13 @@ export default function InvestigateForm() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <Panel
           title="New investigation"
           subtitle="Paste the wallet address from the NCRP complaint."
           className="lg:col-span-2"
         >
-          <form onSubmit={onSubmit} noValidate className="space-y-5">
+          <form onSubmit={onSubmit} noValidate className="space-y-6">
             <div>
               <label
                 htmlFor="address"
@@ -105,15 +105,15 @@ export default function InvestigateForm() {
                 aria-describedby="address-help"
                 className={`${FIELD} font-mono ${
                   showAddressError
-                    ? "border-hot/60"
+                    ? "border-critical/60"
                     : addressCheck.valid
-                      ? "border-brand/40"
-                      : "border-line focus:border-brand/50"
+                      ? "border-brass/40"
+                      : "border-line focus:border-brass/50"
                 }`}
               />
               <p
                 id="address-help"
-                className={`mt-2 text-xs leading-5 ${showAddressError ? "text-hot" : "text-faint"}`}
+                className={`mt-2 text-xs leading-5 ${showAddressError ? "text-critical" : "text-faint"}`}
               >
                 {showAddressError
                   ? addressCheck.reason
@@ -123,7 +123,7 @@ export default function InvestigateForm() {
               </p>
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               <div>
                 <label
                   htmlFor="amount"
@@ -141,8 +141,8 @@ export default function InvestigateForm() {
                   aria-invalid={touched && amount !== "" && !amountValid}
                   className={`${FIELD} font-mono ${
                     touched && amount !== "" && !amountValid
-                      ? "border-hot/60"
-                      : "border-line focus:border-brand/50"
+                      ? "border-critical/60"
+                      : "border-line focus:border-brass/50"
                   }`}
                 />
                 <p className="mt-2 text-xs leading-5 text-faint">
@@ -162,7 +162,7 @@ export default function InvestigateForm() {
                   type="date"
                   value={fraudDate}
                   onChange={(e) => setFraudDate(e.target.value)}
-                  className={`${FIELD} border-line font-mono focus:border-brand/50`}
+                  className={`${FIELD} border-line font-mono focus:border-brass/50`}
                 />
                 <p className="mt-2 text-xs leading-5 text-faint">
                   Only transfers after this date are followed.
@@ -170,7 +170,7 @@ export default function InvestigateForm() {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 border-t border-line pt-5">
+            <div className="flex flex-wrap items-center gap-4 border-t border-line pt-6">
               <button
                 type="submit"
                 disabled={!canSubmit || status.kind === "running"}
@@ -204,16 +204,16 @@ export default function InvestigateForm() {
           title="Frozen demo cases"
           subtitle="These run with the backend offline."
         >
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {DEMO_SAMPLES.map((s) => (
               <li key={s.address}>
                 <button
                   type="button"
                   onClick={() => applySample(s.address)}
-                  className="w-full rounded-panel border border-line bg-surface-2/60 p-4 text-left transition hover:border-brand/40"
+                  className="w-full border border-line bg-surface-2/60 p-4 text-left transition hover:border-brass/40"
                 >
                   <TriageBadge level={s.triage} />
-                  <p className="mt-2.5 text-sm leading-6 text-ink">{s.headline}</p>
+                  <p className="mt-2 text-sm leading-6 text-ink">{s.headline}</p>
                   <p className="mt-1 font-mono text-xs text-faint">
                     {shortAddress(s.address, 10, 8)}
                   </p>
@@ -244,7 +244,7 @@ export default function InvestigateForm() {
       ) : null}
 
       {status.kind === "done" ? (
-        <div className="tx-enter border-t border-line pt-6">
+        <div className="border-t border-line pt-6">
           <TraceView
             trace={status.result.data}
             source={status.result.source}

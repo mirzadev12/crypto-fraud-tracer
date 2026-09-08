@@ -17,7 +17,7 @@ export default function InvestigatePage() {
         title="Investigate a reported wallet"
         description="Enter the wallet address exactly as it appears on the complaint. The trace follows USDT forward from the date of the fraud and stops at the first address we can attribute."
       />
-      <div className="mt-8">
+      <div className="mt-6">
         <InvestigateForm />
       </div>
     </AppShell>

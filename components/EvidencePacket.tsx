@@ -38,10 +38,10 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className={`tx-print-block mt-9 border-t pt-6 ${SHEET.rule}`}>
-      <div className="flex items-baseline gap-3">
+    <section className={`fx-print-block mt-10 border-t pt-6 ${SHEET.rule}`}>
+      <div className="flex items-baseline gap-4">
         <span className={`font-mono text-xs tracking-[0.2em] ${SHEET.faint}`}>{n}</span>
-        <h2 className={`font-serif text-xl leading-tight tracking-tight ${SHEET.ink}`}>
+        <h2 className={`font-document text-xl leading-tight tracking-tight ${SHEET.ink}`}>
           {title}
         </h2>
       </div>
@@ -79,9 +79,9 @@ export default function EvidencePacket({ address }: { address: string }) {
   const caseRef = `CASE ${trace.inputAddress.slice(0, 6).toUpperCase()} · TRON · GENERATED ${generated}`;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Console chrome — stays dark, never prints. */}
-      <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
+      <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div className="flex flex-wrap items-center gap-2">
           <DataSourceBadge source={current.result.source} note={current.result.note} />
           <TriageBadge level={trace.triage} withAction />
@@ -105,17 +105,17 @@ export default function EvidencePacket({ address }: { address: string }) {
 
       {/* ------------------------------------------------------------ sheet */}
       <article
-        className={`tx-print-sheet mx-auto max-w-4xl rounded-panel bg-[#fafaf8] p-8 md:p-12 ${SHEET.ink}`}
+        className={`fx-print-sheet mx-auto max-w-4xl  bg-[#fafaf8] p-6 md:p-10 ${SHEET.ink}`}
       >
-        <header className="tx-print-block">
+        <header className="fx-print-block">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <p className="text-lg font-bold tracking-[0.08em]">TRACEX</p>
+            <p className="font-document text-xl uppercase tracking-[0.32em]">FineX</p>
             <p className={`font-mono text-xs tracking-[0.14em] ${SHEET.faint}`}>
               {caseRef}
             </p>
           </div>
-          <div className={`mt-5 border-t-2 pt-5 ${SHEET.rule}`}>
-            <h1 className="font-serif text-4xl leading-[1.1] tracking-tight md:text-5xl">
+          <div className={`mt-6 border-t-2 pt-6 ${SHEET.rule}`}>
+            <h1 className="font-document text-4xl leading-[1.1] tracking-tight md:text-5xl">
               Cryptocurrency fund-flow
               <br />
               evidence packet
@@ -130,7 +130,7 @@ export default function EvidencePacket({ address }: { address: string }) {
 
         {/* 1 — subject */}
         <Section n="1" title="Subject of the complaint">
-          <dl className="grid gap-5 sm:grid-cols-2">
+          <dl className="grid gap-6 sm:grid-cols-2">
             <Field label="Victim-reported address">
               <code className="break-all font-mono text-sm">{trace.inputAddress}</code>
             </Field>
@@ -150,11 +150,11 @@ export default function EvidencePacket({ address }: { address: string }) {
 
         {/* 2 — finding */}
         <Section n="2" title="Finding">
-          <div className={`tx-print-keep border-l-2 pl-5 ${SHEET.rule}`}>
+          <div className={` border-l-2 pl-6 ${SHEET.rule}`}>
             <p className="font-mono text-xs uppercase tracking-[0.2em]">
-              {trace.triage} · {meta.action}
+              {meta.label} · {meta.action}
             </p>
-            <p className={`mt-3 font-serif text-lg leading-8 ${SHEET.ink}`}>
+            <p className={`mt-4 font-document text-lg leading-8 ${SHEET.ink}`}>
               {trace.triageReason}
             </p>
           </div>
@@ -162,7 +162,7 @@ export default function EvidencePacket({ address }: { address: string }) {
           {trace.terminal ? (
             <>
               {trace.terminal.depositAddress ? (
-                <div className={`mt-7 border-t pt-6 ${SHEET.ruleSoft}`}>
+                <div className={`mt-6 border-t pt-6 ${SHEET.ruleSoft}`}>
                   <p
                     className={`font-mono text-xs uppercase tracking-[0.18em] ${SHEET.faint}`}
                   >
@@ -179,7 +179,7 @@ export default function EvidencePacket({ address }: { address: string }) {
               ) : null}
 
               <dl
-                className={`mt-7 grid gap-5 border-t pt-6 sm:grid-cols-2 ${SHEET.ruleSoft}`}
+                className={`mt-6 grid gap-6 border-t pt-6 sm:grid-cols-2 ${SHEET.ruleSoft}`}
               >
                 <Field label="Attributed entity">{trace.terminal.label.entity}</Field>
                 <Field label="Attribution type">
@@ -234,15 +234,15 @@ export default function EvidencePacket({ address }: { address: string }) {
               No laundering patterns fired on this path.
             </p>
           ) : (
-            <ol className="space-y-5">
+            <ol className="space-y-6">
               {trace.riskFlags.map((f, i) => (
-                <li key={`${f.code}-${i}`} className="tx-print-block text-sm">
+                <li key={`${f.code}-${i}`} className="fx-print-block text-sm">
                   <p
                     className={`font-mono text-xs uppercase tracking-[0.18em] ${SHEET.faint}`}
                   >
                     {f.code}
                   </p>
-                  <p className={`mt-1.5 leading-7 ${SHEET.ink}`}>{f.reason}</p>
+                  <p className={`mt-2 leading-7 ${SHEET.ink}`}>{f.reason}</p>
                   <p className={`mt-1 break-all font-mono text-xs ${SHEET.body}`}>
                     at {f.atAddress}
                   </p>
@@ -254,18 +254,18 @@ export default function EvidencePacket({ address }: { address: string }) {
 
         {/* 4 — path of funds */}
         <Section n="4" title="Path of funds">
-          <div className="tx-scroll overflow-x-auto">
+          <div className="fx-scroll overflow-x-auto">
             <table className="w-full min-w-[680px] border-collapse text-left text-xs">
               <thead>
                 <tr
                   className={`border-b ${SHEET.rule} font-mono uppercase tracking-[0.14em] ${SHEET.faint}`}
                 >
-                  <th className="py-2.5 pr-4 font-normal">From</th>
-                  <th className="py-2.5 pr-4 font-normal">To</th>
-                  <th className="py-2.5 pr-4 text-right font-normal">Value (USDT)</th>
-                  <th className="py-2.5 pr-4 font-normal">Timestamp (UTC)</th>
-                  <th className="py-2.5 pr-4 font-normal">Held</th>
-                  <th className="py-2.5 font-normal">Transaction hash</th>
+                  <th className="py-2 pr-4 font-normal">From</th>
+                  <th className="py-2 pr-4 font-normal">To</th>
+                  <th className="py-2 pr-4 text-right font-normal">Value (USDT)</th>
+                  <th className="py-2 pr-4 font-normal">Timestamp (UTC)</th>
+                  <th className="py-2 pr-4 font-normal">Held</th>
+                  <th className="py-2 font-normal">Transaction hash</th>
                 </tr>
               </thead>
               <tbody>
@@ -276,16 +276,16 @@ export default function EvidencePacket({ address }: { address: string }) {
                   )
                   .map((e, i) => (
                     <tr key={`${e.txHash}-${i}`} className={`border-b ${SHEET.ruleSoft}`}>
-                      <td className="py-2.5 pr-4 font-mono">{e.from}</td>
-                      <td className="py-2.5 pr-4 font-mono">{e.to}</td>
-                      <td className="py-2.5 pr-4 text-right font-mono tabular-nums">
+                      <td className="py-2 pr-4 font-mono">{e.from}</td>
+                      <td className="py-2 pr-4 font-mono">{e.to}</td>
+                      <td className="py-2 pr-4 text-right font-mono tabular-nums">
                         {formatUsdt(e.valueUsdt, { symbol: false })}
                       </td>
-                      <td className="py-2.5 pr-4">{formatDateTime(e.timestamp)}</td>
-                      <td className="py-2.5 pr-4 tabular-nums">
+                      <td className="py-2 pr-4">{formatDateTime(e.timestamp)}</td>
+                      <td className="py-2 pr-4 tabular-nums">
                         {formatDwell(e.dwellSeconds)}
                       </td>
-                      <td className="break-all py-2.5 font-mono">{e.txHash}</td>
+                      <td className="break-all py-2 font-mono">{e.txHash}</td>
                     </tr>
                   ))}
               </tbody>
@@ -296,7 +296,7 @@ export default function EvidencePacket({ address }: { address: string }) {
         {/* 5 — narrative */}
         {trace.narrative ? (
           <Section n="5" title="Summary">
-            <p className={`font-serif text-lg leading-8 ${SHEET.ink}`}>
+            <p className={`font-document text-lg leading-8 ${SHEET.ink}`}>
               {trace.narrative}
             </p>
           </Section>
@@ -304,7 +304,7 @@ export default function EvidencePacket({ address }: { address: string }) {
 
         {/* 6 — custody */}
         <Section n={trace.narrative ? "6" : "5"} title="Chain of custody">
-          <dl className="grid gap-5 sm:grid-cols-3">
+          <dl className="grid gap-6 sm:grid-cols-3">
             <Field label="API calls made">
               <span className="font-mono tabular-nums">{trace.provenance.apiCalls}</span>
             </Field>
@@ -317,7 +317,7 @@ export default function EvidencePacket({ address }: { address: string }) {
               {formatDateTime(trace.provenance.generatedAt)}
             </Field>
           </dl>
-          <div className={`mt-5 border-t pt-4 ${SHEET.ruleSoft}`}>
+          <div className={`mt-6 border-t pt-4 ${SHEET.ruleSoft}`}>
             {trace.provenance.responseHashes.map((h) => (
               <p key={h} className={`break-all font-mono text-xs leading-6 ${SHEET.body}`}>
                 sha256 {h}
@@ -328,7 +328,7 @@ export default function EvidencePacket({ address }: { address: string }) {
 
         {/* limitations */}
         <Section n="—" title="Limitations">
-          <ul className={`space-y-2.5 text-sm leading-7 ${SHEET.body}`}>
+          <ul className={`space-y-2 text-sm leading-7 ${SHEET.body}`}>
             <li>
               Attribution is an investigative lead. It is not, on its own, grounds
               for freezing an account.
@@ -351,9 +351,9 @@ export default function EvidencePacket({ address }: { address: string }) {
           </ul>
         </Section>
 
-        <footer className={`mt-10 border-t pt-5 ${SHEET.rule}`}>
-          <p className={`font-serif text-sm italic leading-6 ${SHEET.body}`}>
-            Prepared with TraceX from public TRON blockchain data. This packet
+        <footer className={`mt-10 border-t pt-6 ${SHEET.rule}`}>
+          <p className={`font-document text-sm italic leading-6 ${SHEET.body}`}>
+            Prepared by FineX from public TRON blockchain data. This packet
             records an investigative finding and does not constitute a legal
             determination. SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C ·
             Team FineX.

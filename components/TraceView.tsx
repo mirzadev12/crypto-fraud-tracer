@@ -18,9 +18,11 @@ import CopyButton from "./CopyButton";
 import TraceCanvas, { ViewToggle, type CanvasView } from "./TraceCanvas";
 import {
   Chip,
-  Corners,
+  Designation,
+  Diamond,
+  entityPhrase,
   DataSourceBadge,
-  Gutter,
+  SectionHeader,
   Panel,
   SourceChip,
   StatCard,
@@ -50,43 +52,67 @@ export function RiskFlagList({
   flags: RiskFlag[];
   onSelect?: (address: string) => void;
 }) {
+  // Six rules exist; an investigator wants to know which fired before they want
+  // to read why. The reasoning is one click away, not stacked on the screen.
+  const [open, setOpen] = useState(false);
+
   if (flags.length === 0) {
     return (
-      <p className="text-sm text-faint">
-        No laundering patterns fired on this path.
-      </p>
+      <p className="text-sm text-faint">No behavioural signals fired on this path.</p>
     );
   }
+
   return (
-    <ul className="space-y-3">
-      {flags.map((f, i) => {
-        const meta = RISK_META[f.code] ?? { title: f.code, tone: "cold" as const };
-        return (
-          <li
-            key={`${f.code}-${f.atAddress}-${i}`}
-            className="rounded-panel border border-line bg-surface-2/60 p-4"
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <Chip tone={meta.tone}>{meta.title}</Chip>
-              <code className="font-mono text-xs uppercase tracking-wider text-faint">
-                {f.code}
-              </code>
-            </div>
-            {/* Written by the backend, rendered verbatim — this is the sentence
-                the officer reads off the screen. */}
-            <p className="mt-2.5 text-sm leading-6 text-ink">{f.reason}</p>
-            <button
-              type="button"
-              onClick={() => onSelect?.(f.atAddress)}
-              className="mt-2 font-mono text-xs text-faint transition hover:text-brand"
-              title={f.atAddress}
-            >
-              at {shortAddress(f.atAddress, 8, 6)}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+    <div>
+      <p className="font-mono text-4xl font-light tabular-nums text-ink">
+        {flags.length}
+        <span className="text-faint"> / 6</span>
+      </p>
+      <Designation className="mt-2">Signals fired</Designation>
+
+      <ul className="mt-6 divide-y divide-line border-y border-line">
+        {flags.map((f, i) => {
+          const meta = RISK_META[f.code] ?? { title: f.code, tone: "cold" as const };
+          return (
+            <li key={`${f.code}-${f.atAddress}-${i}`} className="py-4">
+              <div className="flex items-baseline justify-between gap-4">
+                <span className={`text-sm ${meta.tone === "hot" ? "text-critical" : "text-ink"}`}>
+                  {meta.title}
+                </span>
+                <code className="shrink-0 font-mono text-xs uppercase tracking-[0.16em] text-faint">
+                  {f.code}
+                </code>
+              </div>
+              {open ? (
+                <div className="mt-4">
+                  {/* Written by the rule engine, rendered verbatim — this is the
+                      sentence an investigator reads out. */}
+                  <p className="text-sm leading-7 text-muted">{f.reason}</p>
+                  <button
+                    type="button"
+                    onClick={() => onSelect?.(f.atAddress)}
+                    className="mt-2 font-mono text-xs text-faint transition hover:text-brass"
+                    title={f.atAddress}
+                  >
+                    at {shortAddress(f.atAddress, 8, 6)}
+                  </button>
+                </div>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="mt-6 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-brass transition hover:text-ink"
+        aria-expanded={open}
+      >
+        {open ? "Hide evidence" : "View evidence"}
+        <Diamond className="bg-brass" size={4} />
+      </button>
+    </div>
   );
 }
 
@@ -101,24 +127,23 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
       .filter((n) => n.outflowCount === 0)
       .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
     return (
-      <div className={`relative rounded-panel border bg-surface p-6 ${meta.ring}`}>
-        <Corners />
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className={`relative  border bg-surface p-6 ${meta.ring}`}>
+          <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="font-mono text-xs uppercase tracking-[0.28em] text-faint">
             Where the money is now
           </p>
           <TriageBadge level={trace.triage} size="lg" />
         </div>
-        <p className="mt-4 text-2xl font-semibold tracking-tight text-ink">
+        <p className="mt-4 font-display text-2xl uppercase tracking-[0.08em] text-ink">
           No exchange reached — funds still at rest
         </p>
         {resting ? (
-          <div className="mt-4 space-y-3">
+          <div className="mt-4 space-y-4">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm text-muted">Resting at</span>
               <AddressChip address={resting.address} tone="strong" full />
             </div>
-            <p className="font-mono text-lg text-hot">
+            <p className="font-mono text-lg text-critical">
               {formatUsdt(resting.taintedValueUsdt)}
               <span className="ml-2 text-xs text-faint">
                 {formatPercent(resting.taintFraction)} of the reported amount
@@ -137,9 +162,8 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
   const isDeposit = label.kind === "exchange_deposit" && Boolean(depositAddress);
 
   return (
-    <div className={`relative rounded-panel border bg-surface p-6 ${meta.ring}`}>
-      <Corners />
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className={`relative  border bg-surface p-6 ${meta.ring}`}>
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="font-mono text-xs uppercase tracking-[0.28em] text-faint">
           {isDeposit ? "Attributed destination" : "End of traceable path"}
         </p>
@@ -147,8 +171,10 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
       </div>
 
       {isDeposit ? null : (
-        <div className="mt-4 flex flex-wrap items-baseline gap-3">
-          <p className="text-3xl font-semibold tracking-tight text-ink">{label.entity}</p>
+        <div className="mt-4 flex flex-wrap items-baseline gap-4">
+          <p className="font-display text-2xl uppercase tracking-[0.1em] text-ink md:text-3xl">
+            {entityPhrase(label)}
+          </p>
           <Chip tone="hot">{label.kind.replace(/_/g, " ")}</Chip>
         </div>
       )}
@@ -157,37 +183,37 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
         /* The whole product in one element. Nothing else in the app is set this
            large, and that is deliberate — it is the account an exchange can
            actually freeze. */
-        <div className="mt-5 border-t border-line pt-5">
-          <p className="font-mono text-xs uppercase tracking-[0.22em] text-warm">
+        <div className="mt-6 border-t border-line pt-6">
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-suspicious">
             Customer deposit address
           </p>
-          <div className="mt-3 flex flex-wrap items-start gap-3">
+          <div className="mt-4 flex flex-wrap items-start gap-4">
             <code className="break-all font-mono text-2xl leading-tight tracking-tight text-ink md:text-3xl">
               {depositAddress}
             </code>
-            <CopyButton value={depositAddress!} label="Copy" className="mt-1.5" />
+            <CopyButton value={depositAddress!} label="Copy" className="mt-2" />
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted">
-            <span className="font-medium text-ink">{label.entity}</span>
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
+            <span className="text-ink">{entityPhrase(label)}</span>
             <span className="text-faint">·</span>
             <span className="font-mono tabular-nums">
               {formatPercent(label.confidence)} confidence
             </span>
             <SourceChip source={label.source} />
           </div>
-          <p className="mt-3 text-xs leading-5 text-muted">
-            This is the account {label.entity} can freeze. Name it in the freeze
-            request — not just the exchange.
+          <p className="mt-4 text-xs leading-5 text-muted">
+            If confirmed by {label.entity}, this is the account that can be
+            frozen. Name it in the request — not just the exchange.
           </p>
         </div>
       ) : (
-        <div className="mt-5 flex flex-wrap items-center gap-2">
+        <div className="mt-6 flex flex-wrap items-center gap-2">
           <span className="text-sm text-muted">Terminal address</span>
           <AddressChip address={address} tone="strong" full />
         </div>
       )}
 
-      <dl className="mt-5 grid gap-4 border-t border-line pt-4 sm:grid-cols-3">
+      <dl className="mt-6 grid gap-4 border-t border-line pt-4 sm:grid-cols-3">
         {isDeposit ? null : (
           <>
             <div>
@@ -202,7 +228,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
               <dt className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
                 Attribution source
               </dt>
-              <dd className="mt-1.5">
+              <dd className="mt-2">
                 <SourceChip source={label.source} />
               </dd>
             </div>
@@ -224,7 +250,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
       </dl>
 
       {label.evidence ? (
-        <p className="mt-4 rounded-lg border border-line bg-surface-2/60 px-4 py-3 font-mono text-xs leading-6 text-muted">
+        <p className="mt-4 border border-line bg-surface-2/60 px-4 py-4 font-mono text-xs leading-6 text-muted">
           {label.evidence}
         </p>
       ) : null}
@@ -251,16 +277,16 @@ function NodesTable({
   );
 
   return (
-    <div className="tx-scroll overflow-x-auto">
+    <div className="fx-scroll overflow-x-auto">
       <table className="w-full min-w-[640px] border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-line text-xs uppercase tracking-[0.14em] text-faint">
-            <th className="px-4 py-3 font-medium">Hop</th>
-            <th className="px-4 py-3 font-medium">Address</th>
-            <th className="px-4 py-3 font-medium">Attribution</th>
-            <th className="px-4 py-3 text-right font-medium">Tainted value</th>
-            <th className="px-4 py-3 text-right font-medium">Share</th>
-            <th className="px-4 py-3 text-right font-medium">Outflows</th>
+            <th className="px-4 py-4 font-medium">Hop</th>
+            <th className="px-4 py-4 font-medium">Address</th>
+            <th className="px-4 py-4 font-medium">Attribution</th>
+            <th className="px-4 py-4 text-right font-medium">Tainted value</th>
+            <th className="px-4 py-4 text-right font-medium">Share</th>
+            <th className="px-4 py-4 text-right font-medium">Outflows</th>
           </tr>
         </thead>
         <tbody>
@@ -271,23 +297,23 @@ function NodesTable({
                 key={n.address}
                 onClick={() => onSelect(n.address)}
                 className={`cursor-pointer border-b border-line-soft transition last:border-0 ${
-                  active ? "bg-brand/[0.07]" : "hover:bg-white/[0.03]"
+                  active ? "bg-brass/[0.07]" : "hover:bg-white/[0.03]"
                 }`}
               >
-                <td className="px-4 py-3 font-mono text-xs text-faint">{n.depth}</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-4 font-mono text-xs text-faint">{n.depth}</td>
+                <td className="px-4 py-4">
                   <AddressChip
                     address={n.address}
                     tone={active ? "brand" : "strong"}
                     explorer={false}
                   />
-                  <p className="mt-0.5 text-xs text-faint">
+                  <p className="mt-1 text-xs text-faint">
                     First seen {formatDateTime(n.firstSeen)}
                   </p>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-4">
                   {n.label ? (
-                    <div className="flex flex-wrap items-center gap-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="text-ink">{n.label.entity}</span>
                       <SourceChip source={n.label.source} />
                     </div>
@@ -295,13 +321,13 @@ function NodesTable({
                     <span className="text-faint">Unlabelled</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right font-mono tabular-nums text-ink">
+                <td className="px-4 py-4 text-right font-mono tabular-nums text-ink">
                   {formatUsdt(n.taintedValueUsdt, { symbol: false })}
                 </td>
-                <td className="px-4 py-3 text-right font-mono tabular-nums text-muted">
+                <td className="px-4 py-4 text-right font-mono tabular-nums text-muted">
                   {formatPercent(n.taintFraction, 1)}
                 </td>
-                <td className="px-4 py-3 text-right font-mono tabular-nums text-muted">
+                <td className="px-4 py-4 text-right font-mono tabular-nums text-muted">
                   {n.outflowCount}
                 </td>
               </tr>
@@ -340,14 +366,14 @@ function MovementTimeline({
           <li key={`${e.txHash}-${i}`} className="relative">
             <span
               className={`absolute -left-[29px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-bg ${
-                fast ? "bg-warm" : "bg-cold"
+                fast ? "bg-suspicious" : "bg-closed"
               }`}
             />
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
               <button
                 type="button"
                 onClick={() => onSelect(e.from)}
-                className="font-mono text-xs text-muted transition hover:text-brand"
+                className="font-mono text-xs text-muted transition hover:text-brass"
               >
                 {shortAddress(e.from)}
               </button>
@@ -355,7 +381,7 @@ function MovementTimeline({
               <button
                 type="button"
                 onClick={() => onSelect(e.to)}
-                className="font-mono text-xs text-muted transition hover:text-brand"
+                className="font-mono text-xs text-muted transition hover:text-brass"
               >
                 {shortAddress(e.to)}
               </button>
@@ -363,9 +389,9 @@ function MovementTimeline({
                 {formatUsdt(e.valueUsdt)}
               </span>
             </div>
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-faint">
+            <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-faint">
               <span>{formatDateTime(e.timestamp)}</span>
-              <span className={fast ? "text-warm" : ""}>
+              <span className={fast ? "text-suspicious" : ""}>
                 held {formatDwell(e.dwellSeconds)}
               </span>
               {e.txHash ? (
@@ -373,7 +399,7 @@ function MovementTimeline({
                   href={tronscanTxUrl(e.txHash)}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="font-mono transition hover:text-brand"
+                  className="font-mono transition hover:text-brass"
                   title={e.txHash}
                 >
                   tx {e.txHash.slice(0, 10)}…
@@ -389,8 +415,8 @@ function MovementTimeline({
 
 function ProvenancePanel({ trace }: { trace: TraceResult }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2">
-      <dl className="space-y-3 text-sm">
+    <div className="grid gap-6 sm:grid-cols-2">
+      <dl className="space-y-4 text-sm">
         <div className="flex justify-between gap-4">
           <dt className="text-faint">Chain</dt>
           <dd className="font-mono text-ink">TRON · USDT (TRC-20)</dd>
@@ -416,7 +442,7 @@ function ProvenancePanel({ trace }: { trace: TraceResult }) {
         <p className="text-xs uppercase tracking-[0.14em] text-faint">
           SHA-256 of each API response
         </p>
-        <div className="tx-scroll mt-2 max-h-40 space-y-1 overflow-y-auto rounded-lg border border-line bg-surface-2/60 p-3">
+        <div className="fx-scroll mt-2 max-h-40 space-y-1 overflow-y-auto border border-line bg-surface-2/60 p-4">
           {trace.provenance.responseHashes.length === 0 ? (
             <p className="text-xs text-faint">No response hashes were recorded.</p>
           ) : (
@@ -461,14 +487,15 @@ export default function TraceView({
       <div className="flex flex-col gap-4 border-b border-line pb-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-xs text-faint">{trace.caseId}</span>
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-faint">{trace.caseId}</span>
             <DataSourceBadge source={source} note={note} />
+            <TriageBadge level={trace.triage} />
           </div>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink md:text-3xl">
-            Trace result
+          <h1 className="mt-4 font-display text-3xl uppercase tracking-[0.08em] text-ink md:text-4xl">
+            Case file
           </h1>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
-            <span>Victim-reported address</span>
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-faint">Victim-reported address</span>
             <AddressChip address={trace.inputAddress} tone="strong" full />
           </div>
         </div>
@@ -490,8 +517,8 @@ export default function TraceView({
       </div>
 
       {/* ------------------------------------------------------ money slide */}
-      <Gutter index="01 / 04" label="Finding" />
-      <div className="grid gap-5 lg:grid-cols-3">
+      <SectionHeader index="01" title="Finding" />
+      <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <TerminalCard trace={trace} />
         </div>
@@ -518,13 +545,13 @@ export default function TraceView({
           <StatCard
             label="Path"
             value={`${hops} hops · ${trace.nodes.length} wallets`}
-            hint={`${trace.edges.length} transfers · ${trace.riskFlags.length} risk flags`}
+            hint={`${trace.edges.length} transfers · ${trace.riskFlags.length} signals`}
           />
         </div>
       </div>
 
       {/* ------------------------------------------------------------ graph */}
-      <Gutter index="02 / 04" label="Fund flow" />
+      <SectionHeader index="02" title="Fund flow" />
       <Panel
         title="Fund flow"
         subtitle="Click a wallet to highlight it in the tables below. Flow reads the path in order; Bubbles reads it by weight."
@@ -543,8 +570,8 @@ export default function TraceView({
       </Panel>
 
       {/* ------------------------------------------------- tables & flags */}
-      <Gutter index="03 / 04" label="Wallets and risk" />
-      <div className="grid gap-5 lg:grid-cols-3">
+      <SectionHeader index="03" title="Wallets and risk" />
+      <div className="grid gap-6 lg:grid-cols-3">
         <Panel
           title="Wallets on the path"
           subtitle="Taint is the share of the victim's money that reached each address."
@@ -555,21 +582,21 @@ export default function TraceView({
         </Panel>
 
         <Panel
-          title="Risk flags"
-          subtitle="Rule-based, each one explainable to a judge."
+          title="Behavioural signals"
+          subtitle="Rule-based. Every one of them explainable in court."
         >
           <RiskFlagList flags={trace.riskFlags} onSelect={setSelected} />
         </Panel>
       </div>
 
       {/* -------------------------------------------------------- timeline */}
-      <Gutter index="04 / 04" label="Timeline and custody" />
-      <div className="grid gap-5 lg:grid-cols-3">
+      <SectionHeader index="04" title="Timeline and custody" />
+      <div className="grid gap-6 lg:grid-cols-3">
         <Panel title="Movement timeline" className="lg:col-span-2">
           <MovementTimeline trace={trace} onSelect={setSelected} />
         </Panel>
 
-        <div className="space-y-5">
+        <div className="space-y-6">
           {trace.narrative ? (
             <Panel title="Investigator summary" subtitle="Generated from the trace result.">
               <p className="text-sm leading-7 text-muted">{trace.narrative}</p>

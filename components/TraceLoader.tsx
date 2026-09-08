@@ -37,11 +37,11 @@ export function TraceSkeleton({ address }: { address?: string } = {}) {
 
   return (
     <div className="space-y-6" aria-busy="true">
-      <div className="rounded-panel border border-line bg-surface p-6">
+      <div className="border border-line bg-surface p-6">
         <p className="font-mono text-xs uppercase tracking-[0.28em] text-faint">
           [ tracing ]
         </p>
-        <ul className="mt-4 space-y-1.5 font-mono text-xs">
+        <ul className="mt-4 space-y-2 font-mono text-xs">
           {LOADER_STEPS.map((step, i) => {
             const complete = i < done;
             const detail =
@@ -62,7 +62,7 @@ export function TraceSkeleton({ address }: { address?: string } = {}) {
           })}
         </ul>
       </div>
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <Skeleton className="h-64 lg:col-span-2" />
         <div className="space-y-4">
           <Skeleton className="h-[104px]" />
@@ -86,7 +86,7 @@ export function NoTraceState({
   onRetry?: () => void;
 }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <ErrorState
         title={`No trace available for ${shortAddress(address, 8, 6)}`}
         description={message}
@@ -102,15 +102,15 @@ export function NoTraceState({
         title="Addresses with a committed trace"
         subtitle="These three run with the backend offline — they are the frozen demo cases."
       >
-        <ul className="grid gap-3 sm:grid-cols-3">
+        <ul className="grid gap-4 sm:grid-cols-3">
           {DEMO_SAMPLES.map((s) => (
             <li key={s.address}>
               <Link
                 href={`/trace/${s.address}`}
-                className="block h-full rounded-panel border border-line bg-surface-2/60 p-4 transition hover:border-brand/40"
+                className="block h-full border border-line bg-surface-2/60 p-4 transition hover:border-brass/40"
               >
                 <TriageBadge level={s.triage} />
-                <p className="mt-2.5 text-sm leading-6 text-ink">{s.headline}</p>
+                <p className="mt-2 text-sm leading-6 text-ink">{s.headline}</p>
                 <p className="mt-1 font-mono text-xs text-faint">
                   {shortAddress(s.address, 10, 8)}
                 </p>

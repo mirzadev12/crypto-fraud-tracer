@@ -21,38 +21,38 @@ export default function LoginPage() {
   const [unit, setUnit] = useState("");
 
   const field =
-    "w-full rounded-panel border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-faint focus:border-brand/50 focus:outline-none";
+    "w-full  border border-line bg-surface-2 px-4 py-4 text-sm text-ink placeholder:text-faint focus:border-brass/50 focus:outline-none";
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-ink">
       <Navbar />
 
-      <main className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-12 px-6 py-16 lg:grid-cols-2">
+      <main className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-6 py-16 lg:grid-cols-2">
         {/* ------------------------------------------------------- context */}
         <section className="relative hidden lg:block">
-          <div className="tx-glow pointer-events-none absolute -inset-10" aria-hidden="true" />
+          <div className="pointer-events-none absolute -inset-10" aria-hidden="true" />
           <div className="relative">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brass">
               Investigator console
             </p>
-            <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight">
+            <h1 className="mt-4 font-display text-4xl uppercase leading-tight tracking-[0.06em]">
               Sign in to work today&rsquo;s queue.
             </h1>
             <p className="mt-4 max-w-md text-sm leading-7 text-muted">
-              TraceX orders complaints by whether the stolen funds can still be
+              FineX orders complaints by whether the stolen funds can still be
               reached, names the exchange deposit address that received them, and
               produces a packet you can attach to a freeze request.
             </p>
 
-            <ul className="mt-8 space-y-3 text-sm text-muted">
+            <ul className="mt-6 space-y-4 text-sm text-muted">
               {[
                 "Triage every complaint HOT, WARM or COLD",
                 "Name the customer deposit address, not just the exchange",
                 "Every label carries a confidence score and a source",
                 "Every API response hashed for chain of custody",
               ].map((line) => (
-                <li key={line} className="flex items-start gap-3">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
+                <li key={line} className="flex items-start gap-4">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brass" />
                   {line}
                 </li>
               ))}
@@ -62,10 +62,10 @@ export default function LoginPage() {
 
         {/* ---------------------------------------------------------- form */}
         <section className="w-full">
-          <div className="rounded-panel border border-line bg-surface p-7 md:p-8">
-            <div className="flex items-center justify-between gap-3">
+          <div className="border border-line bg-surface p-6 md:p-6">
+            <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-semibold tracking-tight">
+                <h2 className="font-display text-lg uppercase tracking-[0.16em]">
                   Investigator login
                 </h2>
                 <p className="mt-1 text-xs text-faint">
@@ -76,7 +76,7 @@ export default function LoginPage() {
             </div>
 
             <form
-              className="mt-7 space-y-5"
+              className="mt-6 space-y-6"
               onSubmit={(e) => {
                 e.preventDefault();
                 router.push("/dashboard");
@@ -121,7 +121,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p className="mt-5 rounded-lg border border-line bg-surface-2/60 px-4 py-3 text-xs leading-6 text-faint">
+            <p className="mt-6 border border-line bg-surface-2/60 px-4 py-4 text-xs leading-6 text-faint">
               This build does not authenticate. There is no password field on
               purpose — sign-in would run through departmental SSO, and nothing you
               type here is transmitted or stored. The details are used only to
@@ -130,7 +130,7 @@ export default function LoginPage() {
 
             <p className="mt-4 text-center text-xs text-faint">
               Just looking around?{" "}
-              <Link href="/dashboard" className="text-brand hover:underline">
+              <Link href="/dashboard" className="text-brass hover:underline">
                 Open the case queue
               </Link>
             </p>

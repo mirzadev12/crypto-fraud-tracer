@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Diamond } from "./ui";
 
+/* Bureau designations, not product names. */
 const navItems = [
-  { name: "Overview", href: "/" },
-  { name: "Investigate", href: "/investigate" },
-  { name: "Case Queue", href: "/dashboard" },
-  { name: "Fund Flow", href: "/fund-flow" },
-  { name: "Reports", href: "/reports" },
+  { name: "Cases", href: "/dashboard" },
+  { name: "Trace", href: "/investigate" },
+  { name: "Intelligence", href: "/fund-flow" },
+  { name: "Evidence", href: "/reports" },
 ];
 
 export default function Navbar() {
@@ -20,18 +21,18 @@ export default function Navbar() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-3.5">
-        <Link href="/" className="group shrink-0">
-          <h1 className="text-lg font-bold tracking-wide text-ink">
-            TRACE<span className="text-brand">X</span>
-          </h1>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
-            Blockchain Intelligence
-          </p>
+    <nav className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur">
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-6 px-6">
+        <Link href="/" className="flex shrink-0 items-baseline gap-2">
+          <span className="font-display text-lg uppercase tracking-[0.32em] text-ink">
+            FineX
+          </span>
+          <span className="hidden font-mono text-xs uppercase tracking-[0.24em] text-faint sm:inline">
+            {"//"} Blockchain Intelligence
+          </span>
         </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
+        <div className="hidden items-center gap-10 md:flex">
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
@@ -39,72 +40,52 @@ export default function Navbar() {
                 key={item.name}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative rounded-lg px-3.5 py-2 text-sm transition ${
-                  active
-                    ? "text-ink"
-                    : "text-muted hover:bg-white/5 hover:text-ink"
+                className={`relative font-mono text-xs uppercase tracking-[0.24em] transition ${
+                  active ? "text-brass" : "text-faint hover:text-ink"
                 }`}
               >
                 {item.name}
                 {active ? (
-                  <span className="absolute inset-x-3.5 -bottom-[15px] h-px bg-brand" />
+                  <span className="absolute -bottom-[26px] left-0 h-px w-full bg-brass" />
                 ) : null}
               </Link>
             );
           })}
         </div>
 
-        <div className="hidden items-center gap-2 md:flex">
-          <span className="hidden items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 text-xs text-faint lg:inline-flex">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            TRON · USDT (TRC-20)
+        <div className="hidden items-center gap-4 md:flex">
+          <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-faint">
+            <Diamond className="fx-mark bg-confirmed" size={5} />
+            System online
           </span>
           <Link
             href="/login"
-            className="rounded-lg border border-line px-3.5 py-2 text-sm text-muted transition hover:border-brand/40 hover:text-brand"
+            className="border border-line px-4 py-2 font-mono text-xs uppercase tracking-[0.2em] text-faint transition hover:border-brass-dim hover:text-brass"
           >
-            Investigator Login
+            Sign in
           </Link>
         </div>
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="rounded-lg border border-line px-3 py-2 text-muted md:hidden"
+          className="border border-line px-4 py-2 font-mono text-xs uppercase tracking-[0.2em] text-faint md:hidden"
           aria-label="Toggle navigation menu"
           aria-expanded={menuOpen}
         >
-          <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
-            {menuOpen ? (
-              <path
-                d="m5 5 10 10M15 5 5 15"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            ) : (
-              <path
-                d="M3 6h14M3 10h14M3 14h14"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            )}
-          </svg>
+          {menuOpen ? "Close" : "Menu"}
         </button>
       </div>
 
       {menuOpen ? (
-        <div className="border-t border-line px-6 py-4 md:hidden">
-          <div className="flex flex-col gap-1">
+        <div className="border-t border-line px-6 py-6 md:hidden">
+          <div className="flex flex-col divide-y divide-line border-y border-line">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className={`rounded-lg px-4 py-3 text-sm transition ${
-                  isActive(item.href)
-                    ? "bg-brand/10 text-brand"
-                    : "text-muted hover:bg-white/5 hover:text-ink"
+                className={`py-4 font-mono text-xs uppercase tracking-[0.24em] transition ${
+                  isActive(item.href) ? "text-brass" : "text-faint"
                 }`}
               >
                 {item.name}
@@ -113,11 +94,15 @@ export default function Navbar() {
             <Link
               href="/login"
               onClick={() => setMenuOpen(false)}
-              className="mt-2 rounded-lg border border-line px-4 py-3 text-sm text-muted"
+              className="py-4 font-mono text-xs uppercase tracking-[0.24em] text-faint"
             >
-              Investigator Login
+              Sign in
             </Link>
           </div>
+          <p className="mt-6 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-faint">
+            <Diamond className="bg-confirmed" size={5} />
+            System online
+          </p>
         </div>
       ) : null}
     </nav>

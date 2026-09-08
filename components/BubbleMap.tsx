@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { NodeKind, TraceResult } from "@/lib/types";
 import { formatPercent, formatUsdt, formatUsdtCompact, shortAddress } from "@/lib/format";
+import { entityPhrase } from "./ui";
 
 /**
  * Bubble map — the same trace, read by weight instead of by sequence.
@@ -21,14 +22,14 @@ import { formatPercent, formatUsdt, formatUsdtCompact, shortAddress } from "@/li
  */
 
 const KIND_COLOR: Record<NodeKind | "none", string> = {
-  victim_reported: "#7aa2d6",
-  exchange_deposit: "#f5b544",
-  exchange_hot: "#8fa3bf",
-  mixer: "#ff6b6b",
-  sanctioned: "#ff6b6b",
-  intermediary: "#8fa3bf",
-  unknown: "#8fa3bf",
-  none: "#8fa3bf",
+  victim_reported: "#c6a15b", // brass — the subject of the file
+  exchange_deposit: "#c98a34", // suspicious — the exit
+  exchange_hot: "#a8a296",
+  mixer: "#b33a3a", // critical
+  sanctioned: "#b33a3a",
+  intermediary: "#6b6660",
+  unknown: "#6b6660",
+  none: "#6b6660",
 };
 
 const colorFor = (kind: NodeKind | null | undefined) =>
@@ -40,6 +41,9 @@ const VIEW_H = 620;
 type Bubble = {
   address: string;
   entity: string;
+  confidence: number | null;
+  source: string | null;
+  evidence: string | null;
   kind: NodeKind | null;
   depth: number;
   taintedValueUsdt: number;
@@ -115,11 +119,22 @@ function layout(trace: TraceResult): { bubbles: Bubble[]; links: Link[] } {
   const rxStep = (VIEW_W / 2 - 90) / maxDepth;
   const ryStep = (VIEW_H / 2 - 64) / maxDepth;
 
-  const maxTaint = Math.max(...nodes.map((n) => n.taintedValueUsdt), 1);
-  // Capped against the tight axis so neighbouring rings never touch.
-  const maxR = Math.min(54, ryStep * 0.4);
-  const radiusOf = (value: number) =>
-    Math.max(12, Math.sqrt(Math.max(value, 0) / maxTaint) * maxR);
+  /**
+   * Size is the victim's money, banded by what the wallet is.
+   *
+   * A subject wallet, an exchange exit and an unlabelled hop are not the same
+   * kind of object, so they do not compete on the same scale: each kind gets a
+   * band, and taint places the circle inside its band. Anything holding under
+   * five percent of the reported amount drops to a background mark.
+   */
+  const radiusOf = (kind: NodeKind | null, taintFraction: number) => {
+    const t = Math.min(1, Math.max(0, taintFraction));
+    if (kind === "victim_reported") return 46;
+    if (kind === "exchange_deposit" || kind === "exchange_hot") return 32 + 8 * t;
+    if (kind === "mixer" || kind === "sanctioned") return 32 + 6 * t;
+    if (t < 0.05) return 8 + (t / 0.05) * 4;
+    return 16 + 8 * t;
+  };
 
   const bubbles: Bubble[] = [];
   for (const [depth, list] of [...byDepth.entries()].sort((a, b) => a[0] - b[0])) {
@@ -134,6 +149,9 @@ function layout(trace: TraceResult): { bubbles: Bubble[]; links: Link[] } {
       bubbles.push({
         address: n.address,
         entity: n.label?.entity ?? "Unlabelled wallet",
+        confidence: n.label?.confidence ?? null,
+        source: n.label?.source ?? null,
+        evidence: n.label?.evidence ?? null,
         kind: n.label?.kind ?? null,
         depth: n.depth,
         taintedValueUsdt: n.taintedValueUsdt,
@@ -141,7 +159,7 @@ function layout(trace: TraceResult): { bubbles: Bubble[]; links: Link[] } {
         outflowCount: n.outflowCount,
         x: cx + depth * rxStep * Math.cos(angle),
         y: cy + depth * ryStep * Math.sin(angle),
-        r: radiusOf(n.taintedValueUsdt),
+        r: radiusOf(n.label?.kind ?? null, n.taintFraction),
         // Labels go on the outward side, so they never land on the next ring.
         labelAbove: depth > 0 ? Math.sin(angle) < 0 : true,
       });
@@ -252,7 +270,7 @@ export default function BubbleMap({
                 strokeWidth={l.width}
                 strokeLinecap="round"
                 strokeDasharray={l.fast ? "10 6" : undefined}
-                className={l.fast ? "tx-dash" : undefined}
+                className={l.fast ? "fx-flow" : undefined}
                 opacity={l.fast ? 0.9 : 0.6}
               />
             </g>
@@ -349,7 +367,7 @@ export default function BubbleMap({
                   strokeLinejoin: "round",
                 }}
               >
-                {b.kind ? b.entity : shortAddress(b.address, 6, 4)}
+                {b.kind ? entityPhrase(b) : shortAddress(b.address, 6, 4)}
               </text>
               )}
             </g>
@@ -359,34 +377,60 @@ export default function BubbleMap({
 
       {/* Detail card for whatever is under the cursor. */}
       {activeBubble ? (
-        <div className="pointer-events-none absolute left-4 top-4 max-w-xs rounded-panel border border-line bg-surface/95 p-4 shadow-xl backdrop-blur">
-          <p className="text-sm font-semibold text-ink">{activeBubble.entity}</p>
-          <p className="mt-0.5 font-mono text-xs text-faint">
-            {shortAddress(activeBubble.address, 10, 8)}
+        <div className="pointer-events-none absolute left-6 top-6 w-72 border border-line bg-bg/95 p-6 backdrop-blur">
+          <p className="font-mono text-xs uppercase tracking-[0.24em] text-faint">
+            Address
           </p>
-          <dl className="mt-3 space-y-1.5 text-xs">
-            <div className="flex justify-between gap-4">
-              <dt className="text-faint">Tainted value</dt>
-              <dd className="font-mono text-ink">
-                {formatUsdt(activeBubble.taintedValueUsdt, { symbol: false })}
-              </dd>
+          <p className="mt-2 break-all font-mono text-xs text-ink">
+            {activeBubble.address}
+          </p>
+
+          <dl className="mt-6 space-y-4 border-t border-line pt-4 text-xs">
+            <div>
+              <dt className="font-mono uppercase tracking-[0.2em] text-faint">Entity</dt>
+              <dd className="mt-1 text-ink">{entityPhrase(activeBubble)}</dd>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-faint">Share of reported</dt>
-              <dd className="font-mono text-ink">
-                {formatPercent(activeBubble.taintFraction, 1)}
-              </dd>
+            <div className="flex gap-6">
+              <div className="flex-1">
+                <dt className="font-mono uppercase tracking-[0.2em] text-faint">
+                  Confidence
+                </dt>
+                <dd className="mt-1 font-mono tabular-nums text-ink">
+                  {activeBubble.confidence === null
+                    ? "—"
+                    : formatPercent(activeBubble.confidence)}
+                </dd>
+              </div>
+              <div className="flex-1">
+                <dt className="font-mono uppercase tracking-[0.2em] text-faint">Source</dt>
+                <dd className="mt-1 text-ink">
+                  {activeBubble.source ? activeBubble.source.replace(/_/g, " ") : "—"}
+                </dd>
+              </div>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-faint">Hop</dt>
-              <dd className="font-mono text-ink">{activeBubble.depth}</dd>
+            <div className="flex gap-6">
+              <div className="flex-1">
+                <dt className="font-mono uppercase tracking-[0.2em] text-faint">
+                  Tainted
+                </dt>
+                <dd className="mt-1 font-mono tabular-nums text-ink">
+                  {formatUsdt(activeBubble.taintedValueUsdt, { symbol: false })}
+                </dd>
+              </div>
+              <div className="flex-1">
+                <dt className="font-mono uppercase tracking-[0.2em] text-faint">Share</dt>
+                <dd className="mt-1 font-mono tabular-nums text-ink">
+                  {formatPercent(activeBubble.taintFraction, 1)}
+                </dd>
+              </div>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-faint">Outflows</dt>
-              <dd className="font-mono text-ink">
-                {activeBubble.outflowCount === 0
-                  ? "none — funds at rest"
-                  : activeBubble.outflowCount}
+            <div>
+              <dt className="font-mono uppercase tracking-[0.2em] text-faint">Evidence</dt>
+              <dd className="mt-1 leading-6 text-faint">
+                {activeBubble.evidence ??
+                  (activeBubble.outflowCount === 0
+                    ? "No outgoing transfer observed — funds at rest."
+                    : "No attribution evidence on file for this wallet.")}
               </dd>
             </div>
           </dl>

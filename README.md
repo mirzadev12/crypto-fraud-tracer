@@ -1,8 +1,8 @@
-# TraceX — Crypto Fraud Tracer
+# FineX // Blockchain Intelligence
 
 **SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C · Team FineX**
 
-An investigator pastes a victim-reported TRON wallet address. TraceX follows the
+An investigator pastes a victim-reported TRON wallet address. FineX follows the
 stolen USDT hop by hop, names the exchange **customer deposit address** that
 received it — the account that can actually be frozen — flags laundering patterns
 in plain English, and calls the case **HOT**, **WARM** or **COLD** by whether the

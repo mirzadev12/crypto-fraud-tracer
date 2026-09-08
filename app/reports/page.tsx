@@ -17,7 +17,7 @@ export default function ReportsPage() {
         title="Evidence packets"
         description="Each packet states the finding, the basis for the attribution, the laundering indicators and the exact API responses it was built from — then states its own limitations in writing."
       />
-      <div className="mt-8">
+      <div className="mt-6">
         <ReportsList />
       </div>
     </AppShell>
