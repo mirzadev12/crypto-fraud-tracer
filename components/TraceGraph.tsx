@@ -134,7 +134,7 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
         border: `${selected ? 3 : 2}px solid ${p.accent}`,
         outline: selected ? "1px solid var(--color-ink)" : undefined,
         outlineOffset: selected ? "2px" : undefined,
-        background: alpha(p.accent, 0.12),
+        background: alpha(p.accent, 0.08),
         opacity,
       }}
     >
@@ -318,35 +318,6 @@ export default function TraceGraph({
           className="!border !border-line !bg-surface !shadow-none"
         />
       </ReactFlow>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ legend */
-
-export function GraphLegend() {
-  const items: Array<{ kind: NodeKind; text: string }> = [
-    { kind: "victim_reported", text: "Victim-reported" },
-    { kind: "unknown", text: "Unlabelled hop" },
-    { kind: "exchange_deposit", text: "Exchange deposit address" },
-    { kind: "exchange_hot", text: "Exchange hot wallet" },
-    { kind: "mixer", text: "Mixer / sanctioned" },
-  ];
-  return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-faint">
-      {items.map((i) => (
-        <span key={i.kind} className="inline-flex items-center gap-1.5">
-          <span
-            className="h-2 w-2 rounded-full"
-            style={{ background: paletteFor(i.kind).accent }}
-          />
-          {i.text}
-        </span>
-      ))}
-      <span className="inline-flex items-center gap-1.5">
-        <span className="h-px w-6" style={{ background: "#f5b544" }} />
-        Forwarded in under 10 minutes
-      </span>
     </div>
   );
 }

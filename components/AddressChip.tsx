@@ -41,8 +41,8 @@ export default function AddressChip({
           href={tronscanAddressUrl(address)}
           target="_blank"
           rel="noreferrer noopener"
-          title="Open on Tronscan"
-          aria-label={`Open ${address} on Tronscan`}
+          title="Open in block explorer"
+          aria-label={`Open ${address} in a public block explorer`}
           className="rounded-md p-1 text-faint transition hover:bg-white/5 hover:text-brand"
         >
           <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" aria-hidden="true">

@@ -289,7 +289,7 @@ export default function BubbleMap({
                 cy={b.y}
                 r={b.r}
                 fill={color}
-                fillOpacity={0.12}
+                fillOpacity={0.1}
                 stroke={color}
                 strokeWidth={isSelected ? 3 : 2}
               />
@@ -392,23 +392,6 @@ export default function BubbleMap({
           </dl>
         </div>
       ) : null}
-    </div>
-  );
-}
-
-export function BubbleLegend() {
-  return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-faint">
-      <span>Circle size = victim funds that reached the wallet</span>
-      <span>Distance from centre = hops</span>
-      <span className="inline-flex items-center gap-1.5">
-        <span className="h-px w-6" style={{ background: "#f5b544" }} />
-        Forwarded in under 10 minutes
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <span className="h-2.5 w-2.5 rounded-full border border-dashed border-cold" />
-        Dashed ring = nothing left this wallet
-      </span>
     </div>
   );
 }

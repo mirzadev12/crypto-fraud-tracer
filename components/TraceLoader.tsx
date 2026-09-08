@@ -19,7 +19,7 @@ import { ErrorState, Panel, Skeleton, TriageBadge, buttonStyles } from "./ui";
  */
 const LOADER_STEPS: Array<{ label: string; detail: string; at: number }> = [
   { label: "resolving address", detail: "", at: 0 },
-  { label: "fetching TRC-20 transfers", detail: "TronGrid", at: 220 },
+  { label: "fetching TRC-20 transfers", detail: "on-chain", at: 220 },
   { label: "tracing hops (depth 3)", detail: "", at: 480 },
   { label: "matching labels", detail: "", at: 760 },
   { label: "scoring risk", detail: "", at: 1000 },

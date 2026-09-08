@@ -100,6 +100,18 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
 - **The deposit address is the loudest element in the app.** In `TraceView`'s
   terminal card it is set at `text-2xl md:text-3xl` mono — larger than any
   heading anywhere. That is the product; nothing may out-shout it.
+- **The interface names no data provider.** This is a tool for professional
+  investigators, not a showcase for the stack behind it: no screen says TronGrid
+  or Tronscan. The telemetry gutter reports `FEED LIVE` / `FEED DEMO`, the
+  explorer link is labelled "Open in block explorer", and the loader says
+  "on-chain". Chain and asset (TRON · USDT TRC-20) stay visible — an investigator
+  needs to know the scope. Provider names belong in this file and the README,
+  never in the UI.
+- **The canvas has no chrome row of its own.** `TraceCanvas` takes an optional
+  `view` prop; when the host passes it, the `ViewToggle` lives in the panel
+  header and the canvas renders graph + gutter only. The legend went into the
+  gutter: node cards already name their own kind, so all that was left to state
+  is the sub-ten-minute edge rule and, in bubble view, the size/ring encoding.
 - **The loading sequence in `TraceLoader` is display copy, not telemetry.** It
   runs on a fixed timer and observes nothing. The file says so in a comment;
   keep that comment.

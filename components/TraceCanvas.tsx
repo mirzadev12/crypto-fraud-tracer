@@ -3,8 +3,8 @@
 import { useState } from "react";
 import type { TraceResult } from "@/lib/types";
 import type { DataSource } from "@/lib/api";
-import BubbleMap, { BubbleLegend } from "./BubbleMap";
-import TraceGraph, { GraphLegend } from "./TraceGraph";
+import BubbleMap from "./BubbleMap";
+import TraceGraph from "./TraceGraph";
 
 export type CanvasView = "flow" | "bubbles";
 
@@ -20,22 +20,31 @@ export default function TraceCanvas({
   selected,
   onSelect,
   source,
+  view: controlledView,
   height = "h-[620px]",
 }: {
   trace: TraceResult;
   selected: string | null;
   onSelect: (address: string | null) => void;
   source?: DataSource;
+  /**
+   * Pass this to host the toggle in your own panel header — the canvas then has
+   * no chrome of its own, which is one row of furniture fewer above the graph.
+   * Leave it out and the canvas manages the view itself.
+   */
+  view?: CanvasView;
   height?: string;
 }) {
-  const [view, setView] = useState<CanvasView>("flow");
+  const [ownView, setOwnView] = useState<CanvasView>("flow");
+  const view = controlledView ?? ownView;
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line-soft px-5 py-3">
-        {view === "flow" ? <GraphLegend /> : <BubbleLegend />}
-        <ViewToggle view={view} onChange={setView} />
-      </div>
+      {controlledView === undefined ? (
+        <div className="flex justify-end border-b border-line-soft px-5 py-3">
+          <ViewToggle view={view} onChange={setOwnView} />
+        </div>
+      ) : null}
 
       {view === "flow" ? (
         <TraceGraph
@@ -53,16 +62,29 @@ export default function TraceCanvas({
         />
       )}
 
-      <Readout trace={trace} source={source} />
+      <Readout trace={trace} source={source} view={view} />
     </div>
   );
 }
 
 /**
- * Telemetry gutter. Every figure is read straight off the TraceResult — nothing
- * here is decorative or invented.
+ * Telemetry gutter: what is on the canvas, and the one encoding rule the canvas
+ * cannot state about itself. Every figure is read straight off the TraceResult —
+ * nothing here is decorative or invented.
+ *
+ * The legend used to be a separate row above the graph. It reads better here:
+ * the node cards already name their own kind, so all that was left to say is how
+ * to read the edges and, in bubble view, the size and distance encoding.
  */
-function Readout({ trace, source }: { trace: TraceResult; source?: DataSource }) {
+function Readout({
+  trace,
+  source,
+  view,
+}: {
+  trace: TraceResult;
+  source?: DataSource;
+  view: CanvasView;
+}) {
   const depth = trace.nodes.reduce((max, n) => Math.max(max, n.depth), 0);
   // Taint that actually landed: the terminal's share when there is one,
   // otherwise the largest share held anywhere past the victim.
@@ -78,20 +100,34 @@ function Readout({ trace, source }: { trace: TraceResult; source?: DataSource })
     ["EDGES", String(trace.edges.length)],
     ["DEPTH", String(depth)],
     ["TAINT", `${(taint * 100).toFixed(1)}%`],
-    ["SRC", source === "demo" ? "FIXTURE" : source === "live" ? "TRONGRID" : "—"],
+    ["FEED", source === "demo" ? "DEMO" : source === "live" ? "LIVE" : "—"],
     ["UTC", trace.provenance.generatedAt.replace(/\.\d+Z$/, "Z")],
   ];
 
   return (
     <div className="tx-scroll flex h-9 items-center gap-4 overflow-x-auto border-t border-line px-5 font-mono text-xs whitespace-nowrap text-faint">
-      {cells.map(([k, v], i) => (
-        <span key={k} className="flex items-center gap-4">
-          {i > 0 ? <span aria-hidden="true">·</span> : null}
-          <span>
-            {k} <span className="text-muted">{v}</span>
+      <span className="flex items-center gap-1.5">
+        <span className="h-px w-5 bg-warm" />
+        {"<10 MIN"}
+      </span>
+      {view === "bubbles" ? (
+        <>
+          <span aria-hidden="true">·</span>
+          <span>SIZE = TAINT</span>
+          <span aria-hidden="true">·</span>
+          <span>RING = HOP</span>
+        </>
+      ) : null}
+      <span className="ml-auto flex items-center gap-4">
+        {cells.map(([k, v], i) => (
+          <span key={k} className="flex items-center gap-4">
+            {i > 0 ? <span aria-hidden="true">·</span> : null}
+            <span>
+              {k} <span className="text-muted">{v}</span>
+            </span>
           </span>
-        </span>
-      ))}
+        ))}
+      </span>
     </div>
   );
 }

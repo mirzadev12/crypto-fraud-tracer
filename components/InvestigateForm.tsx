@@ -222,8 +222,7 @@ export default function InvestigateForm() {
             ))}
           </ul>
           <p className="mt-4 border-t border-line pt-4 text-xs leading-5 text-faint">
-            Any other address is traced live against TronGrid once the trace API is
-            deployed.
+            Any other address is traced live once the trace API is connected.
           </p>
         </Panel>
       </div>

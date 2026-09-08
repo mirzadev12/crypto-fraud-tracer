@@ -15,7 +15,7 @@ import {
 } from "@/lib/format";
 import AddressChip from "./AddressChip";
 import CopyButton from "./CopyButton";
-import TraceCanvas from "./TraceCanvas";
+import TraceCanvas, { ViewToggle, type CanvasView } from "./TraceCanvas";
 import {
   Chip,
   Corners,
@@ -448,6 +448,7 @@ export default function TraceView({
   note?: string;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
+  const [view, setView] = useState<CanvasView>("flow");
 
   const reachedTerminal = trace.terminal
     ? trace.nodes.find((n) => n.address === trace.terminal!.address)
@@ -527,6 +528,8 @@ export default function TraceView({
       <Panel
         title="Fund flow"
         subtitle="Click a wallet to highlight it in the tables below. Flow reads the path in order; Bubbles reads it by weight."
+        actions={<ViewToggle view={view} onChange={setView} />}
+        code={trace.caseId}
         bodyClassName="p-0"
       >
         <TraceCanvas
@@ -534,6 +537,7 @@ export default function TraceView({
           selected={selected}
           onSelect={setSelected}
           source={source}
+          view={view}
           height="h-[560px]"
         />
       </Panel>

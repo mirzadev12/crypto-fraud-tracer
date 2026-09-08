@@ -13,7 +13,7 @@ import {
   shortAddress,
 } from "@/lib/format";
 import AddressChip from "./AddressChip";
-import TraceCanvas from "./TraceCanvas";
+import TraceCanvas, { ViewToggle, type CanvasView } from "./TraceCanvas";
 import { NoTraceState, useTrace } from "./TraceLoader";
 import {
   Chip,
@@ -42,6 +42,9 @@ export default function FundFlowExplorer({
   const [selection, setSelection] = useState<{ address: string; node: string } | null>(
     null,
   );
+  // Held here so the toggle can live in the panel header instead of costing the
+  // graph a chrome row of its own.
+  const [view, setView] = useState<CanvasView>("flow");
 
   const { current, retry } = useTrace(address);
 
@@ -150,7 +153,8 @@ export default function FundFlowExplorer({
               title="Fund flow"
               subtitle={`${current.result.data.nodes.length} wallets · ${current.result.data.edges.length} transfers · ${current.result.data.caseId}`}
               actions={
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <ViewToggle view={view} onChange={setView} />
                   <DataSourceBadge
                     source={current.result.source}
                     note={current.result.note}
@@ -158,7 +162,7 @@ export default function FundFlowExplorer({
                   <TriageBadge level={current.result.data.triage} />
                   <Link
                     href={`/trace/${encodeURIComponent(current.result.data.inputAddress)}`}
-                    className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-muted transition hover:border-brand/40 hover:text-brand"
+                    className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-muted transition hover:border-faint hover:text-ink"
                   >
                     Full result
                   </Link>
@@ -173,6 +177,7 @@ export default function FundFlowExplorer({
                   setSelection(node ? { address, node } : null)
                 }
                 source={current.result.source}
+                view={view}
                 height="h-[620px]"
               />
             </Panel>
