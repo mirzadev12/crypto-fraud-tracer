@@ -130,17 +130,26 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   `prefers-reduced-motion` the arc is removed entirely and both fall back to a
   static border. Do not extend this to a second gradient anywhere: the ban in
   the bullet above still stands, and this is the one exception on the record.
-- **The hero plate is a drawn block chain, not texture** (`DitherField.tsx`).
-  A run of outlined blocks — header band, rule, three ragged hash bars — linked
-  head to tail with a brass lozenge struck on each link, and one short fork that
-  branches off and stops. It is generated geometry thresholded through a real
-  4x4 Bayer matrix, so it is a printing technique rather than a shader effect,
-  and it is deterministic: the same size always yields the same plate. Brass is
-  spent on the link seals alone (~3% of the marks); everything else is ink. The
-  ground ramp is damped inside a block so the block reads as an object holding
-  something rather than a window onto the same noise. An earlier version drew
-  abstract diagonal bars and read as nothing in particular — if this is
-  retuned, keep it legible as a chain.
+- **The hero visual is the product, not an ornament** (`components/HeroTrace.tsx`).
+  A schematic of a trace resolving: subject wallet, hops carrying a falling
+  share of the victim's money, a branch dropped as dust, and an exit marked as a
+  deposit cluster — drawn in the same language the real canvases use, inside a
+  framed panel with a header strip. It replaced a dithered abstract plate, which
+  looked like texture rather than like blockchain and said nothing about the
+  tool. It carries **no addresses and no amounts**: every figure on it is a
+  taint percentage or a rule the pipeline actually applies (`< 10 min`,
+  `dust · dropped`), and its caption says in writing that it is a schematic.
+  Putting an invented address on the front page is the one thing this interface
+  cannot afford to look like it does. Pure markup — no state, no effects, no
+  dependency; the motion reuses `fx-flow` and `fx-settle`, which are already
+  switched off under `prefers-reduced-motion`.
+- **The number is on the front page, not in a dialog.** AGENTS.md §7 says the
+  deliverable of the clustering work is a number we can quote; the figures band
+  under the hero states it — 165 deposit addresses, 7 exchanges, 202 sanctioned
+  addresses, 0 commercial licences — with the derivation and the word
+  *heuristic* immediately under it. Every figure there is counted from the
+  committed files in `data/`; re-count them before changing any of them, and do
+  not round.
 - **An unresolved address is a first-class state, not an error.** `lib/api.ts`
   returns a discriminated `TraceLookup` — `resolved` / `unresolved` / `invalid` —
   and never throws for a valid address it holds no trace for. The unresolved

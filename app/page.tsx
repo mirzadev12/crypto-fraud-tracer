@@ -1,6 +1,6 @@
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
-import DitherField from "@/components/DitherField";
+import HeroTrace from "@/components/HeroTrace";
 import {
   Chip,
   Designation,
@@ -48,42 +48,89 @@ export default function Home() {
   return (
     <AppShell>
       {/* -------------------------------------------------------------- hero */}
-      <section className="relative -mx-6 -mt-10 overflow-hidden px-6 pb-24 pt-24">
+      <section className="relative -mx-6 -mt-10 overflow-hidden px-6 pb-20 pt-20">
         <div
           className="fx-grid pointer-events-none absolute inset-0 opacity-70"
           aria-hidden="true"
         />
-        {/* A dithered ledger plate behind the claim. Engraving, not decoration:
-            it sits under the type at low contrast and carries no information the
-            page does not also state in words. */}
-        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 lg:block">
-          <DitherField gridSize={3} opacity={0.3} />
-        </div>
-        <div className="relative max-w-4xl">
-          <h1 className="mt-10 font-display text-4xl uppercase leading-[1.15] tracking-[0.06em] text-ink md:text-6xl">
-            Follow the money.
-            <br />
-            <span className="text-brass">Find the exit.</span>
-          </h1>
+        {/* Split: the claim against the instrument's own output. The strongest
+            image this page can carry is what the tool actually draws, so the
+            right column is a product panel rather than an ornament. */}
+        <div className="relative grid items-center gap-x-16 gap-y-14 lg:grid-cols-[1.08fr_1fr]">
+          <div className="min-w-0">
+            <h1 className="font-display text-4xl uppercase leading-[1.15] tracking-[0.06em] text-ink md:text-5xl xl:text-6xl">
+              Follow the money.
+              <br />
+              <span className="text-brass">Find the exit.</span>
+            </h1>
 
-          <Rule className="mt-10 max-w-md" />
+            <Rule className="mt-10 max-w-md" />
 
-          <p className="mt-10 max-w-xl text-base leading-8 text-muted">
-            Most tools stop at the exchange. FineX carries the trail one step
-            further — to the <strong className="font-semibold text-ink">customer deposit cluster</strong> the funds
-            actually landed in — and states, for every case on the desk, whether
-            the money can <strong className="font-semibold text-ink">still be reached</strong>.
-          </p>
+            <p className="mt-10 max-w-xl text-base leading-8 text-muted">
+              Most tools stop at the exchange. FineX carries the trail one step
+              further — to the <strong className="font-semibold text-ink">customer deposit cluster</strong> the funds
+              actually landed in — and states, for every case on the desk, whether
+              the money can <strong className="font-semibold text-ink">still be reached</strong>.
+            </p>
 
-          <div className="mt-16 flex flex-col gap-4 sm:flex-row">
-            <Link href="/investigate" className={buttonStyles.primary}>
-              Open a case
-            </Link>
-            <Link href="/dashboard" className={buttonStyles.secondary}>
-              Case queue
-            </Link>
+            <div className="mt-12 flex flex-col gap-4 sm:flex-row">
+              <Link href="/investigate" className={buttonStyles.primary}>
+                Open a case
+              </Link>
+              <Link href="/dashboard" className={buttonStyles.secondary}>
+                Case queue
+              </Link>
+            </div>
           </div>
+
+          <figure className="min-w-0 border border-line bg-surface">
+            <figcaption className="flex items-center justify-between gap-4 border-b border-line px-4 py-3">
+              <span className="font-label text-[10px] font-semibold uppercase tracking-[0.2em] text-faint">
+                Fund flow
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-dim">
+                TRON · USDT TRC-20
+              </span>
+            </figcaption>
+            <div className="px-4 py-6">
+              <HeroTrace />
+            </div>
+            <p className="border-t border-line px-4 py-3 text-[11px] leading-5 text-dim">
+              Schematic. Figures are shares of the victim&rsquo;s money carried to each
+              hop — no address or amount here belongs to a real case.
+            </p>
+          </figure>
         </div>
+      </section>
+
+      {/* ------------------------------------------------------------ figures */}
+      {/* The sentence the whole project is packaging: a number, from public
+          data, that a commercial vendor charges for. It belongs above the fold
+          of the argument, not buried in a dialog. */}
+      <section className="border-t border-line py-16">
+        <dl className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["165", "Customer deposit addresses derived"],
+            ["7", "Exchanges covered by that derivation"],
+            ["202", "Sanctioned addresses carried"],
+            ["0", "Commercial data licences required"],
+          ].map(([figure, label]) => (
+            <div key={label} className="min-w-0 border-t border-line pt-5">
+              <dt className="font-mono text-5xl font-light tabular-nums text-ink">
+                {figure}
+              </dt>
+              <dd className="mt-3 font-label text-[11px] font-semibold uppercase leading-5 tracking-[0.14em] text-faint">
+                {label}
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-10 max-w-2xl text-xs leading-6 text-faint">
+          Derived from public chain data and the published OFAC sanctions list.
+          Explorer-tagged exchange wallets are treated as ground truth; the
+          deposit clusters are a <strong className="font-semibold text-muted">heuristic</strong> and are
+          labelled as one everywhere they appear.
+        </p>
       </section>
 
       {/* ------------------------------------------------------------ triage */}

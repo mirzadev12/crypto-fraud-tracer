@@ -271,7 +271,9 @@ export default function InvestigateForm() {
           ))}
         </ul>
         <p className="mt-6 max-w-2xl text-xs leading-6 text-faint">
-          Any other address is traced live against the chain once the trace service is connected.
+          Any other address is read live from the chain. A live trace takes
+          roughly half a minute — it is doing the same work as the recorded
+          cases above, against whatever the wallet is doing today.
         </p>
       </section>
 
@@ -281,7 +283,7 @@ export default function InvestigateForm() {
       {status.kind === "failed" ? (
         <ErrorState
           title="The trace did not run"
-          description={`${status.message} A frozen case file will run while the service is offline.`}
+          description={`${status.message} The recorded cases below run without touching the network, if this needs to be shown now.`}
         />
       ) : null}
 
