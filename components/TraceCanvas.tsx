@@ -109,7 +109,6 @@ function Readout({
     ["DEPTH", String(depth)],
     ["TAINT", `${(taint * 100).toFixed(1)}%`],
     ["FEED", source === "demo" ? "DEMO" : source === "live" ? "LIVE" : "—"],
-    ["UTC", trace.provenance.generatedAt.replace(/\.\d+Z$/, "Z")],
   ];
 
   return (
@@ -124,14 +123,6 @@ function Readout({
           <span>SIZE = TAINT</span>
           <span aria-hidden="true">·</span>
           <span>RING = HOP</span>
-        </>
-      ) : null}
-      {view === "chart" ? (
-        <>
-          <span aria-hidden="true">·</span>
-          <span>X = TIME</span>
-          <span aria-hidden="true">·</span>
-          <span>HEIGHT = VALUE</span>
         </>
       ) : null}
       <span className="ml-auto flex items-center gap-4">

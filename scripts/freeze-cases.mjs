@@ -281,9 +281,15 @@ async function main() {
   // Ordinary wallets make the best starting point for finding money at rest.
   const hotCandidates = WANTED.has("HOT") ? await fundsAtRest(payerPool.slice(0, 10)) : [];
 
+  // Report refusals. A throttled read and an address with no history are the
+  // same empty list, and not saying so cost two runs that found nothing.
   console.log(
-    `  candidates — WARM ${warmCandidates.length}, COLD ${coldCandidates.length}, HOT ${hotCandidates.length}\n`,
+    `  candidates — WARM ${warmCandidates.length}, COLD ${coldCandidates.length}, HOT ${hotCandidates.length}` +
+      (throttled
+        ? `  (${throttled} chain call(s) gave up after retries — the endpoint is throttling)`
+        : ""),
   );
+
   console.log("Running them through the live pipeline (this is slow on purpose) …");
 
   const found = [];

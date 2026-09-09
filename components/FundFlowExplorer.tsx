@@ -162,7 +162,7 @@ export default function FundFlowExplorer({
           <>
             <Panel
               title="Fund flow"
-              subtitle={`${current.lookup.data.nodes.length} wallets · ${current.lookup.data.edges.length} transfers · ${current.lookup.data.caseId}`}
+              subtitle={current.lookup.data.caseId}
               actions={
                 <div className="flex flex-wrap items-center gap-2">
                   <ViewToggle view={view} onChange={setView} />

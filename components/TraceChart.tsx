@@ -74,13 +74,7 @@ export default function TraceChart({
     });
     const maxHop = hops.reduce((m, h) => Math.max(m, h.share), 0);
 
-    const fastest = edges.reduce<number | null>(
-      (m, e) =>
-        e.dwellSeconds === null ? m : m === null ? e.dwellSeconds : Math.min(m, e.dwellSeconds),
-      null,
-    );
-
-    return { edges, first, last, span, maxValue, hops, maxHop, fastest };
+    return { edges, first, last, span, maxValue, hops, maxHop };
   }, [trace]);
 
   const active = hovered ?? selected;
@@ -116,8 +110,7 @@ export default function TraceChart({
           </>
         ) : (
           <span className="text-xs leading-6 text-faint">
-            Every transfer on the path, in the order it happened. Point at one to
-            read it; click to follow that wallet into the other views.
+            Point at a transfer to read it. Click to follow that wallet.
           </span>
         )}
       </div>
@@ -128,7 +121,19 @@ export default function TraceChart({
           Transfers · {model.edges.length}
         </p>
 
-        <div className="relative mt-4 h-[52%] min-h-[120px] border-b border-line">
+        <div className="relative mt-4 h-[46%] min-h-[132px] border-b border-line">
+          {/* The scale, stated. A bar chart whose axis is never named is a
+              decoration — these bars span orders of magnitude, so the largest
+              is labelled and a half-height rule gives the eye something to
+              measure the rest against. */}
+          <span className="pointer-events-none absolute inset-x-0 top-0 border-t border-dashed border-line/60" />
+          <span className="pointer-events-none absolute left-0 top-0 -translate-y-[calc(100%+2px)] font-mono text-[10px] text-dim">
+            {formatUsdtCompact(model.maxValue)}
+          </span>
+          <span
+            className="pointer-events-none absolute inset-x-0 border-t border-dashed border-line/40"
+            style={{ top: "50%" }}
+          />
           {model.edges.map((e) => {
             const at = Date.parse(e.timestamp);
             const left = Number.isFinite(at) ? ((at - model.first) / model.span) * 100 : 0;
@@ -145,7 +150,7 @@ export default function TraceChart({
                 onClick={() => onSelect?.(e.to === selected ? null : e.to)}
                 title={`${formatUsdt(e.valueUsdt)} · ${formatDateTime(e.timestamp)}`}
                 aria-label={`Transfer of ${formatUsdt(e.valueUsdt)} to ${shortAddress(e.to)} on ${formatDateTime(e.timestamp)}`}
-                className="absolute bottom-0 w-[6px] -translate-x-1/2 transition-[opacity,background] hover:opacity-100"
+                className="absolute bottom-0 w-[9px] -translate-x-1/2 transition-[opacity,background] hover:opacity-100"
                 style={{
                   left: `${left}%`,
                   height: `${heightPct(e.valueUsdt, model.maxValue)}%`,
@@ -162,9 +167,6 @@ export default function TraceChart({
         {/* The window, stated. A bar chart with no dates on it is decoration. */}
         <div className="mt-2 flex items-baseline justify-between font-mono text-[10px] text-dim">
           <span>{formatDateTime(new Date(model.first).toISOString())}</span>
-          <span className="text-faint">
-            HEIGHT = VALUE · AMBER = FORWARDED IN UNDER 10 MIN
-          </span>
           <span>{formatDateTime(new Date(model.last).toISOString())}</span>
         </div>
 
