@@ -131,18 +131,33 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   static border. Do not extend this to a second gradient anywhere: the ban in
   the bullet above still stands, and this is the one exception on the record.
 - **The hero visual is the product, not an ornament** (`components/HeroTrace.tsx`).
-  A schematic of a trace resolving: subject wallet, hops carrying a falling
-  share of the victim's money, a branch dropped as dust, and an exit marked as a
-  deposit cluster — drawn in the same language the real canvases use, inside a
-  framed panel with a header strip. It replaced a dithered abstract plate, which
-  looked like texture rather than like blockchain and said nothing about the
-  tool. It carries **no addresses and no amounts**: every figure on it is a
-  taint percentage or a rule the pipeline actually applies (`< 10 min`,
-  `dust · dropped`), and its caption says in writing that it is a schematic.
-  Putting an invented address on the front page is the one thing this interface
-  cannot afford to look like it does. Pure markup — no state, no effects, no
-  dependency; the motion reuses `fx-flow` and `fx-settle`, which are already
-  switched off under `prefers-reduced-motion`.
+  A cluster constellation — the register on-chain intelligence is read in — with
+  one path lit through it: subject wallet at the heart of its own cluster, two
+  hops carrying a falling share of the victim's money, and an exit marked as a
+  deposit cluster. The claim as a picture: the chain is mostly noise, and the
+  work is knowing which four addresses out of fifty are the case. Two earlier
+  attempts are worth not repeating — a dithered abstract plate read as texture
+  rather than as anything on-chain, and a row of four linked blocks read as a
+  flowchart rather than as intelligence. The field is a golden-angle spiral
+  computed once at module load, so it is identical between server and client;
+  nodes that would sit on the lit path are dropped so the finding never fights
+  the noise. It carries **no addresses and no amounts** — every figure is a
+  taint percentage or a rule the pipeline applies (`< 10 min`), and the caption
+  says in writing that it is a schematic. An invented address on the front page
+  is the one thing this interface cannot afford to look like it prints.
+- **Money moves on both canvases** (`.fx-packet`). Edges that merely exist read
+  as a diagram; a packet travelling the edge reads as a trace. `BubbleMap` and
+  the hero both carry one per leg, staggered by hop so the whole map reads as a
+  single movement travelling away from the subject rather than every edge
+  pulsing at once. The motion is SMIL `<animateMotion>`, chosen over CSS motion
+  paths because it works in the SVG user coordinate system without
+  `transform-box` guesswork on SVG children. **SMIL ignores
+  `prefers-reduced-motion`**, so the reduced-motion block removes the packets
+  with `display: none` rather than stopping an animation; a stopped packet would
+  park at the head of every edge. Note when testing that a preview surface may
+  itself report reduced motion, which switches off every animation in the app at
+  once — check `matchMedia('(prefers-reduced-motion: reduce)').matches` before
+  concluding an animation is broken.
 - **The number is on the front page, not in a dialog.** AGENTS.md §7 says the
   deliverable of the clustering work is a number we can quote; the figures band
   under the hero states it — 165 deposit addresses, 7 exchanges, 202 sanctioned

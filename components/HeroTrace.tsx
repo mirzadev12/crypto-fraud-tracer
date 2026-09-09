@@ -1,178 +1,199 @@
 /**
- * The hero visual: a trace, resolving.
+ * The hero visual: one traced path, lit out of the noise of the chain.
  *
- * The landing page's job is to show what the instrument does, so the strongest
- * image available is the product's own output rather than an ornament. This is
- * a schematic of the shape every case takes — subject wallet, hops carrying a
- * falling share of the victim's money, a branch dropped as dust, and an exit —
- * drawn in the same language the real canvases use.
+ * The register is the cluster map the on-chain intelligence world reads at a
+ * glance — a dense constellation of wallets, sized and dimmed by how little
+ * they matter, with the path carrying the victim's money burning through it to
+ * a single exit. That is the product's actual claim as a picture: the chain is
+ * mostly noise, and the work is knowing which four addresses out of fifty are
+ * the case.
  *
- * Deliberately carries **no addresses and no amounts**. Every figure on it is
- * either a taint percentage, which is a concept rather than a claim, or a rule
- * the pipeline actually applies. Putting an invented address on the front page
- * would be the one thing this tool cannot afford to look like it does.
+ * Deliberately carries **no addresses and no amounts**. Every figure on it is a
+ * taint percentage, which is a concept rather than a claim, or a rule the
+ * pipeline actually applies. An invented address on the front page is the one
+ * thing this interface cannot afford to look like it prints.
  *
- * Pure markup: no state, no effects, no dependency. The motion is the existing
- * `fx-flow` and `fx-settle` utilities, both already switched off under
- * `prefers-reduced-motion`.
+ * Deterministic: the field is a golden-angle spiral computed once at module
+ * load, so the constellation is identical on every render and between server
+ * and client. Pure markup — no state, no effects, no dependency. The motion is
+ * the existing `fx-flow`, `fx-settle` and `fx-sonar` utilities, all already
+ * switched off under `prefers-reduced-motion`.
  */
 
-/** A wallet, drawn as a block: header band, rule, and hash bars. */
-function Block({
-  x,
-  y,
-  size,
-  taint,
-  role,
-  labelY,
-  tone = "line",
-  delay = 0,
-}: {
+const VIEW = { w: 760, h: 420 };
+
+/** The traced path. The subject sits at the heart of its own cluster. */
+const LIT = [
+  { x: 236, y: 208, r: 23, taint: "100%", label: "SUBJECT" },
+  { x: 412, y: 142, r: 13, taint: "71%", label: null },
+  { x: 528, y: 244, r: 11, taint: "64%", label: null },
+  { x: 652, y: 176, r: 33, taint: "58%", label: "EXIT" },
+] as const;
+
+interface FieldNode {
   x: number;
   y: number;
-  size: number;
-  taint: string;
-  role: string;
-  /** Shared baseline for the row, so blocks of different sizes stay tidy. */
-  labelY?: number;
-  /** `line` is an ordinary hop; `brass` marks the subject and the exit. */
-  tone?: "line" | "brass" | "dim";
-  delay?: number;
-}) {
-  const stroke =
-    tone === "brass"
-      ? "var(--color-brass)"
-      : tone === "dim"
-        ? "var(--color-dim)"
-        : "var(--color-line)";
-  const head = size * 0.3;
-  // Ragged bar lengths, fixed rather than random so the plate never reshuffles.
-  const bars = [0.68, 0.44, 0.56];
-
-  return (
-    <g className="fx-settle" style={{ animationDelay: `${delay}ms` }}>
-      <rect
-        x={x}
-        y={y}
-        width={size}
-        height={size}
-        fill="var(--color-surface)"
-        stroke={stroke}
-        strokeWidth={1}
-      />
-      {/* Header band, closed by a rule — the block's identity strip. */}
-      <rect
-        x={x + 1}
-        y={y + 1}
-        width={size - 2}
-        height={head}
-        fill="var(--color-surface-2)"
-      />
-      <line
-        x1={x}
-        y1={y + head}
-        x2={x + size}
-        y2={y + head}
-        stroke={stroke}
-        strokeWidth={1}
-      />
-      <text
-        x={x + size / 2}
-        y={y + head - head * 0.3}
-        textAnchor="middle"
-        className="font-mono"
-        fontSize={size > 90 ? 13 : size > 60 ? 11 : 8}
-        fill={tone === "brass" ? "var(--color-brass)" : "var(--color-muted)"}
-      >
-        {taint}
-      </text>
-
-      {/* Hash bars: the records inside. Abstract on purpose. */}
-      {bars.map((run, i) => (
-        <line
-          key={i}
-          x1={x + size * 0.16}
-          y1={y + head + (size - head) * (0.28 + i * 0.24)}
-          x2={x + size * 0.16 + (size * 0.68) * run}
-          y2={y + head + (size - head) * (0.28 + i * 0.24)}
-          stroke="var(--color-dim)"
-          strokeWidth={1}
-        />
-      ))}
-
-      <text
-        x={x + size / 2}
-        y={labelY ?? y + size + 18}
-        textAnchor="middle"
-        className="font-label"
-        fontSize={9}
-        letterSpacing="0.18em"
-        fill={tone === "dim" ? "var(--color-dim)" : "var(--color-faint)"}
-      >
-        {role}
-      </text>
-    </g>
-  );
+  r: number;
+  /** Fades with distance from the subject — the far chain is barely there. */
+  o: number;
 }
 
-/** A transfer. `flagged` draws the sub-ten-minute rule in suspicious amber. */
-function Link({
-  x1,
-  x2,
-  y,
-  flagged = false,
-  dim = false,
-  delay = 0,
-}: {
-  x1: number;
-  x2: number;
-  y: number;
-  flagged?: boolean;
-  dim?: boolean;
-  delay?: number;
-}) {
-  const stroke = flagged
-    ? "var(--color-suspicious)"
-    : dim
-      ? "var(--color-dim)"
-      : "var(--color-brass-dim)";
-  return (
-    <g style={{ animationDelay: `${delay}ms` }} className="fx-settle">
-      <line
-        x1={x1}
-        y1={y}
-        x2={x2 - 7}
-        y2={y}
-        stroke={stroke}
-        strokeWidth={1}
-        strokeDasharray="4 6"
-        className="fx-flow"
-      />
-      <path
-        d={`M ${x2 - 7} ${y - 4} L ${x2} ${y} L ${x2 - 7} ${y + 4} Z`}
-        fill={stroke}
-      />
-    </g>
-  );
-}
+/**
+ * The background wallets: a golden-angle spiral, stretched horizontally to fill
+ * a wide panel. Nodes that would sit on the traced path are dropped, so the
+ * finding never fights the noise it is supposed to stand out from.
+ */
+const FIELD: FieldNode[] = (() => {
+  const GOLDEN = 2.39996323;
+  const out: FieldNode[] = [];
+  for (let i = 1; i <= 78; i++) {
+    const angle = i * GOLDEN;
+    const rad = 26 * Math.sqrt(i);
+    const x = LIT[0].x + Math.cos(angle) * rad * 2.05;
+    const y = LIT[0].y + Math.sin(angle) * rad * 1.02;
+    if (x < 26 || x > VIEW.w - 26 || y < 26 || y > VIEW.h - 34) continue;
+    if (LIT.some((l) => Math.hypot(l.x - x, l.y - y) < l.r + 30)) continue;
+    const near = Math.hypot(LIT[0].x - x, LIT[0].y - y);
+    out.push({
+      x,
+      y,
+      r: 2 + ((i * 7) % 5) * 1.25,
+      o: Math.max(0.16, 0.62 - near / 620),
+    });
+  }
+  return out;
+})();
+
+/** A sparse web: each wallet tied to the nearest one already placed. */
+const WEB: Array<[FieldNode, FieldNode]> = (() => {
+  const out: Array<[FieldNode, FieldNode]> = [];
+  for (let i = 1; i < FIELD.length; i++) {
+    let best = -1;
+    let bestDist = Infinity;
+    for (let j = 0; j < i; j++) {
+      const d = Math.hypot(FIELD[i].x - FIELD[j].x, FIELD[i].y - FIELD[j].y);
+      if (d < bestDist) {
+        bestDist = d;
+        best = j;
+      }
+    }
+    if (best >= 0 && bestDist < 118) out.push([FIELD[i], FIELD[best]]);
+  }
+  return out;
+})();
 
 export default function HeroTrace() {
-  const axis = 190;
-
   return (
     <svg
-      viewBox="0 118 760 246"
+      viewBox={`0 0 ${VIEW.w} ${VIEW.h}`}
       className="h-auto w-full"
       role="img"
-      aria-label="Schematic of a trace: a victim-reported wallet, two hops carrying a falling share of the stolen funds, a branch dropped as dust, and an exit at an exchange deposit cluster."
+      aria-label="A cluster of wallets on the chain with one path lit through it: the victim-reported wallet, two hops carrying a falling share of the stolen funds, and an exit at an exchange deposit cluster."
     >
-      {/* The subject. Brass, because the case starts here. */}
-      <Block x={40} y={142} size={96} taint="100%" role="SUBJECT" tone="brass" labelY={272} />
-      <Link x1={136} x2={236} y={axis} flagged delay={120} />
+      {/* ------------------------------------------------- the chain as noise */}
+      <g stroke="var(--color-line)" strokeWidth={1}>
+        {WEB.map(([a, b], i) => (
+          <line
+            key={i}
+            x1={a.x}
+            y1={a.y}
+            x2={b.x}
+            y2={b.y}
+            opacity={Math.min(a.o, b.o) * 0.5}
+          />
+        ))}
+      </g>
+      <g className="fx-settle">
+        {FIELD.map((n, i) => (
+          <circle
+            key={i}
+            cx={n.x}
+            cy={n.y}
+            r={n.r}
+            fill="var(--color-surface-2)"
+            stroke="var(--color-dim)"
+            strokeWidth={1}
+            opacity={n.o}
+          />
+        ))}
+      </g>
+
+      {/* ------------------------------------------------------- the movement */}
+      {/* The first hop is drawn in suspicious amber: under ten minutes between
+          receipt and forwarding is the signature of an automated script, and it
+          is the one thing here a reader should catch before reading any word. */}
+      <g className="fx-settle" style={{ animationDelay: "160ms" }}>
+        <line
+          x1={LIT[0].x}
+          y1={LIT[0].y}
+          x2={LIT[1].x}
+          y2={LIT[1].y}
+          stroke="var(--color-suspicious)"
+          strokeWidth={1.5}
+          strokeDasharray="5 7"
+          className="fx-flow"
+        />
+        <line
+          x1={LIT[1].x}
+          y1={LIT[1].y}
+          x2={LIT[2].x}
+          y2={LIT[2].y}
+          stroke="var(--color-brass)"
+          strokeWidth={1.5}
+          strokeDasharray="5 7"
+          className="fx-flow"
+        />
+        <line
+          x1={LIT[2].x}
+          y1={LIT[2].y}
+          x2={LIT[3].x}
+          y2={LIT[3].y}
+          stroke="var(--color-brass)"
+          strokeWidth={1.5}
+          strokeDasharray="5 7"
+          className="fx-flow"
+        />
+
+        {/* The money itself, moving. Each leg fires after the one before it, so
+            the eye is carried from the subject out to the exit. */}
+        {LIT.slice(0, -1).map((n, i) => {
+          const next = LIT[i + 1];
+          const d = `M ${n.x} ${n.y} L ${next.x} ${next.y}`;
+          const begin = `${i * 0.55}s`;
+          const fast = i === 0;
+          return (
+            <circle
+              key={`packet-${i}`}
+              className="fx-packet"
+              r={3.6}
+              fill={fast ? "var(--color-suspicious)" : "var(--color-brass)"}
+            >
+              <animateMotion
+                dur="2.9s"
+                begin={begin}
+                repeatCount="indefinite"
+                path={d}
+                calcMode="spline"
+                keyPoints="0;1"
+                keyTimes="0;1"
+                keySplines="0.45 0 0.55 1"
+              />
+              <animate
+                attributeName="opacity"
+                dur="2.9s"
+                begin={begin}
+                repeatCount="indefinite"
+                values="0;1;1;0"
+                keyTimes="0;0.12;0.85;1"
+              />
+            </circle>
+          );
+        })}
+      </g>
+
       <text
-        x={186}
-        y={axis - 14}
-        textAnchor="middle"
+        x={302}
+        y={160}
         className="font-label"
         fontSize={9}
         letterSpacing="0.16em"
@@ -181,41 +202,91 @@ export default function HeroTrace() {
         &lt; 10 MIN
       </text>
 
-      <Block x={236} y={150} size={80} taint="71%" role="HOP 1" labelY={272} delay={120} />
-      <Link x1={316} x2={416} y={axis} delay={240} />
+      {/* ---------------------------------------------------------- the path */}
+      {LIT.map((n, i) => {
+        const terminal = i === LIT.length - 1;
+        const anchor = i === 0 || terminal;
+        return (
+          <g
+            key={i}
+            className="fx-settle"
+            style={{ animationDelay: `${160 + i * 130}ms` }}
+          >
+            {/* A slow sonar on the two wallets that carry the argument. */}
+            {anchor ? (
+              <circle
+                cx={n.x}
+                cy={n.y}
+                r={n.r}
+                fill="none"
+                stroke="var(--color-brass)"
+                className="fx-sonar"
+                style={
+                  {
+                    "--fx-r0": `${n.r}px`,
+                    "--fx-r1": `${n.r * 2.1}px`,
+                    animationDelay: `${i * 900}ms`,
+                  } as React.CSSProperties
+                }
+              />
+            ) : null}
+            <circle
+              cx={n.x}
+              cy={n.y}
+              r={n.r}
+              fill="var(--color-surface-2)"
+              stroke={anchor ? "var(--color-brass)" : "var(--color-brass-dim)"}
+              strokeWidth={anchor ? 1.5 : 1}
+            />
+            <text
+              x={n.x}
+              y={n.y + (terminal ? 5 : 4)}
+              textAnchor="middle"
+              className="font-mono"
+              fontSize={terminal ? 14 : n.r > 20 ? 11 : 9}
+              fill={anchor ? "var(--color-brass)" : "var(--color-muted)"}
+            >
+              {n.taint}
+            </text>
+            {n.label ? (
+              <text
+                x={n.x}
+                y={n.y + n.r + 22}
+                textAnchor="middle"
+                className="font-label"
+                fontSize={10}
+                letterSpacing="0.2em"
+                fill="var(--color-faint)"
+              >
+                {n.label}
+              </text>
+            ) : null}
+          </g>
+        );
+      })}
 
-      <Block x={416} y={154} size={72} taint="64%" role="HOP 2" labelY={272} delay={240} />
-      <Link x1={488} x2={588} y={axis} delay={360} />
-
-      {/* The branch the tracer drops: below 1% of the reported amount. */}
-      <g className="fx-settle" style={{ animationDelay: "180ms" }}>
-        <path
-          d={`M 276 230 L 276 312 L 323 312`}
-          fill="none"
-          stroke="var(--color-dim)"
-          strokeWidth={1}
-          strokeDasharray="4 6"
-        />
-        <path d="M 323 308 L 330 312 L 323 316 Z" fill="var(--color-dim)" />
-      </g>
-      <Block x={330} y={290} size={44} taint="0.4%" role="DUST · DROPPED" tone="dim" delay={300} />
-
-      {/* The exit. The largest thing on the diagram, because it is the answer. */}
-      <Block x={588} y={132} size={116} taint="58%" role="EXIT" tone="brass" labelY={272} delay={360} />
-      <g className="fx-settle" style={{ animationDelay: "480ms" }}>
+      {/* The finding, named. The largest mark on the picture is the answer. */}
+      <g className="fx-settle" style={{ animationDelay: "760ms" }}>
         <rect
           x={556}
-          y={292}
-          width={188}
+          y={250}
+          width={192}
           height={30}
           fill="var(--color-surface-2)"
           stroke="var(--color-suspicious)"
           strokeWidth={1}
         />
-        <rect x={569} y={303} width={8} height={8} transform="rotate(45 573 307)" fill="var(--color-suspicious)" />
+        <rect
+          x={569}
+          y={261}
+          width={8}
+          height={8}
+          transform="rotate(45 573 265)"
+          fill="var(--color-suspicious)"
+        />
         <text
           x={586}
-          y={311}
+          y={269}
           className="font-label"
           fontSize={10}
           letterSpacing="0.16em"

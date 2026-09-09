@@ -130,6 +130,15 @@ dialog {
   animation: fx-flow 1.4s linear infinite;
 }
 
+/* A packet travelling an edge: the money moving, rather than the edge merely
+   existing. The motion itself is SMIL <animateMotion>, which works in the SVG
+   user coordinate system without the transform-box guesswork CSS motion paths
+   need on SVG children. This class exists so the packet can be removed for a
+   reader who has asked for less motion. */
+.fx-packet {
+  pointer-events: none;
+}
+
 @keyframes fx-mark {
   0%,
   100% {
@@ -267,6 +276,11 @@ dialog {
   .fx-sweep::after,
   .react-flow__edge-path {
     animation: none !important;
+  }
+  /* SMIL ignores this media query, so the travelling packets are removed
+     outright rather than left parked at the head of every edge. */
+  .fx-packet {
+    display: none;
   }
   /* Still a brass frame when the motion is switched off — and the secondary
      options simply warm their border on hover, with no arc at all. */

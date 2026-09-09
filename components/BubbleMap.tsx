@@ -261,10 +261,15 @@ export default function BubbleMap({
           const dim = connected
             ? !(connected.has(l.from.address) && connected.has(l.to.address))
             : false;
+          const d = arcPath(l);
+          // Packets leave later the further out the hop is, so the whole map
+          // reads as one movement travelling away from the subject rather than
+          // as every edge pulsing at once.
+          const begin = `${(l.from.depth ?? 0) * 0.45}s`;
           return (
             <g key={l.id} opacity={dim ? 0.16 : 1}>
               <path
-                d={arcPath(l)}
+                d={d}
                 fill="none"
                 stroke={l.fast ? "#c98a34" : "#3a3936"}
                 strokeWidth={l.width}
@@ -274,6 +279,31 @@ export default function BubbleMap({
                 style={{ animationDuration: l.fast ? "1.1s" : "3.4s" }}
                 opacity={l.fast ? 0.9 : 0.5}
               />
+              <circle
+                className="fx-packet"
+                r={Math.max(2.2, l.width * 0.85)}
+                fill={l.fast ? "#c98a34" : "#c6a15b"}
+                opacity={l.fast ? 0.95 : 0.55}
+              >
+                <animateMotion
+                  dur={l.fast ? "2.4s" : "4.4s"}
+                  begin={begin}
+                  repeatCount="indefinite"
+                  path={d}
+                  keyPoints="0;1"
+                  keyTimes="0;1"
+                  calcMode="spline"
+                  keySplines="0.45 0 0.55 1"
+                />
+                <animate
+                  attributeName="opacity"
+                  dur={l.fast ? "2.4s" : "4.4s"}
+                  begin={begin}
+                  repeatCount="indefinite"
+                  values={l.fast ? "0;0.95;0.95;0" : "0;0.55;0.55;0"}
+                  keyTimes="0;0.12;0.85;1"
+                />
+              </circle>
             </g>
           );
         })}
