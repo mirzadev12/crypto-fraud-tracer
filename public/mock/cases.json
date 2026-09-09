@@ -1,5 +1,13 @@
 [
   {
+    "caseId": "FX-2026-6619",
+    "inputAddress": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
+    "reportedAmountUsdt": 1066.11,
+    "fraudDate": "2026-09-09T13:09:36.000Z",
+    "triage": "HOT",
+    "terminalEntity": null
+  },
+  {
     "caseId": "FX-2026-6568",
     "inputAddress": "TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ",
     "reportedAmountUsdt": 500,
@@ -8,20 +16,20 @@
     "terminalEntity": "Bybit"
   },
   {
+    "caseId": "FX-2026-5139",
+    "inputAddress": "TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex",
+    "reportedAmountUsdt": 7630.48,
+    "fraudDate": "2026-09-08T19:12:36.000Z",
+    "triage": "WARM",
+    "terminalEntity": "MEXC"
+  },
+  {
     "caseId": "FX-2025-5852",
     "inputAddress": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5",
     "reportedAmountUsdt": 5000,
     "fraudDate": "2025-11-14T11:13:21.000Z",
     "triage": "COLD",
     "terminalEntity": "ISIL KHORASAN"
-  },
-  {
-    "caseId": "FX-2026-6619",
-    "inputAddress": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
-    "reportedAmountUsdt": 1066.11,
-    "fraudDate": "2026-09-09T13:09:36.000Z",
-    "triage": "HOT",
-    "terminalEntity": null
   },
   {
     "caseId": "FX-2026-0421",

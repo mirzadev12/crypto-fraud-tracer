@@ -1,10 +1,55 @@
 {
   "_note_": "Frozen traces, captured from the live pipeline against real TRON addresses. AGENTS.md §10. Each entry is a complete TraceResult exactly as /api/trace returned it, including the response hashes it was built from, so any claim in it can be re-verified. Regenerate with `node scripts/freeze-cases.mjs` while the dev server is running, then rebuild — this file is imported statically so demo mode needs no filesystem and no network.",
-  "capturedAt": "2026-09-09T13:14:24.465Z",
+  "capturedAt": "2026-09-09T18:23:37.525Z",
   "cases": [
     {
+      "address": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
+      "capturedAt": "2026-09-09T13:14:24.465Z",
+      "triage": "HOT",
+      "selectedBecause": "received 1066.11 USDT across 200 transfer(s) and has never sent any",
+      "request": {
+        "amount": 1066.11,
+        "fraudDate": "2026-09-09T13:09:36.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2026-6619",
+        "inputAddress": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
+        "chain": "tron",
+        "reportedAmountUsdt": 1066.11,
+        "fraudDate": "2026-09-09T13:09:36.000Z",
+        "nodes": [
+          {
+            "address": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 1066.11,
+            "taintFraction": 1,
+            "firstSeen": "2026-09-09T13:10:36.000Z",
+            "outflowCount": 0
+          }
+        ],
+        "edges": [],
+        "terminal": null,
+        "riskFlags": [],
+        "triage": "HOT",
+        "triageReason": "No transfers were observed leaving this address after the reported fraud, so 1,066 USDT may still be recoverable.",
+        "provenance": {
+          "apiCalls": 4,
+          "responseHashes": [
+            "be123835bfe563271af150857bbe3b6351956dc6d64e20d27d821215f4cca07d"
+          ],
+          "generatedAt": "2026-09-09T13:14:24.462Z"
+        }
+      }
+    },
+    {
       "address": "TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ",
-      "capturedAt": "2026-09-09T13:10:26.549Z",
+      "capturedAt": "2026-09-09T18:23:37.525Z",
       "triage": "WARM",
       "selectedBecause": "paid 500.00 USDT into TMt8PXtrGBFTGhGcGn4mEyTi1tR2vxzhc3 — 100% of everything they sent after that date",
       "request": {
@@ -81,15 +126,100 @@
         "provenance": {
           "apiCalls": 1,
           "responseHashes": [
-            "9e8422c635d139ea86d1886726574b00dbb674030762c2ee1cd32d75969eb8cb"
+            "b3c6597727417017df76f09d66f96658b0213b690d665b301fa023b89e1d9346"
           ],
-          "generatedAt": "2026-09-09T13:10:15.889Z"
+          "generatedAt": "2026-09-09T18:20:42.249Z"
+        }
+      }
+    },
+    {
+      "address": "TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex",
+      "capturedAt": "2026-09-09T18:23:37.525Z",
+      "triage": "WARM",
+      "selectedBecause": "paid 7630.48 USDT into TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN — 100% of everything they sent after that date",
+      "request": {
+        "amount": 7630.48,
+        "fraudDate": "2026-09-08T19:12:36.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2026-5139",
+        "inputAddress": "TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex",
+        "chain": "tron",
+        "reportedAmountUsdt": 7630.48,
+        "fraudDate": "2026-09-08T19:12:36.000Z",
+        "nodes": [
+          {
+            "address": "TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 7630.48,
+            "taintFraction": 1,
+            "firstSeen": "2026-09-08T19:05:00.000Z",
+            "outflowCount": 1
+          },
+          {
+            "address": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN",
+            "depth": 1,
+            "label": {
+              "entity": "MEXC",
+              "kind": "exchange_deposit",
+              "confidence": 0.95,
+              "source": "heuristic",
+              "evidence": "35 sweeps, 100% of inflow forwarded to MXC"
+            },
+            "taintedValueUsdt": 7630.48,
+            "taintFraction": 1,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex",
+            "to": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN",
+            "valueUsdt": 7630.475889,
+            "txHash": "b44e218dfacd1f25d8989c5c8c5a49d9d0d1874bd5941e63c05fcd8d594c3106",
+            "timestamp": "2026-09-08T19:13:36.000Z",
+            "dwellSeconds": 60
+          }
+        ],
+        "terminal": {
+          "address": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN",
+          "label": {
+            "entity": "MEXC",
+            "kind": "exchange_deposit",
+            "confidence": 0.95,
+            "source": "heuristic",
+            "evidence": "35 sweeps, 100% of inflow forwarded to MXC"
+          },
+          "depositAddress": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN"
+        },
+        "riskFlags": [
+          {
+            "code": "SHORT_DWELL",
+            "reason": "Funds forwarded within 1 minute of receipt — indicates automated laundering, not manual movement.",
+            "atAddress": "TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex"
+          }
+        ],
+        "triage": "WARM",
+        "triageReason": "7,630 USDT reached a likely MEXC customer deposit address; a freeze request naming that address is viable.",
+        "provenance": {
+          "apiCalls": 1,
+          "responseHashes": [
+            "1a9bdef1c3f8df0f1eee9e36cbc570e601aa4ee2386d933cb2d944143f91a027"
+          ],
+          "generatedAt": "2026-09-09T18:20:42.751Z"
         }
       }
     },
     {
       "address": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5",
-      "capturedAt": "2026-09-09T13:10:26.549Z",
+      "capturedAt": "2026-09-09T18:23:37.525Z",
       "triage": "COLD",
       "selectedBecause": "paid 5000.00 USDT into TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z — 50% of everything they sent after that date",
       "request": {
@@ -199,54 +329,9 @@
         "provenance": {
           "apiCalls": 3,
           "responseHashes": [
-            "c46314ec5c5b2ac4166accf37c84bb59c399579a4e2d92d98f7c1cea87d1a268"
+            "2ce39ae4838233c84c9270750f3ab60a6be495f62a56fb3df82a43119ac98be9"
           ],
-          "generatedAt": "2026-09-09T13:10:23.057Z"
-        }
-      }
-    },
-    {
-      "address": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
-      "capturedAt": "2026-09-09T13:14:24.465Z",
-      "triage": "HOT",
-      "selectedBecause": "received 1066.11 USDT across 200 transfer(s) and has never sent any",
-      "request": {
-        "amount": 1066.11,
-        "fraudDate": "2026-09-09T13:09:36.000Z"
-      },
-      "trace": {
-        "caseId": "FX-2026-6619",
-        "inputAddress": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
-        "chain": "tron",
-        "reportedAmountUsdt": 1066.11,
-        "fraudDate": "2026-09-09T13:09:36.000Z",
-        "nodes": [
-          {
-            "address": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
-            "depth": 0,
-            "label": {
-              "entity": "Victim-reported address",
-              "kind": "victim_reported",
-              "confidence": 1,
-              "source": "ground_truth"
-            },
-            "taintedValueUsdt": 1066.11,
-            "taintFraction": 1,
-            "firstSeen": "2026-09-09T13:10:36.000Z",
-            "outflowCount": 0
-          }
-        ],
-        "edges": [],
-        "terminal": null,
-        "riskFlags": [],
-        "triage": "HOT",
-        "triageReason": "No transfers were observed leaving this address after the reported fraud, so 1,066 USDT may still be recoverable.",
-        "provenance": {
-          "apiCalls": 4,
-          "responseHashes": [
-            "be123835bfe563271af150857bbe3b6351956dc6d64e20d27d821215f4cca07d"
-          ],
-          "generatedAt": "2026-09-09T13:14:24.462Z"
+          "generatedAt": "2026-09-09T18:20:57.014Z"
         }
       }
     }

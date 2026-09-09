@@ -219,18 +219,32 @@ async function runTrace(candidate) {
   return body;
 }
 
-async function capture(level, candidates) {
-  for (const c of candidates.slice(0, 3)) {
-    process.stdout.write(`  ${level}: trying ${c.address} (${c.why}) … `);
+/**
+ * Trace every candidate and keep all that reached the wanted disposition,
+ * richest first.
+ *
+ * The first pass stopped at the first match, which is why the register ended up
+ * with a two-wallet WARM case: the first address to resolve is rarely the most
+ * instructive one. A trace with more wallets on it shows the method better, so
+ * candidates are ranked by how much trail they actually produced.
+ */
+async function capture(level, candidates, want = 2) {
+  const hits = [];
+  for (const c of candidates.slice(0, 5)) {
+    process.stdout.write(`  ${level}: ${c.address} … `);
     try {
       const trace = await runTrace(c);
-      console.log(`${trace.triage}  ${trace.nodes.length} wallets, ${trace.provenance.apiCalls} calls`);
-      if (trace.triage === level) return { candidate: c, trace };
+      const rich = `${trace.nodes.length}w/${trace.edges.length}e`;
+      console.log(`${trace.triage} ${rich}`);
+      if (trace.triage === level) hits.push({ candidate: c, trace });
     } catch (err) {
-      console.log(`failed — ${err.message}`);
+      console.log(`failed — ${err.message.slice(0, 60)}`);
     }
+    if (hits.length >= want + 1) break;
   }
-  return null;
+  return hits
+    .sort((a, b) => b.trace.nodes.length - a.trace.nodes.length)
+    .slice(0, want);
 }
 
 /**
@@ -298,8 +312,8 @@ async function main() {
     ["COLD", coldCandidates],
     ["HOT", hotCandidates],
   ].filter(([level]) => WANTED.has(level))) {
-    const hit = await capture(level, candidates);
-    if (hit) found.push({ level, ...hit });
+    const hits = await capture(level, candidates);
+    if (hits.length) hits.forEach((h) => found.push({ level, ...h }));
     else console.log(`  ${level}: no candidate resolved to ${level}`);
   }
 
@@ -312,8 +326,8 @@ async function main() {
       return [];
     }
   })();
-  const foundLevels = new Set(found.map((f) => f.level));
-  const kept = existing.filter((c) => !foundLevels.has(c.triage));
+  const foundAddresses = new Set(found.map((f) => f.candidate.address));
+  const kept = existing.filter((c) => !foundAddresses.has(c.address));
   if (kept.length) {
     console.log(`
   keeping ${kept.length} previously frozen case(s): ${kept.map((c) => c.triage).join(", ")}`);
