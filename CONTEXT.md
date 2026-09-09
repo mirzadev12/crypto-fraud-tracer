@@ -117,6 +117,30 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   faded brass hairline, `SectionHeader` is index + lozenge + display title + rule.
   Deco should read as about a tenth of the design. No gradients, no glow, no
   glassmorphism, no floating blobs, no icon soup.
+- **One gradient exists, and it is a border light** (`.fx-sweep` in
+  `app/globals.css`). The primary action is a square dark frame with a single
+  brass arc rotating behind its 1px ring — the element's own background is
+  clipped to the padding box, so the conic layer shows only through the border.
+  It is the animated-conic-border pattern rebuilt to the house rules: square,
+  one arc rather than a spectrum, no blur, no glow around the button. Secondary
+  options carry the same frame lit only on hover (`.fx-sweep-hover`), so the
+  light follows the cursor instead of every button holding brass at rest; the
+  opaque face appears only while there is an arc to hide, or a secondary on a
+  charcoal panel would punch a dark hole in it. Under
+  `prefers-reduced-motion` the arc is removed entirely and both fall back to a
+  static border. Do not extend this to a second gradient anywhere: the ban in
+  the bullet above still stands, and this is the one exception on the record.
+- **The hero plate is a drawn block chain, not texture** (`DitherField.tsx`).
+  A run of outlined blocks — header band, rule, three ragged hash bars — linked
+  head to tail with a brass lozenge struck on each link, and one short fork that
+  branches off and stops. It is generated geometry thresholded through a real
+  4x4 Bayer matrix, so it is a printing technique rather than a shader effect,
+  and it is deterministic: the same size always yields the same plate. Brass is
+  spent on the link seals alone (~3% of the marks); everything else is ink. The
+  ground ramp is damped inside a block so the block reads as an object holding
+  something rather than a window onto the same noise. An earlier version drew
+  abstract diagonal bars and read as nothing in particular — if this is
+  retuned, keep it legible as a chain.
 - **An unresolved address is a first-class state, not an error.** `lib/api.ts`
   returns a discriminated `TraceLookup` — `resolved` / `unresolved` / `invalid` —
   and never throws for a valid address it holds no trace for. The unresolved

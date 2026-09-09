@@ -57,7 +57,7 @@ export default function Home() {
             it sits under the type at low contrast and carries no information the
             page does not also state in words. */}
         <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 lg:block">
-          <DitherField gridSize={3} opacity={0.2} />
+          <DitherField gridSize={3} opacity={0.3} />
         </div>
         <div className="relative max-w-4xl">
           <h1 className="mt-10 font-display text-4xl uppercase leading-[1.15] tracking-[0.06em] text-ink md:text-6xl">

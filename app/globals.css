@@ -191,14 +191,101 @@ dialog {
   animation: fx-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* A brass highlight travelling the border of the primary action.
+ *
+ * Same idea as the animated conic-gradient border, rebuilt to the house rules:
+ * square corners, one brass arc instead of a spectrum, no blur, and a dark
+ * face so the button is a frame with light moving round it rather than a slab.
+ *
+ * The mechanism: the element's own background is clipped to the padding box, so
+ * the 1px border ring is transparent; the rotating conic layer sits behind that
+ * background and is therefore visible only through the ring.
+ */
+.fx-sweep {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  background-color: var(--color-bg);
+  background-clip: padding-box;
+}
+.fx-sweep::after {
+  content: "";
+  position: absolute;
+  inset: -160%;
+  z-index: -1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 250deg,
+    var(--color-brass-dim) 285deg,
+    var(--color-brass) 320deg,
+    var(--color-brass-dim) 345deg,
+    transparent 360deg
+  );
+  animation: fx-sweep-spin 4s linear infinite;
+}
+.fx-sweep:hover::after {
+  animation-duration: 1.8s;
+}
+
+/* The same sweep, held back until the option is pointed at. A secondary option
+   is a plain line frame at rest and lights only under the cursor, so the light
+   follows the officer rather than every button on the screen carrying brass. */
+.fx-sweep-hover {
+  border-color: var(--color-line);
+  /* Transparent at rest: the opaque face exists only to hide the inside of the
+     arc, so a secondary option on a charcoal panel must not carry one until
+     there is an arc to hide. */
+  background-color: transparent;
+  transition:
+    border-color 200ms linear,
+    background-color 200ms linear;
+}
+.fx-sweep-hover::after {
+  opacity: 0;
+  transition: opacity 200ms linear;
+}
+.fx-sweep-hover:hover {
+  border-color: transparent;
+  background-color: var(--color-bg);
+}
+.fx-sweep-hover:hover::after {
+  opacity: 1;
+}
+
+@keyframes fx-sweep-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fx-flow,
   .fx-mark,
   .fx-settle,
   .fx-sonar,
   .fx-rise,
+  .fx-sweep::after,
   .react-flow__edge-path {
     animation: none !important;
+  }
+  /* Still a brass frame when the motion is switched off — and the secondary
+     options simply warm their border on hover, with no arc at all. */
+  .fx-sweep {
+    border-color: var(--color-brass-dim);
+  }
+  .fx-sweep-hover,
+  .fx-sweep-hover:hover {
+    border-color: var(--color-line);
+  }
+  .fx-sweep-hover:hover {
+    border-color: var(--color-brass-dim);
+  }
+  .fx-sweep-hover::after {
+    display: none;
+  }
+  /* No arc to hide, so no face either. */
+  .fx-sweep-hover:hover {
+    background-color: transparent;
   }
 }
 
