@@ -169,9 +169,12 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   computed once at module load, so it is identical between server and client;
   nodes that would sit on the lit path are dropped so the finding never fights
   the noise. It carries **no addresses and no amounts** — every figure is a
-  taint percentage or a rule the pipeline applies (`< 10 min`), and the caption
-  says in writing that it is a schematic. An invented address on the front page
-  is the one thing this interface cannot afford to look like it prints.
+  taint percentage or a rule the pipeline applies (`< 10 min`). That property is
+  the whole safeguard — there was a caption under the panel calling it a
+  schematic and it has been removed, so nothing but the drawing itself now keeps
+  the claim honest. **Do not put an address or a figure in USDT on it.** An
+  invented address on the front page is the one thing this interface cannot
+  afford to look like it prints.
 - **Money moves on both canvases** (`.fx-packet`). Edges that merely exist read
   as a diagram; a packet travelling the edge reads as a trace. `BubbleMap` and
   the hero both carry one per leg, staggered by hop so the whole map reads as a

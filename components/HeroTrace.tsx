@@ -39,6 +39,15 @@ interface Bubble {
   r: number;
   /** Fades with distance from the subject — the far chain is barely there. */
   o: number;
+  /**
+   * A minority of wallets carry a trace of brass. Every field on this plate was
+   * drawn at one weight in one grey, which is what made it read as flat: real
+   * cluster maps have a few wallets that matter among many that do not, and the
+   * eye needs that variation to believe the picture.
+   */
+  warm: boolean;
+  /** Solid wallets read as holding something; outlines as merely present. */
+  solid: boolean;
 }
 
 /**
@@ -53,12 +62,12 @@ const FIELD: Bubble[] = (() => {
   const cx = 330;
   const cy = 214;
 
-  for (let i = 1; i <= 900 && out.length < 96; i++) {
+  for (let i = 1; i <= 1400 && out.length < 132; i++) {
     const angle = i * GOLDEN;
     const rad = 11.5 * Math.sqrt(i);
     const x = cx + Math.cos(angle) * rad * 1.62;
     const y = cy + Math.sin(angle) * rad * 1.02;
-    const r = 4 + ((i * 13) % 8) * 2.3;
+    const r = 3.5 + ((i * 13) % 8) * 2.3;
 
     if (x - r < 14 || x + r > VIEW.w - 14) continue;
     if (y - r < 14 || y + r > VIEW.h - 30) continue;
@@ -67,7 +76,14 @@ const FIELD: Bubble[] = (() => {
     if (out.some((b) => Math.hypot(b.x - x, b.y - y) < b.r + r + 5)) continue;
 
     const near = Math.hypot(LIT[0].x - x, LIT[0].y - y);
-    out.push({ x, y, r, o: Math.max(0.18, 0.68 - near / 780) });
+    out.push({
+      x,
+      y,
+      r,
+      o: Math.max(0.2, 0.74 - near / 720),
+      warm: i % 7 === 0,
+      solid: i % 3 === 0,
+    });
   }
   return out;
 })();
@@ -110,6 +126,15 @@ export default function HeroTrace() {
       role="img"
       aria-label="A cluster of wallets on the chain with one path lit through it: the victim-reported wallet, two hops carrying a falling share of the stolen funds, and an exit at an exchange deposit cluster."
     >
+      {/* Hop rings, faint, centred on the subject. The same encoding the real
+          bubble canvas uses — distance from the middle is distance from the
+          victim — and they give the field a structure to sit in. */}
+      <g fill="none" stroke="var(--color-line)" strokeDasharray="2 9" opacity={0.9}>
+        {[132, 236, 344].map((rx, i) => (
+          <ellipse key={i} cx={LIT[0].x + 150} cy={214} rx={rx} ry={rx * 0.62} />
+        ))}
+      </g>
+
       {/* ------------------------------------------------- the chain as noise */}
       <g stroke="var(--color-line)" strokeWidth={1}>
         {WEB.map(([a, b], i) => (
@@ -130,9 +155,10 @@ export default function HeroTrace() {
             cx={n.x}
             cy={n.y}
             r={n.r}
-            fill="var(--color-surface-2)"
-            stroke="var(--color-dim)"
-            strokeWidth={1}
+            fill={n.warm ? "var(--color-brass)" : "var(--color-surface-2)"}
+            fillOpacity={n.warm ? 0.1 : n.solid ? 1 : 0.35}
+            stroke={n.warm ? "var(--color-brass-dim)" : "var(--color-dim)"}
+            strokeWidth={n.warm ? 1.25 : 1}
             opacity={n.o}
           />
         ))}

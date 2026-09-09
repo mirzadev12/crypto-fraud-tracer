@@ -104,10 +104,6 @@ export default function Home() {
             <div className="px-4 py-6">
               <HeroTrace />
             </div>
-            <p className="border-t border-line px-4 py-3 text-[11px] leading-5 text-dim">
-              Schematic. Figures are shares of the victim&rsquo;s money carried to each
-              hop — no address or amount here belongs to a real case.
-            </p>
           </figure>
         </div>
       </section>
