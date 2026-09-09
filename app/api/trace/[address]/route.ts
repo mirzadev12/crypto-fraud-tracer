@@ -6,16 +6,16 @@ import { runTrace } from "@/lib/tracer";
  * GET /api/trace/[address] — the shareable permalink for a trace. AGENTS.md §5.
  *
  * The amount and the fraud date are not in the URL, so this re-runs the trace
- * with a full lookback and the reported amount defaulted to the total that left
- * the address. That makes a permalink openable by anyone the case is sent to,
- * at the cost of a wider window than the original run.
+ * over a year-long window and adopts everything that left the address as the
+ * reported amount. A permalink is therefore "what does this wallet look like
+ * now", not a replay of one officer's parameters — the frozen numbers from the
+ * original run live in that case's evidence packet.
  *
  * `?amount=` and `?since=` narrow it back to the officer's original parameters.
  */
 export const dynamic = "force-dynamic";
 
-/** Reported amount is only used for the dust floor and the taint denominator. */
-const DEFAULT_AMOUNT = 1;
+
 /** With no fraud date, look back a year rather than to genesis. */
 const DEFAULT_LOOKBACK_DAYS = 365;
 
@@ -35,8 +35,9 @@ export async function GET(
   const amountParam = Number(url.searchParams.get("amount"));
   const sinceParam = url.searchParams.get("since");
 
-  const amount =
-    Number.isFinite(amountParam) && amountParam > 0 ? amountParam : DEFAULT_AMOUNT;
+  // No amount in a permalink, so adopt whatever actually left the address.
+  const amount: number | "auto" =
+    Number.isFinite(amountParam) && amountParam > 0 ? amountParam : "auto";
   const since = sinceParam ? new Date(sinceParam) : new Date(NaN);
   const fraudDate = Number.isNaN(since.getTime())
     ? new Date(Date.now() - DEFAULT_LOOKBACK_DAYS * 86_400_000)

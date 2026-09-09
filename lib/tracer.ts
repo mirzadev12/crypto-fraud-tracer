@@ -27,7 +27,13 @@ const DUST_FRACTION = 0.01;
 
 export interface TraceRequest {
   address: string;
-  amount: number;
+  /**
+   * The reported amount, or "auto" when nobody told us — a permalink carries an
+   * address and nothing else. "auto" adopts everything that left the address
+   * after the fraud date, so taint figures come out in real USDT instead of as
+   * fractions of a placeholder.
+   */
+  amount: number | "auto";
   fraudDate: string;
 }
 
@@ -42,7 +48,9 @@ function caseIdFor(address: string, fraudDate: string): string {
 export async function runTrace(req: TraceRequest): Promise<TraceResult> {
   const root = req.address.trim();
   const fraudAt = new Date(req.fraudDate).getTime();
-  const dust = Math.max(0, req.amount) * DUST_FRACTION;
+
+  // Resolved from the root's own outflows when the caller said "auto".
+  let reported = typeof req.amount === "number" ? Math.max(0, req.amount) : 0;
 
   const grid = new TronGrid();
   const nodes = new Map<string, TraceNode>();
@@ -88,11 +96,17 @@ export async function runTrace(req: TraceRequest): Promise<TraceResult> {
         ? new Date(Math.min(...transfers.map((t) => t.timestamp))).toISOString()
         : null;
 
+      // The root sets the scale for every figure below it.
+      if (item.address === root && req.amount === "auto") {
+        reported = outAll.reduce((sum, t) => sum + t.value, 0);
+      }
+      const dust = reported * DUST_FRACTION;
+
       nodes.set(item.address, {
         address: item.address,
         depth: item.depth,
         label,
-        taintedValueUsdt: req.amount * item.taint,
+        taintedValueUsdt: reported * item.taint,
         taintFraction: item.taint,
         firstSeen,
         outflowCount: outAll.length,
@@ -143,13 +157,13 @@ export async function runTrace(req: TraceRequest): Promise<TraceResult> {
   // Wallets we could not read are excluded from the "funds at rest" finding.
   const unread = new Set(nodeList.filter((n) => grid.didFail(n.address)).map((n) => n.address));
   const riskFlags = scoreRisk(nodeList, edges, req.fraudDate);
-  const { triage, triageReason, terminal } = decide(nodeList, req.amount, unread);
+  const { triage, triageReason, terminal } = decide(nodeList, reported, unread);
 
   return {
     caseId: caseIdFor(root, req.fraudDate),
     inputAddress: root,
     chain: "tron",
-    reportedAmountUsdt: req.amount,
+    reportedAmountUsdt: reported,
     fraudDate: new Date(req.fraudDate).toISOString(),
     nodes: nodeList,
     edges,

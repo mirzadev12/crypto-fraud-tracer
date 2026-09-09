@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 8 September 2026 (FineX visual system).
+Last updated: 9 September 2026 (backend live).
 
 ---
 
@@ -21,11 +21,28 @@ Last updated: 8 September 2026 (FineX visual system).
 | Screens | `app/**` | `/`, `/login`, `/dashboard`, `/investigate`, `/trace/[address]`, `/fund-flow`, `/reports`, `/report/[address]`, plus `not-found` and `error`. |
 | Components | `components/**` | Shell, flow graph, bubble map, trace view, case queue, evidence packet, primitives in `ui.tsx`. |
 
-### Not done — the backend, exactly as AGENTS.md describes it
+### Done — the backend, and it is live
 
-`lib/trongrid.ts`, `lib/tracer.ts`, `lib/labels.ts`, `lib/risk.ts`,
-`scripts/cluster.mjs`, `data/*.json`, and the three API routes. Nothing in the UI
-needs to change when they land.
+| Area | Files | State |
+| --- | --- | --- |
+| Chain client | `lib/trongrid.ts` | Cache, SHA-256 per response, call counting, 429 backoff, 250ms pacing, and an `didFail` set so an unreadable wallet is never mistaken for an empty one. |
+| Seeds | `data/hot-wallets.json` | 11 explorer-tagged exchange wallets, each re-verified live, each with a source URL. |
+| Sanctions | `data/risk-lists.json` | 202 TRON addresses from the OFAC SDN list, 29 entities. Mixers and community lists are empty **on purpose** — no citable source, and the file says so. |
+| Clustering | `scripts/cluster.mjs` → `data/deposit-addresses.json` | **165 deposit addresses across 7 exchanges**, 11 seeds, 280 API calls, 8 minutes. That is the number for the slide. |
+| Attribution | `lib/labels.ts` | 378 labels in one Map, §9 priority order, honest source tiers. |
+| Rules | `lib/risk.ts` | Six rules, named thresholds, reason strings written as evidence. |
+| Tracer | `lib/tracer.ts` | BFS, five limits, taint, dwell, triage. |
+| Routes | `app/api/trace`, `app/api/trace/[address]` | Live, `force-dynamic`, checksum-validated server-side. |
+
+Verified end to end against the live chain: 8 wallets, depth 2, WARM at an
+explorer-tagged exchange wallet, taint 100% → 13.1% → 0.5%, rules firing on real
+transfers. The UI needed no change — its badge flipped to **Live trace** on its
+own, which is the integration contract in §2 doing its job.
+
+### Still not done
+
+`/api/cases` (deliberately — see §3), `data/demo-cases.json` and the demo-mode
+flag from AGENTS.md §10, and the optional narrative from §11.
 
 ---
 
@@ -128,6 +145,30 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   from the platform rather than a dependency; note that Tailwind preflight
   zeroes the `margin: auto` a modal dialog centres itself with, which
   `app/globals.css` puts back. Content stays in the document when closed.
+- **Grid and flex children need `min-w-0`.** A child defaults to
+  `min-width: auto` and refuses to shrink below its content, so a wide table,
+  a nowrap readout or a react-flow canvas pushes the whole page sideways on a
+  phone instead of scrolling inside itself. `Panel` carries it; so must any new
+  direct grid child. Three routes overflowed this way and it survived several
+  design passes because nothing had measured it — the check is
+  `document.documentElement.scrollWidth > clientWidth` at 390px, per route.
+- **An unreadable wallet is not an empty one.** A throttled fetch and a wallet
+  with no outgoing transfers are the same empty array. `TronGrid.didFail()`
+  tracks the difference and the tracer excludes unread wallets from the "funds
+  still at rest" finding. Telling an officer the money is sitting somewhere
+  because we could not see is the one lie this tool must never tell.
+- **The reported address is the subject of a case, never its finding.** Only
+  wallets the money reached can be an exit, or tracing a known deposit address
+  reports that the money "reached" the address it started at.
+- **A permalink is "what does this wallet look like now"**, not a replay of one
+  officer's parameters. `GET /api/trace/[address]` looks back a year and adopts
+  everything that left the address as the reported amount, so taint figures come
+  out in real USDT; `?amount=` and `?since=` narrow it. The frozen numbers from
+  the original run live in that case's evidence packet, and the two can legitimately
+  differ.
+- **`/api/cases` is deliberately unimplemented.** There is no case database.
+  Serving illustrative complaint records through it would flip the register's
+  badge to "Live trace" while claiming chain-read data it is not.
 - **Containers must earn themselves.** `Panel` takes `framed={false}` for the
   common case — a label, a hairline, and the content. Only a canvas, a scrolling
   table or the document sheet gets a border. Do not card-ify a screen.
