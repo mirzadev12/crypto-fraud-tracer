@@ -121,12 +121,15 @@ function isCaseSummary(v: unknown): v is CaseSummary {
  * that is still filling in fields renders instead of white-screening.
  */
 function isTraceLike(v: unknown): v is Record<string, unknown> {
+  if (!isObj(v)) return false;
+
+  const triage = v.triage;
+
   return (
-    isObj(v) &&
-    typeof v.inputAddress === "string" &&
-    isTriage(v.triage) &&
+    (triage === "HOT" || triage === "WARM" || triage === "COLD") &&
     Array.isArray(v.nodes) &&
-    Array.isArray(v.edges)
+    Array.isArray(v.edges) &&
+    typeof v.chain === "string"
   );
 }
 
@@ -160,73 +163,253 @@ function toLabel(v: unknown): Label | null {
     ...(typeof evidence === "string" ? { evidence } : {}),
   };
 }
-
 function normalizeTrace(raw: Record<string, unknown>): TraceResult {
-  const nodes = (raw.nodes as unknown[]).filter(isObj).map((n, i) => ({
-    address: String(n.address ?? ""),
-    depth: typeof n.depth === "number" ? n.depth : i === 0 ? 0 : 1,
-    label: toLabel(n.label),
-    taintedValueUsdt: typeof n.taintedValueUsdt === "number" ? n.taintedValueUsdt : 0,
-    taintFraction: typeof n.taintFraction === "number" ? n.taintFraction : 0,
-    firstSeen: typeof n.firstSeen === "string" ? n.firstSeen : null,
-    outflowCount: typeof n.outflowCount === "number" ? n.outflowCount : 0,
-  }));
+  const rawNodes = Array.isArray(raw.nodes) ? raw.nodes : [];
+  const rawEdges = Array.isArray(raw.edges) ? raw.edges : [];
+
+  const reportedAmount =
+    typeof raw.reportedAmountUsdt === "number"
+      ? raw.reportedAmountUsdt
+      : 0;
+
+  const nodes = rawNodes
+    .filter(isObj)
+    .map((n, i) => {
+      const amountIn =
+        typeof n.amountIn === "number" ? n.amountIn : 0;
+
+      const taintedValue =
+        typeof n.taintedValueUsdt === "number"
+          ? n.taintedValueUsdt
+          : amountIn;
+
+      const depth =
+        typeof n.depth === "number"
+          ? n.depth
+          : i === 0
+            ? 0
+            : 1;
+
+      const outflowCount =
+        typeof n.outflowCount === "number"
+          ? n.outflowCount
+          : 0;
+
+      const taintFraction =
+        typeof n.taintFraction === "number"
+          ? Math.min(1, Math.max(0, n.taintFraction))
+          : reportedAmount > 0
+            ? Math.min(1, Math.max(0, taintedValue / reportedAmount))
+            : 0;
+
+      return {
+        address: String(n.address ?? ""),
+        depth,
+        label: toLabel(n.label),
+        taintedValueUsdt: taintedValue,
+        taintFraction,
+        firstSeen:
+          typeof n.firstSeen === "string"
+            ? n.firstSeen
+            : null,
+        outflowCount,
+      };
+    });
 
   const nodeSet = new Set(nodes.map((n) => n.address));
-  const edges = (raw.edges as unknown[])
+
+  const edges = rawEdges
     .filter(isObj)
     .map((e) => ({
       from: String(e.from ?? ""),
       to: String(e.to ?? ""),
-      valueUsdt: typeof e.valueUsdt === "number" ? e.valueUsdt : 0,
+      valueUsdt:
+        typeof e.valueUsdt === "number"
+          ? e.valueUsdt
+          : typeof e.amount === "number"
+            ? e.amount
+            : 0,
       txHash: String(e.txHash ?? ""),
-      timestamp: typeof e.timestamp === "string" ? e.timestamp : "",
-      dwellSeconds: typeof e.dwellSeconds === "number" ? e.dwellSeconds : null,
+      timestamp:
+        typeof e.timestamp === "string"
+          ? e.timestamp
+          : "",
+      dwellSeconds:
+        typeof e.dwellSeconds === "number"
+          ? e.dwellSeconds
+          : null,
     }))
-    // Drop edges that point at nodes we were not given — the graph cannot
-    // draw them and react-flow throws on a dangling target.
-    .filter((e) => nodeSet.has(e.from) && nodeSet.has(e.to));
+    .filter(
+      (e) =>
+        nodeSet.has(e.from) &&
+        nodeSet.has(e.to),
+    );
 
-  const provenance = isObj(raw.provenance) ? raw.provenance : {};
+  const provenance =
+    isObj(raw.provenance)
+      ? raw.provenance
+      : {};
 
-  const terminalLabel = isObj(raw.terminal) ? toLabel(raw.terminal.label) : null;
+  const rawTerminal =
+    isObj(raw.terminal)
+      ? raw.terminal
+      : null;
+
+  let terminalLabel: Label | null = null;
+
+  if (rawTerminal) {
+    terminalLabel = toLabel(rawTerminal.label);
+
+    if (!terminalLabel) {
+      const entity =
+        typeof rawTerminal.entity === "string"
+          ? rawTerminal.entity
+          : "";
+
+      const confidence =
+        typeof rawTerminal.confidence === "number"
+          ? rawTerminal.confidence
+          : 0;
+
+      const type =
+        typeof rawTerminal.type === "string"
+          ? rawTerminal.type
+          : "unknown";
+
+      const kind: NodeKind =
+        NODE_KINDS.includes(type as NodeKind)
+          ? (type as NodeKind)
+          : "exchange_hot";
+
+      if (entity) {
+        terminalLabel = {
+          entity,
+          kind,
+          confidence: Math.min(
+            1,
+            Math.max(0, confidence),
+          ),
+          source: "community",
+        };
+      }
+    }
+  }
+
+  const riskFlags = Array.isArray(raw.riskFlags)
+    ? raw.riskFlags
+        .filter(isObj)
+        .map((f) => {
+          const rule =
+            typeof f.rule === "string"
+              ? f.rule
+              : typeof f.code === "string"
+                ? f.code
+                : "HIGH_FANOUT";
+
+          const allowedCodes = [
+            "SHORT_DWELL",
+            "HIGH_FANOUT",
+            "PEEL_CHAIN",
+            "ROUND_AMOUNTS",
+            "NEW_ADDRESS",
+            "SANCTIONED_CONTACT",
+          ] as const;
+
+          const code = allowedCodes.includes(
+            rule as (typeof allowedCodes)[number],
+          )
+            ? (rule as (typeof allowedCodes)[number])
+            : "HIGH_FANOUT";
+
+          return {
+            code,
+            reason:
+              typeof f.reason === "string"
+                ? f.reason
+                : "Suspicious transaction pattern detected.",
+            atAddress:
+              typeof f.atAddress === "string"
+                ? f.atAddress
+                : nodes[0]?.address ?? "",
+          };
+        })
+    : [];
 
   return {
-    caseId: typeof raw.caseId === "string" ? raw.caseId : "UNASSIGNED",
-    inputAddress: String(raw.inputAddress),
+    caseId:
+      typeof raw.caseId === "string"
+        ? raw.caseId
+        : `CASE-${String(
+            raw.inputAddress ?? nodes[0]?.address ?? "UNKNOWN",
+          ).slice(0, 8)}`,
+
+    inputAddress:
+      typeof raw.inputAddress === "string"
+        ? raw.inputAddress
+        : nodes[0]?.address ?? "",
+
     chain: "tron",
-    reportedAmountUsdt:
-      typeof raw.reportedAmountUsdt === "number" ? raw.reportedAmountUsdt : 0,
-    fraudDate: typeof raw.fraudDate === "string" ? raw.fraudDate : "",
+
+    reportedAmountUsdt: reportedAmount,
+
+    fraudDate:
+      typeof raw.fraudDate === "string"
+        ? raw.fraudDate
+        : "",
+
     nodes,
     edges,
+
     terminal:
-      isObj(raw.terminal) && terminalLabel
+      rawTerminal && terminalLabel
         ? {
-            address: String(raw.terminal.address ?? ""),
+            address: String(
+              rawTerminal.address ?? "",
+            ),
             label: terminalLabel,
             depositAddress:
-              typeof raw.terminal.depositAddress === "string"
-                ? raw.terminal.depositAddress
+              typeof rawTerminal.depositAddress === "string"
+                ? rawTerminal.depositAddress
                 : null,
           }
         : null,
-    riskFlags: Array.isArray(raw.riskFlags)
-      ? (raw.riskFlags.filter(
-          (f) => isObj(f) && typeof f.code === "string" && typeof f.reason === "string",
-        ) as TraceResult["riskFlags"])
-      : [],
-    triage: raw.triage as TriageLevel,
+
+    riskFlags,
+
+    triage:
+      raw.triage === "HOT" ||
+      raw.triage === "WARM" ||
+      raw.triage === "COLD"
+        ? raw.triage
+        : "COLD",
+
     triageReason:
-      typeof raw.triageReason === "string" && raw.triageReason
+      typeof raw.triageReason === "string" &&
+      raw.triageReason
         ? raw.triageReason
         : "No triage reason was returned for this case.",
-    narrative: typeof raw.narrative === "string" ? raw.narrative : undefined,
+
+    narrative:
+      typeof raw.narrative === "string"
+        ? raw.narrative
+        : undefined,
+
     provenance: {
-      apiCalls: typeof provenance.apiCalls === "number" ? provenance.apiCalls : 0,
-      responseHashes: Array.isArray(provenance.responseHashes)
-        ? provenance.responseHashes.filter((x): x is string => typeof x === "string")
-        : [],
+      apiCalls:
+        typeof provenance.apiCalls === "number"
+          ? provenance.apiCalls
+          : typeof provenance.apiCallCount === "number"
+            ? provenance.apiCallCount
+            : 0,
+
+      responseHashes:
+        Array.isArray(provenance.responseHashes)
+          ? provenance.responseHashes.filter(
+              (x): x is string =>
+                typeof x === "string",
+            )
+          : [],
+
       generatedAt:
         typeof provenance.generatedAt === "string"
           ? provenance.generatedAt
