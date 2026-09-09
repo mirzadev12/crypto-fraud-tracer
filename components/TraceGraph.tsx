@@ -120,11 +120,16 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
   // A plate, not a card: charcoal, hairline, and a coloured edge on the left
   // that states what the wallet is. Colour never fills the shape.
   const opacity = data.background ? 0.25 : data.dimmed ? 0.4 : 1;
+  // The exit is the answer, so it is the loudest plate on the canvas: a brass
+  // frame and a wider body. Everything else on the graph is the route to it.
+  const terminal = data.isTerminal;
   return (
     <div
-      className="w-[248px] border border-line bg-surface px-4 py-4 text-left transition"
+      className={`${terminal ? "w-[268px]" : "w-[248px]"} border border-line bg-surface px-4 py-4 text-left transition`}
       style={{
         borderLeft: `2px solid ${p.accent}`,
+        borderColor: terminal ? "var(--color-brass-dim)" : undefined,
+        borderLeftColor: p.accent,
         outline: selected ? "1px solid var(--color-brass)" : undefined,
         outlineOffset: selected ? "2px" : undefined,
         background: selected ? "#1e1e1e" : undefined,
@@ -139,9 +144,15 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
         >
           {data.caption}
         </span>
-        <span className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-[#9a948a]">
-          HOP {data.depth}
-        </span>
+        {terminal ? (
+          <span className="shrink-0 border border-brass-dim px-2 py-[2px] font-label text-[9px] font-semibold uppercase tracking-[0.18em] text-brass">
+            Exit
+          </span>
+        ) : (
+          <span className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-[#9a948a]">
+            HOP {data.depth}
+          </span>
+        )}
       </div>
 
       <p className="mt-4 truncate text-xs text-[#f0ead8]" title={data.entity}>
@@ -154,7 +165,9 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
       )}
 
       <div className="mt-4 flex items-baseline justify-between gap-2 border-t border-line pt-2">
-        <span className="font-mono text-sm text-[#f0ead8]">
+        <span
+          className={`font-mono ${terminal ? "text-base" : "text-sm"} text-[#f0ead8]`}
+        >
           {formatUsdtCompact(data.taintedValueUsdt)}
           <span className="ml-2 font-mono text-[10px] tracking-[0.14em] text-[#9a948a]">
             TAINTED
@@ -166,6 +179,30 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
           </span>
         ) : null}
       </div>
+
+      {/* The share of the victim's money that reached this wallet, as a bar.
+          Taint is the one number that makes this evidence rather than a
+          picture, and a figure alone does not let you compare two wallets at a
+          glance across a canvas. */}
+      {data.background ? null : (
+        <div className="mt-3 flex items-center gap-2">
+          <span
+            className="h-[3px] flex-1 bg-[#2a2a28]"
+            role="presentation"
+          >
+            <span
+              className="block h-full"
+              style={{
+                width: `${Math.max(2, Math.min(100, data.taintFraction * 100))}%`,
+                background: terminal ? "var(--color-brass)" : p.accent,
+              }}
+            />
+          </span>
+          <span className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-[#9a948a]">
+            {(data.taintFraction * 100).toFixed(data.taintFraction < 0.1 ? 1 : 0)}%
+          </span>
+        </div>
+      )}
 
       <Handle type="source" position={Position.Right} />
     </div>
@@ -288,7 +325,11 @@ export default function TraceGraph({
         onNodeClick={handleNodeClick}
         onPaneClick={() => onSelect?.(null)}
         fitView
-        fitViewOptions={{ padding: 0.22, maxZoom: 1 }}
+        // Allowed to scale *up*, not just down. Capped at 1 the graph sat
+        // marooned in the middle of a tall canvas at its natural size, which
+        // made the wallets small enough that nobody discovered they are
+        // clickable. A short trace should fill the space it is given.
+        fitViewOptions={{ padding: 0.14, maxZoom: 1.5 }}
         minZoom={0.3}
         maxZoom={1.6}
         nodesConnectable={false}

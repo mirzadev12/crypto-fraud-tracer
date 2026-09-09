@@ -4,9 +4,10 @@ import { useState } from "react";
 import type { TraceResult } from "@/lib/types";
 import type { DataSource } from "@/lib/api";
 import BubbleMap from "./BubbleMap";
+import TraceChart from "./TraceChart";
 import TraceGraph from "./TraceGraph";
 
-export type CanvasView = "flow" | "bubbles";
+export type CanvasView = "flow" | "bubbles" | "chart";
 
 /**
  * The two ways of reading one trace, behind a single toggle.
@@ -53,8 +54,15 @@ export default function TraceCanvas({
           onSelect={onSelect}
           className={height}
         />
-      ) : (
+      ) : view === "bubbles" ? (
         <BubbleMap
+          trace={trace}
+          selected={selected}
+          onSelect={onSelect}
+          className={height}
+        />
+      ) : (
+        <TraceChart
           trace={trace}
           selected={selected}
           onSelect={onSelect}
@@ -118,6 +126,14 @@ function Readout({
           <span>RING = HOP</span>
         </>
       ) : null}
+      {view === "chart" ? (
+        <>
+          <span aria-hidden="true">·</span>
+          <span>X = TIME</span>
+          <span aria-hidden="true">·</span>
+          <span>HEIGHT = VALUE</span>
+        </>
+      ) : null}
       <span className="ml-auto flex items-center gap-4">
         {cells.map(([k, v], i) => (
           <span key={k} className="flex items-center gap-4">
@@ -142,6 +158,7 @@ export function ViewToggle({
   const options: Array<{ id: CanvasView; label: string; title: string }> = [
     { id: "flow", label: "Flow", title: "Hop-by-hop graph, left to right" },
     { id: "bubbles", label: "Bubbles", title: "Wallets sized by the victim funds that reached them" },
+    { id: "chart", label: "Graph", title: "When the money moved, and how much survived each hop" },
   ];
   return (
     <div

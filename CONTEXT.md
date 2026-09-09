@@ -278,6 +278,16 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
 - **Progressive disclosure in the signals panel.** Count and rule names first;
   "VIEW EVIDENCE" reveals the reasons and the addresses. An investigator wants to
   know which rules fired before reading why.
+- **A committed case is never answered by the chain** (`heldLocally` in
+  `lib/api.ts`). The three illustrative addresses were never on TRON. While no
+  trace service existed the API call failed and the committed file was used, so
+  the graph drew; the moment the service landed it began *succeeding* on them,
+  and a synthetic address honestly has no transfers — so an empty one-wallet
+  answer displaced every case the register, the fund-flow screen and the trace
+  page were built around. Asking the chain about an address that was never on it
+  cannot return anything but nothing, so those three are served from their files
+  without a chain read. Every other address still goes to the service first.
+  This is the failure mode to check first if a graph ever renders empty again.
 - **Graph node size is banded by kind, then scaled by taint** (`BubbleMap`):
   subject 46px, exchange 32–40px, unlabelled 16–24px, background under 5% taint
   8–12px. Size is always the victim's money, never arbitrary.
@@ -299,7 +309,18 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
 - **The loading sequence in `TraceLoader` is display copy, not telemetry.** It
   runs on a fixed timer and observes nothing. The file says so in a comment;
   keep that comment.
-- **Two canvas views behind one toggle** (`components/TraceCanvas.tsx`): Flow
+- **Three canvas views behind one toggle** (`components/TraceCanvas.tsx`), and
+  the third exists because the first two answer the wrong questions. Flow says
+  what shape the case is, Bubbles says where the weight went; neither says
+  *when* the money moved or *how much survived each hop*, and both figures were
+  already sitting in the `TraceResult` unplotted. **Graph** (`TraceChart.tsx`)
+  plots them: a timeline of every transfer, positioned by time and sized by
+  value with the sub-ten-minute ones in amber, over a taint-by-hop decay. Drawn
+  in plain markup — bars positioned by percentage — because `@xyflow/react` is
+  the only dependency allowed and percentages are responsive for free. It shares
+  the one selection, so a transfer clicked here highlights that wallet in the
+  other two views and in the tables.
+- **Two of those views are canvases** (`components/TraceCanvas.tsx`): Flow
   (`TraceGraph.tsx`, react-flow) and Bubbles (`BubbleMap.tsx`, hand-drawn SVG, no
   dependency). They share one selection, so clicking a wallet in either keeps it
   selected in the other and in the tables. The bubble layout is deterministic —

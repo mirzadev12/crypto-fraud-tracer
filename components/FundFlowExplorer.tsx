@@ -7,6 +7,7 @@ import { getCases } from "@/lib/api";
 import type { CaseSummary } from "@/lib/types";
 import {
   formatDateTime,
+  formatDwell,
   formatPercent,
   formatUsdt,
   formatUsdtCompact,
@@ -266,6 +267,87 @@ export default function FundFlowExplorer({
                         {selected.label.evidence}
                       </p>
                     ) : null}
+
+                    {/* The transfers that actually touch this wallet. A graph
+                        shows that money moved; an investigator needs the
+                        transaction, the amount and how long it sat here before
+                        it moved on. */}
+                    {(() => {
+                      const edges = current.lookup.data.edges.filter(
+                        (e) => e.from === selected.address || e.to === selected.address,
+                      );
+                      if (edges.length === 0) return null;
+                      return (
+                        <div className="border-t border-line pt-4">
+                          <p className="font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+                            Transfers · {edges.length}
+                          </p>
+                          <ul className="fx-scroll mt-3 max-h-52 space-y-3 overflow-y-auto pr-1">
+                            {edges.map((e) => {
+                              const out = e.from === selected.address;
+                              return (
+                                <li
+                                  key={e.txHash}
+                                  className="border-l-2 border-line pl-3"
+                                  style={{
+                                    borderLeftColor:
+                                      e.dwellSeconds !== null && e.dwellSeconds < 600
+                                        ? "var(--color-suspicious)"
+                                        : undefined,
+                                  }}
+                                >
+                                  <div className="flex items-baseline justify-between gap-3">
+                                    <span className="font-label text-[10px] uppercase tracking-[0.16em] text-faint">
+                                      {out ? "Sent" : "Received"}
+                                    </span>
+                                    <span className="font-mono text-xs text-ink">
+                                      {formatUsdt(e.valueUsdt)}
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 font-mono text-[11px] text-faint">
+                                    {out ? "→ " : "← "}
+                                    {shortAddress(out ? e.to : e.from, 8, 6)}
+                                  </p>
+                                  <p className="mt-1 font-mono text-[10px] text-dim">
+                                    {formatDateTime(e.timestamp)}
+                                    {e.dwellSeconds !== null
+                                      ? ` · held ${formatDwell(e.dwellSeconds)}`
+                                      : ""}
+                                  </p>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Rules that fired at this wallet, quoted as written. */}
+                    {(() => {
+                      const flags = current.lookup.data.riskFlags.filter(
+                        (f) => f.atAddress === selected.address,
+                      );
+                      if (flags.length === 0) return null;
+                      return (
+                        <div className="border-t border-line pt-4">
+                          <p className="font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-suspicious">
+                            Signals · {flags.length}
+                          </p>
+                          <ul className="mt-3 space-y-3">
+                            {flags.map((f) => (
+                              <li key={f.code}>
+                                <p className="font-mono text-[10px] tracking-[0.14em] text-suspicious">
+                                  {f.code}
+                                </p>
+                                <p className="mt-1 text-xs leading-5 text-muted">
+                                  {f.reason}
+                                </p>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })()}
                   </dl>
                 ) : (
                   <p className="text-sm text-faint">
