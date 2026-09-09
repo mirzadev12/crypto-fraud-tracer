@@ -29,7 +29,7 @@ export default function Navbar() {
           FineX
         </Link>
 
-        <div className="hidden items-center gap-10 md:flex">
+        <div className="hidden items-center gap-2 md:flex lg:gap-4">
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
@@ -37,7 +37,7 @@ export default function Navbar() {
                 key={item.name}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`fx-option-quiet px-4 py-2 font-label text-xs font-medium uppercase tracking-[0.24em] ${
+                className={`fx-option-quiet whitespace-nowrap px-4 py-2 font-label text-xs font-medium uppercase tracking-[0.24em] ${
                   active ? "fx-option-on text-brass" : "text-faint hover:text-brass"
                 }`}
               >
@@ -50,7 +50,7 @@ export default function Navbar() {
         <div className="hidden md:block">
           <Link
             href="/login"
-            className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass"
+            className="fx-option whitespace-nowrap px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass"
           >
             Sign in
           </Link>
@@ -58,7 +58,7 @@ export default function Navbar() {
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass md:hidden"
+          className="fx-option whitespace-nowrap px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass md:hidden"
           aria-label="Toggle navigation menu"
           aria-expanded={menuOpen}
         >
