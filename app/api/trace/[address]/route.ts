@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkTronAddress } from "@/lib/tron";
 import { runTrace } from "@/lib/tracer";
+import { DEMO_MODE, frozenTrace } from "@/lib/demo";
 
 /**
  * GET /api/trace/[address] — the shareable permalink for a trace. AGENTS.md §5.
@@ -31,6 +32,16 @@ export async function GET(
     return NextResponse.json({ error: check.reason }, { status: 400 });
   }
 
+  // See the POST route: exact-address match only, and the response says so.
+  if (DEMO_MODE) {
+    const held = frozenTrace(address);
+    if (held) {
+      return NextResponse.json(held.trace, {
+        headers: { "x-finex-provenance": "recorded" },
+      });
+    }
+  }
+
   const url = new URL(request.url);
   const amountParam = Number(url.searchParams.get("amount"));
   const sinceParam = url.searchParams.get("since");
@@ -49,7 +60,9 @@ export async function GET(
       amount,
       fraudDate: fraudDate.toISOString(),
     });
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: { "x-finex-provenance": "live" },
+    });
   } catch (err) {
     return NextResponse.json(
       {

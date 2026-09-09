@@ -240,14 +240,38 @@ function normalizeTrace(raw: Record<string, unknown>): TraceResult {
 const TIMEOUT_MS = 30_000;
 
 async function getJson(url: string, init?: RequestInit): Promise<unknown> {
+  return (await getJsonWithProvenance(url, init)).json;
+}
+
+/**
+ * The same fetch, plus what the service says the answer actually is.
+ *
+ * When the deployment is running from the frozen case file (AGENTS.md §10) the
+ * route stamps `x-finex-provenance: recorded`. The trace is real — captured
+ * from the chain, hashes intact — but it was not read from the chain just now,
+ * and the screen has to say so. Without this the badge would read LIVE TRACE
+ * over a file, which is exactly the claim this interface must never make.
+ */
+async function getJsonWithProvenance(
+  url: string,
+  init?: RequestInit,
+): Promise<{ json: unknown; recorded: boolean }> {
   const res = await fetch(url, {
     ...init,
     cache: "no-store",
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-  return res.json();
+  return {
+    json: await res.json(),
+    recorded: res.headers.get("x-finex-provenance") === "recorded",
+  };
 }
+
+/** What the badge says when the service answered from the frozen case file. */
+const RECORDED_NOTE =
+  "Recorded trace — captured from the chain by this pipeline, with its response " +
+  "hashes intact, and served without touching the network.";
 
 async function fixture(path: string): Promise<unknown> {
   return getJson(path);
@@ -311,9 +335,16 @@ export async function getTrace(address: string): Promise<TraceLookup> {
   if (!check.valid) return { status: "invalid", address: clean, reason: check.reason };
 
   try {
-    const json = await getJson(`/api/trace/${encodeURIComponent(clean)}`);
+    const { json, recorded } = await getJsonWithProvenance(
+      `/api/trace/${encodeURIComponent(clean)}`,
+    );
     if (isTraceLike(json)) {
-      return { status: "resolved", data: normalizeTrace(json), source: "live" };
+      return {
+        status: "resolved",
+        data: normalizeTrace(json),
+        source: recorded ? "demo" : "live",
+        ...(recorded ? { note: RECORDED_NOTE } : {}),
+      };
     }
     throw new Error("response did not match TraceResult");
   } catch (err) {
@@ -333,13 +364,18 @@ export async function runTrace(req: TraceRequest): Promise<TraceLookup> {
   if (!check.valid) return { status: "invalid", address: clean, reason: check.reason };
 
   try {
-    const json = await getJson("/api/trace", {
+    const { json, recorded } = await getJsonWithProvenance("/api/trace", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...req, address: clean }),
     });
     if (isTraceLike(json)) {
-      return { status: "resolved", data: normalizeTrace(json), source: "live" };
+      return {
+        status: "resolved",
+        data: normalizeTrace(json),
+        source: recorded ? "demo" : "live",
+        ...(recorded ? { note: RECORDED_NOTE } : {}),
+      };
     }
     throw new Error("response did not match TraceResult");
   } catch (err) {

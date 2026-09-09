@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkTronAddress } from "@/lib/tron";
 import { runTrace } from "@/lib/tracer";
+import { DEMO_MODE, frozenTrace } from "@/lib/demo";
 
 /**
  * POST /api/trace — run a live trace. AGENTS.md §5.
@@ -54,13 +55,29 @@ export async function POST(request: Request) {
     );
   }
 
+  // Demo mode, AGENTS.md §10. Served only for an address we actually hold a
+  // frozen case for — anything else still goes to the chain, because serving
+  // one address's recorded trace for another is the one lie that would make
+  // every other number on the screen worthless. The header is what stops the
+  // interface calling this live.
+  if (DEMO_MODE) {
+    const held = frozenTrace(address);
+    if (held) {
+      return NextResponse.json(held.trace, {
+        headers: { "x-finex-provenance": "recorded" },
+      });
+    }
+  }
+
   try {
     const result = await runTrace({
       address: address.trim(),
       amount: value,
       fraudDate: when.toISOString(),
     });
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: { "x-finex-provenance": "live" },
+    });
   } catch (err) {
     // A trace that fails must say so rather than returning a half-built result
     // the interface would render as a finding.

@@ -39,10 +39,22 @@ explorer-tagged exchange wallet, taint 100% → 13.1% → 0.5%, rules firing on 
 transfers. The UI needed no change — its badge flipped to **Live trace** on its
 own, which is the integration contract in §2 doing its job.
 
+### Done — the safety net (AGENTS.md §10)
+
+| Area | Files | State |
+| --- | --- | --- |
+| Frozen cases | `data/demo-cases.json` | **Three real cases, one per disposition**, captured from the live pipeline: WARM ends at a **Bybit customer deposit address**, COLD ends at **ISIL KHORASAN** from the OFAC list, HOT is an address holding 1,066 USDT that has never sent any. Each is a complete `TraceResult` with its response hashes. |
+| Capture | `scripts/freeze-cases.mjs` | Finds candidates from the committed data, traces them through `POST /api/trace`, keeps a result only if the pipeline independently reached the wanted disposition. `node scripts/freeze-cases.mjs HOT` recaptures one level and leaves the rest alone. |
+| The flag | `lib/demo.ts` | `NEXT_PUBLIC_DEMO_MODE=true` (or `DEMO_MODE=true`). Exact-address match only; a frozen answer is stamped `x-finex-provenance: recorded` and the screen says RECORDED TRACE. |
+
+Verified end to end with the flag on: all three addresses answer in ~165 ms
+from the file with the recorded header, each echoing back its own address; a
+valid address *not* in the file still goes to the chain and comes back stamped
+`live`, so nothing leaks a frozen case to an address it does not belong to.
+
 ### Still not done
 
-`/api/cases` (deliberately — see §3), `data/demo-cases.json` and the demo-mode
-flag from AGENTS.md §10, and the optional narrative from §11.
+`/api/cases` (deliberately — see §3) and the optional narrative from AGENTS.md §11.
 
 ---
 
@@ -229,6 +241,20 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   out in real USDT; `?amount=` and `?since=` narrow it. The frozen numbers from
   the original run live in that case's evidence packet, and the two can legitimately
   differ.
+- **Demo mode removes the network, never the evidence** (`lib/demo.ts`,
+  AGENTS.md §10). The frozen cases were computed by `lib/tracer.ts` from real
+  transfers, and each carries the SHA-256 of every chain response it was built
+  from, so any claim in one can be re-verified afterwards. Two rules govern it.
+  **A frozen trace is never served for an address it does not belong to** — the
+  lookup is an exact address match, and an address we hold nothing for goes to
+  the chain like any other, failing honestly if the network is gone. **A frozen
+  trace never claims to be live** — the route stamps `x-finex-provenance:
+  recorded`, `lib/api.ts` reads that header, and the badge reads RECORDED TRACE.
+  Note that `NEXT_PUBLIC_*` values are inlined by Next at *build* time even in
+  server code, which is why the unprefixed `DEMO_MODE` is accepted too: it is
+  read at runtime, so a built artefact can be switched on the night without a
+  rebuild. `data/demo-cases.json` is imported statically, so regenerating it
+  needs a rebuild.
 - **`/api/cases` is deliberately unimplemented.** There is no case database.
   Serving illustrative complaint records through it would flip the register's
   badge to "Live trace" while claiming chain-read data it is not.
@@ -357,6 +383,11 @@ npm run build    # must stay clean
 npx tsc --noEmit # must stay clean
 npx eslint .     # must stay clean
 node scripts/make-mocks.mjs public/mock   # regenerate fixtures
+
+# The safety net (AGENTS.md §10). Dev server must be running.
+node scripts/freeze-cases.mjs             # recapture all three dispositions
+node scripts/freeze-cases.mjs HOT         # recapture one, leave the others
+NEXT_PUBLIC_DEMO_MODE=true npm run dev    # serve the frozen cases, no network
 ```
 
 ---
