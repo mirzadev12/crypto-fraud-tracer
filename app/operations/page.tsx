@@ -165,6 +165,27 @@ export default function OperationsPage() {
           title="Case files to open first"
           kicker="One of each disposition"
         />
+        {/* The register mixes two kinds of case and the contract has no field to
+            mark which is which, so it is stated here instead. Anyone reading a
+            figure off this tool is entitled to know whether it came off the
+            chain or was written to illustrate a shape. */}
+        <div className="mt-10 border border-line bg-surface-2/40 p-6">
+          <p className="font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-brass">
+            Which cases are real
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
+            Three entries in the register were <strong className="font-semibold text-ink">captured
+            from the chain</strong> by this pipeline on 9 September 2026, with the SHA-256 of
+            every response they were built from. Their case numbers are{" "}
+            <span className="font-mono text-ink">FX-2026-6568</span> (Bybit deposit address),{" "}
+            <span className="font-mono text-ink">FX-2025-5852</span> (an OFAC-sanctioned
+            entity) and <span className="font-mono text-ink">FX-2026-6619</span> (funds at
+            rest). The remaining eight are <strong className="font-semibold text-ink">illustrative</strong>:
+            valid addresses with hand-built traces, kept because they show a
+            fuller trail than short real ones do. Any trace opened here says
+            which it is — the badge reads RECORDED TRACE or LIVE TRACE.
+          </p>
+        </div>
         <ul className="mt-16 divide-y divide-line border-y border-line">
           {DEMO_SAMPLES.map((s) => (
             <li key={s.address}>
