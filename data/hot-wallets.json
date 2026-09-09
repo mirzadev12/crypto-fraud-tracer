@@ -1,0 +1,16 @@
+[
+  {
+    "address": "TDEMOEXCHANGEHOTWALLET123456789",
+    "entity": "Demo Exchange",
+    "type": "exchange_hot_wallet",
+    "confidence": 0.99,
+    "source": "ground_truth"
+  },
+  {
+    "address": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+    "entity": "Binance",
+    "type": "exchange_hot_wallet",
+    "confidence": 0.99,
+    "source": "community"
+  }
+]
