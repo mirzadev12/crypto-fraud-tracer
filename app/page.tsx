@@ -56,9 +56,9 @@ export default function Home() {
         {/* Split: the claim against the instrument's own output. The strongest
             image this page can carry is what the tool actually draws, so the
             right column is a product panel rather than an ornament. */}
-        <div className="relative grid items-center gap-x-16 gap-y-14 lg:grid-cols-[1.08fr_1fr]">
+        <div className="relative grid items-center gap-x-16 gap-y-14 xl:grid-cols-[1.08fr_1fr]">
           <div className="min-w-0">
-            <h1 className="font-display text-4xl uppercase leading-[1.15] tracking-[0.06em] text-ink md:text-5xl xl:text-6xl">
+            <h1 className="font-display text-4xl uppercase leading-[1.15] tracking-[0.06em] text-ink md:text-5xl">
               Follow the money.
               <br />
               <span className="text-brass">Find the exit.</span>
