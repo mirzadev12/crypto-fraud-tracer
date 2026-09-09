@@ -327,12 +327,41 @@ async function recordedTrace(
   return { status: "resolved", data: normalizeTrace(json), source: "demo", note };
 }
 
+/**
+ * The three committed illustrative cases are answered from their files rather
+ * than from the chain, and this is a bug fix, not a shortcut.
+ *
+ * These addresses were never on TRON — they are committed cases the register
+ * and the fund-flow screen are built around. While the trace service did not
+ * exist, `lib/api.ts` tried the API, failed, and fell back to the file, so the
+ * graph rendered. The moment the service landed it started *succeeding* on
+ * them: a synthetic address has no transfers, so the honest live answer is one
+ * wallet and no edges — and that empty answer displaced the committed case.
+ * Every graph on the register silently went blank.
+ *
+ * Asking the chain about an address that was never on it cannot produce
+ * anything but an empty result, so we no longer ask. Any other address, real
+ * ones included, still goes to the service first.
+ */
+function heldLocally(address: string): boolean {
+  return hasDemoTrace(address);
+}
+
 export async function getTrace(address: string): Promise<TraceLookup> {
   const clean = address.trim();
 
   // Checked here so a malformed address is never confused with an unknown one.
   const check = checkTronAddress(clean);
   if (!check.valid) return { status: "invalid", address: clean, reason: check.reason };
+
+  if (heldLocally(clean)) {
+    return recordedTrace(
+      clean,
+      "GET /api/trace/[address]",
+      "Committed case — held in this build and rendered without a chain read.",
+      "No committed case is held for this address.",
+    );
+  }
 
   try {
     const { json, recorded } = await getJsonWithProvenance(
@@ -362,6 +391,15 @@ export async function runTrace(req: TraceRequest): Promise<TraceLookup> {
 
   const check = checkTronAddress(clean);
   if (!check.valid) return { status: "invalid", address: clean, reason: check.reason };
+
+  if (heldLocally(clean)) {
+    return recordedTrace(
+      clean,
+      "POST /api/trace",
+      "Committed case — held in this build and rendered without a chain read.",
+      "No committed case is held for this address.",
+    );
+  }
 
   try {
     const { json, recorded } = await getJsonWithProvenance("/api/trace", {

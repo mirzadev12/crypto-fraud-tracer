@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
+import DitherField from "@/components/DitherField";
 import HeroTrace from "@/components/HeroTrace";
 import {
   Chip,
@@ -53,6 +54,14 @@ export default function Home() {
           className="fx-grid pointer-events-none absolute inset-0 opacity-70"
           aria-hidden="true"
         />
+        {/* The dithered plate: a chain of blocks, ordered-dithered through a
+            real 4x4 Bayer matrix, which is a printing technique rather than a
+            shader effect. It sits full-bleed behind the hero at low contrast —
+            the panel above it carries its own surface, so the type and the
+            bubble map both stay clean. */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <DitherField gridSize={3} opacity={0.16} />
+        </div>
         {/* Split: the claim against the instrument's own output. The strongest
             image this page can carry is what the tool actually draws, so the
             right column is a product panel rather than an ornament. */}
