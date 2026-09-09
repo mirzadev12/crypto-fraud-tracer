@@ -1,0 +1,162 @@
+{
+  "caseId": "FX-2026-0409",
+  "inputAddress": "TLtQgf2jiNt6aiAvuirZBwbL3SrBa5RKZS",
+  "chain": "tron",
+  "reportedAmountUsdt": 240000,
+  "fraudDate": "2026-08-21T06:02:00.000Z",
+  "nodes": [
+    {
+      "address": "TLtQgf2jiNt6aiAvuirZBwbL3SrBa5RKZS",
+      "depth": 0,
+      "label": {
+        "entity": "Victim-reported address",
+        "kind": "victim_reported",
+        "confidence": 1,
+        "source": "ground_truth"
+      },
+      "taintedValueUsdt": 240000,
+      "taintFraction": 1,
+      "firstSeen": "2026-08-21T06:02:00.000Z",
+      "outflowCount": 3
+    },
+    {
+      "address": "TQEXwwwcyL33Pbv5Uh4GRPWFGXwNJhbMP1",
+      "depth": 1,
+      "label": null,
+      "taintedValueUsdt": 144000,
+      "taintFraction": 0.6,
+      "firstSeen": "2026-08-19T14:22:00.000Z",
+      "outflowCount": 6
+    },
+    {
+      "address": "TMAbHSX7wBx6RmRo9wjuf9j7e3etFR61Rk",
+      "depth": 2,
+      "label": null,
+      "taintedValueUsdt": 24000,
+      "taintFraction": 0.1,
+      "firstSeen": "2026-08-20T03:11:00.000Z",
+      "outflowCount": 1
+    },
+    {
+      "address": "TPEAbZkn2X9ncD9VQKkaxi7eVNuQQJZEZ9",
+      "depth": 2,
+      "label": null,
+      "taintedValueUsdt": 24000,
+      "taintFraction": 0.1,
+      "firstSeen": "2026-08-20T03:14:00.000Z",
+      "outflowCount": 1
+    },
+    {
+      "address": "TDiHyQVNMWRHyLGkHi7msEguiQsk9Lbzoa",
+      "depth": 2,
+      "label": null,
+      "taintedValueUsdt": 96000,
+      "taintFraction": 0.4,
+      "firstSeen": "2026-08-20T08:45:00.000Z",
+      "outflowCount": 1
+    },
+    {
+      "address": "TX4DVrExtgF1YxrbVsTL5qaAM3peMNNDxK",
+      "depth": 3,
+      "label": {
+        "entity": "TRON mixing service",
+        "kind": "mixer",
+        "confidence": 0.92,
+        "source": "community",
+        "evidence": "Listed as a mixing contract in data/risk-lists.json"
+      },
+      "taintedValueUsdt": 96000,
+      "taintFraction": 0.4,
+      "firstSeen": "2025-11-03T12:44:00.000Z",
+      "outflowCount": 4188
+    }
+  ],
+  "edges": [
+    {
+      "from": "TLtQgf2jiNt6aiAvuirZBwbL3SrBa5RKZS",
+      "to": "TQEXwwwcyL33Pbv5Uh4GRPWFGXwNJhbMP1",
+      "valueUsdt": 144000,
+      "txHash": "3c807d7ca6b0eda85f82d325760d82fec9119af564977e9f8734d73670a69427",
+      "timestamp": "2026-08-21T06:09:00.000Z",
+      "dwellSeconds": 420
+    },
+    {
+      "from": "TQEXwwwcyL33Pbv5Uh4GRPWFGXwNJhbMP1",
+      "to": "TMAbHSX7wBx6RmRo9wjuf9j7e3etFR61Rk",
+      "valueUsdt": 24000,
+      "txHash": "8c6ce11dbc863c58f1ed23b9869f2c6c8cc20a634183e99b8cd1819cf97a3c56",
+      "timestamp": "2026-08-21T06:18:00.000Z",
+      "dwellSeconds": 540
+    },
+    {
+      "from": "TQEXwwwcyL33Pbv5Uh4GRPWFGXwNJhbMP1",
+      "to": "TPEAbZkn2X9ncD9VQKkaxi7eVNuQQJZEZ9",
+      "valueUsdt": 24000,
+      "txHash": "55af61093a674b3799734723fa6314d5aff3550b2822d08c7e970d69d397b8f6",
+      "timestamp": "2026-08-21T06:24:00.000Z",
+      "dwellSeconds": 900
+    },
+    {
+      "from": "TQEXwwwcyL33Pbv5Uh4GRPWFGXwNJhbMP1",
+      "to": "TDiHyQVNMWRHyLGkHi7msEguiQsk9Lbzoa",
+      "valueUsdt": 96000,
+      "txHash": "46dfbfdb285a366ac5f5f303a16c38c54777445200dbf91ab7e88a4b437f1853",
+      "timestamp": "2026-08-21T06:31:00.000Z",
+      "dwellSeconds": 1320
+    },
+    {
+      "from": "TDiHyQVNMWRHyLGkHi7msEguiQsk9Lbzoa",
+      "to": "TX4DVrExtgF1YxrbVsTL5qaAM3peMNNDxK",
+      "valueUsdt": 96000,
+      "txHash": "34394d8b7485053a674c3151be2c2f2e74b6d84e5672aebcac4ce0efe2cc0912",
+      "timestamp": "2026-08-21T06:44:00.000Z",
+      "dwellSeconds": 780
+    }
+  ],
+  "terminal": {
+    "address": "TX4DVrExtgF1YxrbVsTL5qaAM3peMNNDxK",
+    "label": {
+      "entity": "TRON mixing service",
+      "kind": "mixer",
+      "confidence": 0.92,
+      "source": "community",
+      "evidence": "Listed as a mixing contract in data/risk-lists.json"
+    },
+    "depositAddress": null
+  },
+  "riskFlags": [
+    {
+      "code": "SANCTIONED_CONTACT",
+      "reason": "Path enters a known mixing service — deterministic tracing is not possible beyond this point.",
+      "atAddress": "TX4DVrExtgF1YxrbVsTL5qaAM3peMNNDxK"
+    },
+    {
+      "code": "PEEL_CHAIN",
+      "reason": "Peel-chain pattern: 5 sequential small withdrawals from a bulk address while the remainder moved on.",
+      "atAddress": "TQEXwwwcyL33Pbv5Uh4GRPWFGXwNJhbMP1"
+    },
+    {
+      "code": "HIGH_FANOUT",
+      "reason": "Funds split across 6 wallets in a single hop.",
+      "atAddress": "TQEXwwwcyL33Pbv5Uh4GRPWFGXwNJhbMP1"
+    },
+    {
+      "code": "ROUND_AMOUNTS",
+      "reason": "Round-figure transfers of 24,000 USDT suggest structured layering.",
+      "atAddress": "TQEXwwwcyL33Pbv5Uh4GRPWFGXwNJhbMP1"
+    }
+  ],
+  "triage": "COLD",
+  "triageReason": "96,000 USDT entered a mixing service 42 minutes after the reported fraud; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
+  "narrative": "240,000 USDT left the victim-reported address across three transfers, of which 144,000 USDT moved through a single intermediary that then split the funds six ways. Two peel-offs of 24,000 USDT each were followed by a 96,000 USDT transfer that entered a known mixing service 42 minutes after the reported fraud. No deterministic attribution is possible beyond the mixer entry point, which is recorded here as the end of the traceable path.",
+  "provenance": {
+    "apiCalls": 14,
+    "responseHashes": [
+      "3d62ebb7882f70aa094050a4b207eec5e68807e1f750f4ff674bdff0cc4897ab",
+      "632be295045b135b1b2462b265384f33e6b7c0ba0f0c25f6dafe8f6b977dc169",
+      "413c5808183a6ebc0e491b7be3d62caf7b21722924382a1262879f5cc0667394",
+      "fada0030f9fddc24f8e447115d21f3157572f788de24feec4c5f9e9e127f16f2"
+    ],
+    "generatedAt": "2026-08-21T08:30:02.000Z"
+  }
+}

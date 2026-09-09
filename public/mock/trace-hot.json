@@ -1,0 +1,84 @@
+{
+  "caseId": "FX-2026-0421",
+  "inputAddress": "TYz6M2Fn2egsb15oNZdACtABKotmheGQiD",
+  "chain": "tron",
+  "reportedAmountUsdt": 18500,
+  "fraudDate": "2026-09-06T17:40:00.000Z",
+  "nodes": [
+    {
+      "address": "TYz6M2Fn2egsb15oNZdACtABKotmheGQiD",
+      "depth": 0,
+      "label": {
+        "entity": "Victim-reported address",
+        "kind": "victim_reported",
+        "confidence": 1,
+        "source": "ground_truth"
+      },
+      "taintedValueUsdt": 18500,
+      "taintFraction": 1,
+      "firstSeen": "2026-09-06T17:40:00.000Z",
+      "outflowCount": 1
+    },
+    {
+      "address": "TYjLscHtxZTaN4eb1YNh3zfrxsBSTgKHev",
+      "depth": 1,
+      "label": null,
+      "taintedValueUsdt": 18500,
+      "taintFraction": 1,
+      "firstSeen": "2026-09-04T09:30:00.000Z",
+      "outflowCount": 1
+    },
+    {
+      "address": "TCfVH34ZwQ5U7Z7LB5yaZJfLPKYPfD5qjf",
+      "depth": 2,
+      "label": null,
+      "taintedValueUsdt": 18315,
+      "taintFraction": 0.99,
+      "firstSeen": "2026-09-04T22:07:00.000Z",
+      "outflowCount": 0
+    }
+  ],
+  "edges": [
+    {
+      "from": "TYz6M2Fn2egsb15oNZdACtABKotmheGQiD",
+      "to": "TYjLscHtxZTaN4eb1YNh3zfrxsBSTgKHev",
+      "valueUsdt": 18500,
+      "txHash": "414ae61bc1b9ead755813af776537a37162e47f97d7d018a55b226b2c03d0755",
+      "timestamp": "2026-09-06T17:46:00.000Z",
+      "dwellSeconds": 360
+    },
+    {
+      "from": "TYjLscHtxZTaN4eb1YNh3zfrxsBSTgKHev",
+      "to": "TCfVH34ZwQ5U7Z7LB5yaZJfLPKYPfD5qjf",
+      "valueUsdt": 18315,
+      "txHash": "84b28024cb99d3f0f63eb2baa54f2db5697d0bbc9c2cd56aae0c5f2cbd688054",
+      "timestamp": "2026-09-06T17:52:00.000Z",
+      "dwellSeconds": 360
+    }
+  ],
+  "terminal": null,
+  "riskFlags": [
+    {
+      "code": "SHORT_DWELL",
+      "reason": "Funds forwarded within 6 minutes of receipt — indicates automated laundering, not manual movement.",
+      "atAddress": "TYjLscHtxZTaN4eb1YNh3zfrxsBSTgKHev"
+    },
+    {
+      "code": "NEW_ADDRESS",
+      "reason": "Receiving address was created 2 days before the reported fraud.",
+      "atAddress": "TCfVH34ZwQ5U7Z7LB5yaZJfLPKYPfD5qjf"
+    }
+  ],
+  "triage": "HOT",
+  "triageReason": "18,315 USDT is still sitting at an unlabelled address with no outgoing transfers — the money has not reached an off-ramp yet and can still be acted on.",
+  "narrative": "18,500 USDT left the victim-reported address six minutes after the reported fraud and moved through one intermediary before coming to rest. The terminal address has received the funds but has made no outgoing transfer, and both addresses in the path were created within three days of the fraud. Because the money has not yet reached an exchange, this case is the highest-value use of an investigator's time today.",
+  "provenance": {
+    "apiCalls": 6,
+    "responseHashes": [
+      "753bec0d9e1ff4a239fb895640cb66249faa0093cc92f40906f1964bdb1f91aa",
+      "60d3cf310bc4b4a1f1911cc45def51967051665c55f7c644bd1c9992540778e3",
+      "67e3ad999c6941096590f2276cba5c5aae3b2ddaa3ad4321956b04fd76a0a05b"
+    ],
+    "generatedAt": "2026-09-06T18:05:44.000Z"
+  }
+}

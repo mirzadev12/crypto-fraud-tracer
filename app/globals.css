@@ -1,26 +1,416 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ------------------------------------------------------------------ tokens */
+/* FineX is a bureau instrument, not a product dashboard.
+ *
+ * The budget, and it is a budget: ~90% near-black and charcoal, ~7% ivory and
+ * grey text, ~2% brass, ~1% risk colour. Brass is structural — a rule, a
+ * selected state, a call to action — and never decoration. Risk colour appears
+ * only where a finding is being stated.
+ *
+ * Spacing is 4 / 8 / 16 / 24 / 40 / 64 / 96 / 128 and nothing else. In Tailwind
+ * terms: 1, 2, 4, 6, 10, 16, 24, 32. No arbitrary pixel values.
+ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: #0a0a0a;        /* almost black */
+  --color-surface: #141414;   /* deep charcoal */
+  --color-surface-2: #1e1e1e; /* panel charcoal */
+  --color-line: #2a2a28;
+  --color-line-soft: #1e1e1c;
+
+  --color-ink: #f0ead8;       /* warm ivory */
+  --color-muted: #a8a296;     /* muted gray */
+  /* Between muted and dim: the specified dim gray measures ~3.4:1 on charcoal,
+     which is below AA, and this token carries every micro-label on the screen.
+     Dim gray is kept below for rules and disabled states, where contrast is not
+     load-bearing. */
+  --color-faint: #9a948a;     /* 6.1:1 — it carries every micro-label */
+  --color-dim: #6b6660;       /* spec dim gray — decoration only, never text */
+
+  /* Brass / antique gold. Roughly two percent of any screen. */
+  --color-brass: #c6a15b;
+  --color-brass-dim: #7a6338;
+
+  /* Findings only.
+     The specified critical red (#b33a3a) and confirmed green (#4a7856) measure
+     3.4:1 and 3.9:1 on this ground — below AA, and CRITICAL is the single most
+     important word on the case register. The text-grade values below clear 4.5:1
+     while holding the same hue; the exact spec values are kept as -deep for
+     borders, marks and graph edges, where contrast is not load-bearing. */
+  --color-critical: #cf5f55;
+  --color-critical-deep: #b33a3a;
+  --color-suspicious: #c98a34;
+  --color-confirmed: #5c8f68;
+  --color-confirmed-deep: #4a7856;
+  --color-closed: #6b6660;
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
+  --font-display: var(--font-cinzel);
+  /* Small uppercase interface labels. Stands in for Eurostile, which is
+     licensed and cannot ship here. */
+  --font-label: var(--font-saira);
+  --font-document: var(--font-cormorant);
+
+  /* Art Deco is geometry, not curvature. */
+  --radius-panel: 0px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --------------------------------------------------------------- deco rules */
+
+/* A brass hairline that fades at both ends — the bureau divider. */
+.fx-rule {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-brass-dim) 12%,
+    var(--color-brass-dim) 88%,
+    transparent
+  );
+}
+
+/* Faint engraved grid. Structure, never atmosphere. */
+.fx-grid {
+  background-image:
+    linear-gradient(to right, rgba(236, 231, 221, 0.022) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(236, 231, 221, 0.022) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Native <dialog> centres itself with `margin: auto` against the UA's
+   `inset: 0`. Tailwind's preflight zeroes every margin, which pins the modal to
+   the top-left corner — put it back. */
+dialog {
+  margin: auto;
+}
+
+/* Focus ring — brass, visible, keyboard-first. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 1px solid var(--color-brass);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(184, 147, 90, 0.3);
+}
+
+.fx-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #2c2b28 transparent;
+}
+.fx-scroll::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.fx-scroll::-webkit-scrollbar-thumb {
+  background: #2c2b28;
+}
+
+/* ------------------------------------------------------------------ motion */
+
+@keyframes fx-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.fx-flow {
+  animation: fx-flow 1.4s linear infinite;
+}
+
+/* A packet travelling an edge: the money moving, rather than the edge merely
+   existing. The motion itself is SMIL <animateMotion>, which works in the SVG
+   user coordinate system without the transform-box guesswork CSS motion paths
+   need on SVG children. This class exists so the packet can be removed for a
+   reader who has asked for less motion. */
+.fx-packet {
+  pointer-events: none;
+}
+
+@keyframes fx-mark {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.fx-mark {
+  animation: fx-mark 3s ease-in-out infinite;
+}
+
+/* Bubbles arrive rather than appear: a short staggered settle on mount, and a
+   slow sonar on the subject wallet so the eye starts at the centre. Restrained
+   on purpose — this is an instrument, and motion here has to earn itself. */
+@keyframes fx-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.fx-settle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fx-settle 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fx-sonar {
+  0% {
+    opacity: 0.5;
+    r: var(--fx-r0);
+  }
+  100% {
+    opacity: 0;
+    r: var(--fx-r1);
+  }
+}
+.fx-sonar {
+  animation: fx-sonar 3.2s ease-out infinite;
+}
+
+/* Content settles in on route change. One short movement, no bounce. */
+@keyframes fx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fx-rise {
+  animation: fx-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* A brass highlight travelling the border of the primary action.
+ *
+ * Same idea as the animated conic-gradient border, rebuilt to the house rules:
+ * square corners, one brass arc instead of a spectrum, no blur, and a dark
+ * face so the button is a frame with light moving round it rather than a slab.
+ *
+ * The mechanism: the element's own background is clipped to the padding box, so
+ * the 1px border ring is transparent; the rotating conic layer sits behind that
+ * background and is therefore visible only through the ring.
+ */
+.fx-sweep,
+.fx-option,
+.fx-option-quiet {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  background-color: var(--color-bg);
+  background-clip: padding-box;
+}
+.fx-sweep::after,
+.fx-option::after,
+.fx-option-quiet::after {
+  content: "";
+  position: absolute;
+  inset: -160%;
+  z-index: -1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 250deg,
+    var(--color-brass-dim) 285deg,
+    var(--color-brass) 320deg,
+    var(--color-brass-dim) 345deg,
+    transparent 360deg
+  );
+  animation: fx-sweep-spin 4s linear infinite;
+}
+.fx-sweep:hover::after,
+.fx-option:hover::after,
+.fx-option-quiet:hover::after {
+  animation-duration: 1.8s;
+}
+
+/* The same sweep, held back until the option is pointed at. A secondary option
+   is a plain line frame at rest and lights only under the cursor, so the light
+   follows the officer rather than every button on the screen carrying brass. */
+/*
+ * `.fx-option` is the frame every clickable thing in the interface wears: a
+ * hairline at rest, a brass arc travelling it under the cursor. `.fx-option-quiet`
+ * is the same control with no border until it is pointed at, for places where a
+ * permanent box would turn a row of links into a row of boxes — the navigation,
+ * a ghost action, a segmented control.
+ *
+ * The point is that nothing clickable in this interface should be identifiable
+ * only by its colour. A frame appears the moment the cursor is over it.
+ */
+.fx-sweep-hover,
+.fx-option,
+.fx-option-quiet {
+  /* Transparent face at rest: the opaque face exists only to hide the inside of
+     the arc, so an option on a charcoal panel must not carry one until there is
+     an arc to hide. */
+  background-color: transparent;
+  transition:
+    border-color 200ms linear,
+    background-color 200ms linear,
+    color 200ms linear;
+}
+.fx-sweep-hover,
+.fx-option {
+  border-color: var(--color-line);
+}
+.fx-option-quiet {
+  border-color: transparent;
+}
+/* The option that is currently the page you are on, or the view you have
+   chosen. Sits after the resting borders and before the hover rules, so a
+   selected option still lights when you point at it. */
+.fx-option-on {
+  border-color: var(--color-brass-dim);
+}
+.fx-sweep-hover::after,
+.fx-option::after,
+.fx-option-quiet::after {
+  opacity: 0;
+  transition: opacity 200ms linear;
+}
+.fx-sweep-hover:hover,
+.fx-option:hover,
+.fx-option-quiet:hover,
+.fx-option:focus-visible,
+.fx-option-quiet:focus-visible {
+  border-color: transparent;
+  background-color: var(--color-bg);
+}
+.fx-sweep-hover:hover::after,
+.fx-option:hover::after,
+.fx-option-quiet:hover::after,
+.fx-option:focus-visible::after,
+.fx-option-quiet:focus-visible::after {
+  opacity: 1;
+}
+
+@keyframes fx-sweep-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-flow,
+  .fx-mark,
+  .fx-settle,
+  .fx-sonar,
+  .fx-rise,
+  .fx-sweep::after,
+  .react-flow__edge-path {
+    animation: none !important;
+  }
+  /* SMIL ignores this media query, so the travelling packets are removed
+     outright rather than left parked at the head of every edge. */
+  .fx-packet {
+    display: none;
+  }
+  /* Still a brass frame when the motion is switched off — and the secondary
+     options simply warm their border on hover, with no arc at all. */
+  .fx-sweep {
+    border-color: var(--color-brass-dim);
+  }
+  .fx-sweep-hover,
+  .fx-sweep-hover:hover,
+  .fx-option,
+  .fx-option:hover {
+    border-color: var(--color-line);
+  }
+  .fx-option-quiet,
+  .fx-option-quiet:hover {
+    border-color: transparent;
+  }
+  /* With no arc, the frame itself has to carry the interaction. */
+  .fx-sweep-hover:hover,
+  .fx-option:hover,
+  .fx-option-quiet:hover,
+  .fx-option-on {
+    border-color: var(--color-brass-dim);
+  }
+  .fx-sweep-hover::after,
+  .fx-option::after,
+  .fx-option-quiet::after {
+    display: none;
+  }
+  /* No arc to hide, so no face either. */
+  .fx-sweep-hover:hover,
+  .fx-option:hover,
+  .fx-option-quiet:hover {
+    background-color: transparent;
+  }
+}
+
+/* ------------------------------------------------------------- react-flow */
+
+/* React Flow is MIT-licensed and asks that the attribution stay visible on the
+   free tier. We keep it, toned down to the bureau palette. */
+.react-flow__attribution {
+  background: transparent;
+  font-size: 10px;
+}
+.react-flow__attribution a {
+  color: var(--color-faint);
+}
+.react-flow__handle {
+  opacity: 0;
+  pointer-events: none;
+}
+.react-flow__controls-button {
+  background: var(--color-surface-2);
+  border-bottom: 1px solid var(--color-line);
+  fill: var(--color-muted);
+}
+.react-flow__controls-button:hover {
+  background: #1f1e1c;
+}
+
+/* ---------------------------------------------------------------- print */
+/* The evidence packet is meant to be printed and stapled to a freeze request. */
+@media print {
+  :root {
+    color-scheme: light;
+  }
+  body {
+    background: #ffffff;
+    color: #111111;
+  }
+  .print\:hidden,
+  nav,
+  footer {
+    display: none !important;
+  }
+  .fx-print-sheet {
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  .fx-print-sheet * {
+    background: transparent !important;
+  }
+  .fx-print-block {
+    break-inside: avoid;
+  }
+  @page {
+    margin: 16mm;
+  }
 }

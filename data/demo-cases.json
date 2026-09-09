@@ -1,1 +1,254 @@
-[]
+{
+  "_note_": "Frozen traces, captured from the live pipeline against real TRON addresses. AGENTS.md §10. Each entry is a complete TraceResult exactly as /api/trace returned it, including the response hashes it was built from, so any claim in it can be re-verified. Regenerate with `node scripts/freeze-cases.mjs` while the dev server is running, then rebuild — this file is imported statically so demo mode needs no filesystem and no network.",
+  "capturedAt": "2026-09-09T13:14:24.465Z",
+  "cases": [
+    {
+      "address": "TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ",
+      "capturedAt": "2026-09-09T13:10:26.549Z",
+      "triage": "WARM",
+      "selectedBecause": "paid 500.00 USDT into TMt8PXtrGBFTGhGcGn4mEyTi1tR2vxzhc3 — 100% of everything they sent after that date",
+      "request": {
+        "amount": 500,
+        "fraudDate": "2026-09-08T19:00:27.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2026-6568",
+        "inputAddress": "TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ",
+        "chain": "tron",
+        "reportedAmountUsdt": 500,
+        "fraudDate": "2026-09-08T19:00:27.000Z",
+        "nodes": [
+          {
+            "address": "TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 500,
+            "taintFraction": 1,
+            "firstSeen": "2024-12-22T20:36:06.000Z",
+            "outflowCount": 1
+          },
+          {
+            "address": "TMt8PXtrGBFTGhGcGn4mEyTi1tR2vxzhc3",
+            "depth": 1,
+            "label": {
+              "entity": "Bybit",
+              "kind": "exchange_deposit",
+              "confidence": 0.95,
+              "source": "heuristic",
+              "evidence": "21 sweeps, 100% of inflow forwarded to Bybit"
+            },
+            "taintedValueUsdt": 500,
+            "taintFraction": 1,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ",
+            "to": "TMt8PXtrGBFTGhGcGn4mEyTi1tR2vxzhc3",
+            "valueUsdt": 500,
+            "txHash": "a93b9d5758b0f3dc6763c42e7680baa37838ac9f2646438a7da66a8dd2933f00",
+            "timestamp": "2026-09-08T19:01:27.000Z",
+            "dwellSeconds": 60
+          }
+        ],
+        "terminal": {
+          "address": "TMt8PXtrGBFTGhGcGn4mEyTi1tR2vxzhc3",
+          "label": {
+            "entity": "Bybit",
+            "kind": "exchange_deposit",
+            "confidence": 0.95,
+            "source": "heuristic",
+            "evidence": "21 sweeps, 100% of inflow forwarded to Bybit"
+          },
+          "depositAddress": "TMt8PXtrGBFTGhGcGn4mEyTi1tR2vxzhc3"
+        },
+        "riskFlags": [
+          {
+            "code": "SHORT_DWELL",
+            "reason": "Funds forwarded within 1 minute of receipt — indicates automated laundering, not manual movement.",
+            "atAddress": "TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ"
+          }
+        ],
+        "triage": "WARM",
+        "triageReason": "500 USDT reached a likely Bybit customer deposit address; a freeze request naming that address is viable.",
+        "provenance": {
+          "apiCalls": 1,
+          "responseHashes": [
+            "9e8422c635d139ea86d1886726574b00dbb674030762c2ee1cd32d75969eb8cb"
+          ],
+          "generatedAt": "2026-09-09T13:10:15.889Z"
+        }
+      }
+    },
+    {
+      "address": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5",
+      "capturedAt": "2026-09-09T13:10:26.549Z",
+      "triage": "COLD",
+      "selectedBecause": "paid 5000.00 USDT into TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z — 50% of everything they sent after that date",
+      "request": {
+        "amount": 5000,
+        "fraudDate": "2025-11-14T11:13:21.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2025-5852",
+        "inputAddress": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5",
+        "chain": "tron",
+        "reportedAmountUsdt": 5000,
+        "fraudDate": "2025-11-14T11:13:21.000Z",
+        "nodes": [
+          {
+            "address": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 5000,
+            "taintFraction": 1,
+            "firstSeen": "2025-11-11T15:47:39.000Z",
+            "outflowCount": 2
+          },
+          {
+            "address": "TXR1nhqAek4c5Dq9EfjQLarcBWR9Jp6N7m",
+            "depth": 1,
+            "label": {
+              "entity": "ISIL KHORASAN",
+              "kind": "sanctioned",
+              "confidence": 1,
+              "source": "sanctions",
+              "evidence": "OFAC SDN · FTO"
+            },
+            "taintedValueUsdt": 2500,
+            "taintFraction": 0.5,
+            "firstSeen": null,
+            "outflowCount": 0
+          },
+          {
+            "address": "TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z",
+            "depth": 1,
+            "label": {
+              "entity": "ISIL KHORASAN",
+              "kind": "sanctioned",
+              "confidence": 1,
+              "source": "sanctions",
+              "evidence": "OFAC SDN · FTO"
+            },
+            "taintedValueUsdt": 2500,
+            "taintFraction": 0.5,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5",
+            "to": "TXR1nhqAek4c5Dq9EfjQLarcBWR9Jp6N7m",
+            "valueUsdt": 5000,
+            "txHash": "7e2d6e8e0af697da54df523c7b1c4164bb82a6b060ec2f92081af6d2f2d2562d",
+            "timestamp": "2025-11-16T08:41:57.000Z",
+            "dwellSeconds": 163716
+          },
+          {
+            "from": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5",
+            "to": "TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z",
+            "valueUsdt": 5000,
+            "txHash": "6791299646384cda32c825e0ac858e4b99894feff9e34c3d669fa270d89d1e9a",
+            "timestamp": "2025-11-14T11:14:21.000Z",
+            "dwellSeconds": 60
+          }
+        ],
+        "terminal": {
+          "address": "TXR1nhqAek4c5Dq9EfjQLarcBWR9Jp6N7m",
+          "label": {
+            "entity": "ISIL KHORASAN",
+            "kind": "sanctioned",
+            "confidence": 1,
+            "source": "sanctions",
+            "evidence": "OFAC SDN · FTO"
+          },
+          "depositAddress": null
+        },
+        "riskFlags": [
+          {
+            "code": "SHORT_DWELL",
+            "reason": "Funds forwarded within 1 minute of receipt — indicates automated laundering, not manual movement.",
+            "atAddress": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5"
+          },
+          {
+            "code": "ROUND_AMOUNTS",
+            "reason": "2 round-figure transfers, the largest 5,000 USDT, suggest structured layering rather than ordinary payment activity.",
+            "atAddress": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5"
+          },
+          {
+            "code": "SANCTIONED_CONTACT",
+            "reason": "Path intersects an address listed under sanctions (ISIL KHORASAN) — deterministic tracing stops here and the case is documented.",
+            "atAddress": "TXR1nhqAek4c5Dq9EfjQLarcBWR9Jp6N7m"
+          }
+        ],
+        "triage": "COLD",
+        "triageReason": "2,500 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
+        "provenance": {
+          "apiCalls": 3,
+          "responseHashes": [
+            "c46314ec5c5b2ac4166accf37c84bb59c399579a4e2d92d98f7c1cea87d1a268"
+          ],
+          "generatedAt": "2026-09-09T13:10:23.057Z"
+        }
+      }
+    },
+    {
+      "address": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
+      "capturedAt": "2026-09-09T13:14:24.465Z",
+      "triage": "HOT",
+      "selectedBecause": "received 1066.11 USDT across 200 transfer(s) and has never sent any",
+      "request": {
+        "amount": 1066.11,
+        "fraudDate": "2026-09-09T13:09:36.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2026-6619",
+        "inputAddress": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
+        "chain": "tron",
+        "reportedAmountUsdt": 1066.11,
+        "fraudDate": "2026-09-09T13:09:36.000Z",
+        "nodes": [
+          {
+            "address": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 1066.11,
+            "taintFraction": 1,
+            "firstSeen": "2026-09-09T13:10:36.000Z",
+            "outflowCount": 0
+          }
+        ],
+        "edges": [],
+        "terminal": null,
+        "riskFlags": [],
+        "triage": "HOT",
+        "triageReason": "No transfers were observed leaving this address after the reported fraud, so 1,066 USDT may still be recoverable.",
+        "provenance": {
+          "apiCalls": 4,
+          "responseHashes": [
+            "be123835bfe563271af150857bbe3b6351956dc6d64e20d27d821215f4cca07d"
+          ],
+          "generatedAt": "2026-09-09T13:14:24.462Z"
+        }
+      }
+    }
+  ]
+}

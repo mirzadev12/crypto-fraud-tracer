@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# playwright mcp output
+/.playwright-mcp/
+
+# generated share bundle
+/share/

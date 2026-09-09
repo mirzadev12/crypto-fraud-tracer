@@ -1,0 +1,101 @@
+/**
+ * Presentation helpers.
+ *
+ * Everything here is deterministic and timezone-independent — timestamps are
+ * rendered in UTC so the server-rendered HTML and the client hydration always
+ * agree, and so two investigators reading the same packet see the same time.
+ */
+
+const MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/** "29 Aug 2026, 09:21 UTC" */
+export function formatDateTime(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return (
+    `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}, ` +
+    `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`
+  );
+}
+
+/** "29 Aug 2026" */
+export function formatDate(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+/** "2026-08-29" — for <input type="date"> values. */
+export function toDateInputValue(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+}
+
+/** "51,200.00 USDT" — USDT carries 6 decimals on TRON; we show 2. */
+export function formatUsdt(value: number, opts: { symbol?: boolean } = {}): string {
+  const withSymbol = opts.symbol !== false;
+  const n = Number.isFinite(value) ? value : 0;
+  const s = n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return withSymbol ? `${s} USDT` : s;
+}
+
+/** "51.2K" / "1.24M" — for tiles and graph nodes where space is tight. */
+export function formatUsdtCompact(value: number): string {
+  const n = Number.isFinite(value) ? value : 0;
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (abs >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return n.toFixed(0);
+}
+
+/** "0.87" → "87%" */
+export function formatPercent(fraction: number, digits = 0): string {
+  const n = Number.isFinite(fraction) ? fraction : 0;
+  return `${(n * 100).toFixed(digits)}%`;
+}
+
+/** "TS27ff…Giw2S" */
+export function shortAddress(address: string, head = 6, tail = 5): string {
+  if (!address) return "—";
+  if (address.length <= head + tail + 1) return address;
+  return `${address.slice(0, head)}…${address.slice(-tail)}`;
+}
+
+/** 420 → "7 min", 5400 → "1 h 30 min", null → "—" */
+export function formatDwell(seconds: number | null | undefined): string {
+  if (seconds === null || seconds === undefined || !Number.isFinite(seconds)) return "—";
+  const s = Math.max(0, Math.round(seconds));
+  if (s < 60) return `${s} sec`;
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60);
+  const rem = m % 60;
+  return rem === 0 ? `${h} h` : `${h} h ${rem} min`;
+}
+
+/** Elapsed time between two ISO timestamps, as a dwell-style string. */
+export function elapsedBetween(fromIso: string, toIso: string): string {
+  const a = new Date(fromIso).getTime();
+  const b = new Date(toIso).getTime();
+  if (Number.isNaN(a) || Number.isNaN(b)) return "—";
+  return formatDwell((b - a) / 1000);
+}
+
+export function tronscanAddressUrl(address: string): string {
+  return `https://tronscan.org/#/address/${encodeURIComponent(address)}`;
+}
+
+export function tronscanTxUrl(txHash: string): string {
+  return `https://tronscan.org/#/transaction/${encodeURIComponent(txHash)}`;
+}
