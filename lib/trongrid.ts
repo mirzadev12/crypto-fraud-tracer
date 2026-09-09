@@ -30,7 +30,13 @@ export const USDT_DECIMALS = 6;
 
 const PAGE_LIMIT = 200;
 const MAX_PAGES = 5;
-const RETRY_DELAYS_MS = [400, 1200];
+const RETRY_DELAYS_MS = [800, 2400];
+/**
+ * Minimum gap between requests. The public endpoint throttles a burst hard, and
+ * a throttled wallet is a wallet we cannot report on — pacing buys back trace
+ * completeness for a couple of seconds, which is the right trade.
+ */
+const MIN_GAP_MS = 250;
 
 export interface Trc20Transfer {
   txHash: string;
@@ -50,6 +56,14 @@ export class TronGrid {
   private cache = new Map<string, Trc20Transfer[]>();
   private hashes: string[] = [];
   private calls = 0;
+  /**
+   * Addresses whose history we could not read. This matters more than it looks:
+   * a throttled fetch and a wallet with no outgoing transfers are the same empty
+   * array, and reporting "funds still at rest" because we could not see is the
+   * one lie this tool must never tell.
+   */
+  private unread = new Set<string>();
+  private lastRequestAt = 0;
 
   get apiCalls(): number {
     return this.calls;
@@ -57,6 +71,11 @@ export class TronGrid {
 
   get responseHashes(): string[] {
     return [...this.hashes];
+  }
+
+  /** True when this address's history could not be read, not when it is empty. */
+  didFail(address: string): boolean {
+    return this.unread.has(address.trim());
   }
 
   /**
@@ -78,9 +97,11 @@ export class TronGrid {
       `?limit=${PAGE_LIMIT}&only_confirmed=true` +
       (contract ? `&contract_address=${contract}` : "");
 
+    let readAnything = false;
     for (let page = 0; page < MAX_PAGES && url; page++) {
       const body = await this.getJson(url);
       if (!body) break;
+      readAnything = true;
 
       const rows = Array.isArray(body.data) ? body.data : [];
       for (const row of rows) {
@@ -95,6 +116,7 @@ export class TronGrid {
       url = next;
     }
 
+    if (!readAnything) this.unread.add(address.trim());
     this.cache.set(key, out);
     return out;
   }
@@ -105,6 +127,9 @@ export class TronGrid {
    */
   private async getJson(url: string): Promise<Record<string, unknown> | null> {
     for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+      const gap = MIN_GAP_MS - (Date.now() - this.lastRequestAt);
+      if (gap > 0) await sleep(gap);
+      this.lastRequestAt = Date.now();
       this.calls++;
       try {
         const res = await fetch(url, {
