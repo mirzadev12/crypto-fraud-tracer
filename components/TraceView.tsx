@@ -107,7 +107,7 @@ export function RiskFlagList({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="mt-6 flex items-center gap-2 font-label text-xs uppercase tracking-[0.2em] text-brass transition hover:text-ink"
+        className="fx-option-quiet mt-6 flex items-center gap-2 px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-brass"
         aria-expanded={open}
       >
         {open ? "Hide evidence" : "View evidence"}

@@ -150,12 +150,12 @@ export default function CaseQueue() {
                 key={f}
                 type="button"
                 onClick={() => setFilter(f)}
-                className={` px-4 py-2 text-xs font-semibold uppercase tracking-[0.1em] transition ${
+                className={`px-4 py-2 text-xs font-semibold uppercase tracking-[0.1em] ${
                   filter === f
                     ? f === "ALL"
-                      ? "bg-white/10 text-ink"
+                      ? "fx-option-quiet fx-option-on bg-white/10 text-ink"
                       : `${TRIAGE_META[f].chip} border`
-                    : "text-faint hover:text-ink"
+                    : "fx-option-quiet text-faint hover:text-brass"
                 }`}
               >
                 {f === "ALL" ? "All" : TRIAGE_META[f].label}
@@ -230,7 +230,7 @@ export default function CaseQueue() {
                     <td className="px-6 py-0 text-right">
                       <Link
                         href={`/trace/${encodeURIComponent(c.inputAddress)}`}
-                        className="border border-line px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint transition hover:border-brass-dim hover:text-brass"
+                        className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint hover:text-brass"
                         aria-label={`Open for case ${c.caseId}, address ${shortAddress(c.inputAddress)}`}
                       >
                         Open

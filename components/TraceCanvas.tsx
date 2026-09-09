@@ -156,10 +156,10 @@ export function ViewToggle({
           title={o.title}
           aria-pressed={view === o.id}
           onClick={() => onChange(o.id)}
-          className={` px-4 py-2 text-xs font-semibold transition ${
+          className={`fx-option-quiet px-4 py-2 text-xs font-semibold ${
             view === o.id
-              ? "bg-white/10 text-ink"
-              : "text-faint hover:text-ink"
+              ? "fx-option-on bg-white/10 text-ink"
+              : "text-faint hover:text-brass"
           }`}
         >
           {o.label}

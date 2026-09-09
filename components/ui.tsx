@@ -492,7 +492,8 @@ export const buttonStyles = {
     "disabled:border-line disabled:text-dim disabled:[&::after]:hidden",
   /** The same frame, lit only under the cursor. */
   secondary: `${BUTTON_BASE} fx-sweep fx-sweep-hover text-ink hover:text-brass`,
-  ghost: `${BUTTON_BASE} px-2 text-faint hover:text-ink`,
+  /** Quiet until pointed at, but still a frame — never bare text. */
+  ghost: `${BUTTON_BASE} fx-option-quiet px-4 text-faint hover:text-brass`,
 };
 
 /* ------------------------------------------------------------ data source */

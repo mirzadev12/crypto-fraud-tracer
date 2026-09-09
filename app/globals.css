@@ -210,14 +210,18 @@ dialog {
  * the 1px border ring is transparent; the rotating conic layer sits behind that
  * background and is therefore visible only through the ring.
  */
-.fx-sweep {
+.fx-sweep,
+.fx-option,
+.fx-option-quiet {
   position: relative;
   overflow: hidden;
   border: 1px solid transparent;
   background-color: var(--color-bg);
   background-clip: padding-box;
 }
-.fx-sweep::after {
+.fx-sweep::after,
+.fx-option::after,
+.fx-option-quiet::after {
   content: "";
   position: absolute;
   inset: -160%;
@@ -232,32 +236,69 @@ dialog {
   );
   animation: fx-sweep-spin 4s linear infinite;
 }
-.fx-sweep:hover::after {
+.fx-sweep:hover::after,
+.fx-option:hover::after,
+.fx-option-quiet:hover::after {
   animation-duration: 1.8s;
 }
 
 /* The same sweep, held back until the option is pointed at. A secondary option
    is a plain line frame at rest and lights only under the cursor, so the light
    follows the officer rather than every button on the screen carrying brass. */
-.fx-sweep-hover {
-  border-color: var(--color-line);
-  /* Transparent at rest: the opaque face exists only to hide the inside of the
-     arc, so a secondary option on a charcoal panel must not carry one until
-     there is an arc to hide. */
+/*
+ * `.fx-option` is the frame every clickable thing in the interface wears: a
+ * hairline at rest, a brass arc travelling it under the cursor. `.fx-option-quiet`
+ * is the same control with no border until it is pointed at, for places where a
+ * permanent box would turn a row of links into a row of boxes — the navigation,
+ * a ghost action, a segmented control.
+ *
+ * The point is that nothing clickable in this interface should be identifiable
+ * only by its colour. A frame appears the moment the cursor is over it.
+ */
+.fx-sweep-hover,
+.fx-option,
+.fx-option-quiet {
+  /* Transparent face at rest: the opaque face exists only to hide the inside of
+     the arc, so an option on a charcoal panel must not carry one until there is
+     an arc to hide. */
   background-color: transparent;
   transition:
     border-color 200ms linear,
-    background-color 200ms linear;
+    background-color 200ms linear,
+    color 200ms linear;
 }
-.fx-sweep-hover::after {
+.fx-sweep-hover,
+.fx-option {
+  border-color: var(--color-line);
+}
+.fx-option-quiet {
+  border-color: transparent;
+}
+/* The option that is currently the page you are on, or the view you have
+   chosen. Sits after the resting borders and before the hover rules, so a
+   selected option still lights when you point at it. */
+.fx-option-on {
+  border-color: var(--color-brass-dim);
+}
+.fx-sweep-hover::after,
+.fx-option::after,
+.fx-option-quiet::after {
   opacity: 0;
   transition: opacity 200ms linear;
 }
-.fx-sweep-hover:hover {
+.fx-sweep-hover:hover,
+.fx-option:hover,
+.fx-option-quiet:hover,
+.fx-option:focus-visible,
+.fx-option-quiet:focus-visible {
   border-color: transparent;
   background-color: var(--color-bg);
 }
-.fx-sweep-hover:hover::after {
+.fx-sweep-hover:hover::after,
+.fx-option:hover::after,
+.fx-option-quiet:hover::after,
+.fx-option:focus-visible::after,
+.fx-option-quiet:focus-visible::after {
   opacity: 1;
 }
 
@@ -288,17 +329,31 @@ dialog {
     border-color: var(--color-brass-dim);
   }
   .fx-sweep-hover,
-  .fx-sweep-hover:hover {
+  .fx-sweep-hover:hover,
+  .fx-option,
+  .fx-option:hover {
     border-color: var(--color-line);
   }
-  .fx-sweep-hover:hover {
+  .fx-option-quiet,
+  .fx-option-quiet:hover {
+    border-color: transparent;
+  }
+  /* With no arc, the frame itself has to carry the interaction. */
+  .fx-sweep-hover:hover,
+  .fx-option:hover,
+  .fx-option-quiet:hover,
+  .fx-option-on {
     border-color: var(--color-brass-dim);
   }
-  .fx-sweep-hover::after {
+  .fx-sweep-hover::after,
+  .fx-option::after,
+  .fx-option-quiet::after {
     display: none;
   }
   /* No arc to hide, so no face either. */
-  .fx-sweep-hover:hover {
+  .fx-sweep-hover:hover,
+  .fx-option:hover,
+  .fx-option-quiet:hover {
     background-color: transparent;
   }
 }

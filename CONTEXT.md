@@ -130,6 +130,21 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   `prefers-reduced-motion` the arc is removed entirely and both fall back to a
   static border. Do not extend this to a second gradient anywhere: the ban in
   the bullet above still stands, and this is the one exception on the record.
+- **Every clickable thing wears the same frame** (`.fx-option`, `.fx-option-quiet`,
+  `.fx-option-on`). Nothing in this interface should be identifiable as clickable
+  only by its colour. `.fx-option` carries a hairline border at rest and the
+  brass arc travels it on hover or keyboard focus; `.fx-option-quiet` is the same
+  control with no border until pointed at, for places where a permanent box would
+  turn a row of links into a row of boxes — the navigation, a ghost action, a
+  segmented control. `.fx-option-on` marks the option you are already on (the
+  current page, the chosen view) with a brass-dim frame; it sits between the
+  resting borders and the hover rules so a selected option still lights when you
+  point at it. The nav's active page is now that frame rather than an underline
+  hung off the bottom of the bar. Under `prefers-reduced-motion` the arc is
+  dropped and the border itself carries the interaction, warming to brass-dim.
+  The first pass at this applied the treatment to the two CTA styles only and
+  left the nav, chips, toggles, rows and ghost actions bare — if a new control is
+  added, it takes one of these classes.
 - **The hero visual is the product, not an ornament** (`components/HeroTrace.tsx`).
   A cluster constellation — the register on-chain intelligence is read in — with
   one path lit through it: subject wallet at the heart of its own cluster, two

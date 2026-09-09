@@ -37,14 +37,11 @@ export default function Navbar() {
                 key={item.name}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative font-label text-xs font-medium uppercase tracking-[0.24em] transition ${
-                  active ? "text-brass" : "text-faint hover:text-ink"
+                className={`fx-option-quiet px-4 py-2 font-label text-xs font-medium uppercase tracking-[0.24em] ${
+                  active ? "fx-option-on text-brass" : "text-faint hover:text-brass"
                 }`}
               >
                 {item.name}
-                {active ? (
-                  <span className="absolute -bottom-[26px] left-0 h-px w-full bg-brass" />
-                ) : null}
               </Link>
             );
           })}
@@ -53,7 +50,7 @@ export default function Navbar() {
         <div className="hidden md:block">
           <Link
             href="/login"
-            className="border border-line px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:border-brass-dim hover:text-brass"
+            className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass"
           >
             Sign in
           </Link>
@@ -61,7 +58,7 @@ export default function Navbar() {
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="border border-line px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint md:hidden"
+          className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass md:hidden"
           aria-label="Toggle navigation menu"
           aria-expanded={menuOpen}
         >
@@ -77,8 +74,8 @@ export default function Navbar() {
                 key={item.name}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className={`py-4 font-label text-xs font-medium uppercase tracking-[0.24em] transition ${
-                  isActive(item.href) ? "text-brass" : "text-faint"
+                className={`fx-option-quiet px-4 py-4 font-label text-xs font-medium uppercase tracking-[0.24em] ${
+                  isActive(item.href) ? "fx-option-on text-brass" : "text-faint hover:text-brass"
                 }`}
               >
                 {item.name}
@@ -87,7 +84,7 @@ export default function Navbar() {
             <Link
               href="/login"
               onClick={() => setMenuOpen(false)}
-              className="py-4 font-label text-xs uppercase tracking-[0.24em] text-faint"
+              className="fx-option-quiet px-4 py-4 font-label text-xs uppercase tracking-[0.24em] text-faint hover:text-brass"
             >
               Sign in
             </Link>

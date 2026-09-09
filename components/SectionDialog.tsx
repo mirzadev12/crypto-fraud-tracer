@@ -78,7 +78,7 @@ export default function SectionDialog({
           <button
             type="button"
             onClick={() => ref.current?.close()}
-            className="font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
+            className="fx-option-quiet px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass"
           >
             Close
           </button>

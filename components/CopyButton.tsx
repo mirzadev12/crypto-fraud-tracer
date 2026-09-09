@@ -36,7 +36,7 @@ export default function CopyButton({
       onClick={copy}
       aria-label={copied ? "Copied" : `${label} ${value}`}
       title={copied ? "Copied" : label}
-      className={`inline-flex items-center gap-1  px-2 py-1 text-xs font-medium text-faint transition hover:bg-white/5 hover:text-brass ${className}`}
+      className={`fx-option-quiet inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-faint hover:text-brass ${className}`}
     >
       {copied ? (
         <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" aria-hidden="true">
