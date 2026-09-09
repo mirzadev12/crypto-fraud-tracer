@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
+import DitherField from "@/components/DitherField";
 import {
   Chip,
   Designation,
@@ -52,6 +53,12 @@ export default function Home() {
           className="fx-grid pointer-events-none absolute inset-0 opacity-70"
           aria-hidden="true"
         />
+        {/* A dithered ledger plate behind the claim. Engraving, not decoration:
+            it sits under the type at low contrast and carries no information the
+            page does not also state in words. */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 lg:block">
+          <DitherField gridSize={3} opacity={0.2} />
+        </div>
         <div className="relative max-w-4xl">
           <h1 className="mt-10 font-display text-4xl uppercase leading-[1.15] tracking-[0.06em] text-ink md:text-6xl">
             Follow the money.

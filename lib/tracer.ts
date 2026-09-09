@@ -153,6 +153,16 @@ export async function runTrace(req: TraceRequest): Promise<TraceResult> {
     queue = next;
   }
 
+  // If the subject address itself could not be read, there is no finding to
+  // state. Saying "no transfers were observed" when the endpoint refused to
+  // answer is the same lie as calling an unread wallet "funds at rest" — it
+  // just happens at depth 0, where it is most damaging.
+  if (grid.didFail(root)) {
+    throw new Error(
+      "The chain could not be read for this address — the public endpoint is rate-limiting this deployment. No finding can be stated from an unread wallet.",
+    );
+  }
+
   const nodeList = [...nodes.values()];
   // Wallets we could not read are excluded from the "funds at rest" finding.
   const unread = new Set(nodeList.filter((n) => grid.didFail(n.address)).map((n) => n.address));
