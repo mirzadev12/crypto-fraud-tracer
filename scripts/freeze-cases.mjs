@@ -228,9 +228,18 @@ async function runTrace(candidate) {
  * instructive one. A trace with more wallets on it shows the method better, so
  * candidates are ranked by how much trail they actually produced.
  */
-async function capture(level, candidates, want = 2) {
+/** Addresses already frozen, so a rerun spends its chain calls on new cases. */
+const ALREADY = (() => {
+  try {
+    return new Set(JSON.parse(readFileSync(OUT, "utf8")).cases.map((c) => c.address));
+  } catch {
+    return new Set();
+  }
+})();
+
+async function capture(level, candidates, want = Number(process.env.FREEZE_WANT) || 2) {
   const hits = [];
-  for (const c of candidates.slice(0, 5)) {
+  for (const c of candidates.filter((x) => !ALREADY.has(x.address)).slice(0, 8)) {
     process.stdout.write(`  ${level}: ${c.address} … `);
     try {
       const trace = await runTrace(c);
@@ -277,23 +286,33 @@ async function main() {
     const found = await payersInto(seed, { min: 50, take: 3 });
     warmCandidates.push(...found);
     payerPool.push(...found.map((c) => c.address));
-    if (warmCandidates.length >= 8) break;
+    if (warmCandidates.length >= 16) break;
   }
   warmCandidates.sort(byShare);
 
   // Most OFAC TRON entries hold TRX rather than USDT, so find the few with any
   // USDT inflow before spending calls working backwards from them.
-  const liveSanctioned = WANTED.has("COLD") ? await sanctionedWithUsdt(coldSeeds, 3) : [];
+  const liveSanctioned = WANTED.has("COLD") ? await sanctionedWithUsdt(coldSeeds, 6) : [];
   console.log(`  sanctioned addresses with USDT inflow: ${liveSanctioned.length}`);
   const coldCandidates = [];
   for (const seed of liveSanctioned) {
     coldCandidates.push(...(await payersInto(seed, { min: 10, take: 3 })));
-    if (coldCandidates.length >= 6) break;
+    if (coldCandidates.length >= 12) break;
   }
   coldCandidates.sort(byShare);
 
   // Ordinary wallets make the best starting point for finding money at rest.
-  const hotCandidates = WANTED.has("HOT") ? await fundsAtRest(payerPool.slice(0, 10)) : [];
+  // fundsAtRest stops at its first find, so walk the pool in slices to collect
+  // several money-at-rest addresses rather than one.
+  const hotCandidates = [];
+  if (WANTED.has("HOT")) {
+    for (let i = 0; i < Math.min(payerPool.length, 16); i += 4) {
+      for (const c of await fundsAtRest(payerPool.slice(i, i + 4), 12)) {
+        if (!hotCandidates.some((h) => h.address === c.address)) hotCandidates.push(c);
+      }
+      if (hotCandidates.length >= 4) break;
+    }
+  }
 
   // Report refusals. A throttled read and an address with no history are the
   // same empty list, and not saying so cost two runs that found nothing.
@@ -367,7 +386,7 @@ async function main() {
   };
 
   writeFileSync(OUT, `${JSON.stringify(out, null, 2)}\n`);
-  console.log(`\nWrote ${found.length} case(s) to data/demo-cases.json:`);
+  console.log(`\nWrote ${out.cases.length} case(s) to data/demo-cases.json:`);
   for (const c of out.cases) {
     console.log(`  ${String(c.triage).padEnd(5)} ${c.address}  ${c.trace.caseId}`);
   }

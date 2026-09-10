@@ -1,5 +1,6 @@
 "use client";
 
+import { traceHref } from "@/lib/api";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { RiskFlag, TraceResult } from "@/lib/types";
@@ -512,7 +513,7 @@ export default function TraceView({
             Open in Fund Flow
           </Link>
           <Link
-            href={`/report/${encodeURIComponent(trace.inputAddress)}`}
+            href={traceHref("report", trace)}
             className={buttonStyles.primary}
           >
             Evidence packet

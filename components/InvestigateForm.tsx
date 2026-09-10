@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { DEMO_SAMPLES, runTrace, type TraceLookup } from "@/lib/api";
+import { DEMO_SAMPLES, runTrace, traceHref, type TraceLookup } from "@/lib/api";
 import { checkTronAddress } from "@/lib/tron";
 import { shortAddress } from "@/lib/format";
 import TraceView from "./TraceView";
@@ -224,7 +224,7 @@ export default function InvestigateForm() {
                 </button>
                 {status.kind === "done" && status.lookup.status === "resolved" ? (
                   <Link
-                    href={`/trace/${encodeURIComponent(status.lookup.data.inputAddress)}`}
+                    href={traceHref("trace", status.lookup.data)}
                     className={buttonStyles.secondary}
                   >
                     Permalink

@@ -71,6 +71,7 @@ export default function CaseQueue() {
       .sort(
         (a, b) =>
           TRIAGE_ORDER[a.triage] - TRIAGE_ORDER[b.triage] ||
+          b.reportedAmountUsdt - a.reportedAmountUsdt ||
           new Date(b.fraudDate).getTime() - new Date(a.fraudDate).getTime(),
       );
   }, [cases, filter, query]);
@@ -137,7 +138,7 @@ export default function CaseQueue() {
 
       <Panel
         title="Complaint queue"
-        subtitle="Ordered by whether the money can still be reached, not by when it was reported."
+        subtitle="Most suspicious first: critical, then suspicious, then closed, and the largest sum at stake first within each."
         actions={
           <DataSourceBadge source={state.result.source} note={state.result.note} />
         }

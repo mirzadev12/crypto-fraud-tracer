@@ -99,3 +99,22 @@ export function tronscanAddressUrl(address: string): string {
 export function tronscanTxUrl(txHash: string): string {
   return `https://tronscan.org/#/transaction/${encodeURIComponent(txHash)}`;
 }
+
+/**
+ * Reads ?amount= and ?since= from a page URL: the two values that pin a shared
+ * trace link to one run. Anything malformed is dropped rather than trusted, and
+ * the trace falls back to automatic settings.
+ */
+export function readPinned(
+  sp: Record<string, string | string[] | undefined>,
+): { amount?: number; since?: string } {
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+  const amount = Number(one(sp.amount));
+  const sinceRaw = one(sp.since);
+  const since =
+    sinceRaw && !Number.isNaN(new Date(sinceRaw).getTime()) ? sinceRaw : undefined;
+  return {
+    ...(Number.isFinite(amount) && amount > 0 ? { amount } : {}),
+    ...(since ? { since } : {}),
+  };
+}

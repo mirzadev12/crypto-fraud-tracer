@@ -16,7 +16,7 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow="Case register"
         title="Case queue"
-        description="Ordered by disposition, not by time of arrival. Critical cases still have money sitting somewhere and are worth the next hour on the desk."
+        description="Ordered from most to least suspicious. Critical cases still have money sitting somewhere and are worth the next hour on the desk."
         actions={
           <Link href="/investigate" className={buttonStyles.primary}>
             Open a case

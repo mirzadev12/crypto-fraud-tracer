@@ -6,6 +6,7 @@ import {
   DEMO_SAMPLES,
   getTrace,
   type TraceLookup,
+  type TraceParams,
   type TraceProgress,
 } from "@/lib/api";
 import { formatDateTime, shortAddress } from "@/lib/format";
@@ -410,17 +411,22 @@ export type LoadedTrace = {
   lookup: TraceLookup;
 };
 
-export function useTrace(address: string | null): {
+export function useTrace(address: string | null, params?: TraceParams): {
   current: LoadedTrace | null;
   retry: () => void;
   events: TimedEvent[];
 } {
   const [attempt, setAttempt] = useState(0);
-  const [loaded, setLoaded] = useState<LoadedTrace | null>(null);
+  const [loaded, setLoaded] = useState<(LoadedTrace & { key: string }) | null>(null);
+  // Primitive copies, so the effect depends on values rather than on an object
+  // that is new on every render. The key ties loaded state to one exact run.
+  const amount = params?.amount;
+  const since = params?.since;
+  const key = `${address}|${amount ?? ""}|${since ?? ""}`;
   // Live progress from the trace stream, tagged with the load it belongs to so a
   // stale stream can never paint over a newer one.
   const [progress, setProgress] = useState<{
-    address: string;
+    key: string;
     attempt: number;
     events: TimedEvent[];
   } | null>(null);
@@ -428,23 +434,28 @@ export function useTrace(address: string | null): {
   useEffect(() => {
     if (!address) return;
     let cancelled = false;
-    getTrace(address, (event) => {
-      if (cancelled) return;
-      const entry = { event, at: Date.now() };
-      setProgress((p) =>
-        p && p.address === address && p.attempt === attempt
-          ? { ...p, events: [...p.events, entry] }
-          : { address, attempt, events: [entry] },
-      );
-    })
+    getTrace(
+      address,
+      (event) => {
+        if (cancelled) return;
+        const entry = { event, at: Date.now() };
+        setProgress((p) =>
+          p && p.key === key && p.attempt === attempt
+            ? { ...p, events: [...p.events, entry] }
+            : { key, attempt, events: [entry] },
+        );
+      },
+      { amount, since },
+    )
       .then((lookup) => {
-        if (!cancelled) setLoaded({ address, attempt, lookup });
+        if (!cancelled) setLoaded({ address, attempt, lookup, key });
       })
       .catch((err: unknown) => {
         if (cancelled) return;
         setLoaded({
           address,
           attempt,
+          key,
           lookup: {
             status: "unresolved",
             address,
@@ -456,12 +467,11 @@ export function useTrace(address: string | null): {
     return () => {
       cancelled = true;
     };
-  }, [address, attempt]);
+  }, [address, attempt, key, amount, since]);
 
-  const current =
-    loaded && loaded.address === address && loaded.attempt === attempt ? loaded : null;
+  const current = loaded && loaded.key === key && loaded.attempt === attempt ? loaded : null;
   const events =
-    progress && progress.address === address && progress.attempt === attempt
+    progress && progress.key === key && progress.attempt === attempt
       ? progress.events
       : [];
 
@@ -473,8 +483,16 @@ export function useTrace(address: string | null): {
  * here, so loading, recorded-trace, unresolved and invalid states are identical
  * everywhere and only have to be right once.
  */
-export default function TraceLoader({ address }: { address: string }) {
-  const { current, retry, events } = useTrace(address);
+export default function TraceLoader({
+  address,
+  amount,
+  since,
+}: {
+  address: string;
+  amount?: number;
+  since?: string;
+}) {
+  const { current, retry, events } = useTrace(address, { amount, since });
 
   if (!current) return <TraceSkeleton address={address} events={events} />;
 

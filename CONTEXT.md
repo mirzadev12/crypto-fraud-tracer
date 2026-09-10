@@ -43,7 +43,7 @@ own, which is the integration contract in §2 doing its job.
 
 | Area | Files | State |
 | --- | --- | --- |
-| Frozen cases | `data/demo-cases.json` | **Three real cases, one per disposition**, captured from the live pipeline: WARM ends at a **Bybit customer deposit address**, COLD ends at **ISIL KHORASAN** from the OFAC list, HOT is an address holding 1,066 USDT that has never sent any. Each is a complete `TraceResult` with its response hashes. |
+| Frozen cases | `data/demo-cases.json` | **Nine real cases across all three dispositions**, captured from the live pipeline: WARM ends at a **Bybit customer deposit address**, COLD ends at **ISIL KHORASAN** from the OFAC list, HOT is an address holding 1,066 USDT that has never sent any. Each is a complete `TraceResult` with its response hashes. |
 | Capture | `scripts/freeze-cases.mjs` | Finds candidates from the committed data, traces them through `POST /api/trace`, keeps a result only if the pipeline independently reached the wanted disposition. `node scripts/freeze-cases.mjs HOT` recaptures one level and leaves the rest alone. |
 | The flag | `lib/demo.ts` | `NEXT_PUBLIC_DEMO_MODE=true` (or `DEMO_MODE=true`). Exact-address match only; a frozen answer is stamped `x-finex-provenance: recorded` and the screen says RECORDED TRACE. |
 
@@ -238,12 +238,16 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
 - **The reported address is the subject of a case, never its finding.** Only
   wallets the money reached can be an exit, or tracing a known deposit address
   reports that the money "reached" the address it started at.
-- **A permalink is "what does this wallet look like now"**, not a replay of one
-  officer's parameters. `GET /api/trace/[address]` looks back a year and adopts
-  everything that left the address as the reported amount, so taint figures come
-  out in real USDT; `?amount=` and `?since=` narrow it. The frozen numbers from
-  the original run live in that case's evidence packet, and the two can legitimately
-  differ.
+- **A link from the app reproduces the run it came from.** `traceHref()` in
+  `lib/api.ts` builds `/trace/<address>?amount=…&since=…` from the trace being
+  viewed, and the Permalink and Evidence packet buttons both use it, so a shared
+  link and its packet show the same totals as the screen they were opened from.
+  `readPinned()` in `lib/format.ts` reads those values on the page and drops
+  anything malformed. The earlier link carried only the address, so a trace run
+  with an amount or a date reopened on automatic settings and could show
+  different figures — the thing an officer forwarding a case can least afford.
+  A bare `/trace/<address>` still answers "what does this wallet look like now",
+  on automatic settings; only a pinned link is a replay.
 - **Demo mode removes the network, never the evidence** (`lib/demo.ts`,
   AGENTS.md §10). The frozen cases were computed by `lib/tracer.ts` from real
   transfers, and each carries the SHA-256 of every chain response it was built
@@ -279,6 +283,15 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   timeout would cut it off. Set `TRONGRID_API_KEY` in the dashboard: without it
   the public endpoint throttles Render's shared IP and the tracer, correctly,
   refuses to state a finding from a wallet it could not read.
+- **The register runs from most to least suspicious** (`CaseQueue.tsx`):
+  CRITICAL, then SUSPICIOUS, then CLOSED, and within each the largest sum at
+  stake first, with the most recent fraud breaking ties. Severity comes from the
+  disposition because that is what the status chips already say on screen, so
+  the order and the colour of the list agree. A closed case can involve the
+  worst actor on the list — a sanctioned entity — and still sit last, because
+  there is nothing left to act on; that is a deliberate reading of "suspicious"
+  as "worth the next hour", and the obvious alternative if it is ever wanted is
+  sanctioned contact first.
 - **`/api/cases` is deliberately unimplemented.** There is no case database.
   Serving illustrative complaint records through it would flip the register's
   badge to "Live trace" while claiming chain-read data it is not.

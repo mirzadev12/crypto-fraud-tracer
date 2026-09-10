@@ -1,6 +1,6 @@
 {
   "_note_": "Frozen traces, captured from the live pipeline against real TRON addresses. AGENTS.md §10. Each entry is a complete TraceResult exactly as /api/trace returned it, including the response hashes it was built from, so any claim in it can be re-verified. Regenerate with `node scripts/freeze-cases.mjs` while the dev server is running, then rebuild — this file is imported statically so demo mode needs no filesystem and no network.",
-  "capturedAt": "2026-09-09T18:23:37.525Z",
+  "capturedAt": "2026-09-10T07:29:53.077Z",
   "cases": [
     {
       "address": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
@@ -332,6 +332,684 @@
             "2ce39ae4838233c84c9270750f3ab60a6be495f62a56fb3df82a43119ac98be9"
           ],
           "generatedAt": "2026-09-09T18:20:57.014Z"
+        }
+      }
+    },
+    {
+      "address": "TXncpWJZ8ZxUcwrpTP4SE4nNhZnKZM4QzC",
+      "capturedAt": "2026-09-10T07:28:08.109Z",
+      "triage": "WARM",
+      "selectedBecause": "paid 9795.12 USDT into TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN — 100% of everything they sent after that date",
+      "request": {
+        "amount": 9795.12,
+        "fraudDate": "2026-09-08T15:37:45.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2026-5843",
+        "inputAddress": "TXncpWJZ8ZxUcwrpTP4SE4nNhZnKZM4QzC",
+        "chain": "tron",
+        "reportedAmountUsdt": 9795.12,
+        "fraudDate": "2026-09-08T15:37:45.000Z",
+        "nodes": [
+          {
+            "address": "TXncpWJZ8ZxUcwrpTP4SE4nNhZnKZM4QzC",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 9795.12,
+            "taintFraction": 1,
+            "firstSeen": "2026-09-08T15:36:39.000Z",
+            "outflowCount": 1
+          },
+          {
+            "address": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN",
+            "depth": 1,
+            "label": {
+              "entity": "MEXC",
+              "kind": "exchange_deposit",
+              "confidence": 0.95,
+              "source": "heuristic",
+              "evidence": "35 sweeps, 100% of inflow forwarded to MXC"
+            },
+            "taintedValueUsdt": 9795.12,
+            "taintFraction": 1,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "TXncpWJZ8ZxUcwrpTP4SE4nNhZnKZM4QzC",
+            "to": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN",
+            "valueUsdt": 9795.115992,
+            "txHash": "49a2839903ca8060ffce1ab51df8148c8d5e42937e3fc0f36b49b1ffd0315850",
+            "timestamp": "2026-09-08T15:38:45.000Z",
+            "dwellSeconds": 60
+          }
+        ],
+        "terminal": {
+          "address": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN",
+          "label": {
+            "entity": "MEXC",
+            "kind": "exchange_deposit",
+            "confidence": 0.95,
+            "source": "heuristic",
+            "evidence": "35 sweeps, 100% of inflow forwarded to MXC"
+          },
+          "depositAddress": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN"
+        },
+        "riskFlags": [
+          {
+            "code": "SHORT_DWELL",
+            "reason": "Funds forwarded within 1 minute of receipt — indicates automated laundering, not manual movement.",
+            "atAddress": "TXncpWJZ8ZxUcwrpTP4SE4nNhZnKZM4QzC"
+          }
+        ],
+        "triage": "WARM",
+        "triageReason": "9,795 USDT reached a likely MEXC customer deposit address; a freeze request naming that address is viable.",
+        "provenance": {
+          "apiCalls": 1,
+          "responseHashes": [
+            "5e81e08841cc24ee5e1782f5366f3f13ac74f6d6f9c1d2e7d2687317f5df17b5"
+          ],
+          "generatedAt": "2026-09-10T07:27:44.805Z"
+        }
+      }
+    },
+    {
+      "address": "TVebSaNSdNHirwz46UPEzMgGy6pSQQu2aR",
+      "capturedAt": "2026-09-10T07:28:08.109Z",
+      "triage": "WARM",
+      "selectedBecause": "paid 10504.62 USDT into TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN — 100% of everything they sent after that date",
+      "request": {
+        "amount": 10504.62,
+        "fraudDate": "2026-09-08T06:13:51.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2026-3825",
+        "inputAddress": "TVebSaNSdNHirwz46UPEzMgGy6pSQQu2aR",
+        "chain": "tron",
+        "reportedAmountUsdt": 10504.62,
+        "fraudDate": "2026-09-08T06:13:51.000Z",
+        "nodes": [
+          {
+            "address": "TVebSaNSdNHirwz46UPEzMgGy6pSQQu2aR",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 10504.62,
+            "taintFraction": 1,
+            "firstSeen": "2026-09-08T06:12:33.000Z",
+            "outflowCount": 1
+          },
+          {
+            "address": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN",
+            "depth": 1,
+            "label": {
+              "entity": "MEXC",
+              "kind": "exchange_deposit",
+              "confidence": 0.95,
+              "source": "heuristic",
+              "evidence": "35 sweeps, 100% of inflow forwarded to MXC"
+            },
+            "taintedValueUsdt": 10504.62,
+            "taintFraction": 1,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "TVebSaNSdNHirwz46UPEzMgGy6pSQQu2aR",
+            "to": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN",
+            "valueUsdt": 10504.617056,
+            "txHash": "c0933b48b8956dbc571c9379926f0398d2c4c84b41f9b7e78b0008e431c7384e",
+            "timestamp": "2026-09-08T06:14:51.000Z",
+            "dwellSeconds": 60
+          }
+        ],
+        "terminal": {
+          "address": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN",
+          "label": {
+            "entity": "MEXC",
+            "kind": "exchange_deposit",
+            "confidence": 0.95,
+            "source": "heuristic",
+            "evidence": "35 sweeps, 100% of inflow forwarded to MXC"
+          },
+          "depositAddress": "TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN"
+        },
+        "riskFlags": [
+          {
+            "code": "SHORT_DWELL",
+            "reason": "Funds forwarded within 1 minute of receipt — indicates automated laundering, not manual movement.",
+            "atAddress": "TVebSaNSdNHirwz46UPEzMgGy6pSQQu2aR"
+          }
+        ],
+        "triage": "WARM",
+        "triageReason": "10,505 USDT reached a likely MEXC customer deposit address; a freeze request naming that address is viable.",
+        "provenance": {
+          "apiCalls": 1,
+          "responseHashes": [
+            "0a46b6d0c95ffd9efd50f7c02a0eb0f574d526c846d2c02f6b185c3939d19748"
+          ],
+          "generatedAt": "2026-09-10T07:27:45.462Z"
+        }
+      }
+    },
+    {
+      "address": "TUGHe9CTbZG44YvqfTSBd3mTAysCWcVNL6",
+      "capturedAt": "2026-09-10T07:28:08.109Z",
+      "triage": "COLD",
+      "selectedBecause": "paid 329.90 USDT into TQb6Pc4PmfUdUokLq5ygNioj4PnodNak9b — 77% of everything they sent after that date",
+      "request": {
+        "amount": 329.9,
+        "fraudDate": "2026-06-19T13:50:21.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2026-9749",
+        "inputAddress": "TUGHe9CTbZG44YvqfTSBd3mTAysCWcVNL6",
+        "chain": "tron",
+        "reportedAmountUsdt": 329.9,
+        "fraudDate": "2026-06-19T13:50:21.000Z",
+        "nodes": [
+          {
+            "address": "TUGHe9CTbZG44YvqfTSBd3mTAysCWcVNL6",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 329.9,
+            "taintFraction": 1,
+            "firstSeen": "2025-11-11T13:28:42.000Z",
+            "outflowCount": 2
+          },
+          {
+            "address": "TQb6Pc4PmfUdUokLq5ygNioj4PnodNak9b",
+            "depth": 1,
+            "label": {
+              "entity": "ISIL KHORASAN",
+              "kind": "sanctioned",
+              "confidence": 1,
+              "source": "sanctions",
+              "evidence": "OFAC SDN · FTO"
+            },
+            "taintedValueUsdt": 253.16178725116504,
+            "taintFraction": 0.7673894733287816,
+            "firstSeen": null,
+            "outflowCount": 0
+          },
+          {
+            "address": "TWa8UyryQJnopqg24ABZ4CaVqZMGgKTNc5",
+            "depth": 1,
+            "label": null,
+            "taintedValueUsdt": 76.73821274883493,
+            "taintFraction": 0.23261052667121834,
+            "firstSeen": "2025-07-09T04:50:33.000Z",
+            "outflowCount": 2
+          },
+          {
+            "address": "TZGSBRavzwKmXQhpwgQr1VQB9euASQeqHF",
+            "depth": 2,
+            "label": null,
+            "taintedValueUsdt": 38.47429121623607,
+            "taintFraction": 0.1166241018982603,
+            "firstSeen": "2025-09-02T11:28:36.000Z",
+            "outflowCount": 1
+          },
+          {
+            "address": "TE5paMkU1hPr8BdjkSJLvEyUBxjKKSx1H6",
+            "depth": 3,
+            "label": {
+              "entity": "ISIL KHORASAN",
+              "kind": "sanctioned",
+              "confidence": 1,
+              "source": "sanctions",
+              "evidence": "OFAC SDN · FTO"
+            },
+            "taintedValueUsdt": 38.47429121623607,
+            "taintFraction": 0.1166241018982603,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "TUGHe9CTbZG44YvqfTSBd3mTAysCWcVNL6",
+            "to": "TQb6Pc4PmfUdUokLq5ygNioj4PnodNak9b",
+            "valueUsdt": 329.903158,
+            "txHash": "c9271478c11aab2f631f7c6f519fe0de9a1dba076dcb475f0e771bf422c7eea6",
+            "timestamp": "2026-06-19T13:51:21.000Z",
+            "dwellSeconds": 60
+          },
+          {
+            "from": "TUGHe9CTbZG44YvqfTSBd3mTAysCWcVNL6",
+            "to": "TWa8UyryQJnopqg24ABZ4CaVqZMGgKTNc5",
+            "valueUsdt": 100,
+            "txHash": "7a8ec85f79fcb9d8eaf3f7d0a935888b3d628beee6db333bf95f8392e5cb078e",
+            "timestamp": "2026-08-23T13:15:21.000Z",
+            "dwellSeconds": 5613900
+          },
+          {
+            "from": "TWa8UyryQJnopqg24ABZ4CaVqZMGgKTNc5",
+            "to": "TZGSBRavzwKmXQhpwgQr1VQB9euASQeqHF",
+            "valueUsdt": 100.549786,
+            "txHash": "a6476d336cdb494ec2f2409a8c1a119b3ae3ba52fc220fcead948e480c07ffc0",
+            "timestamp": "2026-06-20T07:17:42.000Z",
+            "dwellSeconds": null
+          },
+          {
+            "from": "TWa8UyryQJnopqg24ABZ4CaVqZMGgKTNc5",
+            "to": "TZGSBRavzwKmXQhpwgQr1VQB9euASQeqHF",
+            "valueUsdt": 100,
+            "txHash": "8570cd32f7fe291074caf508c465a840192cb123671406dd2bc3e61162cfead5",
+            "timestamp": "2026-08-26T20:26:54.000Z",
+            "dwellSeconds": 285093
+          },
+          {
+            "from": "TZGSBRavzwKmXQhpwgQr1VQB9euASQeqHF",
+            "to": "TE5paMkU1hPr8BdjkSJLvEyUBxjKKSx1H6",
+            "valueUsdt": 100.097301,
+            "txHash": "419b0223f61da2d4584957fa00f4ef424c933dcfe784cda63df3d424f6de14db",
+            "timestamp": "2026-06-20T07:26:51.000Z",
+            "dwellSeconds": 549
+          }
+        ],
+        "terminal": {
+          "address": "TQb6Pc4PmfUdUokLq5ygNioj4PnodNak9b",
+          "label": {
+            "entity": "ISIL KHORASAN",
+            "kind": "sanctioned",
+            "confidence": 1,
+            "source": "sanctions",
+            "evidence": "OFAC SDN · FTO"
+          },
+          "depositAddress": null
+        },
+        "riskFlags": [
+          {
+            "code": "SHORT_DWELL",
+            "reason": "Funds forwarded within 1 minute of receipt — indicates automated laundering, not manual movement.",
+            "atAddress": "TUGHe9CTbZG44YvqfTSBd3mTAysCWcVNL6"
+          },
+          {
+            "code": "SANCTIONED_CONTACT",
+            "reason": "Path intersects an address listed under sanctions (ISIL KHORASAN) — deterministic tracing stops here and the case is documented.",
+            "atAddress": "TQb6Pc4PmfUdUokLq5ygNioj4PnodNak9b"
+          }
+        ],
+        "triage": "COLD",
+        "triageReason": "253 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
+        "provenance": {
+          "apiCalls": 4,
+          "responseHashes": [
+            "566f84a9d5712157310565fd4f5344fe129e66c1366d42a9c88698a785cf4579",
+            "2b70d79326d93d003cc0307d890bf26dc93afefa0d637562f43cae167f272d82",
+            "405f867b40ad00eab9490f75cf0968ca7d930335a79a5550cea084802435a6a1"
+          ],
+          "generatedAt": "2026-09-10T07:27:54.441Z"
+        }
+      }
+    },
+    {
+      "address": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
+      "capturedAt": "2026-09-10T07:28:08.109Z",
+      "triage": "COLD",
+      "selectedBecause": "paid 2000.00 USDT into THstQuwNidzC4YeJ7uPowf55ZdVZtGcHJ5 — 40% of everything they sent after that date",
+      "request": {
+        "amount": 2000,
+        "fraudDate": "2024-09-06T07:32:48.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2024-4759",
+        "inputAddress": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
+        "chain": "tron",
+        "reportedAmountUsdt": 2000,
+        "fraudDate": "2024-09-06T07:32:48.000Z",
+        "nodes": [
+          {
+            "address": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 2000,
+            "taintFraction": 1,
+            "firstSeen": "2024-05-10T17:24:18.000Z",
+            "outflowCount": 7
+          },
+          {
+            "address": "THstQuwNidzC4YeJ7uPowf55ZdVZtGcHJ5",
+            "depth": 1,
+            "label": {
+              "entity": "ISIL KHORASAN",
+              "kind": "sanctioned",
+              "confidence": 1,
+              "source": "sanctions",
+              "evidence": "OFAC SDN · FTO"
+            },
+            "taintedValueUsdt": 800,
+            "taintFraction": 0.4,
+            "firstSeen": null,
+            "outflowCount": 0
+          },
+          {
+            "address": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
+            "depth": 1,
+            "label": null,
+            "taintedValueUsdt": 400,
+            "taintFraction": 0.2,
+            "firstSeen": null,
+            "outflowCount": 0
+          },
+          {
+            "address": "TJjtGNbf23HPhv4krrrGGC2GG1qLeVCCPt",
+            "depth": 1,
+            "label": null,
+            "taintedValueUsdt": 200,
+            "taintFraction": 0.1,
+            "firstSeen": "2023-05-04T11:25:06.000Z",
+            "outflowCount": 1
+          },
+          {
+            "address": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "depth": 2,
+            "label": {
+              "entity": "Binance",
+              "kind": "exchange_hot",
+              "confidence": 1,
+              "source": "ground_truth",
+              "evidence": "Explorer-tagged \"Binance-Hot 7\""
+            },
+            "taintedValueUsdt": 200,
+            "taintFraction": 0.1,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
+            "to": "THstQuwNidzC4YeJ7uPowf55ZdVZtGcHJ5",
+            "valueUsdt": 2000,
+            "txHash": "e674c888e4ae46817c30fa5f11b697c17f399c35c1f3a020a576e0a8a12be5f2",
+            "timestamp": "2024-09-06T07:33:48.000Z",
+            "dwellSeconds": 60
+          },
+          {
+            "from": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
+            "to": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
+            "valueUsdt": 1000,
+            "txHash": "338dc0d317bc4f6f2a56abcee0a6fc5452f76b99803599153ed308b59c04263f",
+            "timestamp": "2024-10-02T12:43:24.000Z",
+            "dwellSeconds": 2265036
+          },
+          {
+            "from": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
+            "to": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
+            "valueUsdt": 1000,
+            "txHash": "b750a84f62fd5b0295ddcc2effbcb52bc851ffd1d27f2cf01b5139005c5b8ce1",
+            "timestamp": "2024-09-25T12:52:21.000Z",
+            "dwellSeconds": 1660773
+          },
+          {
+            "from": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
+            "to": "TJjtGNbf23HPhv4krrrGGC2GG1qLeVCCPt",
+            "valueUsdt": 500,
+            "txHash": "84f7114c6b217b99b0c2dce122538a3799de92b0f2b53592471f1f1e26173d1b",
+            "timestamp": "2024-09-25T10:19:54.000Z",
+            "dwellSeconds": 1651626
+          },
+          {
+            "from": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
+            "to": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
+            "valueUsdt": 480,
+            "txHash": "f27ccb78a1cf03d610af5c8a665a5fa5b301b8b9a924d8b9fdf1043c3c60a64e",
+            "timestamp": "2024-10-02T12:48:15.000Z",
+            "dwellSeconds": 2265327
+          },
+          {
+            "from": "TJjtGNbf23HPhv4krrrGGC2GG1qLeVCCPt",
+            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "valueUsdt": 544.620054,
+            "txHash": "49c1fadbe9c2d528b5f74bd574b752b25f33f1df7dad4e682b80d78b9956a23d",
+            "timestamp": "2024-09-25T10:36:12.000Z",
+            "dwellSeconds": 978
+          }
+        ],
+        "terminal": {
+          "address": "THstQuwNidzC4YeJ7uPowf55ZdVZtGcHJ5",
+          "label": {
+            "entity": "ISIL KHORASAN",
+            "kind": "sanctioned",
+            "confidence": 1,
+            "source": "sanctions",
+            "evidence": "OFAC SDN · FTO"
+          },
+          "depositAddress": null
+        },
+        "riskFlags": [
+          {
+            "code": "SHORT_DWELL",
+            "reason": "Funds forwarded within 1 minute of receipt — indicates automated laundering, not manual movement.",
+            "atAddress": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj"
+          },
+          {
+            "code": "ROUND_AMOUNTS",
+            "reason": "3 round-figure transfers, the largest 2,000 USDT, suggest structured layering rather than ordinary payment activity.",
+            "atAddress": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj"
+          },
+          {
+            "code": "SANCTIONED_CONTACT",
+            "reason": "Path intersects an address listed under sanctions (ISIL KHORASAN) — deterministic tracing stops here and the case is documented.",
+            "atAddress": "THstQuwNidzC4YeJ7uPowf55ZdVZtGcHJ5"
+          }
+        ],
+        "triage": "COLD",
+        "triageReason": "800 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
+        "provenance": {
+          "apiCalls": 7,
+          "responseHashes": [
+            "b464e8c117dfcf3028270934fd452883edd6498babb0e24044b7e44221ac72a1",
+            "689b721702ade459433663d35191bb3507052ddba8dd5c85fbab15021de375e2"
+          ],
+          "generatedAt": "2026-09-10T07:28:08.094Z"
+        }
+      }
+    },
+    {
+      "address": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU",
+      "capturedAt": "2026-09-10T07:29:53.077Z",
+      "triage": "COLD",
+      "selectedBecause": "paid 5000.00 USDT into TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z — 48% of everything they sent after that date",
+      "request": {
+        "amount": 5000,
+        "fraudDate": "2025-11-14T11:16:06.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2025-8453",
+        "inputAddress": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU",
+        "chain": "tron",
+        "reportedAmountUsdt": 5000,
+        "fraudDate": "2025-11-14T11:16:06.000Z",
+        "nodes": [
+          {
+            "address": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 5000,
+            "taintFraction": 1,
+            "firstSeen": "2025-11-11T15:44:39.000Z",
+            "outflowCount": 4
+          },
+          {
+            "address": "TUcNB6c22JmcwXbbbuv9HVPeVqv5HSiTwQ",
+            "depth": 1,
+            "label": {
+              "entity": "ISIL KHORASAN",
+              "kind": "sanctioned",
+              "confidence": 1,
+              "source": "sanctions",
+              "evidence": "OFAC SDN · FTO"
+            },
+            "taintedValueUsdt": 2392.797521497372,
+            "taintFraction": 0.4785595042994744,
+            "firstSeen": null,
+            "outflowCount": 0
+          },
+          {
+            "address": "TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z",
+            "depth": 1,
+            "label": {
+              "entity": "ISIL KHORASAN",
+              "kind": "sanctioned",
+              "confidence": 1,
+              "source": "sanctions",
+              "evidence": "OFAC SDN · FTO"
+            },
+            "taintedValueUsdt": 2392.797521497372,
+            "taintFraction": 0.4785595042994744,
+            "firstSeen": null,
+            "outflowCount": 0
+          },
+          {
+            "address": "TCgaey5vcD38yG8oJjcjSfR8Jciaet4Ye8",
+            "depth": 1,
+            "label": null,
+            "taintedValueUsdt": 213.24627591183923,
+            "taintFraction": 0.04264925518236785,
+            "firstSeen": "2025-12-22T13:00:27.000Z",
+            "outflowCount": 2
+          },
+          {
+            "address": "TTuDmNhu8A6koPJRUd8Q5RnsT1FMfrZnoj",
+            "depth": 2,
+            "label": {
+              "entity": "ISIL KHORASAN",
+              "kind": "sanctioned",
+              "confidence": 1,
+              "source": "sanctions",
+              "evidence": "OFAC SDN · FTO"
+            },
+            "taintedValueUsdt": 148.86301983374466,
+            "taintFraction": 0.029772603966748933,
+            "firstSeen": null,
+            "outflowCount": 0
+          },
+          {
+            "address": "TGLrjZc9c48iMFB4ZmDnSjSRMq27MXPg2k",
+            "depth": 2,
+            "label": {
+              "entity": "ISIL KHORASAN",
+              "kind": "sanctioned",
+              "confidence": 1,
+              "source": "sanctions",
+              "evidence": "OFAC SDN · FTO"
+            },
+            "taintedValueUsdt": 64.38325607809458,
+            "taintFraction": 0.012876651215618914,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU",
+            "to": "TUcNB6c22JmcwXbbbuv9HVPeVqv5HSiTwQ",
+            "valueUsdt": 5000,
+            "txHash": "9606067cc89afdd7cd26491686febf7443002dddc07838bf1b6e6b8551fd142a",
+            "timestamp": "2025-11-15T02:40:33.000Z",
+            "dwellSeconds": 55467
+          },
+          {
+            "from": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU",
+            "to": "TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z",
+            "valueUsdt": 5000,
+            "txHash": "a86e32de6b95f6a1644baf4e17a28c79e8bd767745aec6381c17ab3cd44fb5aa",
+            "timestamp": "2025-11-14T11:17:06.000Z",
+            "dwellSeconds": 60
+          },
+          {
+            "from": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU",
+            "to": "TCgaey5vcD38yG8oJjcjSfR8Jciaet4Ye8",
+            "valueUsdt": 445.600336,
+            "txHash": "202ada13dd074528001af7e5d7c8b1819f6d404c973f4ab80d6bfed5ef85d237",
+            "timestamp": "2026-01-02T15:30:21.000Z",
+            "dwellSeconds": 4248855
+          },
+          {
+            "from": "TCgaey5vcD38yG8oJjcjSfR8Jciaet4Ye8",
+            "to": "TTuDmNhu8A6koPJRUd8Q5RnsT1FMfrZnoj",
+            "valueUsdt": 4000,
+            "txHash": "5a97dd1a6691ab11e6e3e47afce0796c5141990fba50b8b62705294fccbd7d52",
+            "timestamp": "2025-12-23T13:45:30.000Z",
+            "dwellSeconds": null
+          },
+          {
+            "from": "TCgaey5vcD38yG8oJjcjSfR8Jciaet4Ye8",
+            "to": "TGLrjZc9c48iMFB4ZmDnSjSRMq27MXPg2k",
+            "valueUsdt": 1730,
+            "txHash": "cec77d0b483ceeb9d4e8daab119a8b40dce29c9bb8abe56ca54159201f6a3eb4",
+            "timestamp": "2026-01-03T01:36:36.000Z",
+            "dwellSeconds": 36375
+          }
+        ],
+        "terminal": {
+          "address": "TUcNB6c22JmcwXbbbuv9HVPeVqv5HSiTwQ",
+          "label": {
+            "entity": "ISIL KHORASAN",
+            "kind": "sanctioned",
+            "confidence": 1,
+            "source": "sanctions",
+            "evidence": "OFAC SDN · FTO"
+          },
+          "depositAddress": null
+        },
+        "riskFlags": [
+          {
+            "code": "SHORT_DWELL",
+            "reason": "Funds forwarded within 1 minute of receipt — indicates automated laundering, not manual movement.",
+            "atAddress": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU"
+          },
+          {
+            "code": "ROUND_AMOUNTS",
+            "reason": "3 round-figure transfers, the largest 5,000 USDT, suggest structured layering rather than ordinary payment activity.",
+            "atAddress": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU"
+          },
+          {
+            "code": "SANCTIONED_CONTACT",
+            "reason": "Path intersects an address listed under sanctions (ISIL KHORASAN) — deterministic tracing stops here and the case is documented.",
+            "atAddress": "TUcNB6c22JmcwXbbbuv9HVPeVqv5HSiTwQ"
+          }
+        ],
+        "triage": "COLD",
+        "triageReason": "2,393 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
+        "provenance": {
+          "apiCalls": 4,
+          "responseHashes": [
+            "8b1c9c53b640ef8d0214d7fc4b40931dc6791685088dcaa8d10d2514d884be33",
+            "d7f441a788ad3ca336f8ac1bdb3144eedb80e946222da3e49ba220be9df3bd37"
+          ],
+          "generatedAt": "2026-09-10T07:29:53.073Z"
         }
       }
     }

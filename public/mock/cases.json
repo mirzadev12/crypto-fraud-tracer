@@ -32,6 +32,46 @@
     "terminalEntity": "ISIL KHORASAN"
   },
   {
+    "caseId": "FX-2026-5843",
+    "inputAddress": "TXncpWJZ8ZxUcwrpTP4SE4nNhZnKZM4QzC",
+    "reportedAmountUsdt": 9795.12,
+    "fraudDate": "2026-09-08T15:37:45.000Z",
+    "triage": "WARM",
+    "terminalEntity": "MEXC"
+  },
+  {
+    "caseId": "FX-2026-3825",
+    "inputAddress": "TVebSaNSdNHirwz46UPEzMgGy6pSQQu2aR",
+    "reportedAmountUsdt": 10504.62,
+    "fraudDate": "2026-09-08T06:13:51.000Z",
+    "triage": "WARM",
+    "terminalEntity": "MEXC"
+  },
+  {
+    "caseId": "FX-2026-9749",
+    "inputAddress": "TUGHe9CTbZG44YvqfTSBd3mTAysCWcVNL6",
+    "reportedAmountUsdt": 329.9,
+    "fraudDate": "2026-06-19T13:50:21.000Z",
+    "triage": "COLD",
+    "terminalEntity": "ISIL KHORASAN"
+  },
+  {
+    "caseId": "FX-2024-4759",
+    "inputAddress": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
+    "reportedAmountUsdt": 2000,
+    "fraudDate": "2024-09-06T07:32:48.000Z",
+    "triage": "COLD",
+    "terminalEntity": "ISIL KHORASAN"
+  },
+  {
+    "caseId": "FX-2025-8453",
+    "inputAddress": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU",
+    "reportedAmountUsdt": 5000,
+    "fraudDate": "2025-11-14T11:16:06.000Z",
+    "triage": "COLD",
+    "terminalEntity": "ISIL KHORASAN"
+  },
+  {
     "caseId": "FX-2026-0421",
     "inputAddress": "TYz6M2Fn2egsb15oNZdACtABKotmheGQiD",
     "reportedAmountUsdt": 18500,

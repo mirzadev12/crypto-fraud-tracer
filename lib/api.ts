@@ -55,6 +55,28 @@ export type TraceLookup =
     }
   | { status: "invalid"; address: string; reason: string };
 
+/** Parameters that pin a trace to one run, carried in a link as ?amount=&since=. */
+export interface TraceParams {
+  amount?: number;
+  since?: string;
+}
+
+/**
+ * A link that reproduces this exact trace: same amount, same window. Without it
+ * a shared link re-ran on automatic settings and could show different totals
+ * from the ones the officer was looking at.
+ */
+export function traceHref(
+  kind: "trace" | "report",
+  trace: Pick<TraceResult, "inputAddress" | "reportedAmountUsdt" | "fraudDate">,
+): string {
+  const query = new URLSearchParams();
+  if (trace.reportedAmountUsdt > 0) query.set("amount", String(trace.reportedAmountUsdt));
+  if (trace.fraudDate) query.set("since", trace.fraudDate);
+  const qs = query.toString();
+  return `/${kind}/${encodeURIComponent(trace.inputAddress)}${qs ? `?${qs}` : ""}`;
+}
+
 export interface TraceRequest {
   address: string;
   /** Optional. Omitted, the trace adopts everything that left the wallet. */
@@ -629,6 +651,7 @@ function heldLocally(address: string): boolean {
 export async function getTrace(
   address: string,
   onProgress?: (event: TraceProgress) => void,
+  params?: TraceParams,
 ): Promise<TraceLookup> {
   const clean = address.trim();
 
@@ -646,8 +669,12 @@ export async function getTrace(
   }
 
   try {
+    const query = new URLSearchParams();
+    if (params?.amount && params.amount > 0) query.set("amount", String(params.amount));
+    if (params?.since) query.set("since", params.since);
+    const qs = query.toString();
     const { json, recorded } = await streamJson(
-      `/api/trace/${encodeURIComponent(clean)}`,
+      `/api/trace/${encodeURIComponent(clean)}${qs ? `?${qs}` : ""}`,
       undefined,
       onProgress,
     );

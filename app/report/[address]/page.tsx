@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import AppShell from "@/components/AppShell";
 import EvidencePacket from "@/components/EvidencePacket";
-import { shortAddress } from "@/lib/format";
+import { readPinned, shortAddress } from "@/lib/format";
 
 type Params = { params: Promise<{ address: string }> };
 
@@ -13,11 +13,16 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-export default async function ReportPage({ params }: Params) {
+export default async function ReportPage({
+  params,
+  searchParams,
+}: PageProps<"/report/[address]">) {
   const { address } = await params;
+  // The packet reproduces the same run as the trace it was opened from.
+  const pinned = readPinned(await searchParams);
   return (
     <AppShell>
-      <EvidencePacket address={decodeURIComponent(address)} />
+      <EvidencePacket address={decodeURIComponent(address)} {...pinned} />
     </AppShell>
   );
 }
