@@ -133,7 +133,14 @@ export class TronGrid {
       this.calls++;
       try {
         const res = await fetch(url, {
-          headers: { accept: "application/json" },
+          headers: {
+            accept: "application/json",
+            // Optional. Without a key the public endpoint throttles hard, which
+            // is fine on a laptop and not fine on a shared deployment IP.
+            ...(process.env.TRONGRID_API_KEY
+              ? { "TRON-PRO-API-KEY": process.env.TRONGRID_API_KEY }
+              : {}),
+          },
           signal: AbortSignal.timeout(20_000),
         });
 

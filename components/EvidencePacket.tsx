@@ -67,9 +67,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export default function EvidencePacket({ address }: { address: string }) {
-  const { current, retry } = useTrace(address);
+  const { current, retry, events } = useTrace(address);
 
-  if (!current) return <TraceSkeleton address={address} />;
+  if (!current) return <TraceSkeleton address={address} events={events} />;
   if (current.lookup.status === "invalid") {
     return (
       <InvalidAddressState address={current.lookup.address} reason={current.lookup.reason} />

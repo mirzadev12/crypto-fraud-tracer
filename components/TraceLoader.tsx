@@ -2,8 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { DEMO_SAMPLES, getTrace, type TraceLookup } from "@/lib/api";
-import { shortAddress } from "@/lib/format";
+import {
+  DEMO_SAMPLES,
+  getTrace,
+  type TraceLookup,
+  type TraceProgress,
+} from "@/lib/api";
+import { formatDateTime, shortAddress } from "@/lib/format";
 import TraceView from "./TraceView";
 import {
   CASE_PROOF,
@@ -17,7 +22,8 @@ import {
 } from "./ui";
 
 /**
- * Loading state, written as a console log.
+ * Fallback loading state, written as a console log, for loads that do not
+ * stream (a committed case answered instantly, or a server without streaming).
  *
  * IMPORTANT: these lines are display copy on a fixed timer. They are NOT backend
  * telemetry — nothing here observes the real request, and the sequence finishes
@@ -33,7 +39,140 @@ const LOADER_STEPS: Array<{ label: string; detail: string; at: number }> = [
   { label: "scoring risk", detail: "", at: 1000 },
 ];
 
-export function TraceSkeleton({ address }: { address?: string } = {}) {
+
+export type TimedEvent = { event: TraceProgress; at: number };
+
+/**
+ * The live trace log. Unlike the fallback below, this IS telemetry: every line
+ * is an event the tracer emitted over the stream at the moment it happened — a
+ * wallet read from the chain, a hop reached, an attribution matched.
+ */
+function describeEvent(e: TraceProgress): { text: string; tone: string } {
+  switch (e.type) {
+    case "start":
+      return {
+        text: `▸ subject ${shortAddress(e.address, 6, 4)} · amount ${
+          e.amount === "auto" ? "auto" : e.amount
+        } · window ${e.window === "auto" ? "auto" : formatDateTime(e.window)}`,
+        tone: "text-ink",
+      };
+    case "window":
+      return {
+        text: `▸ window opens ${formatDateTime(e.since)} — first transfer on record`,
+        tone: "text-faint",
+      };
+    case "hop":
+      return {
+        text: `▸ hop ${e.depth} · ${e.wallets} wallet${e.wallets === 1 ? "" : "s"} queued`,
+        tone: "text-ink",
+      };
+    case "read":
+      return {
+        text: `  read ${shortAddress(e.address, 6, 4)} · ${e.transfers} transfers · ${e.outflows} out`,
+        tone: "text-faint",
+      };
+    case "label":
+      return {
+        text: `  ◆ ${e.source === "heuristic" ? "likely " : ""}${e.entity} · ${e.kind.replace(
+          /_/g,
+          " ",
+        )} · ${shortAddress(e.address, 6, 4)}`,
+        tone: "text-brass",
+      };
+    case "scoring":
+      return {
+        text: `▸ scoring ${e.wallets} wallets across ${e.transfers} transfers`,
+        tone: "text-ink",
+      };
+    case "recorded":
+      return {
+        text: `▸ recorded case ${e.caseId} — served from the frozen file`,
+        tone: "text-ink",
+      };
+  }
+}
+
+function LiveTrace({ events }: { events: TimedEvent[] }) {
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(id);
+  }, []);
+
+  const start = events[0].at;
+  const elapsed = Math.max(now, events[events.length - 1].at) - start;
+  let wallets = 0;
+  let calls = 0;
+  let hop = 0;
+  let transfers = 0;
+  for (const { event } of events) {
+    if (event.type === "read") {
+      wallets += 1;
+      calls = event.apiCalls;
+      transfers += event.transfers;
+    }
+    if (event.type === "hop") hop = Math.max(hop, event.depth);
+  }
+  const counters: Array<[string, number]> = [
+    ["Wallets read", wallets],
+    ["Hop", hop],
+    ["Transfers seen", transfers],
+    ["Chain calls", calls],
+  ];
+
+  return (
+    <div className="space-y-6" aria-busy="true">
+      <div className="border border-line bg-surface">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line px-6 py-4">
+          <Designation>[ live trace ]</Designation>
+          <span className="flex items-center gap-2 font-mono text-xs text-faint">
+            <span className="fx-mark h-2 w-2 rounded-full bg-brass" aria-hidden="true" />
+            {(elapsed / 1000).toFixed(1)}s
+          </span>
+        </div>
+        <dl className="grid grid-cols-2 gap-px bg-line sm:grid-cols-4">
+          {counters.map(([label, value]) => (
+            <div key={label} className="bg-surface px-6 py-4">
+              <dt className="font-label text-[10px] uppercase tracking-[0.18em] text-faint">
+                {label}
+              </dt>
+              <dd className="mt-2 font-mono text-2xl font-light tabular-nums text-ink">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <ol
+          className="fx-scroll max-h-72 space-y-1 overflow-y-auto px-6 py-4 font-mono text-xs whitespace-pre-wrap"
+          aria-live="polite"
+        >
+          {events.slice(-14).map(({ event, at }, i) => {
+            const line = describeEvent(event);
+            return (
+              <li key={`${at}-${i}`} className={line.tone}>
+                {line.text}
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+      <Skeleton className="h-64" />
+    </div>
+  );
+}
+
+export function TraceSkeleton({
+  address,
+  events,
+}: { address?: string; events?: TimedEvent[] } = {}) {
+  return events && events.length > 0 ? (
+    <LiveTrace events={events} />
+  ) : (
+    <TimedSkeleton address={address} />
+  );
+}
+
+function TimedSkeleton({ address }: { address?: string }) {
   const [done, setDone] = useState(0);
 
   useEffect(() => {
@@ -274,14 +413,30 @@ export type LoadedTrace = {
 export function useTrace(address: string | null): {
   current: LoadedTrace | null;
   retry: () => void;
+  events: TimedEvent[];
 } {
   const [attempt, setAttempt] = useState(0);
   const [loaded, setLoaded] = useState<LoadedTrace | null>(null);
+  // Live progress from the trace stream, tagged with the load it belongs to so a
+  // stale stream can never paint over a newer one.
+  const [progress, setProgress] = useState<{
+    address: string;
+    attempt: number;
+    events: TimedEvent[];
+  } | null>(null);
 
   useEffect(() => {
     if (!address) return;
     let cancelled = false;
-    getTrace(address)
+    getTrace(address, (event) => {
+      if (cancelled) return;
+      const entry = { event, at: Date.now() };
+      setProgress((p) =>
+        p && p.address === address && p.attempt === attempt
+          ? { ...p, events: [...p.events, entry] }
+          : { address, attempt, events: [entry] },
+      );
+    })
       .then((lookup) => {
         if (!cancelled) setLoaded({ address, attempt, lookup });
       })
@@ -305,8 +460,12 @@ export function useTrace(address: string | null): {
 
   const current =
     loaded && loaded.address === address && loaded.attempt === attempt ? loaded : null;
+  const events =
+    progress && progress.address === address && progress.attempt === attempt
+      ? progress.events
+      : [];
 
-  return { current, retry: () => setAttempt((a) => a + 1) };
+  return { current, retry: () => setAttempt((a) => a + 1), events };
 }
 
 /**
@@ -315,9 +474,9 @@ export function useTrace(address: string | null): {
  * everywhere and only have to be right once.
  */
 export default function TraceLoader({ address }: { address: string }) {
-  const { current, retry } = useTrace(address);
+  const { current, retry, events } = useTrace(address);
 
-  if (!current) return <TraceSkeleton address={address} />;
+  if (!current) return <TraceSkeleton address={address} events={events} />;
 
   const { lookup } = current;
   if (lookup.status === "invalid") {

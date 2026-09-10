@@ -20,6 +20,9 @@ import type {
   TraceResult,
   TriageLevel,
 } from "./types";
+import type { TraceProgress } from "./progress";
+
+export type { TraceProgress };
 
 export type DataSource = "live" | "demo";
 
@@ -54,8 +57,10 @@ export type TraceLookup =
 
 export interface TraceRequest {
   address: string;
-  amount: number;
-  fraudDate: string;
+  /** Optional. Omitted, the trace adopts everything that left the wallet. */
+  amount?: number;
+  /** Optional ISO timestamp. Omitted, the window opens at the wallet's first transfer. */
+  fraudDate?: string;
 }
 
 export class TraceUnavailableError extends Error {
@@ -456,6 +461,97 @@ const RECORDED_NOTE =
   "Recorded trace — captured from the chain by this pipeline, with its response " +
   "hashes intact, and served without touching the network.";
 
+/**
+ * How long a trace stream may go silent before we give up. An idle limit, not a
+ * total one: a live trace can legitimately run for a minute, and the old flat
+ * 30-second timeout was killing the slow ones mid-trace and reporting "no data".
+ * The server heartbeats every ten seconds, so silence this long means it is gone.
+ */
+const STREAM_IDLE_MS = 60_000;
+
+/**
+ * Fetch a trace as a stream, forwarding every progress event as it arrives.
+ * Falls back to a plain JSON body if the server answered without streaming.
+ */
+async function streamJson(
+  url: string,
+  init: RequestInit | undefined,
+  onProgress?: (event: TraceProgress) => void,
+): Promise<{ json: unknown; recorded: boolean }> {
+  const controller = new AbortController();
+  const expire = () =>
+    controller.abort(new DOMException("timed out", "TimeoutError"));
+  let idle = setTimeout(expire, STREAM_IDLE_MS);
+  const touch = () => {
+    clearTimeout(idle);
+    idle = setTimeout(expire, STREAM_IDLE_MS);
+  };
+
+  try {
+    const headers = new Headers(init?.headers);
+    headers.set("accept", "application/x-ndjson");
+    const res = await fetch(url, {
+      ...init,
+      headers,
+      cache: "no-store",
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      // Surface the service's own explanation rather than a bare status code.
+      let message = `${res.status} ${res.statusText}`;
+      try {
+        const body: unknown = await res.json();
+        if (isObj(body) && typeof body.error === "string") message = body.error;
+      } catch {
+        // Not JSON; the status line will have to do.
+      }
+      throw new Error(message);
+    }
+
+    const recordedHeader = res.headers.get("x-finex-provenance") === "recorded";
+    if (!res.body || !(res.headers.get("content-type") ?? "").includes("ndjson")) {
+      return { json: await res.json(), recorded: recordedHeader };
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      touch();
+      buffer += decoder.decode(value, { stream: true });
+      let newline = buffer.indexOf("\n");
+      while (newline >= 0) {
+        const line = buffer.slice(0, newline).trim();
+        buffer = buffer.slice(newline + 1);
+        newline = buffer.indexOf("\n");
+        if (!line) continue; // heartbeat
+        const message: unknown = JSON.parse(line);
+        if (!isObj(message)) continue;
+        if (message.kind === "progress") {
+          onProgress?.(message.event as TraceProgress);
+        } else if (message.kind === "result") {
+          return {
+            json: message.trace,
+            recorded: message.provenance === "recorded" || recordedHeader,
+          };
+        } else if (message.kind === "error") {
+          throw new Error(
+            typeof message.message === "string"
+              ? message.message
+              : "The trace could not be completed.",
+          );
+        }
+      }
+    }
+    throw new Error("the trace stream ended without a result");
+  } finally {
+    clearTimeout(idle);
+  }
+}
+
 async function fixture(path: string): Promise<unknown> {
   return getJson(path);
 }
@@ -530,7 +626,10 @@ function heldLocally(address: string): boolean {
   return hasDemoTrace(address);
 }
 
-export async function getTrace(address: string): Promise<TraceLookup> {
+export async function getTrace(
+  address: string,
+  onProgress?: (event: TraceProgress) => void,
+): Promise<TraceLookup> {
   const clean = address.trim();
 
   // Checked here so a malformed address is never confused with an unknown one.
@@ -547,8 +646,10 @@ export async function getTrace(address: string): Promise<TraceLookup> {
   }
 
   try {
-    const { json, recorded } = await getJsonWithProvenance(
+    const { json, recorded } = await streamJson(
       `/api/trace/${encodeURIComponent(clean)}`,
+      undefined,
+      onProgress,
     );
     if (isTraceLike(json)) {
       return {
@@ -564,12 +665,15 @@ export async function getTrace(address: string): Promise<TraceLookup> {
       clean,
       "GET /api/trace/[address]",
       `The trace service did not answer (${describe(err)}) — showing the recorded trace.`,
-      `The trace service is not deployed on this build (${describe(err)}).`,
+      `The trace could not be completed: ${describe(err)}.`,
     );
   }
 }
 
-export async function runTrace(req: TraceRequest): Promise<TraceLookup> {
+export async function runTrace(
+  req: TraceRequest,
+  onProgress?: (event: TraceProgress) => void,
+): Promise<TraceLookup> {
   const clean = req.address.trim();
 
   const check = checkTronAddress(clean);
@@ -585,11 +689,15 @@ export async function runTrace(req: TraceRequest): Promise<TraceLookup> {
   }
 
   try {
-    const { json, recorded } = await getJsonWithProvenance("/api/trace", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...req, address: clean }),
-    });
+    const { json, recorded } = await streamJson(
+      "/api/trace",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...req, address: clean }),
+      },
+      onProgress,
+    );
     if (isTraceLike(json)) {
       return {
         status: "resolved",
@@ -604,7 +712,7 @@ export async function runTrace(req: TraceRequest): Promise<TraceLookup> {
       clean,
       "POST /api/trace",
       `The trace service did not answer (${describe(err)}) — showing the recorded trace.`,
-      `The trace service is not deployed on this build (${describe(err)}).`,
+      `The trace could not be completed: ${describe(err)}.`,
     );
   }
 }

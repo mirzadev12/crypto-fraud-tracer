@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DEMO_SAMPLES, runTrace, type TraceLookup } from "@/lib/api";
 import { checkTronAddress } from "@/lib/tron";
-import { shortAddress, toDateInputValue } from "@/lib/format";
+import { shortAddress } from "@/lib/format";
 import TraceView from "./TraceView";
 import {
   InvalidAddressState,
   NoTraceState,
   TraceSkeleton,
+  type TimedEvent,
 } from "./TraceLoader";
 import {
   CASE_PROOF,
@@ -24,7 +25,7 @@ import {
 
 type Status =
   | { kind: "idle" }
-  | { kind: "running" }
+  | { kind: "running"; events: TimedEvent[] }
   | { kind: "done"; lookup: TraceLookup }
   | { kind: "failed"; message: string };
 
@@ -42,35 +43,50 @@ const PARAMETERS: Array<[string, string]> = [
   ["Chain", "TRON · USDT (TRC-20)"],
   ["Depth", "3 hops"],
   ["Outflows", "Top 5 per wallet, by value"],
-  ["Dust", "Under 1% of reported, dropped"],
-  ["Window", "Transfers after the fraud date"],
+  ["Dust", "Under 1% of amount traced, dropped"],
+  ["Window", "After the fraud date, or full history"],
   ["Stop", "First attributable address"],
 ];
 
 export default function InvestigateForm() {
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState("");
-  const [fraudDate, setFraudDate] = useState(toDateInputValue(new Date().toISOString()));
+  // Blank means "auto": the trace opens at the wallet's own first transfer. It
+  // used to default to today, and nothing before the fraud date is followed,
+  // so most wallets came back with no data at all.
+  const [fraudDate, setFraudDate] = useState("");
   const [touched, setTouched] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
 
   const addressCheck = useMemo(() => checkTronAddress(address), [address]);
   const amountValue = Number(amount);
-  const amountValid = amount === "" ? false : Number.isFinite(amountValue) && amountValue > 0;
-  const canSubmit = addressCheck.valid && amountValid && Boolean(fraudDate);
+  // Amount and date are both optional; only a malformed amount blocks a run.
+  const amountValid =
+    amount.trim() === "" || (Number.isFinite(amountValue) && amountValue > 0);
+  const canSubmit = addressCheck.valid && amountValid;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setTouched(true);
     if (!canSubmit) return;
-    setStatus({ kind: "running" });
+    setStatus({ kind: "running", events: [] });
     try {
-      const result = await runTrace({
-        address: address.trim(),
-        amount: amountValue,
-        // Send a full ISO timestamp — the backend filters transfers by it.
-        fraudDate: new Date(`${fraudDate}T00:00:00.000Z`).toISOString(),
-      });
+      const result = await runTrace(
+        {
+          address: address.trim(),
+          // Omitted fields are resolved from the chain by the tracer.
+          ...(amount.trim() ? { amount: amountValue } : {}),
+          ...(fraudDate
+            ? { fraudDate: new Date(`${fraudDate}T00:00:00.000Z`).toISOString() }
+            : {}),
+        },
+        (event) =>
+          setStatus((s) =>
+            s.kind === "running"
+              ? { kind: "running", events: [...s.events, { event, at: Date.now() }] }
+              : s,
+          ),
+      );
       setStatus({ kind: "done", lookup: result });
     } catch (err) {
       setStatus({
@@ -156,7 +172,7 @@ export default function InvestigateForm() {
               <div className="mt-16 grid gap-16 sm:grid-cols-2">
                 <div>
                   <label htmlFor="amount">
-                    <Designation>Reported amount · USDT</Designation>
+                    <Designation>Reported amount · USDT · optional</Designation>
                   </label>
                   <input
                     id="amount"
@@ -171,13 +187,13 @@ export default function InvestigateForm() {
                     }`}
                   />
                   <p className="mt-4 text-xs leading-5 text-faint">
-                    Sets the dust floor for the trace.
+                    Leave blank to trace everything that left the wallet.
                   </p>
                 </div>
 
                 <div>
                   <label htmlFor="fraudDate">
-                    <Designation>Date of fraud</Designation>
+                    <Designation>Date of fraud · optional</Designation>
                   </label>
                   <input
                     id="fraudDate"
@@ -187,7 +203,7 @@ export default function InvestigateForm() {
                     className={`${FIELD} mt-4 border-line text-lg focus:border-brass`}
                   />
                   <p className="mt-4 text-xs leading-5 text-faint">
-                    Nothing before this date is followed.
+                    Leave blank to follow the wallet from its first transfer.
                   </p>
                 </div>
               </div>
@@ -278,7 +294,9 @@ export default function InvestigateForm() {
       </section>
 
       {/* ----------------------------------------------------------- results */}
-      {status.kind === "running" ? <TraceSkeleton address={address} /> : null}
+      {status.kind === "running" ? (
+        <TraceSkeleton address={address} events={status.events} />
+      ) : null}
 
       {status.kind === "failed" ? (
         <ErrorState

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkTronAddress } from "@/lib/tron";
-import { runTrace } from "@/lib/tracer";
+import { runTrace, type TraceRequest } from "@/lib/tracer";
+import { streamTrace, wantsStream } from "@/lib/trace-stream";
 import { DEMO_MODE, frozenTrace } from "@/lib/demo";
 
 /**
@@ -39,21 +40,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: check.reason }, { status: 400 });
   }
 
-  const value = typeof amount === "number" ? amount : Number(amount);
-  if (!Number.isFinite(value) || value <= 0) {
+  // Both optional. A blank amount traces everything that left the wallet; a
+  // blank date opens the window at the wallet's own first transfer. Only a value
+  // that was given and is malformed is refused.
+  const amountGiven =
+    amount !== undefined && amount !== null && String(amount).trim() !== "";
+  const value = amountGiven ? Number(amount) : Number.NaN;
+  if (amountGiven && (!Number.isFinite(value) || value <= 0)) {
     return NextResponse.json(
-      { error: "amount must be a positive number of USDT." },
+      { error: "amount, when given, must be a positive number of USDT." },
       { status: 400 },
     );
   }
 
-  const when = typeof fraudDate === "string" ? new Date(fraudDate) : new Date(NaN);
-  if (Number.isNaN(when.getTime())) {
+  const dateGiven = typeof fraudDate === "string" && fraudDate.trim() !== "";
+  const when = dateGiven ? new Date(fraudDate as string) : new Date(Number.NaN);
+  if (dateGiven && Number.isNaN(when.getTime())) {
     return NextResponse.json(
-      { error: "fraudDate must be an ISO timestamp." },
+      { error: "fraudDate, when given, must be a valid date." },
       { status: 400 },
     );
   }
+
+  const job: TraceRequest = {
+    address: address.trim(),
+    amount: amountGiven ? value : "auto",
+    fraudDate: dateGiven ? when.toISOString() : "auto",
+  };
 
   // Demo mode, AGENTS.md §10. Served only for an address we actually hold a
   // frozen case for — anything else still goes to the chain, because serving
@@ -63,18 +76,24 @@ export async function POST(request: Request) {
   if (DEMO_MODE) {
     const held = frozenTrace(address);
     if (held) {
+      if (wantsStream(request)) {
+        return streamTrace(async (emit) => {
+          emit({ type: "recorded", caseId: held.trace.caseId });
+          return held.trace;
+        }, "recorded");
+      }
       return NextResponse.json(held.trace, {
         headers: { "x-finex-provenance": "recorded" },
       });
     }
   }
 
+  if (wantsStream(request)) {
+    return streamTrace((emit) => runTrace(job, emit), "live");
+  }
+
   try {
-    const result = await runTrace({
-      address: address.trim(),
-      amount: value,
-      fraudDate: when.toISOString(),
-    });
+    const result = await runTrace(job);
     return NextResponse.json(result, {
       headers: { "x-finex-provenance": "live" },
     });

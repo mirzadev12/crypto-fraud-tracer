@@ -1,0 +1,33 @@
+# Render Blueprint for FineX.
+#
+# Deploy: push to GitHub, then in the Render dashboard choose
+# New > Blueprint and select this repository. Render reads this file.
+#
+# A Render web service is a long-running Node process, which matters here: a
+# live trace can take close to a minute and streams its progress the whole time,
+# so a serverless function timeout would cut it off. This has none.
+
+services:
+  - type: web
+    name: finex
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    # `next start` binds 0.0.0.0 and reads Render's PORT variable itself.
+    startCommand: npm run start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      # Strongly recommended in production. Without a key the public chain
+      # endpoint rate-limits every request from Render's shared IP, and a
+      # throttled wallet is a wallet the tracer refuses to report on.
+      # Get a free key at https://www.trongrid.io and paste it in the dashboard.
+      - key: TRONGRID_API_KEY
+        sync: false
+      # Set to "true" to serve the frozen real cases with no network at all.
+      # Read at runtime, so it can be switched without a rebuild.
+      - key: DEMO_MODE
+        value: "false"

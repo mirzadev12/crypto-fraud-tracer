@@ -258,6 +258,27 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   read at runtime, so a built artefact can be switched on the night without a
   rebuild. `data/demo-cases.json` is imported statically, so regenerating it
   needs a rebuild.
+- **Amount and fraud date are optional; any wallet with history produces a trail.**
+  A blank amount is `"auto"` (everything that left the wallet); a blank date is
+  `"auto"` (the window opens one second before the subject wallet's earliest
+  transfer on record). The form used to default the date to *today*, and nothing
+  before the fraud date is followed, so most wallets came back empty. That, a
+  flat 30-second client timeout shorter than a slow live trace, and a required
+  amount field together were the "backend shows no data" report. Only a value
+  that was *given* and is malformed is refused.
+- **Traces stream real progress** (`lib/trace-stream.ts`, `lib/progress.ts`). A
+  request with `Accept: application/x-ndjson` gets one JSON line per tracer event —
+  window resolved, hop reached, wallet read, attribution matched, scoring — then
+  the result. The client gives up only after 60 s of *silence* (the server
+  heartbeats every 10 s), never because a trace is long. Plain JSON callers, the
+  freeze script included, are unaffected. The live log in `TraceLoader` is
+  therefore real telemetry for live traces; the fixed-timer log survives only as
+  the fallback for loads that do not stream, and its comment says so.
+- **Deploys to Render from `render.yaml`.** A Render web service is a long-running
+  Node process, which a streamed near-minute trace needs — a serverless function
+  timeout would cut it off. Set `TRONGRID_API_KEY` in the dashboard: without it
+  the public endpoint throttles Render's shared IP and the tracer, correctly,
+  refuses to state a finding from a wallet it could not read.
 - **`/api/cases` is deliberately unimplemented.** There is no case database.
   Serving illustrative complaint records through it would flip the register's
   badge to "Live trace" while claiming chain-read data it is not.

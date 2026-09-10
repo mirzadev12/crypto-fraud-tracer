@@ -18,6 +18,7 @@
 
 import { isTerminal, lookup } from "./labels";
 import { scoreRisk } from "./risk";
+import type { TraceProgress } from "./progress";
 import { TronGrid, type Trc20Transfer } from "./trongrid";
 import type { Label, TraceEdge, TraceNode, TraceResult, TriageLevel } from "./types";
 
@@ -34,7 +35,13 @@ export interface TraceRequest {
    * fractions of a placeholder.
    */
   amount: number | "auto";
-  fraudDate: string;
+  /**
+   * ISO timestamp, or "auto" when nobody gave one. "auto" opens the window just
+   * before the subject wallet's earliest transfer on record, so any wallet with
+   * history produces a trail. Defaulting to *today* instead is what made most
+   * wallets come back empty: nothing is followed before the fraud date.
+   */
+  fraudDate: string | "auto";
 }
 
 /** Deterministic, human-quotable case reference derived from the address. */
@@ -45,9 +52,20 @@ function caseIdFor(address: string, fraudDate: string): string {
   return `FX-${year}-${String(hash % 10000).padStart(4, "0")}`;
 }
 
-export async function runTrace(req: TraceRequest): Promise<TraceResult> {
+export async function runTrace(
+  req: TraceRequest,
+  onProgress?: (event: TraceProgress) => void,
+): Promise<TraceResult> {
   const root = req.address.trim();
-  const fraudAt = new Date(req.fraudDate).getTime();
+  const emit = (event: TraceProgress) => {
+    try {
+      onProgress?.(event);
+    } catch {
+      // A listener must never be able to break a trace.
+    }
+  };
+  // Resolved from the subject wallet's own history when the caller said "auto".
+  let fraudAt = req.fraudDate === "auto" ? Number.NaN : new Date(req.fraudDate).getTime();
 
   // Resolved from the root's own outflows when the caller said "auto".
   let reported = typeof req.amount === "number" ? Math.max(0, req.amount) : 0;
@@ -57,7 +75,15 @@ export async function runTrace(req: TraceRequest): Promise<TraceResult> {
   const edges: TraceEdge[] = [];
 
   /** When each wallet took receipt of the victim's money — feeds dwell time. */
-  const receivedAt = new Map<string, number>([[root, fraudAt]]);
+  const receivedAt = new Map<string, number>();
+  if (!Number.isNaN(fraudAt)) receivedAt.set(root, fraudAt);
+
+  emit({
+    type: "start",
+    address: root,
+    amount: req.amount,
+    window: Number.isNaN(fraudAt) ? "auto" : new Date(fraudAt).toISOString(),
+  });
 
   const rootLabel: Label = {
     entity: "Victim-reported address",
@@ -72,6 +98,7 @@ export async function runTrace(req: TraceRequest): Promise<TraceResult> {
 
   while (queue.length > 0) {
     const next: typeof queue = [];
+    emit({ type: "hop", depth: queue[0].depth, wallets: queue.length });
 
     for (const item of queue) {
       // A wallet reached twice keeps the larger share of the victim's money.
@@ -80,6 +107,16 @@ export async function runTrace(req: TraceRequest): Promise<TraceResult> {
 
       const label = item.address === root ? rootLabel : lookup(item.address);
       const stopHere = item.address !== root && isTerminal(label);
+      if (label && item.address !== root) {
+        emit({
+          type: "label",
+          address: item.address,
+          depth: item.depth,
+          entity: label.entity,
+          kind: label.kind,
+          source: label.source,
+        });
+      }
 
       // An exchange wallet is the answer, not a place to keep looking. Skipping
       // the fetch here is not just an optimisation: Binance-Hot 7 has millions
@@ -89,12 +126,33 @@ export async function runTrace(req: TraceRequest): Promise<TraceResult> {
         ? []
         : await grid.transfers(item.address);
 
+      // No fraud date given: open the window just before the subject's earliest
+      // transfer on record, so any wallet with history has a trail to follow.
+      if (item.address === root && Number.isNaN(fraudAt)) {
+        const earliest = transfers.length
+          ? Math.min(...transfers.map((t) => t.timestamp))
+          : Date.now() - 365 * 86_400_000;
+        fraudAt = earliest - 1000;
+        receivedAt.set(root, fraudAt);
+        emit({ type: "window", since: new Date(fraudAt).toISOString() });
+      }
+      const windowStart = fraudAt;
       const outAll = transfers.filter(
-        (t) => t.from === item.address && t.timestamp > fraudAt,
+        (t) => t.from === item.address && t.timestamp > windowStart,
       );
       const firstSeen = transfers.length
         ? new Date(Math.min(...transfers.map((t) => t.timestamp))).toISOString()
         : null;
+      if (!stopHere) {
+        emit({
+          type: "read",
+          address: item.address,
+          depth: item.depth,
+          transfers: transfers.length,
+          outflows: outAll.length,
+          apiCalls: grid.apiCalls,
+        });
+      }
 
       // The root sets the scale for every figure below it.
       if (item.address === root && req.amount === "auto") {
@@ -166,15 +224,17 @@ export async function runTrace(req: TraceRequest): Promise<TraceResult> {
   const nodeList = [...nodes.values()];
   // Wallets we could not read are excluded from the "funds at rest" finding.
   const unread = new Set(nodeList.filter((n) => grid.didFail(n.address)).map((n) => n.address));
-  const riskFlags = scoreRisk(nodeList, edges, req.fraudDate);
+  const fraudIso = new Date(Number.isNaN(fraudAt) ? Date.now() : fraudAt).toISOString();
+  emit({ type: "scoring", wallets: nodeList.length, transfers: edges.length });
+  const riskFlags = scoreRisk(nodeList, edges, fraudIso);
   const { triage, triageReason, terminal } = decide(nodeList, reported, unread);
 
   return {
-    caseId: caseIdFor(root, req.fraudDate),
+    caseId: caseIdFor(root, fraudIso),
     inputAddress: root,
     chain: "tron",
     reportedAmountUsdt: reported,
-    fraudDate: new Date(req.fraudDate).toISOString(),
+    fraudDate: fraudIso,
     nodes: nodeList,
     edges,
     terminal,

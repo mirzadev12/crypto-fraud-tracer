@@ -4,7 +4,11 @@
     {
       "name": "crypto-fraud-tracer",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "autoPort": true,
       "port": 3000
     }
   ]
