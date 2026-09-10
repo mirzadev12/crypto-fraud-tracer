@@ -231,7 +231,7 @@ export default function CaseQueue() {
                     <td className="px-6 py-0 text-right">
                       <Link
                         href={`/trace/${encodeURIComponent(c.inputAddress)}`}
-                        className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint hover:text-brass"
+                        className="inline-block fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint hover:text-brass"
                         aria-label={`Open for case ${c.caseId}, address ${shortAddress(c.inputAddress)}`}
                       >
                         Open

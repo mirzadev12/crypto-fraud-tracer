@@ -50,7 +50,7 @@ export default function Navbar() {
         <div className="hidden md:block">
           <Link
             href="/login"
-            className="fx-option whitespace-nowrap px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass"
+            className="inline-block fx-option whitespace-nowrap px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass"
           >
             Sign in
           </Link>

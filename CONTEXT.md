@@ -156,7 +156,7 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   dropped and the border itself carries the interaction, warming to brass-dim.
   The first pass at this applied the treatment to the two CTA styles only and
   left the nav, chips, toggles, rows and ghost actions bare — if a new control is
-  added, it takes one of these classes.
+  added, it takes one of these classes. Its host must not be a plain inline element: an inline box cannot clip, so the oversized arc escapes and the page scrolls sideways. The base layer makes every host inline-block unless a display utility says otherwise.
 - **The hero visual is the product, not an ornament** (`components/HeroTrace.tsx`).
   A cluster constellation — the register on-chain intelligence is read in — with
   one path lit through it: subject wallet at the heart of its own cluster, two

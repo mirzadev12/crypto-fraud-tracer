@@ -414,3 +414,16 @@ dialog {
     margin: 16mm;
   }
 }
+
+/* An inline element cannot clip. Every host of the rotating border arc must be at
+   least inline-block, or the oversized arc escapes its host and makes the whole
+   page scroll sideways (it did, from the nav Sign in link, by an amount that
+   changed as the arc turned). Kept in the base layer so an explicit display
+   utility such as inline-flex or flex still wins. */
+@layer base {
+  .fx-sweep,
+  .fx-option,
+  .fx-option-quiet {
+    display: inline-block;
+  }
+}
