@@ -304,6 +304,33 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   refuse. They are real wallets, so a live run is a real run; with
   `DEMO_MODE=true` the same batch answers from the frozen file in milliseconds,
   which is how a full queue is demonstrated when the network cannot be trusted.
+- **Three of the six behavioural rules were unreachable, and the trace itself was
+  why** (`lib/risk.ts`, `lib/tracer.ts`, `lib/trongrid.ts`). The rules scored the
+  finished `TraceResult`, but that result is already pruned: the tracer follows
+  the **five largest outflows per wallet**, so counting edges could never exceed
+  five and `HIGH_FANOUT` (which triggers above five) could not fire at all.
+  `PEEL_CHAIN` was worse — a peel *is* a run of small withdrawals, and "top five
+  by value" discards exactly those, so the rule searched the one place the
+  evidence had been removed from. Both were looking at the pruned picture. The
+  fix is not to loosen a threshold: the tracer now hands `scoreRisk` an
+  `Observed` map of what it actually read per wallet, uncapped, and those two
+  rules score that while the trace stays pruned. `TraceNode.outflowCount`
+  already carried the true pre-cap figure and is the fallback for a trace scored
+  without the tracer's record. **Proof this was real and not theoretical:** the
+  recorded case `TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj` has a wallet that split
+  funds seven ways and flagged neither rule; it now fires both, and the trace
+  screen shows 5 of 6 signals where it showed 3. `NEW_ADDRESS` was a different
+  fault — an overstatement. It reads `firstSeen` as an opening date, but
+  `firstSeen` is the oldest transfer *we read*, so on a wallet whose history ran
+  past `MAX_PAGES` it would call a years-old address freshly created;
+  `TronGrid.wasTruncated()` now marks those and the rule skips them. It is also
+  silent when no fraud date was reported, because the window is then derived
+  from the subject's own first transfer and "before the reported fraud" would
+  name a date nobody reported. **Re-score after any change here**
+  (`node scripts/rescore-cases.mjs`): the frozen cases carry whatever the rules
+  said the day they were captured, and a case file that disagrees with the code
+  that produced it is the one thing an evidence tool cannot ship. The script
+  refuses to write a case whose disposition drifted.
 - **The number on the front page opens the dataset it was counted from**
   (`/attribution`, `components/AttributionRegister.tsx`). AGENTS.md §7 makes the
   clustering count the deliverable and §15 makes "where do your labels come
@@ -490,6 +517,8 @@ node scripts/make-mocks.mjs public/mock   # regenerate fixtures
 # The safety net (AGENTS.md §10). Dev server must be running.
 node scripts/freeze-cases.mjs             # recapture all three dispositions
 node scripts/freeze-cases.mjs HOT         # recapture one, leave the others
+node scripts/rescore-cases.mjs            # re-run the frozen cases after a rule change
+node scripts/hunt-new-address.mjs         # look for a real case exercising NEW_ADDRESS
 NEXT_PUBLIC_DEMO_MODE=true npm run dev    # serve the frozen cases, no network
 ```
 

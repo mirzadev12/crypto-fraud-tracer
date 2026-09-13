@@ -17,7 +17,7 @@
  */
 
 import { isTerminal, lookup } from "./labels";
-import { scoreRisk } from "./risk";
+import { scoreRisk, type Observed } from "./risk";
 import type { TraceProgress } from "./progress";
 import { TronGrid, type Trc20Transfer } from "./trongrid";
 import type { Label, TraceEdge, TraceNode, TraceResult, TriageLevel } from "./types";
@@ -73,6 +73,8 @@ export async function runTrace(
   const grid = new TronGrid();
   const nodes = new Map<string, TraceNode>();
   const edges: TraceEdge[] = [];
+  /** Per wallet, what was read before this tracer's own limits pruned it. */
+  const observed = new Map<string, Observed>();
 
   /** When each wallet took receipt of the victim's money — feeds dwell time. */
   const receivedAt = new Map<string, number>();
@@ -160,6 +162,14 @@ export async function runTrace(
       }
       const dust = reported * DUST_FRACTION;
 
+      // What this wallet actually did, before the five-largest cut below. Three
+      // behavioural rules need the uncapped picture; scoring the pruned trace
+      // instead is what left them unable to fire at all. See risk.ts.
+      observed.set(item.address, {
+        outValues: outAll.map((t) => t.value),
+        historyComplete: !grid.wasTruncated(item.address),
+      });
+
       nodes.set(item.address, {
         address: item.address,
         depth: item.depth,
@@ -226,7 +236,10 @@ export async function runTrace(
   const unread = new Set(nodeList.filter((n) => grid.didFail(n.address)).map((n) => n.address));
   const fraudIso = new Date(Number.isNaN(fraudAt) ? Date.now() : fraudAt).toISOString();
   emit({ type: "scoring", wallets: nodeList.length, transfers: edges.length });
-  const riskFlags = scoreRisk(nodeList, edges, fraudIso);
+  const riskFlags = scoreRisk(nodeList, edges, fraudIso, {
+    observed,
+    fraudDateReported: req.fraudDate !== "auto",
+  });
   const { triage, triageReason, terminal } = decide(nodeList, reported, unread);
 
   return {

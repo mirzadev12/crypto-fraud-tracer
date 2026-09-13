@@ -44,13 +44,44 @@ function isRound(value: number): boolean {
   return value >= 1000 && Number.isInteger(value) && value % 1000 === 0;
 }
 
+/**
+ * What the tracer saw before its own limits were applied.
+ *
+ * Three of these rules were dead for a subtle reason: they were reading the
+ * trace, and the trace is already pruned. The tracer follows the five largest
+ * outflows per wallet, so counting edges could never exceed five and a fan-out
+ * rule that triggers above five could never fire at all. Worse for peel
+ * detection — a peel *is* a series of small withdrawals, and "five largest by
+ * value" discards exactly those. Both rules were looking for evidence in the
+ * one place it had been removed from.
+ *
+ * So the tracer now hands over what it actually read per wallet, uncapped, and
+ * the rules score that. The trace stays pruned; the reasoning does not.
+ */
+export interface Observed {
+  /** Every outflow after the fraud date, before the top-five cut. */
+  outValues: number[];
+  /** False when the wallet's history was longer than we were willing to read. */
+  historyComplete: boolean;
+}
+
 export function scoreRisk(
   nodes: TraceNode[],
   edges: TraceEdge[],
   fraudDate: string,
+  options: {
+    observed?: Map<string, Observed>;
+    /**
+     * Whether a fraud date was actually reported. When it was not, the window
+     * is derived from the subject's own first transfer, and "N days before the
+     * reported fraud" is a sentence about a date nobody reported.
+     */
+    fraudDateReported?: boolean;
+  } = {},
 ): RiskFlag[] {
   const flags: RiskFlag[] = [];
   const fraudAt = new Date(fraudDate).getTime();
+  const observed = options.observed ?? new Map<string, Observed>();
 
   /* 1 — SHORT_DWELL. Reported once, on the fastest hop observed. */
   const fastest = edges
@@ -64,9 +95,17 @@ export function scoreRisk(
     });
   }
 
-  /* 2 — HIGH_FANOUT. The widest split on the path. */
+  /* 2 — HIGH_FANOUT. The widest split on the path.
+     Counted from what the wallet actually did, not from the five outflows the
+     tracer chose to follow — see the note on `Observed` above. `outflowCount`
+     on the node carries the same uncapped figure and is the fallback for a
+     trace scored without the tracer's own record, a recorded case included. */
   const outCount = new Map<string, number>();
   for (const e of edges) outCount.set(e.from, (outCount.get(e.from) ?? 0) + 1);
+  for (const n of nodes) {
+    const seen = observed.get(n.address)?.outValues.length ?? n.outflowCount;
+    if (seen > (outCount.get(n.address) ?? 0)) outCount.set(n.address, seen);
+  }
   const widest = [...outCount.entries()].sort((a, b) => b[1] - a[1])[0];
   if (widest && widest[1] > FANOUT_LIMIT) {
     flags.push({
@@ -76,16 +115,21 @@ export function scoreRisk(
     });
   }
 
-  /* 3 — PEEL_CHAIN. Repeated small withdrawals while the bulk moves on. */
+  /* 3 — PEEL_CHAIN. Repeated small withdrawals while the bulk moves on.
+     Scored against every outflow the wallet made, because the small legs that
+     constitute a peel are the first thing "top five by value" throws away. */
   for (const [address] of outCount) {
-    const outs = edges.filter((e) => e.from === address);
-    if (outs.length < PEEL_MIN_LEGS + 1) continue;
-    const largest = Math.max(...outs.map((e) => e.valueUsdt));
-    const legs = outs.filter((e) => e.valueUsdt <= largest * PEEL_RATIO);
+    const values =
+      observed.get(address)?.outValues ??
+      edges.filter((e) => e.from === address).map((e) => e.valueUsdt);
+    if (values.length < PEEL_MIN_LEGS + 1) continue;
+    const largest = Math.max(...values);
+    if (!(largest > 0)) continue;
+    const legs = values.filter((v) => v <= largest * PEEL_RATIO);
     if (legs.length >= PEEL_MIN_LEGS) {
       flags.push({
         code: "PEEL_CHAIN",
-        reason: `Peel-chain pattern: ${legs.length} sequential small withdrawals from a bulk address while the remainder moved on.`,
+        reason: `Peel-chain pattern: ${legs.length} small withdrawals against a largest transfer of ${amount(largest)} USDT — the bulk moves on while fractions are shaved off.`,
         atAddress: address,
       });
       break;
@@ -106,10 +150,17 @@ export function scoreRisk(
     });
   }
 
-  /* 5 — NEW_ADDRESS. A wallet opened for the job. */
-  if (Number.isFinite(fraudAt)) {
+  /* 5 — NEW_ADDRESS. A wallet opened for the job.
+     Two guards, both about not overstating. The rule is silent when no fraud
+     date was reported, because the window is then derived from the subject's
+     own first transfer and "before the reported fraud" would name a date
+     nobody reported. And a wallet whose history we truncated is skipped: its
+     `firstSeen` is the oldest transfer we read, not the day it opened, and
+     reading one as the other would call a years-old address freshly created. */
+  if (Number.isFinite(fraudAt) && options.fraudDateReported !== false) {
     const fresh = nodes
       .filter((n) => n.depth > 0 && n.firstSeen)
+      .filter((n) => observed.get(n.address)?.historyComplete !== false)
       .map((n) => ({ node: n, age: (fraudAt - new Date(n.firstSeen!).getTime()) / DAY_MS }))
       .filter((x) => Number.isFinite(x.age) && x.age >= 0 && x.age < NEW_ADDRESS_DAYS)
       .sort((a, b) => a.age - b.age)[0];

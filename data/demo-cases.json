@@ -1,10 +1,10 @@
 {
   "_note_": "Frozen traces, captured from the live pipeline against real TRON addresses. AGENTS.md §10. Each entry is a complete TraceResult exactly as /api/trace returned it, including the response hashes it was built from, so any claim in it can be re-verified. Regenerate with `node scripts/freeze-cases.mjs` while the dev server is running, then rebuild — this file is imported statically so demo mode needs no filesystem and no network.",
-  "capturedAt": "2026-09-10T07:29:53.077Z",
+  "capturedAt": "2026-09-13T20:51:41.166Z",
   "cases": [
     {
       "address": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
-      "capturedAt": "2026-09-09T13:14:24.465Z",
+      "capturedAt": "2026-09-13T20:51:15.801Z",
       "triage": "HOT",
       "selectedBecause": "received 1066.11 USDT across 200 transfer(s) and has never sent any",
       "request": {
@@ -29,7 +29,7 @@
             },
             "taintedValueUsdt": 1066.11,
             "taintFraction": 1,
-            "firstSeen": "2026-09-09T13:10:36.000Z",
+            "firstSeen": "2026-09-13T20:43:39.000Z",
             "outflowCount": 0
           }
         ],
@@ -41,15 +41,15 @@
         "provenance": {
           "apiCalls": 4,
           "responseHashes": [
-            "be123835bfe563271af150857bbe3b6351956dc6d64e20d27d821215f4cca07d"
+            "6c8d68ddb600445ffd0be3eb67af02938b3c8811b60ef0e3b0fe88902285f5a4"
           ],
-          "generatedAt": "2026-09-09T13:14:24.462Z"
+          "generatedAt": "2026-09-13T20:51:15.790Z"
         }
       }
     },
     {
       "address": "TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ",
-      "capturedAt": "2026-09-09T18:23:37.525Z",
+      "capturedAt": "2026-09-13T20:51:18.851Z",
       "triage": "WARM",
       "selectedBecause": "paid 500.00 USDT into TMt8PXtrGBFTGhGcGn4mEyTi1tR2vxzhc3 — 100% of everything they sent after that date",
       "request": {
@@ -124,17 +124,17 @@
         "triage": "WARM",
         "triageReason": "500 USDT reached a likely Bybit customer deposit address; a freeze request naming that address is viable.",
         "provenance": {
-          "apiCalls": 1,
+          "apiCalls": 2,
           "responseHashes": [
-            "b3c6597727417017df76f09d66f96658b0213b690d665b301fa023b89e1d9346"
+            "a59346d26b6e010c09893235fb11279fd9797cd75b56d0d05d2bb535d378219a"
           ],
-          "generatedAt": "2026-09-09T18:20:42.249Z"
+          "generatedAt": "2026-09-13T20:51:18.848Z"
         }
       }
     },
     {
       "address": "TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex",
-      "capturedAt": "2026-09-09T18:23:37.525Z",
+      "capturedAt": "2026-09-13T20:51:20.393Z",
       "triage": "WARM",
       "selectedBecause": "paid 7630.48 USDT into TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN — 100% of everything they sent after that date",
       "request": {
@@ -211,15 +211,15 @@
         "provenance": {
           "apiCalls": 1,
           "responseHashes": [
-            "1a9bdef1c3f8df0f1eee9e36cbc570e601aa4ee2386d933cb2d944143f91a027"
+            "c54eaa9dbcd1d1662c503185269306e3f0db95ff8a0f79d2e80432636f93e0d2"
           ],
-          "generatedAt": "2026-09-09T18:20:42.751Z"
+          "generatedAt": "2026-09-13T20:51:20.389Z"
         }
       }
     },
     {
       "address": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5",
-      "capturedAt": "2026-09-09T18:23:37.525Z",
+      "capturedAt": "2026-09-13T20:51:21.958Z",
       "triage": "COLD",
       "selectedBecause": "paid 5000.00 USDT into TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z — 50% of everything they sent after that date",
       "request": {
@@ -327,17 +327,17 @@
         "triage": "COLD",
         "triageReason": "2,500 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
         "provenance": {
-          "apiCalls": 3,
+          "apiCalls": 1,
           "responseHashes": [
-            "2ce39ae4838233c84c9270750f3ab60a6be495f62a56fb3df82a43119ac98be9"
+            "e7b9be255b848e81275983e2d71a8374c9a3f7ca5e97e1ce720bd42389134a41"
           ],
-          "generatedAt": "2026-09-09T18:20:57.014Z"
+          "generatedAt": "2026-09-13T20:51:21.956Z"
         }
       }
     },
     {
       "address": "TXncpWJZ8ZxUcwrpTP4SE4nNhZnKZM4QzC",
-      "capturedAt": "2026-09-10T07:28:08.109Z",
+      "capturedAt": "2026-09-13T20:51:23.748Z",
       "triage": "WARM",
       "selectedBecause": "paid 9795.12 USDT into TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN — 100% of everything they sent after that date",
       "request": {
@@ -414,15 +414,15 @@
         "provenance": {
           "apiCalls": 1,
           "responseHashes": [
-            "5e81e08841cc24ee5e1782f5366f3f13ac74f6d6f9c1d2e7d2687317f5df17b5"
+            "0b9af79908552d6b055a50215006f6d30a1379332b9966cf34aa0fb65b281738"
           ],
-          "generatedAt": "2026-09-10T07:27:44.805Z"
+          "generatedAt": "2026-09-13T20:51:23.745Z"
         }
       }
     },
     {
       "address": "TVebSaNSdNHirwz46UPEzMgGy6pSQQu2aR",
-      "capturedAt": "2026-09-10T07:28:08.109Z",
+      "capturedAt": "2026-09-13T20:51:25.560Z",
       "triage": "WARM",
       "selectedBecause": "paid 10504.62 USDT into TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN — 100% of everything they sent after that date",
       "request": {
@@ -499,15 +499,15 @@
         "provenance": {
           "apiCalls": 1,
           "responseHashes": [
-            "0a46b6d0c95ffd9efd50f7c02a0eb0f574d526c846d2c02f6b185c3939d19748"
+            "9b467eb6166c37fe83b434e6340b88d47135a63868b9813677dc77b572c0aa70"
           ],
-          "generatedAt": "2026-09-10T07:27:45.462Z"
+          "generatedAt": "2026-09-13T20:51:25.556Z"
         }
       }
     },
     {
       "address": "TUGHe9CTbZG44YvqfTSBd3mTAysCWcVNL6",
-      "capturedAt": "2026-09-10T07:28:08.109Z",
+      "capturedAt": "2026-09-13T20:51:28.455Z",
       "triage": "COLD",
       "selectedBecause": "paid 329.90 USDT into TQb6Pc4PmfUdUokLq5ygNioj4PnodNak9b — 77% of everything they sent after that date",
       "request": {
@@ -652,19 +652,19 @@
         "triage": "COLD",
         "triageReason": "253 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
         "provenance": {
-          "apiCalls": 4,
+          "apiCalls": 3,
           "responseHashes": [
-            "566f84a9d5712157310565fd4f5344fe129e66c1366d42a9c88698a785cf4579",
-            "2b70d79326d93d003cc0307d890bf26dc93afefa0d637562f43cae167f272d82",
-            "405f867b40ad00eab9490f75cf0968ca7d930335a79a5550cea084802435a6a1"
+            "f922f4af3bd93514fa1c46ab5084580f3dbd643a4ae6c6e5c2a59ca8779b5189",
+            "69142a2500a1b0005248ce54124e23d4f6f3f396784755297d896614651de183",
+            "ea51a4d586b69e1b7ed9adf4c33b5a0d50810f7a3d5eadd62ff29f14518c36a5"
           ],
-          "generatedAt": "2026-09-10T07:27:54.441Z"
+          "generatedAt": "2026-09-13T20:51:28.453Z"
         }
       }
     },
     {
       "address": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
-      "capturedAt": "2026-09-10T07:28:08.109Z",
+      "capturedAt": "2026-09-13T20:51:34.048Z",
       "triage": "COLD",
       "selectedBecause": "paid 2000.00 USDT into THstQuwNidzC4YeJ7uPowf55ZdVZtGcHJ5 — 40% of everything they sent after that date",
       "request": {
@@ -713,8 +713,8 @@
             "label": null,
             "taintedValueUsdt": 400,
             "taintFraction": 0.2,
-            "firstSeen": null,
-            "outflowCount": 0
+            "firstSeen": "2024-02-28T13:37:45.000Z",
+            "outflowCount": 5
           },
           {
             "address": "TJjtGNbf23HPhv4krrrGGC2GG1qLeVCCPt",
@@ -722,8 +722,8 @@
             "label": null,
             "taintedValueUsdt": 200,
             "taintFraction": 0.1,
-            "firstSeen": "2023-05-04T11:25:06.000Z",
-            "outflowCount": 1
+            "firstSeen": null,
+            "outflowCount": 0
           },
           {
             "address": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
@@ -735,8 +735,8 @@
               "source": "ground_truth",
               "evidence": "Explorer-tagged \"Binance-Hot 7\""
             },
-            "taintedValueUsdt": 200,
-            "taintFraction": 0.1,
+            "taintedValueUsdt": 121.65961750882943,
+            "taintFraction": 0.06082980875441471,
             "firstSeen": null,
             "outflowCount": 0
           }
@@ -783,12 +783,44 @@
             "dwellSeconds": 2265327
           },
           {
-            "from": "TJjtGNbf23HPhv4krrrGGC2GG1qLeVCCPt",
+            "from": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
             "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
-            "valueUsdt": 544.620054,
-            "txHash": "49c1fadbe9c2d528b5f74bd574b752b25f33f1df7dad4e682b80d78b9956a23d",
-            "timestamp": "2024-09-25T10:36:12.000Z",
-            "dwellSeconds": 978
+            "valueUsdt": 1332.571,
+            "txHash": "ea37f10987aab04f136fc615b3204a0882427925ad77010bfcc839c4e3303746",
+            "timestamp": "2024-09-25T12:56:06.000Z",
+            "dwellSeconds": null
+          },
+          {
+            "from": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
+            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "valueUsdt": 1000,
+            "txHash": "8db26b5e230e49214089ae273ed1589d8cf1dc3c23c882aa24dc2cbe0a4eab87",
+            "timestamp": "2024-10-02T12:46:09.000Z",
+            "dwellSeconds": 165
+          },
+          {
+            "from": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
+            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "valueUsdt": 898,
+            "txHash": "8db0d4fc0c5dd2e9bb21aa69c8c5d85fb3d3e1c58d884813462e4b4886101788",
+            "timestamp": "2025-02-06T16:13:09.000Z",
+            "dwellSeconds": 10985385
+          },
+          {
+            "from": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
+            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "valueUsdt": 882.52,
+            "txHash": "ed45d5bf5b550dfe3a171ec43292df426f0d456501ff6f22bc958ef3cee9b31c",
+            "timestamp": "2025-02-02T14:16:09.000Z",
+            "dwellSeconds": 10632765
+          },
+          {
+            "from": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
+            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "valueUsdt": 268.218188,
+            "txHash": "977faa9897434ef5b94ba0e1d0aa82c6a7d3316b219b68a4da6897f4209cbe8d",
+            "timestamp": "2025-10-07T09:38:30.000Z",
+            "dwellSeconds": 31956906
           }
         ],
         "terminal": {
@@ -809,8 +841,18 @@
             "atAddress": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj"
           },
           {
+            "code": "HIGH_FANOUT",
+            "reason": "Funds split across 7 wallets in a single hop.",
+            "atAddress": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj"
+          },
+          {
+            "code": "PEEL_CHAIN",
+            "reason": "Peel-chain pattern: 4 small withdrawals against a largest transfer of 2,000 USDT — the bulk moves on while fractions are shaved off.",
+            "atAddress": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj"
+          },
+          {
             "code": "ROUND_AMOUNTS",
-            "reason": "3 round-figure transfers, the largest 2,000 USDT, suggest structured layering rather than ordinary payment activity.",
+            "reason": "4 round-figure transfers, the largest 2,000 USDT, suggest structured layering rather than ordinary payment activity.",
             "atAddress": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj"
           },
           {
@@ -822,18 +864,18 @@
         "triage": "COLD",
         "triageReason": "800 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
         "provenance": {
-          "apiCalls": 7,
+          "apiCalls": 5,
           "responseHashes": [
-            "b464e8c117dfcf3028270934fd452883edd6498babb0e24044b7e44221ac72a1",
-            "689b721702ade459433663d35191bb3507052ddba8dd5c85fbab15021de375e2"
+            "68df1c9d67154bd3e3472df431ead76acb62493ff4e45eb45f885b3f7423e76d",
+            "e30cb8d6bfa7601d329b093d3b317082982774ec42afb7cf55bde00e7dbfc2fb"
           ],
-          "generatedAt": "2026-09-10T07:28:08.094Z"
+          "generatedAt": "2026-09-13T20:51:34.045Z"
         }
       }
     },
     {
       "address": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU",
-      "capturedAt": "2026-09-10T07:29:53.077Z",
+      "capturedAt": "2026-09-13T20:51:39.953Z",
       "triage": "COLD",
       "selectedBecause": "paid 5000.00 USDT into TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z — 48% of everything they sent after that date",
       "request": {
@@ -897,36 +939,6 @@
             "label": null,
             "taintedValueUsdt": 213.24627591183923,
             "taintFraction": 0.04264925518236785,
-            "firstSeen": "2025-12-22T13:00:27.000Z",
-            "outflowCount": 2
-          },
-          {
-            "address": "TTuDmNhu8A6koPJRUd8Q5RnsT1FMfrZnoj",
-            "depth": 2,
-            "label": {
-              "entity": "ISIL KHORASAN",
-              "kind": "sanctioned",
-              "confidence": 1,
-              "source": "sanctions",
-              "evidence": "OFAC SDN · FTO"
-            },
-            "taintedValueUsdt": 148.86301983374466,
-            "taintFraction": 0.029772603966748933,
-            "firstSeen": null,
-            "outflowCount": 0
-          },
-          {
-            "address": "TGLrjZc9c48iMFB4ZmDnSjSRMq27MXPg2k",
-            "depth": 2,
-            "label": {
-              "entity": "ISIL KHORASAN",
-              "kind": "sanctioned",
-              "confidence": 1,
-              "source": "sanctions",
-              "evidence": "OFAC SDN · FTO"
-            },
-            "taintedValueUsdt": 64.38325607809458,
-            "taintFraction": 0.012876651215618914,
             "firstSeen": null,
             "outflowCount": 0
           }
@@ -955,22 +967,6 @@
             "txHash": "202ada13dd074528001af7e5d7c8b1819f6d404c973f4ab80d6bfed5ef85d237",
             "timestamp": "2026-01-02T15:30:21.000Z",
             "dwellSeconds": 4248855
-          },
-          {
-            "from": "TCgaey5vcD38yG8oJjcjSfR8Jciaet4Ye8",
-            "to": "TTuDmNhu8A6koPJRUd8Q5RnsT1FMfrZnoj",
-            "valueUsdt": 4000,
-            "txHash": "5a97dd1a6691ab11e6e3e47afce0796c5141990fba50b8b62705294fccbd7d52",
-            "timestamp": "2025-12-23T13:45:30.000Z",
-            "dwellSeconds": null
-          },
-          {
-            "from": "TCgaey5vcD38yG8oJjcjSfR8Jciaet4Ye8",
-            "to": "TGLrjZc9c48iMFB4ZmDnSjSRMq27MXPg2k",
-            "valueUsdt": 1730,
-            "txHash": "cec77d0b483ceeb9d4e8daab119a8b40dce29c9bb8abe56ca54159201f6a3eb4",
-            "timestamp": "2026-01-03T01:36:36.000Z",
-            "dwellSeconds": 36375
           }
         ],
         "terminal": {
@@ -992,7 +988,7 @@
           },
           {
             "code": "ROUND_AMOUNTS",
-            "reason": "3 round-figure transfers, the largest 5,000 USDT, suggest structured layering rather than ordinary payment activity.",
+            "reason": "2 round-figure transfers, the largest 5,000 USDT, suggest structured layering rather than ordinary payment activity.",
             "atAddress": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU"
           },
           {
@@ -1004,12 +1000,11 @@
         "triage": "COLD",
         "triageReason": "2,393 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
         "provenance": {
-          "apiCalls": 4,
+          "apiCalls": 5,
           "responseHashes": [
-            "8b1c9c53b640ef8d0214d7fc4b40931dc6791685088dcaa8d10d2514d884be33",
-            "d7f441a788ad3ca336f8ac1bdb3144eedb80e946222da3e49ba220be9df3bd37"
+            "56c57efc518ae375cd15b06e7a60e6e6d9a80dfd3806c2ddb9b699067b4d7cf0"
           ],
-          "generatedAt": "2026-09-10T07:29:53.073Z"
+          "generatedAt": "2026-09-13T20:51:39.950Z"
         }
       }
     }

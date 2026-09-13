@@ -63,6 +63,17 @@ export class TronGrid {
    * one lie this tool must never tell.
    */
   private unread = new Set<string>();
+  /**
+   * Wallets whose history ran past MAX_PAGES and was cut off.
+   *
+   * The distinction matters to one rule in particular. `firstSeen` is derived
+   * from the oldest transfer we actually read, so on a truncated wallet it is
+   * the oldest transfer *in the pages we got*, not the day the wallet opened —
+   * and a rule that reads it as an opening date would call a years-old address
+   * freshly created. Same principle as `unread`: what we could not see must
+   * never be reported as what we saw.
+   */
+  private cutOff = new Set<string>();
   private lastRequestAt = 0;
 
   get apiCalls(): number {
@@ -76,6 +87,11 @@ export class TronGrid {
   /** True when this address's history could not be read, not when it is empty. */
   didFail(address: string): boolean {
     return this.unread.has(address.trim());
+  }
+
+  /** True when this wallet's history was longer than we were willing to read. */
+  wasTruncated(address: string): boolean {
+    return this.cutOff.has(address.trim());
   }
 
   /**
@@ -114,6 +130,8 @@ export class TronGrid {
       const next = links && typeof links.next === "string" ? links.next : "";
       if (!next || rows.length < PAGE_LIMIT) break;
       url = next;
+      // More to fetch, but this was the last page we allow ourselves.
+      if (page === MAX_PAGES - 1) this.cutOff.add(address.trim());
     }
 
     if (!readAnything) this.unread.add(address.trim());
