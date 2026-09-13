@@ -11,6 +11,7 @@ import {
   PageHeader,
   SectionHeader,
   TriageBadge,
+  buttonStyles,
 } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -154,6 +155,11 @@ export default function OperationsPage() {
       <PageHeader
         eyebrow="Operations"
         title="How this runs"
+        actions={
+          <Link href="/attribution" className={buttonStyles.secondary}>
+            Attribution register
+          </Link>
+        }
       />
 
       <dl className="mt-16 divide-y divide-line border-y border-line">

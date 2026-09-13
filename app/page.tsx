@@ -115,17 +115,28 @@ export default function Home() {
       <section className="border-t border-line py-16">
         <dl className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            ["165", "Customer deposit addresses derived"],
-            ["7", "Exchanges covered by that derivation"],
-            ["202", "Sanctioned addresses carried"],
-            ["0", "Commercial data licences required"],
-          ].map(([figure, label]) => (
+            ["165", "Customer deposit addresses derived", "/attribution"],
+            ["7", "Exchanges covered by that derivation", "/attribution"],
+            ["202", "Sanctioned addresses carried", "/attribution"],
+            ["0", "Commercial data licences required", null],
+          ].map(([figure, label, href]) => (
             <div key={label} className="min-w-0 border-t border-line pt-5">
               <dt className="font-mono text-5xl font-light tabular-nums text-ink">
                 {figure}
               </dt>
               <dd className="mt-3 font-label text-[11px] font-semibold uppercase leading-5 tracking-[0.14em] text-faint">
-                {label}
+                {href ? (
+                  /* A figure an evaluator cannot check is a claim. These three
+                     open the dataset they were counted from. */
+                  <Link
+                    href={href}
+                    className="fx-option-quiet px-2 py-1 transition hover:text-brass"
+                  >
+                    {label}
+                  </Link>
+                ) : (
+                  label
+                )}
               </dd>
             </div>
           ))}

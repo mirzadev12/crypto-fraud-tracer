@@ -297,7 +297,30 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   order as `CaseQueue`, so partial results are usable from the first one. A
   wallet that cannot be read is listed under "unreadable" with the reason rather
   than scored, and it does not stop the run. Export is a CSV of the morning's
-  worklist. Expect roughly half a minute per address without a TronGrid key.
+  worklist. Expect roughly half a minute per address without a TronGrid key,
+  which is why the screen carries a **Load the recorded cases** button: it fills
+  the box with the addresses from `frozenAddresses()` — sourced from there
+  rather than the JSON so the button can never offer an address demo mode would
+  refuse. They are real wallets, so a live run is a real run; with
+  `DEMO_MODE=true` the same batch answers from the frozen file in milliseconds,
+  which is how a full queue is demonstrated when the network cannot be trusted.
+- **The number on the front page opens the dataset it was counted from**
+  (`/attribution`, `components/AttributionRegister.tsx`). AGENTS.md §7 makes the
+  clustering count the deliverable and §15 makes "where do your labels come
+  from" a question we answer out loud — but both were assertions, with the
+  evidence sitting in a JSON file nobody opens. The register is the exhibit:
+  the 11 explorer-tagged seeds with how many addresses each yielded, then every
+  derived deposit address with its sweep count, its confidence, its evidence
+  string and the seed it was swept into, searchable and filterable by exchange,
+  each row one click from the public explorer. Three of the four landing-page
+  figures now link here. Two properties matter and should survive any edit:
+  **every figure is counted from the committed files at render time**, never
+  typed into prose, so a number cannot drift from the file under it; and the
+  page states where the method is wrong (a merchant settling to one exchange
+  looks identical to a customer deposit address) rather than only where it
+  works. Note the derivation is lopsided — one Binance seed produced 21 rows
+  and the other Binance seeds produced none — which the seeds table shows
+  plainly instead of averaging it away.
 - **A freeze request is offered only where one can be actioned** (`freezable()`
   in `lib/api.ts`). Reaching *an* exit is not reaching a freezable one: a mixing
   service has no customer account to restrain and a sanctioned entity is not

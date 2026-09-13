@@ -3,6 +3,20 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import BulkTriage from "@/components/BulkTriage";
 import { PageHeader, buttonStyles } from "@/components/ui";
+import { frozenAddresses } from "@/lib/demo";
+
+/*
+ * The addresses captured from the live pipeline (AGENTS.md §10). Taken from
+ * `frozenAddresses()` rather than the JSON directly, so the sample is exactly
+ * the set demo mode can answer — a malformed entry that `lib/demo.ts` drops is
+ * dropped here too, and the button can never offer an address the frozen file
+ * would not serve.
+ *
+ * Only the addresses cross to the client; the full TraceResults stay on the
+ * server. They are real wallets, so a run here is a real run — in demo mode
+ * they answer from the file in milliseconds instead.
+ */
+const CAPTURED: string[] = frozenAddresses();
 
 export const metadata: Metadata = {
   title: "Bulk triage",
@@ -23,7 +37,7 @@ export default function QueuePage() {
           </Link>
         }
       />
-      <BulkTriage />
+      <BulkTriage sample={CAPTURED} />
     </AppShell>
   );
 }

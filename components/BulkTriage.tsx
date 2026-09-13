@@ -110,7 +110,7 @@ function describeProgress(event: TraceProgress): string {
 
 /* ------------------------------------------------------------------ screen */
 
-export default function BulkTriage() {
+export default function BulkTriage({ sample }: { sample: string[] }) {
   const [raw, setRaw] = useState("");
   const [entries, setEntries] = useState<Entry[]>([]);
   const [rejected, setRejected] = useState<Rejected[]>([]);
@@ -241,7 +241,9 @@ export default function BulkTriage() {
             <p className="mt-4 text-xs leading-5 text-faint">
               Commas, semicolons and line breaks all separate. Duplicates are dropped.
               Every address is checked against its base58 checksum before anything is
-              read from the chain.
+              read from the chain. The recorded cases are the {sample.length} wallets
+              already captured from the chain for this build — real addresses, so a
+              run here is a real run.
             </p>
 
             <div className="mt-6 flex flex-wrap items-center gap-4">
@@ -252,6 +254,14 @@ export default function BulkTriage() {
                 className={buttonStyles.primary}
               >
                 Build the queue
+              </button>
+              <button
+                type="button"
+                onClick={() => setRaw(sample.join(String.fromCharCode(10)))}
+                disabled={running}
+                className={buttonStyles.ghost}
+              >
+                Load the recorded cases
               </button>
               <label className="fx-option-quiet inline-flex cursor-pointer items-center px-4 py-4 font-label text-xs font-semibold uppercase tracking-[0.2em] text-faint transition hover:text-brass">
                 Load a file
