@@ -8,11 +8,17 @@ received it — the account that can actually be frozen — flags laundering pat
 in plain English, and calls the case **HOT**, **WARM** or **COLD** by whether the
 money can still be reached.
 
-> Binance — customer deposit address `TVZohh…MaiJKA`, confidence 0.87, 12 sweeps
-> observed.
+> Likely Binance deposit cluster — `TSu8wTwNtp6MKDMJaYZ16G5727Axcp8RQy`,
+> confidence 0.95, 20 sweeps observed, 100% of inflow forwarded to Binance-Hot 7.
 
-Everyone else's tool stops at "the funds went to Binance." Naming the deposit
-address is what makes the result actionable.
+That is a real row from `data/deposit-addresses.json`, derived from public chain
+data, and you can check it: open the address on any TRON explorer and the sweep
+pattern is there. Everyone else's tool stops at "the funds went to Binance."
+Naming the deposit address is what makes the result actionable.
+
+**165 customer deposit addresses across 7 exchanges, from 11 explorer-tagged
+seed wallets, on zero commercial data licences.** The derivation is browsable at
+`/attribution` — every row with its evidence and a link to verify it.
 
 ---
 
@@ -29,9 +35,10 @@ npm run dev
 Then open <http://localhost:3000>.
 
 The UI works with the backend absent: it serves committed fixtures from
-`public/mock` and labels every screen **Demo data** so a demo can never be
-mistaken for live data. Three addresses have frozen traces, one per triage level —
-they are listed on the Investigate screen.
+`public/mock` and labels every screen **Recorded trace** so a recorded result can
+never be mistaken for a live chain read. Nine real cases captured from the live
+pipeline are frozen in `data/demo-cases.json`; set `DEMO_MODE=true` to serve them
+without touching the network.
 
 ---
 
@@ -46,6 +53,11 @@ they are listed on the Investigate screen.
 | `/fund-flow` | Canvas-first explorer with a case rail and a wallet inspector. |
 | `/reports` | Every case as an evidence packet. |
 | `/report/[address]` | The packet itself — print-ready, and it states its own limitations. |
+| `/freeze/[address]` | The restraint request an officer actually sends, naming the account to restrict. States in writing that it is a lead requiring an authorised signature. |
+| `/queue` | Bulk triage. Paste a morning of complaints; they are traced in turn and the register reorders itself as answers land, most recoverable first. |
+| `/attribution` | Where a name comes from: the 11 tagged seeds, all 165 derived deposit addresses, the sweep evidence for each, and where the method is wrong. |
+| `/wallet/[address]` | What one address is and who funded it — age, money in and out, and the counterparties on both sides. |
+| `/operations` | The jury-question surface: who runs it, what it costs, what breaks, and what is not built. |
 
 ---
 
@@ -61,13 +73,14 @@ app/             the routes above
 public/mock/     committed fixtures — regenerate with scripts/make-mocks.mjs
 ```
 
-The backend is three routes, and nothing in the UI changes when they land:
+The API:
 
 | Method | Route | Returns |
 | --- | --- | --- |
-| `GET` | `/api/cases` | `CaseSummary[]` |
-| `POST` | `/api/trace` — `{address, amount, fraudDate}` | `TraceResult` |
-| `GET` | `/api/trace/[address]` | `TraceResult` |
+| `POST` | `/api/trace` — `{address, amount?, fraudDate?}` | `TraceResult`. Amount and date are optional; omitted, the window opens at the wallet's first transfer. Send `Accept: application/x-ndjson` for streamed progress. |
+| `GET` | `/api/trace/[address]` | `TraceResult` — the permalink. `?amount=&since=` replays one officer's run. |
+| `GET` | `/api/wallet/[address]` | `WalletProfile` — age, counterparties, what funded it. |
+| `GET` | `/api/cases` | Deliberately unimplemented. There is no case database, and serving illustrative records through it would claim chain-read data it is not. |
 
 `AGENTS.md` is the build plan. `CONTEXT.md` records what is already done, the
 decisions behind it, and the external data sources that have been verified.
@@ -81,6 +94,13 @@ decisions behind it, and the external data sources that have been verified.
 - **No language model decides attribution** — a summary may be generated; the
   exchange name is a deterministic lookup against a provenance-tagged table.
 - **Every label carries a confidence and a source**, and the UI shows both.
+- **An unreadable wallet is never reported as an empty one.** A throttled read
+  and a wallet with no transfers are the same empty array; the difference is
+  tracked, and the tool says "not read" rather than "no activity".
+- **Five of the six behavioural rules have been observed firing on real captured
+  chain data**; all six fire on the committed fixtures. `NEW_ADDRESS` needs a
+  case with a freshly created intermediary and we have not captured one — it is
+  listed here rather than left for someone to find.
 
 Attribution is an investigative lead, not sole grounds for freezing an account.
 Every evidence packet says so in writing.
