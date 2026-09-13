@@ -1,0 +1,84 @@
+{
+  "_note_": "Every distinct address tag Tronscan serves across the top USDT holders, and any that matches a known Indian VASP. Evidence for the claim in CONTEXT.md that no Indian exchange is publicly tagged at this depth.",
+  "scannedAt": "2026-09-13T21:36:34.325Z",
+  "holdersScanned": 2500,
+  "distinctTags": 15,
+  "indianVaspHits": [],
+  "tags": [
+    {
+      "tag": "Tether Treasury",
+      "wallets": 1,
+      "example": "TKHuVq1oKVruCGLvqVexFs6dawKv6fQgFs"
+    },
+    {
+      "tag": "Binance-Hot 7",
+      "wallets": 1,
+      "example": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"
+    },
+    {
+      "tag": "OKX Hot Wallet 8",
+      "wallets": 1,
+      "example": "TLaGjwhvA8XQYSxFAcAXy7Dvuue9eGYitv"
+    },
+    {
+      "tag": "Bybit",
+      "wallets": 1,
+      "example": "TU4vEruvZwLLkSfV9bNw12EJTPvNr7Pvaa"
+    },
+    {
+      "tag": "Bitfinex",
+      "wallets": 1,
+      "example": "TXFBqBbqJommqZf7BV8NNYzePh97UmJodJ"
+    },
+    {
+      "tag": "Kraken: Hot Wallet",
+      "wallets": 1,
+      "example": "TG2CMGxnTPgQ6V58kiKd7wbyN8ewtAmY76"
+    },
+    {
+      "tag": "MXC 2",
+      "wallets": 1,
+      "example": "TB37WWozkkenGVYWD7Do2N5WT2CedqDktJ"
+    },
+    {
+      "tag": "Binance 2",
+      "wallets": 1,
+      "example": "TQrY8tryqsYVCYS3MFbtffiPp2ccyn4STm"
+    },
+    {
+      "tag": "MXC",
+      "wallets": 1,
+      "example": "TEPSrSYPDSQ7yXpMFPq91Fb1QEWpMkRGfn"
+    },
+    {
+      "tag": "Well Wallet Hot 2",
+      "wallets": 1,
+      "example": "TQgxyP1jDXGBvmgwqnJ7jKkEqWEogfRM5V"
+    },
+    {
+      "tag": "Cobo Custody",
+      "wallets": 1,
+      "example": "TCTSGYpsV7hjvaFDrjzcvWr9UU7pWyjHnR"
+    },
+    {
+      "tag": "Flipster Exchange Hot Wallet",
+      "wallets": 1,
+      "example": "TA6SbszfFYC7NYt48viCM9LMD5F5E1Gbi8"
+    },
+    {
+      "tag": "Swapster Wallet",
+      "wallets": 1,
+      "example": "TL9ihHWHkqXd11HFdCtyTx2r6qmVH7cfJg"
+    },
+    {
+      "tag": "UEEx Hot Wallet 19",
+      "wallets": 1,
+      "example": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+    },
+    {
+      "tag": "FixedFloat Exchange Hot Wallet",
+      "wallets": 1,
+      "example": "TDoXUNZ6PajKuiUkcYg3EDSV9bnqGqsbcf"
+    }
+  ]
+}

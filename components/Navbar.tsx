@@ -11,6 +11,7 @@ const navItems = [
   { name: "Trace", href: "/investigate" },
   { name: "Intelligence", href: "/fund-flow" },
   { name: "Evidence", href: "/reports" },
+  { name: "Help", href: "/help" },
 ];
 
 export default function Navbar() {

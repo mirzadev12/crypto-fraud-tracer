@@ -304,6 +304,30 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   refuse. They are real wallets, so a live run is a real run; with
   `DEMO_MODE=true` the same batch answers from the frozen file in milliseconds,
   which is how a full queue is demonstrated when the network cannot be trusted.
+- **A help screen, written in plain words** (`/help`). Every other screen speaks
+  in the register of a bureau instrument, which is right for a finding an
+  officer signs and wrong for someone opening the tool for the first time. The
+  help page documents **what exists** — one row per screen, four steps to trace
+  a wallet, what the three dispositions mean, what each button gives you, and
+  what the tool cannot do — in short sentences with no term the reader has not
+  been given. Two rules: if a line needs reading twice, rewrite it; and when a
+  screen is added, add its row. Linked from the nav and the footer.
+- **No Indian VASP is publicly tagged, and this is now evidenced rather than
+  asserted** (`scripts/hunt-indian-vasp.mjs` → `data/vasp-scan.json`).
+  AGENTS.md §6 wants an Indian exchange among the seeds and says why: Western
+  tools under-label Indian VASPs, so naming one is the strongest thing this
+  project can say to an MHA audience. The first pass checked the top 500
+  holders. This scanned **2,500** and found **15 distinct address tags in total**
+  — Tronscan simply tags very few accounts — and **not one Indian exchange**
+  among them. The scan file lists every tag seen, so "none is available" is now
+  a claim with a list behind it. The standing instruction is unchanged: do not
+  invent one. If an Indian VASP wallet is ever sourced elsewhere and verified on
+  a public explorer, it is one row in `data/hot-wallets.json` and one re-run of
+  `cluster.mjs`.
+  The scan did surface seeds worth having that are not in the seed list:
+  **FixedFloat**, **Swapster** and **Flipster** are no-KYC or instant-swap
+  services, which is the laundering-relevant category the mixer list is empty
+  for. Adding them is sourced work, not invention.
 - **The wallet card answers the other half of the question** (`/wallet/[address]`,
   `lib/wallet.ts`, `components/WalletOrigin.tsx`). Everything else in the tool
   looks forward — the money left the victim, where did it go. An investigator
@@ -550,6 +574,9 @@ node scripts/freeze-cases.mjs             # recapture all three dispositions
 node scripts/freeze-cases.mjs HOT         # recapture one, leave the others
 node scripts/rescore-cases.mjs            # re-run the frozen cases after a rule change
 node scripts/hunt-new-address.mjs         # look for a real case exercising NEW_ADDRESS
+node scripts/add-case.mjs <address> "why" # freeze one named wallet into the case file
+node scripts/calibrate-risk.mjs           # measure how often each rule fires on unreported wallets
+node scripts/hunt-indian-vasp.mjs         # re-check the explorer tags for an Indian exchange
 NEXT_PUBLIC_DEMO_MODE=true npm run dev    # serve the frozen cases, no network
 ```
 

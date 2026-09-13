@@ -41,12 +41,20 @@ export function Footer() {
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-faint">
             SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C
           </p>
-          <Link
-            href="/operations"
-            className="font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
-          >
-            How this runs · operating notes
-          </Link>
+          <div className="flex flex-wrap items-center gap-6">
+            <Link
+              href="/help"
+              className="fx-option-quiet px-2 py-1 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
+            >
+              How to use this
+            </Link>
+            <Link
+              href="/operations"
+              className="fx-option-quiet px-2 py-1 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
+            >
+              How this runs · operating notes
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
