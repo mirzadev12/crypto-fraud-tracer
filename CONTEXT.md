@@ -304,6 +304,37 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   refuse. They are real wallets, so a live run is a real run; with
   `DEMO_MODE=true` the same batch answers from the frozen file in milliseconds,
   which is how a full queue is demonstrated when the network cannot be trusted.
+- **The wallet card answers the other half of the question** (`/wallet/[address]`,
+  `lib/wallet.ts`, `components/WalletOrigin.tsx`). Everything else in the tool
+  looks forward — the money left the victim, where did it go. An investigator
+  clicking a node asks the opposite thing immediately: *what is this address,
+  and who put money into it*. The card profiles one wallet from its own
+  history: age, USDT in and out, what came in and never left, and the
+  counterparties on both sides ranked by value with every one run through
+  `lookup()`. `AddressChip` carries a link to it, so every address anywhere in
+  the app is now one click from its own origin. It doubles as an independent
+  view of the clustering claim — open a derived deposit address and you see the
+  sweep pattern directly: unrelated payers in, one tagged exchange wallet out,
+  twenty times.
+  **Two guards, and the second is the interesting one.** A wallet the chain did
+  not answer for states nothing at all, per the existing rule. And a wallet
+  **cannot send USDT it never received** — so when the outflows we read exceed
+  the inflows we read, that is not a fact about the wallet, it is proof that
+  inflows are missing from our read, whatever the page cursor claimed. The
+  paging limit is one way a history comes back short; this is the other, and it
+  is the one the cursor does not report. Either way the profile marks itself
+  partial, the age is shown as "at least <date>" rather than a day count, and
+  the totals are never offered as the whole picture. `TSu8wTwNtp6MKDMJaYZ16G5727Axcp8RQy`
+  is the worked example: 4,984.21 in against 5,175.20 out, so it reads PARTIAL
+  HISTORY rather than claiming the wallet is 734 days old.
+  `GET /api/wallet/[address]` is a fourth endpoint where AGENTS.md §5 specifies
+  three, on the record as a deliberate deviation: the three it names all answer
+  "where did the money go", and none answers "what is this address".
+- **Age is measured from the read, not from render.** `Date.now()` in a render
+  is both non-deterministic between server and client and a lint failure here;
+  the wallet card ages `firstSeen` against `provenance.generatedAt`, which is
+  deterministic and is also the more honest reference — the figure means "as at
+  the read", which is exactly what the provenance line under it says.
 - **Three of the six behavioural rules were unreachable, and the trace itself was
   why** (`lib/risk.ts`, `lib/tracer.ts`, `lib/trongrid.ts`). The rules scored the
   finished `TraceResult`, but that result is already pruned: the tracer follows

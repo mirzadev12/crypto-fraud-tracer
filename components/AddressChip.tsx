@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { shortAddress, tronscanAddressUrl } from "@/lib/format";
 import CopyButton from "./CopyButton";
 
@@ -11,6 +12,7 @@ export default function AddressChip({
   full = false,
   copy = true,
   explorer = true,
+  origin = true,
   tone = "default",
   className = "",
 }: {
@@ -18,6 +20,8 @@ export default function AddressChip({
   full?: boolean;
   copy?: boolean;
   explorer?: boolean;
+  /** Link to this wallet's own origin card. Off where it would be self-referential. */
+  origin?: boolean;
   tone?: "default" | "brand" | "strong";
   className?: string;
 }) {
@@ -36,6 +40,33 @@ export default function AddressChip({
         {full ? address : shortAddress(address)}
       </span>
       {copy ? <CopyButton value={address} label="" /> : null}
+      {origin ? (
+        /* Every address in the app is now one click from what funded it. The
+           trace answers where the money went; this answers where it came
+           from, and an investigator asks both of a node on the graph. */
+        <Link
+          href={`/wallet/${encodeURIComponent(address)}`}
+          title="Where this wallet came from"
+          aria-label={`Origin and counterparties for ${address}`}
+          className="p-1 text-faint transition hover:bg-white/5 hover:text-brass"
+        >
+          <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" aria-hidden="true">
+            <path
+              d="M4 4v3a2 2 0 0 0 2 2h8M16 4v3a2 2 0 0 1-2 2"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+            <path
+              d="M10 9v7m0 0-2.5-2.5M10 16l2.5-2.5"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </Link>
+      ) : null}
       {explorer ? (
         <a
           href={tronscanAddressUrl(address)}
