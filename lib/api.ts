@@ -77,6 +77,22 @@ export function traceHref(
   return `/${kind}/${encodeURIComponent(trace.inputAddress)}${qs ? `?${qs}` : ""}`;
 }
 
+/**
+ * Whether a freeze request can honestly be drafted from this trace.
+ *
+ * Reaching *an* exit is not the same as reaching a freezable one. A mixing
+ * service has no customer account to restrain and a sanctioned entity is not
+ * ours to write to, so offering the document on those cases would put a
+ * restraint demand in an officer's hand against a counterparty that cannot
+ * action it. Only an exchange endpoint qualifies.
+ */
+export function freezable(
+  trace: Pick<TraceResult, "terminal">,
+): boolean {
+  const kind = trace.terminal?.label.kind;
+  return kind === "exchange_deposit" || kind === "exchange_hot";
+}
+
 export interface TraceRequest {
   address: string;
   /** Optional. Omitted, the trace adopts everything that left the wallet. */

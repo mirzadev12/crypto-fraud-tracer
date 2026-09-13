@@ -7,6 +7,7 @@ import { useState } from "react";
 /* Bureau designations, not product names. */
 const navItems = [
   { name: "Cases", href: "/dashboard" },
+  { name: "Triage", href: "/queue" },
   { name: "Trace", href: "/investigate" },
   { name: "Intelligence", href: "/fund-flow" },
   { name: "Evidence", href: "/reports" },

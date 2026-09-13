@@ -18,9 +18,14 @@ export default function DashboardPage() {
         title="Case queue"
         description="Ordered from most to least suspicious. Critical cases still have money sitting somewhere and are worth the next hour on the desk."
         actions={
-          <Link href="/investigate" className={buttonStyles.primary}>
-            Open a case
-          </Link>
+          <>
+            <Link href="/queue" className={buttonStyles.secondary}>
+              Triage a batch
+            </Link>
+            <Link href="/investigate" className={buttonStyles.primary}>
+              Open a case
+            </Link>
+          </>
         }
       />
       <div className="mt-6">

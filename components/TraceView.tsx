@@ -1,6 +1,6 @@
 "use client";
 
-import { traceHref } from "@/lib/api";
+import { freezable, traceHref } from "@/lib/api";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { RiskFlag, TraceResult } from "@/lib/types";
@@ -514,11 +514,15 @@ export default function TraceView({
           </Link>
           <Link
             href={traceHref("report", trace)}
-            className={trace.terminal ? buttonStyles.secondary : buttonStyles.primary}
+            className={
+              freezable(trace) ? buttonStyles.secondary : buttonStyles.primary
+            }
           >
             Evidence packet
           </Link>
-          {trace.terminal ? (
+          {/* Only an exchange endpoint can action a restraint; a mixer or a
+              sanctioned entity cannot, so the document is not offered there. */}
+          {freezable(trace) ? (
             <Link href={traceHref("freeze", trace)} className={buttonStyles.primary}>
               Freeze request
             </Link>

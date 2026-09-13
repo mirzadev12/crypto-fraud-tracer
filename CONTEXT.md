@@ -283,6 +283,28 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   timeout would cut it off. Set `TRONGRID_API_KEY` in the dashboard: without it
   the public endpoint throttles Render's shared IP and the tracer, correctly,
   refuses to state a finding from a wallet it could not read.
+- **One address at a time is a demo; a morning of them is the product** (`/queue`,
+  `components/BulkTriage.tsx`). The pitch has always been "we tell I4C which of
+  today's complaints still have recoverable money" — AGENTS.md §9 calls triage
+  the differentiator — but every screen until now answered for a single wallet,
+  so the claim was never performed. Bulk triage takes a pasted column or a
+  dropped file, validates every address locally before any network call
+  (base58check is free, and a mistyped address must never cost a chain read),
+  then traces them **sequentially**. Sequential is not a shortcut: the chain
+  client paces itself and a parallel fan-out would collect 429s, and a throttled
+  read is indistinguishable from an empty wallet — the one thing this tool must
+  not get wrong. The register reorders itself as each answer lands, in the same
+  order as `CaseQueue`, so partial results are usable from the first one. A
+  wallet that cannot be read is listed under "unreadable" with the reason rather
+  than scored, and it does not stop the run. Export is a CSV of the morning's
+  worklist. Expect roughly half a minute per address without a TronGrid key.
+- **A freeze request is offered only where one can be actioned** (`freezable()`
+  in `lib/api.ts`). Reaching *an* exit is not reaching a freezable one: a mixing
+  service has no customer account to restrain and a sanctioned entity is not
+  ours to write to. The first pass gated the button on `terminal` being
+  non-null, which put a restraint demand in an officer’s hand on every COLD
+  case. The gate is the terminal label’s kind — `exchange_deposit` or
+  `exchange_hot` — and both the trace page and the triage register use it.
 - **The register runs from most to least suspicious** (`CaseQueue.tsx`):
   CRITICAL, then SUSPICIOUS, then CLOSED, and within each the largest sum at
   stake first, with the most recent fraud breaking ties. Severity comes from the
