@@ -67,7 +67,7 @@ export interface TraceParams {
  * from the ones the officer was looking at.
  */
 export function traceHref(
-  kind: "trace" | "report",
+  kind: "trace" | "report" | "freeze",
   trace: Pick<TraceResult, "inputAddress" | "reportedAmountUsdt" | "fraudDate">,
 ): string {
   const query = new URLSearchParams();

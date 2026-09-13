@@ -514,10 +514,15 @@ export default function TraceView({
           </Link>
           <Link
             href={traceHref("report", trace)}
-            className={buttonStyles.primary}
+            className={trace.terminal ? buttonStyles.secondary : buttonStyles.primary}
           >
             Evidence packet
           </Link>
+          {trace.terminal ? (
+            <Link href={traceHref("freeze", trace)} className={buttonStyles.primary}>
+              Freeze request
+            </Link>
+          ) : null}
         </div>
       </div>
 
