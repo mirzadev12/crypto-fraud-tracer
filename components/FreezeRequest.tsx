@@ -427,7 +427,14 @@ export default function FreezeRequest({
             legal basis; the provision under which the request is issued is a
             matter for the issuing authority.
           </p>
+          {/* The case references an Indian officer files against. Without them
+              this reads as a template rather than a document belonging to a
+              case; with them the exchange can tie the request to a complaint
+              on record. They are blanks, not claims — the tool has no way to
+              know either number, and still asserts no statute. */}
           <div className="mt-8 grid gap-8 sm:grid-cols-2">
+            <Blank label="FIR number" />
+            <Blank label="NCRP acknowledgement number" />
             <Blank label="Name of officer" />
             <Blank label="Designation" />
             <Blank label="Unit / police station" />

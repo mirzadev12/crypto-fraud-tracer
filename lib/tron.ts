@@ -148,3 +148,63 @@ export function checkTronAddress(raw: string): AddressCheck {
 export function isValidTronAddress(address: string): boolean {
   return checkTronAddress(address).valid;
 }
+
+/* ------------------------------------------------------------ hex → base58 */
+
+/**
+ * Encode bytes as base58, the inverse of `base58Decode` above.
+ *
+ * Needed because the chain returns event parameters as 20-byte hex while every
+ * address a person reads, types or sends to an exchange is base58check. Without
+ * this a transaction hash could be looked up but its participants could not be
+ * named.
+ */
+function base58Encode(bytes: Uint8Array): string {
+  const digits: number[] = [0];
+  for (const byte of bytes) {
+    let carry = byte;
+    for (let i = 0; i < digits.length; i++) {
+      carry += digits[i] << 8;
+      digits[i] = carry % 58;
+      carry = (carry / 58) | 0;
+    }
+    while (carry > 0) {
+      digits.push(carry % 58);
+      carry = (carry / 58) | 0;
+    }
+  }
+  //每 leading zero byte is one leading '1'.
+  let out = "";
+  for (let i = 0; i < bytes.length && bytes[i] === 0; i++) out += "1";
+  for (let i = digits.length - 1; i >= 0; i--) out += B58_ALPHABET[digits[i]];
+  return out;
+}
+
+/**
+ * A TRON address as returned inside a contract event — 20 bytes of hex, with or
+ * without an `0x` or `41` prefix — rendered as the base58check address an
+ * officer would actually recognise. Returns null rather than guessing.
+ */
+export function hexToTronAddress(hex: string): string | null {
+  let clean = hex.trim().toLowerCase();
+  if (clean.startsWith("0x")) clean = clean.slice(2);
+  if (clean.length === 42 && clean.startsWith("41")) clean = clean.slice(2);
+  if (clean.length !== 40 || !/^[0-9a-f]+$/.test(clean)) return null;
+
+  const payload = new Uint8Array(21);
+  payload[0] = 0x41; // TRON mainnet prefix
+  for (let i = 0; i < 20; i++) {
+    payload[i + 1] = Number.parseInt(clean.slice(i * 2, i * 2 + 2), 16);
+  }
+  const checksum = sha256(sha256(payload)).subarray(0, 4);
+  const full = new Uint8Array(25);
+  full.set(payload, 0);
+  full.set(checksum, 21);
+  return base58Encode(full);
+}
+
+/** True when this looks like a TRON transaction hash: 64 hex characters. */
+export function isTxHash(raw: string): boolean {
+  const clean = raw.trim().replace(/^0x/i, "");
+  return clean.length === 64 && /^[0-9a-fA-F]+$/.test(clean);
+}

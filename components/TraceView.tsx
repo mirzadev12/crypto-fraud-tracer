@@ -476,6 +476,31 @@ export default function TraceView({
   note?: string;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
+
+  /*
+   * The gap between the last movement we can see and the moment we read the
+   * chain. Derived, not stored, so a recorded case ages from its own capture
+   * rather than from today — a frozen trace must read the same next year.
+   */
+  const staleness = useMemo(() => {
+    if (!trace.edges.length) return null;
+    const last = Math.max(
+      ...trace.edges.map((e: TraceResult["edges"][number]) => new Date(e.timestamp).getTime()).filter(Number.isFinite),
+    );
+    const readAt = new Date(trace.provenance.generatedAt).getTime();
+    if (!Number.isFinite(last) || !Number.isFinite(readAt) || readAt < last) return null;
+    const days = Math.floor((readAt - last) / 86_400_000);
+    const hours = Math.floor((readAt - last) / 3_600_000);
+    return {
+      days,
+      value: days >= 1 ? `${days}d` : `${hours}h`,
+      hint:
+        days >= 1
+          ? `since the money last moved · ${formatDateTime(new Date(last).toISOString())}`
+          : `since the money last moved — still inside the day`,
+    };
+  }, [trace]);
+
   const [view, setView] = useState<CanvasView>("flow");
 
   const reachedTerminal = trace.terminal
@@ -560,6 +585,22 @@ export default function TraceView({
             label="Path"
             value={`${hops} hops · ${trace.nodes.length} wallets`}
             hint={`${trace.edges.length} transfers · ${trace.riskFlags.length} signals`}
+          />
+          {/* How cold the trail is, which decides whether any of this is
+              actionable. A crypto complaint rarely arrives inside the hour the
+              bank-fraud process is built around, and an officer choosing where
+              to spend the morning is owed that number rather than left to work
+              it out from two timestamps. Aged against the moment the chain was
+              read, never Date.now() — that is non-deterministic in render. */}
+          <StatCard
+            label="Trail age"
+            value={staleness ? staleness.value : "—"}
+            hint={
+              staleness
+                ? staleness.hint
+                : "No movement observed, so there is no trail to age"
+            }
+            tone={staleness && staleness.days > 30 ? "cold" : "default"}
           />
         </div>
       </div>
