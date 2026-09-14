@@ -557,11 +557,14 @@ export default function TraceView({
 
       {/* ------------------------------------------------------ money slide */}
       <SectionHeader index="01" title="Finding" />
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      {/* min-w-0 on both children: a grid child defaults to min-width:auto and
+          refuses to shrink below its content, and the figure column now carries
+          a longer hint than it used to. CONTEXT.md §3 records this failure mode. */}
+      <div className="grid min-w-0 gap-6 lg:grid-cols-3">
+        <div className="min-w-0 lg:col-span-2">
           <TerminalCard trace={trace} />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-1">
           <StatCard
             label="Reported amount"
             value={formatUsdt(trace.reportedAmountUsdt, { symbol: false })}

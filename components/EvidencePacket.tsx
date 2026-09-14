@@ -279,7 +279,7 @@ export default function EvidencePacket({
 
         {/* 4 — path of funds */}
         <Section n="4" title="Path of funds">
-          <div className="fx-scroll overflow-x-auto">
+          <div className="fx-scroll min-w-0 overflow-x-auto">
             <table className="w-full min-w-[680px] border-collapse text-left text-xs">
               <thead>
                 <tr

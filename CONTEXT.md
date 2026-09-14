@@ -326,6 +326,35 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   the file it replaces, silently. Merge seeds the map from disk first, and the
   checkpoint writes then never stand in for rows the run was not asked to
   re-derive. **Back up `deposit-addresses.json` before any clustering run.**
+- **Inside a case, the case-shaped destinations follow the case** (`Navbar.tsx`,
+  `components/CaseRail.tsx`). Pressing Intelligence or Evidence while reading one
+  complaint used to land on every complaint on the system, which is the opposite
+  of what the click meant. The nav now rewrites those two destinations to the
+  open address — `/fund-flow?address=…` and `/report/…` — while **Cases and
+  Triage stay unscoped on purpose**: they are the way back out, and Triage exists
+  to work through the whole list.
+  The first attempt showed *only* the open case and was wrong: it lost the
+  ability to move to the next one without going back twice. The shape that works
+  is the one `/fund-flow` already had — the case as the content, the register
+  beside it, the open one marked. `CaseRail` gives `/report/[address]` the same
+  thing, scrolls the open case into view (marked but scrolled out of sight is the
+  same as unmarked), and carries `print:hidden` so a list of unrelated complaints
+  never prints onto a filed packet. The active row is a brass left edge and brass
+  text, not a 8% tint alone, which is easy to miss on charcoal.
+  The case the nav is following is read from the **pathname**, never held in
+  state, so a shared link lands in the same scope the sender was in and browser
+  Back leaves it exactly the way it was entered. Only a checksum-valid address
+  scopes anything.
+- **Adding to the nav costs width, and the symptom is the page scrolling
+  sideways.** Three separate overflows came out of this work, all found by
+  sweeping widths rather than by looking: six designations plus Sign in overflow
+  at `md` (the desktop row is now `lg`); the case chip plus Sign in overflow at
+  `lg` (the chip is now `xl`, and stays in the menu below that); and the packet
+  beside a 280px rail needs ~1230px before its 680px-minimum table stops being
+  squeezed (that layout is `xl`). **Sweep every route across several widths after
+  any nav or layout change** — 375 / 784 / 1100 / 1600 catches all three, and an
+  offscreen iframe does the whole matrix in one call. Testing 375px alone passed
+  every one of them.
 - **The intake takes a transaction, not only an address** (`/api/tx/[hash]`,
   `lib/txlookup.ts`, `hexToTronAddress()` in `lib/tron.ts`). The screen used to
   say "enter the wallet exactly as it appears on the complaint", and that

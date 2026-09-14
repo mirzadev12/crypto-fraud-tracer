@@ -104,17 +104,28 @@ export default function FundFlowExplorer({
                     <button
                       type="button"
                       onClick={() => open(c.inputAddress)}
-                      className={`w-full px-4 py-4.5 text-left transition ${
-                        active ? "bg-brass/[0.08]" : "hover:bg-white/[0.03]"
+                      aria-current={active ? "true" : undefined}
+                      className={`w-full border-l-2 px-4 py-4.5 text-left transition ${
+                        active
+                          ? "border-brass bg-brass/[0.08]"
+                          : "border-transparent hover:bg-white/[0.03]"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <TriageBadge level={c.triage} />
-                        <span className="font-mono text-xs text-faint">
-                          {c.caseId}
+                        <span
+                          className={`font-mono text-xs ${
+                            active ? "text-brass" : "text-faint"
+                          }`}
+                        >
+                          {active ? "OPEN" : c.caseId}
                         </span>
                       </div>
-                      <p className="mt-2 font-mono text-xs text-muted">
+                      <p
+                        className={`mt-2 font-mono text-xs ${
+                          active ? "text-brass" : "text-muted"
+                        }`}
+                      >
                         {shortAddress(c.inputAddress, 8, 6)}
                       </p>
                       <p className="mt-1 flex items-center justify-between gap-2 text-xs text-faint">
