@@ -15,7 +15,7 @@ export default function InvestigatePage() {
       <PageHeader
         eyebrow="Case intake"
         title="Open a case"
-        description="Enter the wallet exactly as it appears on the complaint. The trace follows USDT forward from the date of the fraud and stops at the first address it can attribute."
+        description="Paste the wallet address, or the transaction that sent the money — a complainant rarely has an address, but their exchange can produce the transaction. The trace follows USDT forward and stops at the first address it can attribute."
       />
       <div className="mt-6">
         <InvestigateForm />

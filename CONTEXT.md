@@ -304,6 +304,44 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   refuse. They are real wallets, so a live run is a real run; with
   `DEMO_MODE=true` the same batch answers from the frozen file in milliseconds,
   which is how a full queue is demonstrated when the network cannot be trusted.
+- **The intake takes a transaction, not only an address** (`/api/tx/[hash]`,
+  `lib/txlookup.ts`, `hexToTronAddress()` in `lib/tron.ts`). The screen used to
+  say "enter the wallet exactly as it appears on the complaint", and that
+  assumption does not survive contact with a real case: a defrauded person
+  reports a phone number, a UPI ID, a bank account — never a wallet, which they
+  were never shown. In the common Indian pattern they were induced to buy USDT
+  and withdraw it, so the artefact that exists is a **transaction**, which their
+  own exchange can produce for an officer. Pasting a 64-hex hash now reads that
+  transaction's USDT Transfer event and traces the wallet it paid, stating what
+  it resolved before anything is traced — an officer has to see that the wallet
+  we are about to follow is the one their transaction paid. A transaction that
+  moved no USDT says so; it is never guessed at. The chain returns event
+  parameters as 20-byte hex, so `lib/tron.ts` gained a base58 **encoder** beside
+  its decoder; it was verified by round-tripping a real event back to
+  `TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ`, which is one of the recorded cases.
+- **The trace states how cold the trail is.** The urgency this borrows — a
+  freeze window measured in hours — comes from the bank-fraud process. Crypto
+  complaints do not arrive inside one, so how long ago the money last moved is
+  what decides whether any of it is actionable, and it was previously left for
+  the reader to work out from two timestamps. Aged against
+  `provenance.generatedAt`, never `Date.now()`: a recorded case must age from
+  its own capture and read the same next year, and a clock read during render is
+  a hydration mismatch and a lint failure besides.
+- **The freeze request carries FIR and NCRP acknowledgement numbers.** Without
+  them the document reads as a template rather than something belonging to a
+  case on record. They are blanks, like every other field in section 07 — the
+  tool cannot know either number, and it still prints **no statute**, because
+  CrPC was replaced by BNSS in 2024 and this repo has not verified the
+  numbering. Do not add a section number without a law officer confirming it.
+- **Six nav items plus Sign in do not fit at the `md` breakpoint.** Adding Help
+  pushed the row 107px past the viewport at ~784px, and the symptom is the whole
+  page scrolling sideways rather than the nav visibly wrapping. The desktop nav
+  is now `lg`; the tablet band uses the same menu the phone does. `/reports` had
+  the same shape of bug independently — 43rem of fixed grid columns plus five
+  gaps needs ~850px and `md` only offers 769 — and is also on `lg` now. **Check
+  more than one width.** The earlier sweep tested 375px only and passed both of
+  these; the current check is ten routes × seven widths (375 / 600 / 784 / 900 /
+  1100 / 1280 / 1600), run in an offscreen iframe so it costs one call.
 - **A help screen, written in plain words** (`/help`). Every other screen speaks
   in the register of a bureau instrument, which is right for a finding an
   officer signs and wrong for someone opening the tool for the first time. The

@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DEMO_SAMPLES, runTrace, traceHref, type TraceLookup } from "@/lib/api";
-import { checkTronAddress } from "@/lib/tron";
-import { shortAddress } from "@/lib/format";
+import { checkTronAddress, isTxHash } from "@/lib/tron";
+import type { ResolvedTransfer, TxLookup } from "@/lib/txlookup";
+import { formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
 import TraceView from "./TraceView";
 import {
   InvalidAddressState,
@@ -36,7 +37,7 @@ type Status =
  * helper text under the button.
  */
 const FIELD =
-  "w-full border-0 border-b bg-transparent px-0 py-4 font-mono text-ink placeholder:text-dim";
+  "w-full min-w-0 border-0 border-b bg-transparent px-0 py-4 font-mono text-ink placeholder:text-dim";
 
 /** The limits are fixed by the pipeline, so the docket states them as facts. */
 const PARAMETERS: Array<[string, string]> = [
@@ -57,13 +58,60 @@ export default function InvestigateForm() {
   const [fraudDate, setFraudDate] = useState("");
   const [touched, setTouched] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  /*
+   * What an officer actually holds.
+   *
+   * A complainant reports a phone number or a UPI ID, never a wallet. The
+   * address realistically comes from the victim's own exchange withdrawal —
+   * that is, from a transaction. So this field takes either, and a hash is
+   * resolved to the wallet the money went to before anything is traced.
+   */
+  const [resolved, setResolved] = useState<ResolvedTransfer | null>(null);
+  const [resolving, setResolving] = useState(false);
+  const [resolveNote, setResolveNote] = useState<string | null>(null);
 
   const addressCheck = useMemo(() => checkTronAddress(address), [address]);
+  const looksLikeTx = useMemo(() => isTxHash(address), [address]);
+  /** The wallet the trace will actually run against. */
+  const subject = resolved ? resolved.to : address.trim();
   const amountValue = Number(amount);
   // Amount and date are both optional; only a malformed amount blocks a run.
   const amountValid =
     amount.trim() === "" || (Number.isFinite(amountValue) && amountValue > 0);
-  const canSubmit = addressCheck.valid && amountValid;
+  const canSubmit = (addressCheck.valid || Boolean(resolved)) && amountValid;
+
+  /* Resolve in an event handler, never an effect — see CONTEXT.md §5. */
+  async function resolveHash() {
+    const hash = address.trim();
+    if (!isTxHash(hash) || resolving) return;
+    setResolving(true);
+    setResolveNote(null);
+    setResolved(null);
+    try {
+      const res = await fetch(`/api/tx/${encodeURIComponent(hash)}`);
+      const lookup = (await res.json()) as TxLookup;
+      if (lookup.status === "resolved") setResolved(lookup.transfer);
+      else if (lookup.status === "not-a-hash") setResolveNote(lookup.reason);
+      else setResolveNote(lookup.reason);
+    } catch (err) {
+      setResolveNote(
+        err instanceof Error
+          ? `The transaction could not be read: ${err.message}`
+          : "The transaction could not be read.",
+      );
+    } finally {
+      setResolving(false);
+    }
+  }
+
+  function onAddressChange(next: string) {
+    setAddress(next);
+    // A new value invalidates whatever the last one resolved to.
+    if (resolved || resolveNote) {
+      setResolved(null);
+      setResolveNote(null);
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -73,7 +121,7 @@ export default function InvestigateForm() {
     try {
       const result = await runTrace(
         {
-          address: address.trim(),
+          address: subject,
           // Omitted fields are resolved from the chain by the tracer.
           ...(amount.trim() ? { amount: amountValue } : {}),
           ...(fraudDate
@@ -102,6 +150,8 @@ export default function InvestigateForm() {
   function applySample(sampleAddress: string) {
     const sample = DEMO_SAMPLES.find((s) => s.address === sampleAddress);
     setAddress(sampleAddress);
+    setResolved(null);
+    setResolveNote(null);
     setTouched(false);
     setStatus({ kind: "idle" });
     // Pre-fill values that match the committed fixture so the run is coherent.
@@ -119,7 +169,9 @@ export default function InvestigateForm() {
     }
   }
 
-  const showAddressError = touched && address !== "" && !addressCheck.valid;
+  // A transaction hash is not a malformed address; it is the other valid input.
+  const showAddressError =
+    touched && address !== "" && !addressCheck.valid && !looksLikeTx && !resolved;
   const showAmountError = touched && amount !== "" && !amountValid;
 
   return (
@@ -130,21 +182,26 @@ export default function InvestigateForm() {
 
         <form onSubmit={onSubmit} noValidate>
           <div className="mt-16 grid gap-16 lg:grid-cols-[1.7fr_1fr]">
-            <div>
+            <div className="min-w-0">
               <label htmlFor="address">
-                <Designation>Victim-reported address</Designation>
+                <Designation>Wallet address or transaction</Designation>
               </label>
               <input
                 id="address"
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                onBlur={() => setTouched(true)}
+                onChange={(e) => onAddressChange(e.target.value)}
+                onBlur={() => {
+                  setTouched(true);
+                  void resolveHash();
+                }}
                 spellCheck={false}
                 autoComplete="off"
-                placeholder="T…"
+                placeholder="T…  or a transaction hash"
                 aria-invalid={showAddressError}
                 aria-describedby="address-help"
-                className={`${FIELD} mt-4 text-lg tracking-tight md:text-xl ${
+                className={`${FIELD} mt-4 tracking-tight ${
+                  address.length > 40 ? "text-xs md:text-sm" : "text-lg md:text-xl"
+                } ${
                   showAddressError
                     ? "border-critical"
                     : addressCheck.valid
@@ -166,8 +223,41 @@ export default function InvestigateForm() {
                   ? addressCheck.reason
                   : addressCheck.valid
                     ? "Checksum valid — the address is well formed."
-                    : "34 characters, starts with T. The checksum is verified here before anything is sent."}
+                    : looksLikeTx
+                      ? resolving
+                        ? "Reading the transaction…"
+                        : "That is a transaction hash. We will read it and trace the wallet it paid."
+                      : "Paste the wallet address, or the transaction that sent the money. A complainant rarely has an address; their exchange can produce the transaction."}
               </p>
+
+              {/* What the hash turned out to be, stated before anything is
+                  traced. An officer has to be able to see that the wallet we
+                  are about to follow is the one their transaction paid. */}
+              {resolved ? (
+                <div className="mt-6 border-l-2 border-confirmed py-4 pl-6">
+                  <Designation>Transaction read</Designation>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    This transaction moved{" "}
+                    <strong className="font-semibold text-ink">
+                      {formatUsdt(resolved.valueUsdt)}
+                    </strong>{" "}
+                    on {formatDateTime(resolved.timestamp)}.
+                  </p>
+                  <div className="mt-4 space-y-2">
+                    <p className="text-xs uppercase tracking-[0.16em] text-faint">Paid to</p>
+                    <p className="break-all font-mono text-sm text-brass">{resolved.to}</p>
+                  </div>
+                  <p className="mt-4 text-xs leading-5 text-faint">
+                    That wallet is the subject of this trace.
+                  </p>
+                </div>
+              ) : null}
+
+              {resolveNote ? (
+                <div className="mt-6 border-l-2 border-critical py-4 pl-6">
+                  <p className="text-sm leading-6 text-muted">{resolveNote}</p>
+                </div>
+              ) : null}
 
               <div className="mt-16 grid gap-16 sm:grid-cols-2">
                 <div>

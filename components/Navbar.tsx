@@ -31,7 +31,7 @@ export default function Navbar() {
           FineX
         </Link>
 
-        <div className="hidden items-center gap-2 md:flex lg:gap-4">
+        <div className="hidden items-center gap-2 lg:flex lg:gap-4">
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
@@ -49,7 +49,7 @@ export default function Navbar() {
           })}
         </div>
 
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <Link
             href="/login"
             className="inline-block fx-option whitespace-nowrap px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass"
@@ -60,7 +60,7 @@ export default function Navbar() {
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="fx-option whitespace-nowrap px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass md:hidden"
+          className="fx-option whitespace-nowrap px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass lg:hidden"
           aria-label="Toggle navigation menu"
           aria-expanded={menuOpen}
         >
@@ -69,7 +69,7 @@ export default function Navbar() {
       </div>
 
       {menuOpen ? (
-        <div className="border-t border-line px-6 py-6 md:hidden">
+        <div className="border-t border-line px-6 py-6 lg:hidden">
           <div className="flex flex-col divide-y divide-line border-y border-line">
             {navItems.map((item) => (
               <Link

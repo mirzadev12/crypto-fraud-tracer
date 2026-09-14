@@ -106,7 +106,7 @@ export default function ReportsList() {
           <li key={c.caseId}>
             <Link
               href={`/report/${encodeURIComponent(c.inputAddress)}`}
-              className="group grid grid-cols-1 gap-4 py-6 transition hover:bg-surface md:grid-cols-[8rem_11rem_1fr_9rem_8rem_7rem] md:items-center md:gap-6"
+              className="group grid grid-cols-1 gap-4 py-6 transition hover:bg-surface lg:grid-cols-[7rem_10rem_1fr_8rem_7rem_7rem] lg:items-center lg:gap-6"
             >
               <span className="font-mono text-xs uppercase tracking-[0.16em] text-faint transition group-hover:text-brass">
                 {c.caseId}
@@ -122,7 +122,7 @@ export default function ReportsList() {
                 )}
               </span>
 
-              <span className="font-mono text-sm tabular-nums text-ink md:text-right">
+              <span className="font-mono text-sm tabular-nums text-ink lg:text-right">
                 {formatUsdt(c.reportedAmountUsdt, { symbol: false })}
               </span>
 
@@ -130,7 +130,7 @@ export default function ReportsList() {
                 {formatDate(c.fraudDate)}
               </span>
 
-              <span className="flex items-center justify-between gap-4 md:justify-end">
+              <span className="flex items-center justify-between gap-4 lg:justify-end">
                 <TriageBadge level={c.triage} />
                 <Diamond
                   className="bg-line transition group-hover:bg-brass"

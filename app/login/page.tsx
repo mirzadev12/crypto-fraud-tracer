@@ -27,7 +27,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col bg-bg text-ink">
       <Navbar />
 
-      <main className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-6 py-16 lg:grid-cols-2">
+      <main className="mx-auto grid w-full min-w-0 max-w-6xl flex-1 items-center gap-10 px-6 py-16 lg:grid-cols-2">
         {/* ------------------------------------------------------- context */}
         <section className="relative hidden lg:block">
           <div className="pointer-events-none absolute -inset-10" aria-hidden="true" />
@@ -61,7 +61,7 @@ export default function LoginPage() {
         </section>
 
         {/* ---------------------------------------------------------- form */}
-        <section className="w-full">
+        <section className="w-full min-w-0">
           <div className="border border-line bg-surface p-6 md:p-6">
             <div className="flex items-center justify-between gap-4">
               <div>
