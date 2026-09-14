@@ -85,5 +85,12 @@
     "tag": "Swapster Wallet",
     "source_url": "https://tronscan.org/#/address/TL9ihHWHkqXd11HFdCtyTx2r6qmVH7cfJg",
     "note": "Explorer-tagged wallet, re-verified live 14 Sep 2026 (62 distinct payers in the first 200 transfers). The tag does not say \"exchange\" and the operator is not identified from a citable source; treat attribution here as the weakest of the seed set."
+  },
+  {
+    "address": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq",
+    "exchange": "UEEx",
+    "tag": "UEEx Hot Wallet 19",
+    "source_url": "https://tronscan.org/#/address/TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq",
+    "note": "Explorer-tagged exchange hot wallet, re-verified live 14 Sep 2026 (36 distinct payers in the first 200 transfers). As with the other smaller seeds, the tag establishes whose wallet it is and not whether the operator holds KYC records, so it does not establish that a restraint request naming a cluster here has an account behind it."
   }
 ]

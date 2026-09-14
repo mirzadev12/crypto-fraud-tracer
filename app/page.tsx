@@ -115,8 +115,8 @@ export default function Home() {
       <section className="border-t border-line py-16">
         <dl className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            ["221", "Customer deposit addresses derived", "/attribution"],
-            ["9", "Exchanges covered by that derivation", "/attribution"],
+            ["241", "Customer deposit addresses derived", "/attribution"],
+            ["10", "Exchanges covered by that derivation", "/attribution"],
             ["202", "Sanctioned addresses carried", "/attribution"],
             ["0", "Commercial data licences required", null],
           ].map(([figure, label, href]) => (

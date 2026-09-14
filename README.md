@@ -16,7 +16,7 @@ data, and you can check it: open the address on any TRON explorer and the sweep
 pattern is there. Everyone else's tool stops at "the funds went to Binance."
 Naming the deposit address is what makes the result actionable.
 
-**221 customer deposit addresses across 9 exchanges, from 14 explorer-tagged
+**241 customer deposit addresses across 10 exchanges, from 15 explorer-tagged
 seed wallets, on zero commercial data licences.** The derivation is browsable at
 `/attribution` — every row with its evidence and a link to verify it.
 
@@ -55,7 +55,7 @@ without touching the network.
 | `/report/[address]` | The packet itself — print-ready, and it states its own limitations. |
 | `/freeze/[address]` | The restraint request an officer actually sends, naming the account to restrict. States in writing that it is a lead requiring an authorised signature. |
 | `/queue` | Bulk triage. Paste a morning of complaints; they are traced in turn and the register reorders itself as answers land, most recoverable first. |
-| `/attribution` | Where a name comes from: the 14 tagged seeds, all 221 derived deposit addresses, the sweep evidence for each, and where the method is wrong. |
+| `/attribution` | Where a name comes from: the 15 tagged seeds, all 241 derived deposit addresses, the sweep evidence for each, and where the method is wrong. |
 | `/wallet/[address]` | What one address is and who funded it — age, money in and out, and the counterparties on both sides. |
 | `/operations` | The jury-question surface: who runs it, what it costs, what breaks, and what is not built. |
 

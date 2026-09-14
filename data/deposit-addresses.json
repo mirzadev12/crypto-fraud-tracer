@@ -1987,5 +1987,185 @@
     "evidence": "20 sweeps, 100% of inflow forwarded to Swapster Wallet",
     "windowTruncated": false,
     "hotWallet": "TL9ihHWHkqXd11HFdCtyTx2r6qmVH7cfJg"
+  },
+  {
+    "address": "TSdJAxMChEUTiWXyufkRAKKjzu12pb39mj",
+    "exchange": "UEEx",
+    "sweepCount": 38,
+    "confidence": 0.95,
+    "evidence": "38 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TRfSQgRnrkgGRQUQmJ1zG9ZCBYuKEeR62p",
+    "exchange": "UEEx",
+    "sweepCount": 19,
+    "confidence": 0.95,
+    "evidence": "19 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TPi4quUK7wovv3g3K4moX7dH4xCGotmDLx",
+    "exchange": "UEEx",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TFoCCg4kB4mDcfaRm5cp53nXaDNsYjmKNX",
+    "exchange": "UEEx",
+    "sweepCount": 35,
+    "confidence": 0.95,
+    "evidence": "35 sweeps, 98% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TFMTswZnoWhfgqEHjBrbhanHxZBEDBsdj7",
+    "exchange": "UEEx",
+    "sweepCount": 21,
+    "confidence": 0.95,
+    "evidence": "21 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TLHo9TZs8oXmPPhvUBfpvqHZ9vLb5tqkHs",
+    "exchange": "UEEx",
+    "sweepCount": 35,
+    "confidence": 0.95,
+    "evidence": "35 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TWbNgaH8q51Ry7QwQnpqLgirSPY8qCp6f8",
+    "exchange": "UEEx",
+    "sweepCount": 11,
+    "confidence": 0.83,
+    "evidence": "11 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TRFbvyvi6dy1kbXQvEjH57xy5wmguJDmV7",
+    "exchange": "UEEx",
+    "sweepCount": 11,
+    "confidence": 0.83,
+    "evidence": "11 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TLnfDKXGyuocjoccNKjLDLFippNtBpfFBa",
+    "exchange": "UEEx",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TDm6RFiKw1EVbrRCqEcKuXRGjjYmcjfWLV",
+    "exchange": "UEEx",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TNah2Jqou6Q9UfZRqDEwnc6EHKsZDD8xgo",
+    "exchange": "UEEx",
+    "sweepCount": 8,
+    "confidence": 0.74,
+    "evidence": "8 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "THb6KifYMUnEYmScJYvMh8BJB52tWgoxBa",
+    "exchange": "UEEx",
+    "sweepCount": 10,
+    "confidence": 0.8,
+    "evidence": "10 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TF6Qr8Yx32zUJzNhXWd7HaZxPaRmVWVn1j",
+    "exchange": "UEEx",
+    "sweepCount": 6,
+    "confidence": 0.6799999999999999,
+    "evidence": "6 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TQKRMMmP86r4SxtpoEY6xJfWMEhTwnRFkf",
+    "exchange": "UEEx",
+    "sweepCount": 65,
+    "confidence": 0.95,
+    "evidence": "65 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TF5o9fbNqRzp9sVeg1FzQHyFgdnFxsoWnH",
+    "exchange": "UEEx",
+    "sweepCount": 2,
+    "confidence": 0.56,
+    "evidence": "2 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TNnRoPDCNbowsPAbioMoKdvEGL1PADPWwT",
+    "exchange": "UEEx",
+    "sweepCount": 99,
+    "confidence": 0.95,
+    "evidence": "99 sweeps, 98% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TRputR7VpyVWQoddeVUepuqCW9fkMwtxXm",
+    "exchange": "UEEx",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TJwJZKNEiDHWSDJtC4YyasPLtrPLRsnqmz",
+    "exchange": "UEEx",
+    "sweepCount": 7,
+    "confidence": 0.71,
+    "evidence": "7 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TBzntyXWRVKnFF7SR9cdpnZhzrhFefmTHF",
+    "exchange": "UEEx",
+    "sweepCount": 4,
+    "confidence": 0.62,
+    "evidence": "4 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
+  },
+  {
+    "address": "TJboqfdK656QwuBo6DtgYfeegF3Qbt63tr",
+    "exchange": "UEEx",
+    "sweepCount": 3,
+    "confidence": 0.59,
+    "evidence": "3 sweeps, 100% of inflow forwarded to UEEx Hot Wallet 19",
+    "windowTruncated": false,
+    "hotWallet": "TWQZEUfSPuMYjm4oHvmsktYcjD6rc5yyWq"
   }
 ]
