@@ -98,8 +98,14 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         the clustering thresholds, the six behavioural rules and the triage logic
         are hand-specified and hand-reviewed, and no attribution decision is made
         by a language model — naming an exchange is a deterministic lookup
-        against a provenance-tagged table. A model may draft a case summary; it
-        never decides a label, a score or a disposition.
+        against a provenance-tagged table. <span className="text-ink">No language
+        model runs in this system at all</span> — the investigator summary on
+        each trace is assembled from the figures already computed for that case,
+        so it cannot drift from the evidence printed beside it and the same trace
+        always produces the same sentences. AGENTS.md &sect;11 offers a hosted
+        model for that paragraph; it was not taken, because the answer to &ldquo;what
+        if it hallucinates the exchange name&rdquo; is stronger when it covers the
+        whole product rather than everything except the prose.
       </>
     ),
   },
@@ -124,13 +130,24 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
     q: "What is not built yet?",
     a: (
       <>
-        The trace service itself. The label tables, the chain client and the
-        clustering script are in the repository; the API routes that run a live
-        trace over them are not deployed, and every screen says so rather than
-        showing a recorded trace as though it were live. Cross-chain tracing,
-        the community abuse list and a TRON mixer list are unbuilt — the last two
-        because no citable public source was available, and an unsourced entry
-        would close a case wrongly.
+        <span className="text-ink">Cross-chain tracing.</span> A bridge is a hard
+        stop: the trail ends there and is recorded as such. We looked for a way
+        to do it honestly and could not find one — the officially documented TRON
+        bridge addresses carry no USDT transfers at all, so a detector built on
+        them would ship labels for addresses that never appear in the flows we
+        trace.{" "}
+        <span className="text-ink">A TRON mixer list and a community abuse
+        list</span> are empty, on purpose: no citable public source was
+        available, and an unsourced entry here would close a case wrongly.
+        Sanctioned laundering services are covered under the OFAC list instead.{" "}
+        <span className="text-ink">Rule calibration.</span> We measured how often
+        each behavioural rule fires on wallets nobody reported — peel-chain on
+        94%, fan-out on 88%, sanctioned contact on 0% — so the weaker rules are
+        known to be weak. Re-setting those thresholds against a larger sample is
+        not done. <span className="text-ink">No Indian VASP</span> is in the seed
+        list: 2,500 tagged holders were scanned and not one Indian exchange is
+        publicly tagged, which is the gap a sovereign tool exists to close rather
+        than one we can close with a copied address.
       </>
     ),
   },

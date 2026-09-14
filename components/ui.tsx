@@ -373,38 +373,10 @@ export const CASE_PROOF: Record<string, string> = {
 /* -------------------------------------------------------- attribution voice */
 
 /**
- * How an attribution is allowed to be worded.
- *
- * A clustering heuristic supports "likely X deposit cluster". It does not
- * support "this wallet is X". The distinction is the difference between an
- * investigative lead and a claim we would have to defend in court, so the
- * phrasing lives in one place and every screen uses it.
+ * Re-exported from `lib/voice.ts`, which is where it now lives so the tracer
+ * can use the same wording rule server-side. Import it from either place.
  */
-export function entityPhrase(
-  label:
-    | { entity: string; kind: string | null; source: string | null }
-    | null
-    | undefined,
-): string {
-  if (!label || !label.kind) return "Unlabelled wallet";
-  const certain = label.source === "ground_truth" || label.source === "sanctions";
-  switch (label.kind) {
-    case "victim_reported":
-      return "Victim-reported wallet";
-    case "exchange_deposit":
-      return certain
-        ? `${label.entity} deposit address`
-        : `Likely ${label.entity} deposit cluster`;
-    case "exchange_hot":
-      return certain ? `${label.entity} hot wallet` : `Likely ${label.entity} hot wallet`;
-    case "mixer":
-      return certain ? label.entity : `Likely mixing service`;
-    case "sanctioned":
-      return `${label.entity} — sanctioned`;
-    default:
-      return label.entity;
-  }
-}
+export { entityPhrase } from "@/lib/voice";
 
 /* --------------------------------------------------------------- feedback */
 

@@ -654,7 +654,17 @@ export default function TraceView({
 
         <div className="space-y-6">
           {trace.narrative ? (
-            <Panel title="Investigator summary" subtitle="Generated from the trace result.">
+            /* It exists to be pasted into a case file, so it carries a copy
+               button. The subtitle states the one thing that distinguishes it
+               from every other "AI summary" a judge will have been shown that
+               week: it is assembled from the figures above it, so it cannot
+               drift from them, and the same trace always produces the same
+               sentences. */
+            <Panel
+              title="Investigator summary"
+              subtitle="Assembled from the figures above. No language model — the same trace always produces the same words."
+              actions={<CopyButton value={trace.narrative} label="Copy" />}
+            >
               <p className="text-sm leading-7 text-muted">{trace.narrative}</p>
             </Panel>
           ) : null}

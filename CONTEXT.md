@@ -54,7 +54,7 @@ valid address *not* in the file still goes to the chain and comes back stamped
 
 ### Still not done
 
-`/api/cases` (deliberately — see §3) and the optional narrative from AGENTS.md §11.
+`/api/cases` (deliberately — see §3). The narrative from AGENTS.md §11 is built, but deterministically rather than by a hosted model — see §3.
 
 ---
 
@@ -326,6 +326,29 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   the file it replaces, silently. Merge seeds the map from disk first, and the
   checkpoint writes then never stand in for rows the run was not asked to
   re-derive. **Back up `deposit-addresses.json` before any clustering run.**
+- **The investigator summary is assembled, not generated** (`lib/narrative.ts`).
+  AGENTS.md §11 offers a hosted language model for this paragraph. It was not
+  taken, and the reason is §11's own defensive line: the answer to "what if the
+  model hallucinates the exchange name" is *"it can't — attribution is a
+  deterministic lookup"*, and that answer is stronger when it covers the whole
+  product rather than everything except the prose on the page. Under a heading
+  that says **Summary**, in a document an officer signs, a paraphrase that can
+  drift from the evidence six inches above it is a liability, not a feature.
+  So the four sentences are built from the trace's own computed figures: what
+  left and when, how fast the fastest hop was, where it ended, which rules
+  fired, and what the disposition asks of the reader. Every entity name goes
+  through `entityPhrase`, which is why that function moved to `lib/voice.ts` —
+  it is a "use client" module no longer, so the tracer can share the one wording
+  rule instead of a second copy drifting server-side. `components/ui.tsx`
+  re-exports it, so every existing import is unchanged.
+  Two things to keep: the last sentence states the **action**, never the finding
+  again (`triageReason` restates the amount and entity that sentence three has
+  already given in full), and `midSentence()` exists because `entityPhrase` is
+  written for a heading — "Likely Bybit deposit cluster" dropped mid-sentence
+  reads as a typo, and the hedge must stay exactly where the attribution rule
+  put it. It carries a copy button on the trace screen because being pasted into
+  a case file is the entire point of it. **No language model runs in this system
+  at all**, and `/operations` now says so.
 - **Inside a case, the case-shaped destinations follow the case** (`Navbar.tsx`,
   `components/CaseRail.tsx`). Pressing Intelligence or Evidence while reading one
   complaint used to land on every complaint on the system, which is the opposite

@@ -17,6 +17,7 @@
  */
 
 import { isTerminal, lookup } from "./labels";
+import { buildNarrative } from "./narrative";
 import { scoreRisk, type Observed } from "./risk";
 import type { TraceProgress } from "./progress";
 import { TronGrid, type Trc20Transfer } from "./trongrid";
@@ -242,7 +243,7 @@ export async function runTrace(
   });
   const { triage, triageReason, terminal } = decide(nodeList, reported, unread);
 
-  return {
+  const result: TraceResult = {
     caseId: caseIdFor(root, fraudIso),
     inputAddress: root,
     chain: "tron",
@@ -260,6 +261,11 @@ export async function runTrace(
       generatedAt: new Date().toISOString(),
     },
   };
+
+  // Assembled from the finished result, so it can never disagree with the
+  // figures printed beside it. Deterministic — no model, no key, no cache.
+  const narrative = buildNarrative(result);
+  return narrative ? { ...result, narrative } : result;
 }
 
 /**
