@@ -26,9 +26,9 @@ Last updated: 9 September 2026 (backend live).
 | Area | Files | State |
 | --- | --- | --- |
 | Chain client | `lib/trongrid.ts` | Cache, SHA-256 per response, call counting, 429 backoff, 250ms pacing, and an `didFail` set so an unreadable wallet is never mistaken for an empty one. |
-| Seeds | `data/hot-wallets.json` | 11 explorer-tagged exchange wallets, each re-verified live, each with a source URL. |
+| Seeds | `data/hot-wallets.json` | 14 explorer-tagged exchange wallets, each re-verified live, each with a source URL. The last three carry a `note` recording what the tag does and does not establish. |
 | Sanctions | `data/risk-lists.json` | 202 TRON addresses from the OFAC SDN list, 29 entities. Mixers and community lists are empty **on purpose** — no citable source, and the file says so. |
-| Clustering | `scripts/cluster.mjs` → `data/deposit-addresses.json` | **165 deposit addresses across 7 exchanges**, 11 seeds, 280 API calls, 8 minutes. That is the number for the slide. |
+| Clustering | `scripts/cluster.mjs` → `data/deposit-addresses.json` | **221 deposit addresses across 9 exchanges**, 14 seeds. That is the number for the slide. `--from N --merge` adds a seed without re-deriving the rest. |
 | Attribution | `lib/labels.ts` | 378 labels in one Map, §9 priority order, honest source tiers. |
 | Rules | `lib/risk.ts` | Six rules, named thresholds, reason strings written as evidence. |
 | Tracer | `lib/tracer.ts` | BFS, five limits, taint, dwell, triage. |
@@ -190,7 +190,7 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   concluding an animation is broken.
 - **The number is on the front page, not in a dialog.** AGENTS.md §7 says the
   deliverable of the clustering work is a number we can quote; the figures band
-  under the hero states it — 165 deposit addresses, 7 exchanges, 202 sanctioned
+  under the hero states it — 221 deposit addresses, 9 exchanges, 202 sanctioned
   addresses, 0 commercial licences — with the derivation and the word
   *heuristic* immediately under it. Every figure there is counted from the
   committed files in `data/`; re-count them before changing any of them, and do
@@ -304,6 +304,28 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   refuse. They are real wallets, so a live run is a real run; with
   `DEMO_MODE=true` the same batch answers from the frozen file in milliseconds,
   which is how a full queue is demonstrated when the network cannot be trusted.
+- **Three seeds added from the tag scan, and one of them yielded nothing — which
+  is the useful part.** The scan for an Indian VASP turned up tagged wallets the
+  seed list did not have. **Flipster** and **Swapster** produced 28 deposit
+  addresses each, taking the derivation to **221 across 9 exchanges from 14
+  seeds**. **FixedFloat produced zero**, and that is not a failed run: the
+  heuristic looks for senders that sweep almost everything to one hot wallet
+  repeatedly, which is what a custodial exchange issuing per-customer deposit
+  addresses looks like. An instant swap service does not issue them, so there is
+  nothing for the pattern to find. The data said what the tag could not.
+  **The caveat that matters.** An explorer tag establishes whose wallet it is; it
+  does not establish that the operator holds KYC records, and therefore does not
+  establish that a restraint request naming a cluster there has an account behind
+  it. Each new seed carries a `note` saying exactly that, and Swapster's says its
+  tag does not even claim "exchange" — treat it as the weakest attribution in the
+  set. Do not quietly promote any of these to the confidence the major exchanges
+  carry.
+  `cluster.mjs` gained `--from N` and `--merge` for this. It rewrites its output
+  file, so adding one seed used to mean re-deriving all of them against a
+  rate-limited public endpoint — and a throttled run returns *fewer* rows than
+  the file it replaces, silently. Merge seeds the map from disk first, and the
+  checkpoint writes then never stand in for rows the run was not asked to
+  re-derive. **Back up `deposit-addresses.json` before any clustering run.**
 - **The intake takes a transaction, not only an address** (`/api/tx/[hash]`,
   `lib/txlookup.ts`, `hexToTronAddress()` in `lib/tron.ts`). The screen used to
   say "enter the wallet exactly as it appears on the complaint", and that
@@ -429,7 +451,7 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   clustering count the deliverable and §15 makes "where do your labels come
   from" a question we answer out loud — but both were assertions, with the
   evidence sitting in a JSON file nobody opens. The register is the exhibit:
-  the 11 explorer-tagged seeds with how many addresses each yielded, then every
+  the 14 explorer-tagged seeds with how many addresses each yielded, then every
   derived deposit address with its sweep count, its confidence, its evidence
   string and the seed it was swept into, searchable and filterable by exchange,
   each row one click from the public explorer. Three of the four landing-page

@@ -37,10 +37,20 @@ const MIN_SWEEPS = flag("sweeps", 2);
 const DELAY_MS = flag("delay", 1200);
 const WALLET_LIMIT = flag("wallets", Infinity);
 const MAX_PAGES = flag("pages", 2);
+/*
+ * Which slice of the seed list to run, and whether to keep what is already on
+ * disk. The script rewrites its output file, so adding a seed used to mean
+ * re-deriving every earlier one — fifteen minutes against a rate-limited public
+ * endpoint, with a throttled run quietly returning FEWER rows than the file it
+ * replaced. `--from N --merge` runs the new seeds only and adds to the existing
+ * set instead of standing in for it.
+ */
+const FROM = flag("from", 0);
+const MERGE = argv.includes("--merge");
 
 const HOT_WALLETS = JSON.parse(readFileSync("data/hot-wallets.json", "utf8")).slice(
-  0,
-  WALLET_LIMIT,
+  FROM,
+  FROM + WALLET_LIMIT,
 );
 
 const USDT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
@@ -110,6 +120,17 @@ async function pages(address) {
 /* ------------------------------------------------------------------- run */
 
 const found = new Map(); // address -> row, so a sender seen twice is not doubled
+
+// Seed the map from disk when merging, so the checkpoint writes below never
+// stand in for rows this run was not asked to re-derive.
+if (MERGE) {
+  try {
+    for (const row of JSON.parse(readFileSync(OUT, "utf8"))) found.set(row.address, row);
+    console.log(`  merging into ${found.size} existing row(s)`);
+  } catch {
+    console.log("  nothing to merge into — starting fresh");
+  }
+}
 const startedAt = Date.now();
 
 console.log(
