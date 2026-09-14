@@ -26,6 +26,7 @@ import {
   type TraceProgress,
 } from "@/lib/api";
 import { formatUsdt, shortAddress } from "@/lib/format";
+import { findLinks } from "@/lib/links";
 import { checkTronAddress } from "@/lib/tron";
 import type { TraceResult, TriageLevel } from "@/lib/types";
 import {
@@ -123,6 +124,12 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
   const failed = entries.filter(
     (e): e is Extract<Entry, { state: "failed" }> => e.state === "failed",
   );
+
+  /*
+   * The question a cyber cell asks straight after triage: are any of these the
+   * same people. Computed from results already in hand — no extra chain read.
+   */
+  const links = useMemo(() => findLinks(results.map((r) => r.trace)), [results]);
 
   const stats = useMemo(() => {
     let critical = 0;
@@ -393,6 +400,51 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
             </div>
           )}
         </Panel>
+
+        {links.length ? (
+          <Panel
+            title={`${links.length === 1 ? "1 shared wallet" : `${links.length} shared wallets`}`}
+            subtitle="Complaints that ran through the same account. Shared exchanges and mixers are not counted — those are used by everyone."
+            framed={false}
+          >
+            <ul className="divide-y divide-line pt-2">
+              {links.map((link) => (
+                <li key={link.address} className="py-6">
+                  <div className="flex flex-wrap items-baseline justify-between gap-4">
+                    <p className="font-label text-xs uppercase tracking-[0.2em] text-brass">
+                      {link.cases.length} complaints · one wallet
+                    </p>
+                    <p className="font-mono text-sm tabular-nums text-ink">
+                      {formatUsdt(link.totalUsdt, { symbol: false })}{" "}
+                      <span className="text-xs text-faint">USDT converged</span>
+                    </p>
+                  </div>
+                  <Link
+                    href={`/wallet/${encodeURIComponent(link.address)}`}
+                    className="fx-option-quiet mt-3 inline-block break-all px-2 py-1 font-mono text-sm text-ink transition hover:text-brass"
+                  >
+                    {link.address}
+                  </Link>
+                  {link.label ? (
+                    <p className="mt-2 text-xs text-faint">{entityPhrase(link.label)}</p>
+                  ) : null}
+                  <ul className="mt-4 flex flex-wrap gap-2">
+                    {link.cases.map((c) => (
+                      <li key={c.inputAddress}>
+                        <Link
+                          href={`/trace/${encodeURIComponent(c.inputAddress)}`}
+                          className="fx-option inline-block px-3 py-2 font-mono text-xs text-faint transition hover:text-brass"
+                        >
+                          {shortAddress(c.inputAddress)}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+        ) : null}
 
         {pending.length ? (
           <Panel title={`${pending.length} waiting`} framed={false}>

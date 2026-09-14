@@ -1,10 +1,10 @@
 {
   "_note_": "Frozen traces, captured from the live pipeline against real TRON addresses. AGENTS.md §10. Each entry is a complete TraceResult exactly as /api/trace returned it, including the response hashes it was built from, so any claim in it can be re-verified. Regenerate with `node scripts/freeze-cases.mjs` while the dev server is running, then rebuild — this file is imported statically so demo mode needs no filesystem and no network.",
-  "capturedAt": "2026-09-13T21:32:18.455Z",
+  "capturedAt": "2026-09-14T08:54:40.507Z",
   "cases": [
     {
       "address": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
-      "capturedAt": "2026-09-13T20:51:15.801Z",
+      "capturedAt": "2026-09-14T08:51:02.935Z",
       "triage": "HOT",
       "selectedBecause": "received 1066.11 USDT across 200 transfer(s) and has never sent any",
       "request": {
@@ -29,7 +29,7 @@
             },
             "taintedValueUsdt": 1066.11,
             "taintFraction": 1,
-            "firstSeen": "2026-09-13T20:43:39.000Z",
+            "firstSeen": "2026-09-14T08:42:12.000Z",
             "outflowCount": 0
           }
         ],
@@ -39,17 +39,19 @@
         "triage": "HOT",
         "triageReason": "No transfers were observed leaving this address after the reported fraud, so 1,066 USDT may still be recoverable.",
         "provenance": {
-          "apiCalls": 4,
+          "apiCalls": 5,
           "responseHashes": [
-            "6c8d68ddb600445ffd0be3eb67af02938b3c8811b60ef0e3b0fe88902285f5a4"
+            "eb94f61518f67c8cdf8a4664314dd7d616dbd4a01933f691850982e62436973e",
+            "3878053b6541210a817e27061c360cfd6b763b98138d4a449d8e34c82c7c290f"
           ],
-          "generatedAt": "2026-09-13T20:51:15.790Z"
-        }
+          "generatedAt": "2026-09-14T08:51:02.929Z"
+        },
+        "narrative": "No USDT left TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx after 9 September 2026 in the transfers examined. The money has not reached an off-ramp and can still be acted on."
       }
     },
     {
       "address": "TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ",
-      "capturedAt": "2026-09-13T20:51:18.851Z",
+      "capturedAt": "2026-09-14T08:51:05.333Z",
       "triage": "WARM",
       "selectedBecause": "paid 500.00 USDT into TMt8PXtrGBFTGhGcGn4mEyTi1tR2vxzhc3 — 100% of everything they sent after that date",
       "request": {
@@ -126,15 +128,16 @@
         "provenance": {
           "apiCalls": 2,
           "responseHashes": [
-            "a59346d26b6e010c09893235fb11279fd9797cd75b56d0d05d2bb535d378219a"
+            "dcf0ad1b38ba75c6d5a11a057cd44483bbd2e87ec4d43c089e7ef67bbdb17acf"
           ],
-          "generatedAt": "2026-09-13T20:51:18.848Z"
-        }
+          "generatedAt": "2026-09-14T08:51:05.331Z"
+        },
+        "narrative": "500.00 USDT left the reported wallet after 8 September 2026, followed across one transfer and one hop. The fastest onward transfer was made one minute after receipt, which is characteristic of automated forwarding rather than a person deciding. 500.00 USDT, 100.0% of the reported amount, reached a likely Bybit deposit cluster, customer deposit address TMt8PXtrGBFTGhGcGn4mEyTi1tR2vxzhc3. One behavioural rule fired on the path (short dwell). A restraint request naming that account is viable."
       }
     },
     {
       "address": "TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex",
-      "capturedAt": "2026-09-13T20:51:20.393Z",
+      "capturedAt": "2026-09-14T08:51:06.862Z",
       "triage": "WARM",
       "selectedBecause": "paid 7630.48 USDT into TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN — 100% of everything they sent after that date",
       "request": {
@@ -211,15 +214,16 @@
         "provenance": {
           "apiCalls": 1,
           "responseHashes": [
-            "c54eaa9dbcd1d1662c503185269306e3f0db95ff8a0f79d2e80432636f93e0d2"
+            "2ee6af23c0ca16ee772bb28dc50745360500e6f94a2b05d60d54f89ea4dd5fd3"
           ],
-          "generatedAt": "2026-09-13T20:51:20.389Z"
-        }
+          "generatedAt": "2026-09-14T08:51:06.859Z"
+        },
+        "narrative": "7,630.48 USDT left the reported wallet after 8 September 2026, followed across one transfer and one hop. The fastest onward transfer was made one minute after receipt, which is characteristic of automated forwarding rather than a person deciding. 7,630.48 USDT, 100.0% of the reported amount, reached a likely MEXC deposit cluster, customer deposit address TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN. One behavioural rule fired on the path (short dwell). A restraint request naming that account is viable."
       }
     },
     {
       "address": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5",
-      "capturedAt": "2026-09-13T20:51:21.958Z",
+      "capturedAt": "2026-09-14T08:51:08.417Z",
       "triage": "COLD",
       "selectedBecause": "paid 5000.00 USDT into TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z — 50% of everything they sent after that date",
       "request": {
@@ -329,15 +333,16 @@
         "provenance": {
           "apiCalls": 1,
           "responseHashes": [
-            "e7b9be255b848e81275983e2d71a8374c9a3f7ca5e97e1ce720bd42389134a41"
+            "6a2014d993fc9b828131e191ea8129474015c97b27485bb75312c91a30f814d4"
           ],
-          "generatedAt": "2026-09-13T20:51:21.956Z"
-        }
+          "generatedAt": "2026-09-14T08:51:08.415Z"
+        },
+        "narrative": "5,000.00 USDT left the reported wallet after 14 November 2025, followed across 2 transfers and one hop. The fastest onward transfer was made one minute after receipt, which is characteristic of automated forwarding rather than a person deciding. 2,500.00 USDT, 50.0% of the reported amount, reached ISIL KHORASAN — sanctioned. 3 behavioural rules fired on the path (short dwell, round amounts, sanctioned contact). The trail cannot be followed deterministically past that point, so the case should be documented and closed."
       }
     },
     {
       "address": "TXncpWJZ8ZxUcwrpTP4SE4nNhZnKZM4QzC",
-      "capturedAt": "2026-09-13T20:51:23.748Z",
+      "capturedAt": "2026-09-14T08:51:09.952Z",
       "triage": "WARM",
       "selectedBecause": "paid 9795.12 USDT into TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN — 100% of everything they sent after that date",
       "request": {
@@ -414,15 +419,16 @@
         "provenance": {
           "apiCalls": 1,
           "responseHashes": [
-            "0b9af79908552d6b055a50215006f6d30a1379332b9966cf34aa0fb65b281738"
+            "6b469b0265893e36fe01b470c6e2fcc79b38c3371e8d26aa61f3c971cd66969e"
           ],
-          "generatedAt": "2026-09-13T20:51:23.745Z"
-        }
+          "generatedAt": "2026-09-14T08:51:09.951Z"
+        },
+        "narrative": "9,795.12 USDT left the reported wallet after 8 September 2026, followed across one transfer and one hop. The fastest onward transfer was made one minute after receipt, which is characteristic of automated forwarding rather than a person deciding. 9,795.12 USDT, 100.0% of the reported amount, reached a likely MEXC deposit cluster, customer deposit address TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN. One behavioural rule fired on the path (short dwell). A restraint request naming that account is viable."
       }
     },
     {
       "address": "TVebSaNSdNHirwz46UPEzMgGy6pSQQu2aR",
-      "capturedAt": "2026-09-13T20:51:25.560Z",
+      "capturedAt": "2026-09-14T08:51:11.487Z",
       "triage": "WARM",
       "selectedBecause": "paid 10504.62 USDT into TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN — 100% of everything they sent after that date",
       "request": {
@@ -499,15 +505,16 @@
         "provenance": {
           "apiCalls": 1,
           "responseHashes": [
-            "9b467eb6166c37fe83b434e6340b88d47135a63868b9813677dc77b572c0aa70"
+            "49e72b0cb90392a844c963dc90381b44e0fe9edf5a2428aa80397715274f1988"
           ],
-          "generatedAt": "2026-09-13T20:51:25.556Z"
-        }
+          "generatedAt": "2026-09-14T08:51:11.485Z"
+        },
+        "narrative": "10,504.62 USDT left the reported wallet after 8 September 2026, followed across one transfer and one hop. The fastest onward transfer was made one minute after receipt, which is characteristic of automated forwarding rather than a person deciding. 10,504.62 USDT, 100.0% of the reported amount, reached a likely MEXC deposit cluster, customer deposit address TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN. One behavioural rule fired on the path (short dwell). A restraint request naming that account is viable."
       }
     },
     {
       "address": "TUGHe9CTbZG44YvqfTSBd3mTAysCWcVNL6",
-      "capturedAt": "2026-09-13T20:51:28.455Z",
+      "capturedAt": "2026-09-14T08:51:17.043Z",
       "triage": "COLD",
       "selectedBecause": "paid 329.90 USDT into TQb6Pc4PmfUdUokLq5ygNioj4PnodNak9b — 77% of everything they sent after that date",
       "request": {
@@ -565,21 +572,6 @@
             "label": null,
             "taintedValueUsdt": 38.47429121623607,
             "taintFraction": 0.1166241018982603,
-            "firstSeen": "2025-09-02T11:28:36.000Z",
-            "outflowCount": 1
-          },
-          {
-            "address": "TE5paMkU1hPr8BdjkSJLvEyUBxjKKSx1H6",
-            "depth": 3,
-            "label": {
-              "entity": "ISIL KHORASAN",
-              "kind": "sanctioned",
-              "confidence": 1,
-              "source": "sanctions",
-              "evidence": "OFAC SDN · FTO"
-            },
-            "taintedValueUsdt": 38.47429121623607,
-            "taintFraction": 0.1166241018982603,
             "firstSeen": null,
             "outflowCount": 0
           }
@@ -616,14 +608,6 @@
             "txHash": "8570cd32f7fe291074caf508c465a840192cb123671406dd2bc3e61162cfead5",
             "timestamp": "2026-08-26T20:26:54.000Z",
             "dwellSeconds": 285093
-          },
-          {
-            "from": "TZGSBRavzwKmXQhpwgQr1VQB9euASQeqHF",
-            "to": "TE5paMkU1hPr8BdjkSJLvEyUBxjKKSx1H6",
-            "valueUsdt": 100.097301,
-            "txHash": "419b0223f61da2d4584957fa00f4ef424c933dcfe784cda63df3d424f6de14db",
-            "timestamp": "2026-06-20T07:26:51.000Z",
-            "dwellSeconds": 549
           }
         ],
         "terminal": {
@@ -652,19 +636,19 @@
         "triage": "COLD",
         "triageReason": "253 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
         "provenance": {
-          "apiCalls": 3,
+          "apiCalls": 5,
           "responseHashes": [
-            "f922f4af3bd93514fa1c46ab5084580f3dbd643a4ae6c6e5c2a59ca8779b5189",
-            "69142a2500a1b0005248ce54124e23d4f6f3f396784755297d896614651de183",
-            "ea51a4d586b69e1b7ed9adf4c33b5a0d50810f7a3d5eadd62ff29f14518c36a5"
+            "fe91c6dc2194be5710a8b5ba59986b7f32b23a177d3ad00c1147ba4e3eb4d3f5",
+            "426b4b90c4b24a68726d35398f4c4fe4c70618ab4dce8de4116d2d0c051aa1d9"
           ],
-          "generatedAt": "2026-09-13T20:51:28.453Z"
-        }
+          "generatedAt": "2026-09-14T08:51:17.042Z"
+        },
+        "narrative": "329.90 USDT left the reported wallet after 19 June 2026, followed across 4 transfers and 2 hops. The fastest onward transfer was made one minute after receipt, which is characteristic of automated forwarding rather than a person deciding. 253.16 USDT, 76.7% of the reported amount, reached ISIL KHORASAN — sanctioned. 2 behavioural rules fired on the path (short dwell, sanctioned contact). The trail cannot be followed deterministically past that point, so the case should be documented and closed."
       }
     },
     {
       "address": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
-      "capturedAt": "2026-09-13T20:51:34.048Z",
+      "capturedAt": "2026-09-14T08:51:27.202Z",
       "triage": "COLD",
       "selectedBecause": "paid 2000.00 USDT into THstQuwNidzC4YeJ7uPowf55ZdVZtGcHJ5 — 40% of everything they sent after that date",
       "request": {
@@ -713,8 +697,8 @@
             "label": null,
             "taintedValueUsdt": 400,
             "taintFraction": 0.2,
-            "firstSeen": "2024-02-28T13:37:45.000Z",
-            "outflowCount": 5
+            "firstSeen": null,
+            "outflowCount": 0
           },
           {
             "address": "TJjtGNbf23HPhv4krrrGGC2GG1qLeVCCPt",
@@ -722,8 +706,8 @@
             "label": null,
             "taintedValueUsdt": 200,
             "taintFraction": 0.1,
-            "firstSeen": null,
-            "outflowCount": 0
+            "firstSeen": "2023-05-04T11:25:06.000Z",
+            "outflowCount": 1
           },
           {
             "address": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
@@ -735,8 +719,8 @@
               "source": "ground_truth",
               "evidence": "Explorer-tagged \"Binance-Hot 7\""
             },
-            "taintedValueUsdt": 121.65961750882943,
-            "taintFraction": 0.06082980875441471,
+            "taintedValueUsdt": 200,
+            "taintFraction": 0.1,
             "firstSeen": null,
             "outflowCount": 0
           }
@@ -783,44 +767,12 @@
             "dwellSeconds": 2265327
           },
           {
-            "from": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
+            "from": "TJjtGNbf23HPhv4krrrGGC2GG1qLeVCCPt",
             "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
-            "valueUsdt": 1332.571,
-            "txHash": "ea37f10987aab04f136fc615b3204a0882427925ad77010bfcc839c4e3303746",
-            "timestamp": "2024-09-25T12:56:06.000Z",
-            "dwellSeconds": null
-          },
-          {
-            "from": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
-            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
-            "valueUsdt": 1000,
-            "txHash": "8db26b5e230e49214089ae273ed1589d8cf1dc3c23c882aa24dc2cbe0a4eab87",
-            "timestamp": "2024-10-02T12:46:09.000Z",
-            "dwellSeconds": 165
-          },
-          {
-            "from": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
-            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
-            "valueUsdt": 898,
-            "txHash": "8db0d4fc0c5dd2e9bb21aa69c8c5d85fb3d3e1c58d884813462e4b4886101788",
-            "timestamp": "2025-02-06T16:13:09.000Z",
-            "dwellSeconds": 10985385
-          },
-          {
-            "from": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
-            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
-            "valueUsdt": 882.52,
-            "txHash": "ed45d5bf5b550dfe3a171ec43292df426f0d456501ff6f22bc958ef3cee9b31c",
-            "timestamp": "2025-02-02T14:16:09.000Z",
-            "dwellSeconds": 10632765
-          },
-          {
-            "from": "TEiXL2znQ7cmrPhmM76krjLgFicrvWLSaY",
-            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
-            "valueUsdt": 268.218188,
-            "txHash": "977faa9897434ef5b94ba0e1d0aa82c6a7d3316b219b68a4da6897f4209cbe8d",
-            "timestamp": "2025-10-07T09:38:30.000Z",
-            "dwellSeconds": 31956906
+            "valueUsdt": 544.620054,
+            "txHash": "49c1fadbe9c2d528b5f74bd574b752b25f33f1df7dad4e682b80d78b9956a23d",
+            "timestamp": "2024-09-25T10:36:12.000Z",
+            "dwellSeconds": 978
           }
         ],
         "terminal": {
@@ -852,7 +804,7 @@
           },
           {
             "code": "ROUND_AMOUNTS",
-            "reason": "4 round-figure transfers, the largest 2,000 USDT, suggest structured layering rather than ordinary payment activity.",
+            "reason": "3 round-figure transfers, the largest 2,000 USDT, suggest structured layering rather than ordinary payment activity.",
             "atAddress": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj"
           },
           {
@@ -864,18 +816,19 @@
         "triage": "COLD",
         "triageReason": "800 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
         "provenance": {
-          "apiCalls": 5,
+          "apiCalls": 8,
           "responseHashes": [
-            "68df1c9d67154bd3e3472df431ead76acb62493ff4e45eb45f885b3f7423e76d",
-            "e30cb8d6bfa7601d329b093d3b317082982774ec42afb7cf55bde00e7dbfc2fb"
+            "084227a6ffe3e5f7bb411cf09a2ec5a0a92a1ddbf745c874c84dcd92f6b70f41",
+            "6f13096e81ff8999d53a75aec4a127728207d4267e1f63370a0bfd8760382b13"
           ],
-          "generatedAt": "2026-09-13T20:51:34.045Z"
-        }
+          "generatedAt": "2026-09-14T08:51:27.200Z"
+        },
+        "narrative": "2,000.00 USDT left the reported wallet after 6 September 2024, followed across 6 transfers and 2 hops. The fastest onward transfer was made one minute after receipt, which is characteristic of automated forwarding rather than a person deciding. 800.00 USDT, 40.0% of the reported amount, reached ISIL KHORASAN — sanctioned. 5 behavioural rules fired on the path (short dwell, high fanout, peel chain, round amounts, sanctioned contact). The trail cannot be followed deterministically past that point, so the case should be documented and closed."
       }
     },
     {
       "address": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU",
-      "capturedAt": "2026-09-13T20:51:39.953Z",
+      "capturedAt": "2026-09-14T08:51:32.210Z",
       "triage": "COLD",
       "selectedBecause": "paid 5000.00 USDT into TVUS1CVQnnzoJG8PBWkcWyf7DkLrS8yh5Z — 48% of everything they sent after that date",
       "request": {
@@ -1000,17 +953,18 @@
         "triage": "COLD",
         "triageReason": "2,393 USDT of the reported amount reached ISIL KHORASAN; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
         "provenance": {
-          "apiCalls": 5,
+          "apiCalls": 4,
           "responseHashes": [
-            "56c57efc518ae375cd15b06e7a60e6e6d9a80dfd3806c2ddb9b699067b4d7cf0"
+            "5a39dffb2d6483301a3b2422fde5f36297e5e5734a9faa53e174e019ed54b71b"
           ],
-          "generatedAt": "2026-09-13T20:51:39.950Z"
-        }
+          "generatedAt": "2026-09-14T08:51:32.208Z"
+        },
+        "narrative": "5,000.00 USDT left the reported wallet after 14 November 2025, followed across 3 transfers and one hop. The fastest onward transfer was made one minute after receipt, which is characteristic of automated forwarding rather than a person deciding. 2,392.80 USDT, 47.9% of the reported amount, reached ISIL KHORASAN — sanctioned. 3 behavioural rules fired on the path (short dwell, round amounts, sanctioned contact). The trail cannot be followed deterministically past that point, so the case should be documented and closed."
       }
     },
     {
       "address": "TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn",
-      "capturedAt": "2026-09-13T21:32:18.455Z",
+      "capturedAt": "2026-09-14T08:54:39.293Z",
       "triage": "WARM",
       "selectedBecause": "intermediary wallet created days before the money arrived — exercises NEW_ADDRESS on real chain data",
       "request": {
@@ -1035,24 +989,33 @@
             },
             "taintedValueUsdt": 3482.7000000000003,
             "taintFraction": 1,
-            "firstSeen": "2026-09-10T02:42:39.000Z",
-            "outflowCount": 153
+            "firstSeen": "2026-09-12T18:16:03.000Z",
+            "outflowCount": 197
+          },
+          {
+            "address": "TEuP9JCyE1PoASZP1nTQVS4ZDnvCpysbKj",
+            "depth": 1,
+            "label": null,
+            "taintedValueUsdt": 1148.4287697854636,
+            "taintFraction": 0.32975242478119376,
+            "firstSeen": "2026-06-14T16:43:36.000Z",
+            "outflowCount": 5
           },
           {
             "address": "TSedCLco1LBNwqdwXJETbXUgpsvAjc7sW4",
             "depth": 1,
             "label": null,
-            "taintedValueUsdt": 528,
-            "taintFraction": 0.15160651218881901,
-            "firstSeen": "2026-01-17T14:42:12.000Z",
-            "outflowCount": 3
+            "taintedValueUsdt": 234.02948299757807,
+            "taintFraction": 0.06719771527768055,
+            "firstSeen": "2026-04-08T18:30:33.000Z",
+            "outflowCount": 4
           },
           {
             "address": "TDCwHGcoGC5eXsWfBKYDxKwVHSs3eNeYvz",
             "depth": 1,
             "label": null,
-            "taintedValueUsdt": 439,
-            "taintFraction": 0.12605162661153702,
+            "taintedValueUsdt": 194.581331507456,
+            "taintFraction": 0.05587082766458667,
             "firstSeen": "2026-04-30T04:27:30.000Z",
             "outflowCount": 1
           },
@@ -1060,82 +1023,10 @@
             "address": "TJ7d9ZXBQsUhxSy5t9RZu6XgWp85U5bSGD",
             "depth": 1,
             "label": null,
-            "taintedValueUsdt": 90,
-            "taintFraction": 0.02584201912309415,
-            "firstSeen": "2026-08-21T04:36:57.000Z",
-            "outflowCount": 12
-          },
-          {
-            "address": "TBe5UXd4dT4QrdDNGN8h1W9GEjaTbSbu1H",
-            "depth": 1,
-            "label": null,
-            "taintedValueUsdt": 78,
-            "taintFraction": 0.022396416573348264,
-            "firstSeen": "2026-02-22T16:33:39.000Z",
-            "outflowCount": 2
-          },
-          {
-            "address": "TKuVD5WD5SGKJcsVpsZtjw68Q9o1iTr2rP",
-            "depth": 1,
-            "label": null,
-            "taintedValueUsdt": 75.62,
-            "taintFraction": 0.02171303873431533,
-            "firstSeen": null,
-            "outflowCount": 0
-          },
-          {
-            "address": "TCgaZCKvWSmTNxysdBFvBfU2KJuNyNXHKd",
-            "depth": 2,
-            "label": null,
-            "taintedValueUsdt": 229.06724511930585,
-            "taintFraction": 0.06577289032052885,
-            "firstSeen": "2026-09-10T18:02:36.000Z",
-            "outflowCount": 3
-          },
-          {
-            "address": "TY74T3BggxaMeLgK51u7F67gMYfoaxoyNC",
-            "depth": 2,
-            "label": null,
-            "taintedValueUsdt": 178.67245119305858,
-            "taintFraction": 0.05130285445001251,
-            "firstSeen": "2026-07-01T21:40:42.000Z",
-            "outflowCount": 9
-          },
-          {
-            "address": "TWRGrNBdyhcwP1rbxmj4Rs6ZjkuqvoMAsK",
-            "depth": 2,
-            "label": null,
-            "taintedValueUsdt": 120.26030368763558,
-            "taintFraction": 0.03453076741827765,
-            "firstSeen": "2026-08-11T18:06:54.000Z",
-            "outflowCount": 2
-          },
-          {
-            "address": "TGEQogaMtbPJJoj1QRN2AaqKLDaPQQmuDr",
-            "depth": 2,
-            "label": null,
-            "taintedValueUsdt": 24.1887318335656,
-            "taintFraction": 0.006945396340071094,
-            "firstSeen": "2026-08-28T06:32:42.000Z",
-            "outflowCount": 1
-          },
-          {
-            "address": "TCh5AhfbqW4JeEe4hzFPpUb3ydP7mjm4Qx",
-            "depth": 2,
-            "label": null,
-            "taintedValueUsdt": 8.095162253633289,
-            "taintFraction": 0.0023243926418104596,
-            "firstSeen": "2026-09-09T07:34:51.000Z",
-            "outflowCount": 1
-          },
-          {
-            "address": "TUGcMAfJmEfiHJ1puB83ojUChMtYgzDSyV",
-            "depth": 2,
-            "label": null,
-            "taintedValueUsdt": 8.095162253633289,
-            "taintFraction": 0.0023243926418104596,
-            "firstSeen": null,
-            "outflowCount": 0
+            "taintedValueUsdt": 39.89138914731445,
+            "taintFraction": 0.011454156013241004,
+            "firstSeen": "2026-07-29T16:08:42.000Z",
+            "outflowCount": 24
           },
           {
             "address": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
@@ -1147,17 +1038,98 @@
               "source": "ground_truth",
               "evidence": "Explorer-tagged \"Binance-Hot 7\""
             },
-            "taintedValueUsdt": 48.5,
-            "taintFraction": 0.013925976971889626,
+            "taintedValueUsdt": 451.4260053535898,
+            "taintFraction": 0.1296195495889941,
             "firstSeen": null,
             "outflowCount": 0
+          },
+          {
+            "address": "TCgaZCKvWSmTNxysdBFvBfU2KJuNyNXHKd",
+            "depth": 2,
+            "label": null,
+            "taintedValueUsdt": 95.32769164870798,
+            "taintFraction": 0.02737177811718149,
+            "firstSeen": "2026-09-05T14:18:00.000Z",
+            "outflowCount": 5
+          },
+          {
+            "address": "TY74T3BggxaMeLgK51u7F67gMYfoaxoyNC",
+            "depth": 2,
+            "label": null,
+            "taintedValueUsdt": 74.35559948599222,
+            "taintFraction": 0.021349986931401558,
+            "firstSeen": "2026-05-22T10:57:09.000Z",
+            "outflowCount": 9
+          },
+          {
+            "address": "TWRGrNBdyhcwP1rbxmj4Rs6ZjkuqvoMAsK",
+            "depth": 2,
+            "label": null,
+            "taintedValueUsdt": 50.04703811557169,
+            "taintFraction": 0.014370183511520281,
+            "firstSeen": "2026-06-24T05:54:36.000Z",
+            "outflowCount": 2
+          },
+          {
+            "address": "TGEQogaMtbPJJoj1QRN2AaqKLDaPQQmuDr",
+            "depth": 2,
+            "label": null,
+            "taintedValueUsdt": 6.1999488088871315,
+            "taintFraction": 0.0017802132853496227,
+            "firstSeen": "2026-08-28T06:32:42.000Z",
+            "outflowCount": 1
+          },
+          {
+            "address": "TEbqC3MgUbVVqd62c2NpCur3FUvwYR5P6d",
+            "depth": 2,
+            "label": null,
+            "taintedValueUsdt": 3.459112179891694,
+            "taintFraction": 0.0009932271455743227,
+            "firstSeen": "2026-09-13T01:56:09.000Z",
+            "outflowCount": 12
+          },
+          {
+            "address": "TYgyEgFQVvZ1wUid2LaP2XdYk2xADqcQ1i",
+            "depth": 2,
+            "label": null,
+            "taintedValueUsdt": 2.184678258064895,
+            "taintFraction": 0.0006272944146969004,
+            "firstSeen": "2026-09-08T20:47:39.000Z",
+            "outflowCount": 2
+          },
+          {
+            "address": "TCh5AhfbqW4JeEe4hzFPpUb3ydP7mjm4Qx",
+            "depth": 2,
+            "label": null,
+            "taintedValueUsdt": 2.074916201374227,
+            "taintFraction": 0.0005957780461636738,
+            "firstSeen": "2026-09-09T07:34:51.000Z",
+            "outflowCount": 1
+          },
+          {
+            "address": "TUGcMAfJmEfiHJ1puB83ojUChMtYgzDSyV",
+            "depth": 2,
+            "label": null,
+            "taintedValueUsdt": 2.074916201374227,
+            "taintFraction": 0.0005957780461636738,
+            "firstSeen": null,
+            "outflowCount": 0
+          },
+          {
+            "address": "TSfyuibW5BCnT3QEHdzgUYGYWoujUzKAzm",
+            "depth": 3,
+            "label": null,
+            "taintedValueUsdt": 45.76654378510449,
+            "taintFraction": 0.013141109996584398,
+            "firstSeen": "2026-06-09T06:57:12.000Z",
+            "outflowCount": 5
           },
           {
             "address": "TBSbvcA3J3eRrgdEyKHCe4CzZJAb6hJWg4",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 148.0258567051816,
-            "taintFraction": 0.04250318910764108,
+            "taintedValueUsdt": 30.97931555580332,
+            "taintFraction": 0.008895200722371528,
             "firstSeen": "2026-08-07T04:32:00.000Z",
             "outflowCount": 1
           },
@@ -1165,35 +1137,44 @@
             "address": "TYVs24qufouYKxJf2S27NUTMoTX1njxruw",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 67.58134674551377,
-            "taintFraction": 0.01940487172180026,
-            "firstSeen": null,
-            "outflowCount": 0
+            "taintedValueUsdt": 14.143636207323132,
+            "taintFraction": 0.004061112414885902,
+            "firstSeen": "2026-09-06T15:41:57.000Z",
+            "outflowCount": 14
           },
           {
             "address": "TNCg76SzobTsNKRSw6acxLj6duAktqu9qC",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 13.460041668610483,
-            "taintFraction": 0.0038648294910875133,
-            "firstSeen": "2026-07-18T13:30:57.000Z",
+            "taintedValueUsdt": 2.816959736140134,
+            "taintFraction": 0.0008088436374479954,
+            "firstSeen": "2026-08-05T21:46:51.000Z",
             "outflowCount": 1
+          },
+          {
+            "address": "TGspXuKanzNGUodM4XCQcZkYt777777777",
+            "depth": 3,
+            "label": null,
+            "taintedValueUsdt": 1.6212363643368977,
+            "taintFraction": 0.0004655113458916638,
+            "firstSeen": "2026-08-08T11:01:36.000Z",
+            "outflowCount": 0
           },
           {
             "address": "TL2xWnuBtMiZRwQbyn5qZuaaiAYwj1LNf5",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 102.8708426265879,
-            "taintFraction": 0.02953766980405659,
+            "taintedValueUsdt": 42.81031083445655,
+            "taintFraction": 0.01229227634721812,
             "firstSeen": "2026-08-21T09:38:03.000Z",
-            "outflowCount": 5
+            "outflowCount": 8
           },
           {
             "address": "TV7k2Vmi22DR6tDGKnvTEdYybUz1y8zcmE",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 16.845585054987673,
-            "taintFraction": 0.004836932568118894,
+            "taintedValueUsdt": 7.010390057852084,
+            "taintFraction": 0.002012918154837363,
             "firstSeen": "2026-06-08T16:52:03.000Z",
             "outflowCount": 5
           },
@@ -1201,67 +1182,119 @@
             "address": "TFJJmjYV8Udesc5cBjdzEMxBR55rPBMb2q",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 14.096723895387175,
-            "taintFraction": 0.004047642316417485,
-            "firstSeen": null,
-            "outflowCount": 0
+            "taintedValueUsdt": 5.8664351948553,
+            "taintFraction": 0.0016844503387760357,
+            "firstSeen": "2026-08-23T22:41:12.000Z",
+            "outflowCount": 12
           },
           {
             "address": "TSicm84FrurAnLecSHE4yoz8GeoaJnQcay",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 10.220124824155702,
-            "taintFraction": 0.0029345406794026763,
-            "firstSeen": "2026-08-11T20:40:24.000Z",
+            "taintedValueUsdt": 4.2531655162700925,
+            "taintFraction": 0.001221226495612626,
+            "firstSeen": "2026-06-21T18:12:45.000Z",
             "outflowCount": 9
           },
           {
             "address": "TCgynvK1auc4TmQeFcLdiSYnGJ2vXDFLd5",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 10.220124824155702,
-            "taintFraction": 0.0029345406794026763,
-            "firstSeen": "2026-07-28T03:24:33.000Z",
-            "outflowCount": 5
+            "taintedValueUsdt": 4.2531655162700925,
+            "taintFraction": 0.001221226495612626,
+            "firstSeen": null,
+            "outflowCount": 0
           },
           {
             "address": "TS1uEYongdTrWeL8ovmous5x7KJPvLgLUp",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 84.66142821273776,
-            "taintFraction": 0.024309136076244797,
-            "firstSeen": null,
-            "outflowCount": 0
+            "taintedValueUsdt": 35.23235510602864,
+            "taintFraction": 0.010116391048907067,
+            "firstSeen": "2025-11-21T04:06:06.000Z",
+            "outflowCount": 1
           },
           {
             "address": "TPov4KKR9nKmeCnJJ7RgZUvHG6Sv3h3z5B",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 35.598875474897824,
-            "taintFraction": 0.010221631342032854,
-            "firstSeen": "2026-08-15T07:35:45.000Z",
-            "outflowCount": 5
+            "taintedValueUsdt": 14.814683009543042,
+            "taintFraction": 0.004253792462613214,
+            "firstSeen": "2025-12-31T06:54:36.000Z",
+            "outflowCount": 9
           },
           {
             "address": "TH42JL8XSrfuFyhme8M62zugk6i2rxQ8tn",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 24.1887318335656,
-            "taintFraction": 0.006945396340071094,
+            "taintedValueUsdt": 6.1999488088871315,
+            "taintFraction": 0.0017802132853496227,
             "firstSeen": "2026-09-02T14:36:30.000Z",
             "outflowCount": 6
+          },
+          {
+            "address": "TRNqJz5NgVRS4CGhjnoxquB9myj3G4kwLj",
+            "depth": 3,
+            "label": null,
+            "taintedValueUsdt": 0.5360100359639903,
+            "taintFraction": 0.00015390646221724247,
+            "firstSeen": "2026-09-11T12:34:48.000Z",
+            "outflowCount": 89
+          },
+          {
+            "address": "TJmCC5iEJqGs1EkkL6zz5Cy7E8YGuodYLe",
+            "depth": 3,
+            "label": null,
+            "taintedValueUsdt": 0.4053700965986069,
+            "taintFraction": 0.00011639535320257469,
+            "firstSeen": "2026-07-07T18:59:06.000Z",
+            "outflowCount": 2
+          },
+          {
+            "address": "TStRnidjm6YrpqWez5frnDmzQVYnDzHtpF",
+            "depth": 3,
+            "label": null,
+            "taintedValueUsdt": 0.35734002397599357,
+            "taintFraction": 0.00010260430814482831,
+            "firstSeen": "2026-09-11T03:50:48.000Z",
+            "outflowCount": 12
+          },
+          {
+            "address": "TRWVAnG6gi2Cr7ApDgSH4uwLBF4L8xritU",
+            "depth": 3,
+            "label": null,
+            "taintedValueUsdt": 1.4494499981392093,
+            "taintFraction": 0.00041618571744313584,
+            "firstSeen": "2026-09-09T11:15:42.000Z",
+            "outflowCount": 162
           },
           {
             "address": "TS93Z2vgp4Py8G4crEBHNWMLxwstronpay",
             "depth": 3,
             "label": null,
-            "taintedValueUsdt": 8.095162253633289,
-            "taintFraction": 0.0023243926418104596,
-            "firstSeen": "2026-09-13T18:56:57.000Z",
-            "outflowCount": 192
+            "taintedValueUsdt": 2.074916201374227,
+            "taintFraction": 0.0005957780461636738,
+            "firstSeen": "2026-09-14T03:36:51.000Z",
+            "outflowCount": 386
           }
         ],
         "edges": [
+          {
+            "from": "TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn",
+            "to": "TEuP9JCyE1PoASZP1nTQVS4ZDnvCpysbKj",
+            "valueUsdt": 2591,
+            "txHash": "6bd6d92af819c25fe37e9bea598de6b5c61fdb854a2d0dadec7113f2b0995889",
+            "timestamp": "2026-09-14T08:24:27.000Z",
+            "dwellSeconds": 170649
+          },
+          {
+            "from": "TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn",
+            "to": "TEuP9JCyE1PoASZP1nTQVS4ZDnvCpysbKj",
+            "valueUsdt": 977,
+            "txHash": "493f39c901ac3e6daeb6430d6c8332cec82e2583a67eb8f89066b053344c9d9e",
+            "timestamp": "2026-09-14T08:32:48.000Z",
+            "dwellSeconds": 171150
+          },
           {
             "from": "TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn",
             "to": "TSedCLco1LBNwqdwXJETbXUgpsvAjc7sW4",
@@ -1287,20 +1320,44 @@
             "dwellSeconds": 67500
           },
           {
-            "from": "TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn",
-            "to": "TBe5UXd4dT4QrdDNGN8h1W9GEjaTbSbu1H",
-            "valueUsdt": 78,
-            "txHash": "033e8bf0ea2416c71e9432508815a32e559c4a0b97c9287397d925c818743fdd",
-            "timestamp": "2026-09-12T18:23:54.000Z",
-            "dwellSeconds": 33816
+            "from": "TEuP9JCyE1PoASZP1nTQVS4ZDnvCpysbKj",
+            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "valueUsdt": 3568,
+            "txHash": "b4ecda7c1eb92a141b22f3b3522413ea7ad248dd70161eabbdcf6a0445179cf7",
+            "timestamp": "2026-09-14T08:33:18.000Z",
+            "dwellSeconds": 531
           },
           {
-            "from": "TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn",
-            "to": "TKuVD5WD5SGKJcsVpsZtjw68Q9o1iTr2rP",
-            "valueUsdt": 75.62,
-            "txHash": "3f903a8061b9993b1866960309b583d7368552b12379e9b532725b942e3ee3cc",
-            "timestamp": "2026-09-13T15:43:30.000Z",
-            "dwellSeconds": 110592
+            "from": "TEuP9JCyE1PoASZP1nTQVS4ZDnvCpysbKj",
+            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "valueUsdt": 3164,
+            "txHash": "3036b94c1b1af6fa126f7cfbc3d7780b13bd0358af7a72da3d05f2e912a52047",
+            "timestamp": "2026-09-13T18:02:57.000Z",
+            "dwellSeconds": null
+          },
+          {
+            "from": "TEuP9JCyE1PoASZP1nTQVS4ZDnvCpysbKj",
+            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "valueUsdt": 1904,
+            "txHash": "1f50b9fc42aa07d417669d1abb8891e346bedab0ba6eace6f45d2859099b25ea",
+            "timestamp": "2026-09-14T01:56:06.000Z",
+            "dwellSeconds": null
+          },
+          {
+            "from": "TEuP9JCyE1PoASZP1nTQVS4ZDnvCpysbKj",
+            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "valueUsdt": 257,
+            "txHash": "4f9a42bb15061eba85e66636f2f02932ad29272a3363e0012ddf46bf0cb809d7",
+            "timestamp": "2026-09-12T17:52:45.000Z",
+            "dwellSeconds": null
+          },
+          {
+            "from": "TEuP9JCyE1PoASZP1nTQVS4ZDnvCpysbKj",
+            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
+            "valueUsdt": 184,
+            "txHash": "eaac411a5681a7e3a0c30fbac180b37814ebef6850a432cece739d1dc5c27d86",
+            "timestamp": "2026-09-13T12:02:54.000Z",
+            "dwellSeconds": null
           },
           {
             "from": "TSedCLco1LBNwqdwXJETbXUgpsvAjc7sW4",
@@ -1336,6 +1393,22 @@
           },
           {
             "from": "TJ7d9ZXBQsUhxSy5t9RZu6XgWp85U5bSGD",
+            "to": "TEbqC3MgUbVVqd62c2NpCur3FUvwYR5P6d",
+            "valueUsdt": 75.32,
+            "txHash": "d6e13d5a18adeea4b0ff924f20ab3ae2e99ccb8166202af4f66c16fc2c2a9c55",
+            "timestamp": "2026-09-13T23:05:06.000Z",
+            "dwellSeconds": 69588
+          },
+          {
+            "from": "TJ7d9ZXBQsUhxSy5t9RZu6XgWp85U5bSGD",
+            "to": "TYgyEgFQVvZ1wUid2LaP2XdYk2xADqcQ1i",
+            "valueUsdt": 47.57,
+            "txHash": "bfd2d9b5240ccc5eafff4d0c3c4a7c42f5bcb229ff9163f255d9ff204666e996",
+            "timestamp": "2026-09-13T22:20:09.000Z",
+            "dwellSeconds": 66891
+          },
+          {
+            "from": "TJ7d9ZXBQsUhxSy5t9RZu6XgWp85U5bSGD",
             "to": "TCh5AhfbqW4JeEe4hzFPpUb3ydP7mjm4Qx",
             "valueUsdt": 45.18,
             "txHash": "0f10e7036bed2dc44120f08dc30cdd7afc7d1ede511509ea9f51e693ea8fce36",
@@ -1351,28 +1424,12 @@
             "dwellSeconds": null
           },
           {
-            "from": "TJ7d9ZXBQsUhxSy5t9RZu6XgWp85U5bSGD",
-            "to": "TUGcMAfJmEfiHJ1puB83ojUChMtYgzDSyV",
-            "valueUsdt": 45.18,
-            "txHash": "aee465449ab638a038897fbefd0afc87daee87199046aa18afb65a0a2c612a2b",
-            "timestamp": "2026-09-13T00:59:18.000Z",
-            "dwellSeconds": null
-          },
-          {
-            "from": "TBe5UXd4dT4QrdDNGN8h1W9GEjaTbSbu1H",
-            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
-            "valueUsdt": 194,
-            "txHash": "3b93b75c846cc0251c3df8a4b7f148fd847442a55204bb5abaec5649328e36e4",
-            "timestamp": "2026-09-12T18:32:54.000Z",
-            "dwellSeconds": 540
-          },
-          {
-            "from": "TBe5UXd4dT4QrdDNGN8h1W9GEjaTbSbu1H",
-            "to": "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",
-            "valueUsdt": 118,
-            "txHash": "f461a6414e9fc1c814cf4941d2ca7e2403e2f3603bde1f33864bac4f55af0288",
-            "timestamp": "2026-09-13T17:42:54.000Z",
-            "dwellSeconds": 83940
+            "from": "TCgaZCKvWSmTNxysdBFvBfU2KJuNyNXHKd",
+            "to": "TSfyuibW5BCnT3QEHdzgUYGYWoujUzKAzm",
+            "valueUsdt": 12640,
+            "txHash": "fc193c4479e875db0f903b08724541e9c61a72598da0878168564a0f6205c5ac",
+            "timestamp": "2026-09-14T03:08:24.000Z",
+            "dwellSeconds": 89766
           },
           {
             "from": "TCgaZCKvWSmTNxysdBFvBfU2KJuNyNXHKd",
@@ -1397,6 +1454,14 @@
             "txHash": "a80805101dae0a86490faa72b3bed35730093f0873c1b8367504784bddbb4411",
             "timestamp": "2026-09-12T18:00:24.000Z",
             "dwellSeconds": null
+          },
+          {
+            "from": "TCgaZCKvWSmTNxysdBFvBfU2KJuNyNXHKd",
+            "to": "TGspXuKanzNGUodM4XCQcZkYt777777777",
+            "valueUsdt": 447.76,
+            "txHash": "a402898b582d15887c08ff6a811f2baed9d03d223d9574be04b541c2f320181c",
+            "timestamp": "2026-09-14T04:13:36.000Z",
+            "dwellSeconds": 93678
           },
           {
             "from": "TY74T3BggxaMeLgK51u7F67gMYfoaxoyNC",
@@ -1463,6 +1528,62 @@
             "dwellSeconds": null
           },
           {
+            "from": "TEbqC3MgUbVVqd62c2NpCur3FUvwYR5P6d",
+            "to": "TRNqJz5NgVRS4CGhjnoxquB9myj3G4kwLj",
+            "valueUsdt": 6000,
+            "txHash": "9050cd8a015385514978fa9de231d116ebc895ef0d08923004fc5ce9be68842e",
+            "timestamp": "2026-09-13T09:01:42.000Z",
+            "dwellSeconds": null
+          },
+          {
+            "from": "TEbqC3MgUbVVqd62c2NpCur3FUvwYR5P6d",
+            "to": "TRNqJz5NgVRS4CGhjnoxquB9myj3G4kwLj",
+            "valueUsdt": 5000,
+            "txHash": "f9b744ddb0502b1a4fe501fa9e085d364e91ae499b97ccc7b094dcf59870d31d",
+            "timestamp": "2026-09-13T16:55:57.000Z",
+            "dwellSeconds": null
+          },
+          {
+            "from": "TEbqC3MgUbVVqd62c2NpCur3FUvwYR5P6d",
+            "to": "TJmCC5iEJqGs1EkkL6zz5Cy7E8YGuodYLe",
+            "valueUsdt": 4537.64,
+            "txHash": "7414934a4e8d033953a7eac83735ca9f870f9a26a41a10808ae37f1a41386a92",
+            "timestamp": "2026-09-14T06:49:21.000Z",
+            "dwellSeconds": 27855
+          },
+          {
+            "from": "TEbqC3MgUbVVqd62c2NpCur3FUvwYR5P6d",
+            "to": "TStRnidjm6YrpqWez5frnDmzQVYnDzHtpF",
+            "valueUsdt": 4000,
+            "txHash": "c0e35bdc6651f3310e81f5a89351a3e3926f09d5111d9c1e85306100d7993aa2",
+            "timestamp": "2026-09-14T07:48:30.000Z",
+            "dwellSeconds": 31404
+          },
+          {
+            "from": "TEbqC3MgUbVVqd62c2NpCur3FUvwYR5P6d",
+            "to": "TRNqJz5NgVRS4CGhjnoxquB9myj3G4kwLj",
+            "valueUsdt": 4000,
+            "txHash": "ba3c25270792a7ee6c16ba426013e0c50a493908d696695005f5a938b2b341f0",
+            "timestamp": "2026-09-13T10:31:09.000Z",
+            "dwellSeconds": null
+          },
+          {
+            "from": "TYgyEgFQVvZ1wUid2LaP2XdYk2xADqcQ1i",
+            "to": "TRWVAnG6gi2Cr7ApDgSH4uwLBF4L8xritU",
+            "valueUsdt": 69000,
+            "txHash": "43f05f1880230d6ab0d5c0eea85316f38c48978797f0d7056a029264778f4c0e",
+            "timestamp": "2026-09-12T16:13:45.000Z",
+            "dwellSeconds": null
+          },
+          {
+            "from": "TYgyEgFQVvZ1wUid2LaP2XdYk2xADqcQ1i",
+            "to": "TRWVAnG6gi2Cr7ApDgSH4uwLBF4L8xritU",
+            "valueUsdt": 35000,
+            "txHash": "863034564aa78b67aa8237ace3e463e17fdee3194091d19d270c87a374078174",
+            "timestamp": "2026-09-13T12:29:15.000Z",
+            "dwellSeconds": null
+          },
+          {
             "from": "TCh5AhfbqW4JeEe4hzFPpUb3ydP7mjm4Qx",
             "to": "TS93Z2vgp4Py8G4crEBHNWMLxwstronpay",
             "valueUsdt": 479.509999,
@@ -1486,65 +1607,86 @@
           {
             "code": "SHORT_DWELL",
             "reason": "Funds forwarded within 9 minutes of receipt — indicates automated laundering, not manual movement.",
-            "atAddress": "TBe5UXd4dT4QrdDNGN8h1W9GEjaTbSbu1H"
+            "atAddress": "TEuP9JCyE1PoASZP1nTQVS4ZDnvCpysbKj"
           },
           {
             "code": "HIGH_FANOUT",
-            "reason": "Funds split across 192 wallets in a single hop.",
+            "reason": "Funds split across 386 wallets in a single hop.",
             "atAddress": "TS93Z2vgp4Py8G4crEBHNWMLxwstronpay"
           },
           {
             "code": "PEEL_CHAIN",
-            "reason": "Peel-chain pattern: 151 small withdrawals against a largest transfer of 528 USDT — the bulk moves on while fractions are shaved off.",
+            "reason": "Peel-chain pattern: 195 small withdrawals against a largest transfer of 2,591 USDT — the bulk moves on while fractions are shaved off.",
             "atAddress": "TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn"
           },
           {
             "code": "ROUND_AMOUNTS",
-            "reason": "Round-figure transfer of 2,000 USDT suggests structured layering rather than ordinary payment activity.",
-            "atAddress": "TGEQogaMtbPJJoj1QRN2AaqKLDaPQQmuDr"
+            "reason": "7 round-figure transfers, the largest 69,000 USDT, suggest structured layering rather than ordinary payment activity.",
+            "atAddress": "TYgyEgFQVvZ1wUid2LaP2XdYk2xADqcQ1i"
           },
           {
             "code": "NEW_ADDRESS",
-            "reason": "Receiving address was created 2 days before the reported fraud.",
-            "atAddress": "TCgaZCKvWSmTNxysdBFvBfU2KJuNyNXHKd"
+            "reason": "Receiving address was created 1 day before the reported fraud.",
+            "atAddress": "TRNqJz5NgVRS4CGhjnoxquB9myj3G4kwLj"
           }
         ],
         "triage": "WARM",
-        "triageReason": "49 USDT reached a Binance wallet; the exchange can be asked to identify the receiving account.",
+        "triageReason": "451 USDT reached a Binance wallet; the exchange can be asked to identify the receiving account.",
         "provenance": {
-          "apiCalls": 106,
+          "apiCalls": 162,
           "responseHashes": [
-            "7a1e4bbcc18417a3cedb124f9076e725ca27af3f9bbb92ad7786aa426923fca7",
-            "37dc080cbd4b0d6dfa975728320224125d3a9f96d18cb675488ddde7a86e419a",
-            "bc9d2ff0b7e8bd4f1ae9f78a7c219af301edddb287aa5a677ff5f30c358ac2ca",
-            "6eb5c44ee1f3af18beddb311cf4f176c41bc2842c47fcad9a84657b44bb19811",
-            "78f1820e58e0b4091325298a3e6f2df08525cf931592458916e790fabb1e3f98",
-            "aff0fc3224c13dbcbbafd0048c55444e3b5f12805fe5c222bdd4b8396924dbfb",
-            "c73b9806f90b664bd2d630c28bdda5305231edbf1213b588bc0c3a27877f979d",
-            "b03f1e44e07bf366e04ad4c4357bc97920871b2d79984aab63c84f9663ddc09e",
-            "f349511d3bf41621928a90740c437771e248e44421f84f7a9273daf29caf72c6",
-            "9ac0f2112574fa050891ac4db0f259d43dde9df7e03f849965ad7f5303deb847",
-            "c1fb46a9e374e78c0493e30f435c712ddf5211bf3bcf411c05f7a27acbc77f1f",
-            "7796227ebee08883098cdad9505c51efcd23a3106e994dd2cb3d5c986cbda454",
-            "612dd16bb8efd10004b69286ce9be18fe2d28dd3fb76634ce1e18ce58a3c94d0",
-            "a4901d6267a451e37c301f5a71e0b49fd3a9e8843a1a3053f2671da2717fd12b",
-            "ba79b4862940a5ed343f0f39795496476f5fd2ce3146ec4c7918867e37d22c04",
-            "20b133f98f430d38428d60b89eddd1f1b4397832c1be9b18d9b13c8b6c23e9e5",
-            "8ba6bbc3e07ee2e8871a3131389cb21f1edd4e1b643757d071a1a5c55852fa22",
-            "ecdf60183ad2caa33063d6bbc0f112b5fb6dd7804f769a21da0ec9db028bfb36",
-            "5723a9da2ddef5ef9384863362da9ed9919fe40ff5ee56b610b75392c69db6f3",
-            "fe5795deaed3810aa9d908c4f8cee3b27b967104d34c0d76ae006035ab433ea9",
-            "624146f25223ed3d516daa5145dcc1f168c0b5a66038286d4b822eda52a2b6bc",
-            "9b50d39acf1f0bd8db9f30f24ec49fd5217796dad9b800263d9c173515b124f8",
-            "04c1aa584a068f5a746b01329be89360f47cf27dffa8dee598353fa60287c42f",
-            "3fc401b9490128ac1b1b5d2a78bc53897f260b7f0b52ad10a56a91293b8eaa33",
-            "ce5c949cafa9e0208665019230356afe6a09b3a940e4f515baef479d13cde7bf",
-            "6148c58c5513a740333fad5362de991bb8b0a48f79594d51c5f806ca4a1a5dec",
-            "20ce18c0710ef74aeab62705f26f2220f5f2bb0040c82a7d1bb6ec01bf670c08",
-            "f97e253518b233d65707c51420a186f976d7cb4af85cf7dfeaf3e3cca16e7862"
+            "98f214b64715ee355ef7b5a702532a7b9a1d4a081c784ad5467b5e28ba020ae4",
+            "d1837414d855beeff74a3433ce0605c404dc4541424a155f20a9f97979b14546",
+            "fb3478c0bb795a1ae2bfa40356ac537d6783d2f8a127eecccf84f7420d1b25b3",
+            "c55dbe88f3f9790c098714b8d2e74b59c535f7f54f57097834e28a01e2187932",
+            "8c068afc7f4e5e840578b2197f314427f2b2ecde72a291ebdafc263fd3f997a9",
+            "f0c4ea46376953bd9ccf58b2772ccf013ca8e258e4cdfe0e7804cf888fc51bf6",
+            "ca4ecd8ca9aee7d7542630767e05f3e6787500730b0f29877d3d6f48ec9a8c1e",
+            "7b2c8ebdebab0a33a4a11595a2caf8d0e9dce788a73a84b37526d58e18ae7c29",
+            "83f2f73725e31c240284cd6366cb8b3a69b7eca65dbaa15557513d7bb8e1846c",
+            "20c82fad0cb4b31e38d9bc3633bb982b0b8f4916c546cfe8b8d8044f6f2950a2",
+            "f1be9ce32968a8b3cbbb0f14ea54dec12e5b4912bfff66ccca0b7c9dab480005",
+            "e66bb412e2468a1a47db5cd238ed9142d45f56d42ef17509589b34e307b57279",
+            "13fa2708b97d70c319ee8fb5aa6f291955414b4c994f112e62355280ef0a7948",
+            "464423b5166d8835dd99283a477aeb57a2a306698d697bc1b239d1e8a5ff8fa8",
+            "d05949ee342ddbc9cbfdd5ab6a67881ef7f30816403af4cf246ee1fc2e8f7690",
+            "3f4dd75c1f8520c1c2277f93ecf400ff6e72b87e37635de6460179697422c738",
+            "c13634f3469b79d71e973910a134658ae7724ff6d6a7441ec48a243ccc47ca1e",
+            "26f5c24eb1ffc0a33706a9f63832b9274209ed3112d5ed93ae49fc2a3c88bf46",
+            "e867a5c80a078fc442f888cecb5ce045ebe6949c1cb247fd7b7ae284eab3ea6d",
+            "2d13bf89a4ba7f6d7205d86bc61735ea9188101f89040d9128d40e7ce7b00028",
+            "0ac81f8491f1a731c40acd921084e1b8e81a8c6c07b0b3e75a74adaa28b26b61",
+            "dba2a807baa2b0ec9c3918b23d2445026e8d09b28420c3ec9370f47a299aaf0b",
+            "7f489086da765c81f3e7fdc9f0640dc8d87b6fe2a1461cf28ef44d447eace545",
+            "89204ccdf84a5e0f13fbeb7a573a02b8934eba981e7744c5dc20020d092bf82d",
+            "1ee9502735f3087a0933e9baa352af57ca22960b23acd25a1f90759d8d387e4b",
+            "1f103afcbfba725a023e6c387cf89d3654dcc46c37e178f01f35040d2d0f158c",
+            "e1022aca1b90201dea152b01309a16c0cf3e4ec380a4ce61fc4d98b515ddb33c",
+            "f3b2f088460d10839588b30539384f186aa0a312f33cdb5e0951868dfe6b23a6",
+            "8ef697c85de6afed1db182e723434c23d1b72799dec024205be7d5d4556507f5",
+            "11df937a40af7d9f65b5b528bf9565231c8374f41c9b07a7a2c54dbed0e3d149",
+            "ad0ee030118c48315955cff76f4b7e84b221496d4914f0a68aac0f70773a7935",
+            "9d3cfd7e26cc1aadaa5d5fa2458105063b8111632bc529cc56dd0f4009ecbc8f",
+            "ccdcf4190c244246f13825cfe423f535475b7aec55f5ff4698f209978203f7f5",
+            "1f3c03cfc69b3cb71a4e67d806c66364b0f528b57b3e4671d1bbe01e950eb5c8",
+            "53d918dfdc615f999e6c4db7d0860fbe0c468e3a59e0db6e1f0051aac791c31a",
+            "08aad34fbd0eaecc4005fce1b4afac76147a18d0dfea086d9b4f3b181638e430",
+            "67fcaaa9c7cb24d274654937c1a9c08b907520bdf31a3386168f9d509ebb69b8",
+            "7463965a73b8399f30b642ff193ed9cd80f4c105e97ce1df6e8fe71ca10631c7",
+            "01e9f02e3a097581056cffd2da50602c22bda8af9318c4287db96b3e4681bc87",
+            "e9bcd749c935d3b6a00c3236cbed992e8962e4d2a3dbc325eac3bcddba09aa0d",
+            "b7ea5fa637607d20c584951d3da8c35ab89ea314d6e17fb89ab108207c2d77ff",
+            "d16ce02e39f70b6fc7fb214c9eafdbb072802c80ec8bc3ebb84a45a9844bf65b",
+            "4bc3d85e1d84dbf6ee474b274abdef1e6212da857885a444367cdec26b3a5e7d",
+            "727e4756c457168c9374e50fcee893c2485053ea9eac3a0b977ffd240913a0f4",
+            "d80019c3c3d61d2a5afccb8e57bacaf719f7a7de7f251ff5c10525cf4de7c20d",
+            "8b015383cbf0fd10ad94288e665e765c76b8f0e4da6d6252268b43f190809195",
+            "33071b9468ffea7ccf4045b578b9a8659d85b399a6ebf74b74c913660fbb4b93",
+            "b1fc2ecc41f220859f833189f7bef540349920710700c493ef8a69d176d9b8a0"
           ],
-          "generatedAt": "2026-09-13T21:32:18.451Z"
-        }
+          "generatedAt": "2026-09-14T08:54:39.289Z"
+        },
+        "narrative": "3,482.70 USDT left the reported wallet after 12 September 2026, followed across 39 transfers and 3 hops. The fastest onward transfer was made 9 minutes after receipt, which is characteristic of automated forwarding rather than a person deciding. 451.43 USDT, 13.0% of the reported amount, reached Binance hot wallet. 5 behavioural rules fired on the path (short dwell, high fanout, peel chain, round amounts, new address). A restraint request naming that account is viable."
       }
     }
   ]

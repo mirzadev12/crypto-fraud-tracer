@@ -326,6 +326,34 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   the file it replaces, silently. Merge seeds the map from disk first, and the
   checkpoint writes then never stand in for rows the run was not asked to
   re-derive. **Back up `deposit-addresses.json` before any clustering run.**
+- **Complaints that share a wallet are one case** (`lib/links.ts`, surfaced in
+  `/queue`). Triage answers "where is the next hour worth spending"; it does not
+  answer what a cyber cell asks immediately afterwards — *are any of these the
+  same people*. Fourteen complaints converging on one wallet are not fourteen
+  cases, they are one network, and that is the form this fraud gets prosecuted
+  in. Nothing new is read from the chain: every traced result already carries
+  the wallets it passed through, so a link is the same wallet appearing in more
+  than one of them.
+  **What is deliberately not a link, and this is the whole design.** Two cases
+  both ending at Binance is a fact about Binance, not a connection between them
+  — same for a mixer or a sanctioned service, which everyone who uses them
+  shares. Linking on those would relate almost every pair of cases and the
+  feature would mean nothing. So `SHARED_INFRASTRUCTURE` excludes
+  `exchange_hot`, `mixer` and `sanctioned`, and shared **accounts** are kept: an
+  unlabelled intermediary both victims' money ran through, or one customer
+  deposit address inside an exchange — the strongest link there is, because it
+  is one accountholder. If a label kind is ever added, decide which side of that
+  line it falls on before shipping it.
+  It pays off on the committed data: three of the ten frozen cases converge on
+  one MEXC customer deposit address, `TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN`,
+  27,930.22 USDT between them. The panel only renders when there is a link, and
+  the register is unchanged above it.
+- **Re-capture the frozen cases whenever the tracer's output gains a field.**
+  The narrative shipped and all ten recorded cases still had none, so demo mode
+  — the thing a pitch actually runs on — would have shown no summary at all.
+  `node scripts/rescore-cases.mjs` re-ran them: dispositions unchanged, flags
+  unchanged, 6/6 rules, narratives present. Back the file up first; the script
+  refuses to write if any disposition drifted.
 - **The investigator summary is assembled, not generated** (`lib/narrative.ts`).
   AGENTS.md §11 offers a hosted language model for this paragraph. It was not
   taken, and the reason is §11's own defensive line: the answer to "what if the
