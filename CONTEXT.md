@@ -326,6 +326,34 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   the file it replaces, silently. Merge seeds the map from disk first, and the
   checkpoint writes then never stand in for rows the run was not asked to
   re-derive. **Back up `deposit-addresses.json` before any clustering run.**
+- **The convergence is drawn, not just stated** (`components/LinkGraph.tsx`).
+  `findLinks` established the fact and the panel put it in words, but the claim
+  this project most wants understood is a *shape*: separate victims, separate
+  complaints, one accountholder at the end. A reader takes that from a drawing
+  in about two seconds and from a paragraph in about twenty. Victim wallets
+  left, the shared account right in brass, edge thickness by the victim money
+  that reached it, one packet travelling each edge — the same device both other
+  canvases use, and removed under `prefers-reduced-motion` by the same rule.
+  Hand-drawn SVG, deterministic, no dependency; its hex literals belong in the
+  same grep as `TraceGraph` and `BubbleMap` after any palette change. **The two
+  labels sit centred under the node, not beside it** — an entity phrase set to
+  the right runs straight out of the viewBox and is silently clipped, which is
+  how the first version shipped "Likely MEXC deposit c".
+- **One line at the head of a finished run says what the product claims**
+  (`/queue`): complaints traced, how many still hold funds, USDT still
+  reachable, shared accounts. The claim — *we tell you which of today's
+  complaints still have money* — had no single place that stated it, and both a
+  reader and a camera need one frame that does.
+- **Verify a demo-shaped change against `next start`, not `next dev`.** The dev
+  server drops client chunks after repeated rebuilds and the tab then falls back
+  to a full page load, which looks exactly like the app navigating away on its
+  own — an hour went into chasing that. A production build on another port
+  settles it in one run, and `DEMO_MODE=true npx next start` needs no rebuild
+  because that variable is read at runtime. It is also the honest rehearsal: 3
+  of 3 traced in seconds from the frozen file, stamped `recorded`, no network.
+  Kill the old process first — `next start` on a taken port fails with
+  EADDRINUSE into its log and the **previous build keeps serving**, so the fix
+  you just made appears not to have worked.
 - **Complaints that share a wallet are one case** (`lib/links.ts`, surfaced in
   `/queue`). Triage answers "where is the next hour worth spending"; it does not
   answer what a cyber cell asks immediately afterwards — *are any of these the

@@ -27,6 +27,7 @@ import {
 } from "@/lib/api";
 import { formatUsdt, shortAddress } from "@/lib/format";
 import { findLinks } from "@/lib/links";
+import LinkGraph from "@/components/LinkGraph";
 import { checkTronAddress } from "@/lib/tron";
 import type { TraceResult, TriageLevel } from "@/lib/types";
 import {
@@ -360,7 +361,32 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
         ) : null}
 
         {traced ? (
-          <div className="grid gap-6 sm:grid-cols-3">
+          <>
+            {/*
+              One line summarising the morning. It exists because the product's
+              whole claim — "we tell you which of today's complaints still have
+              money" — had no single place that said it, and a reader (or a
+              camera) needs one frame that does.
+            */}
+            <p className="border-l-2 border-brass-dim py-3 pl-6 text-sm leading-7 text-muted">
+              <strong className="font-semibold text-ink">{traced}</strong>{" "}
+              {traced === 1 ? "complaint" : "complaints"} traced ·{" "}
+              <strong className="font-semibold text-ink">{stats.critical}</strong> still
+              holding funds ·{" "}
+              <strong className="font-semibold text-ink">
+                {formatUsdt(stats.reachable, { symbol: false })} USDT
+              </strong>{" "}
+              still reachable
+              {links.length ? (
+                <>
+                  {" · "}
+                  <strong className="font-semibold text-brass">
+                    {links.length === 1 ? "1 shared account" : `${links.length} shared accounts`}
+                  </strong>
+                </>
+              ) : null}
+            </p>
+            <div className="mt-8 grid gap-6 sm:grid-cols-3">
             <StatCard
               label="Act now"
               value={String(stats.critical)}
@@ -377,7 +403,8 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
               value={String(stats.entities)}
               hint="Distinct services reached"
             />
-          </div>
+            </div>
+          </>
         ) : null}
 
         <Panel
@@ -425,21 +452,10 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
                   >
                     {link.address}
                   </Link>
-                  {link.label ? (
-                    <p className="mt-2 text-xs text-faint">{entityPhrase(link.label)}</p>
-                  ) : null}
-                  <ul className="mt-4 flex flex-wrap gap-2">
-                    {link.cases.map((c) => (
-                      <li key={c.inputAddress}>
-                        <Link
-                          href={`/trace/${encodeURIComponent(c.inputAddress)}`}
-                          className="fx-option inline-block px-3 py-2 font-mono text-xs text-faint transition hover:text-brass"
-                        >
-                          {shortAddress(c.inputAddress)}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                  {/* The shape, not just the sentence: separate victims, one
+                      account. The graph carries the case links itself, so the
+                      chip row it used to duplicate is gone. */}
+                  <LinkGraph link={link} />
                 </li>
               ))}
             </ul>
