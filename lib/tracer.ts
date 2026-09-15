@@ -179,6 +179,31 @@ export async function runTrace(
   ];
 
   while (queue.length > 0) {
+    /*
+     * Collapse duplicate addresses within this hop before processing any of
+     * them, keeping the larger share of the victim's money for each.
+     *
+     * Without this, a fan-in — several wallets converging on one address, which
+     * is the consolidation pattern `lib/links.ts` exists to find — could queue
+     * the same address twice in one hop. The per-item guard below only skips a
+     * repeat whose taint is *lower* than what was already recorded, so when the
+     * second copy carried more (which depends on the split ratios at each
+     * parent, not on processing order) the wallet was traversed a second time
+     * and every one of its outgoing transfers was pushed into `edges` again.
+     * The duplicate then propagated: its children were enqueued twice as well.
+     *
+     * The effect was a case file that listed the same transaction twice, and
+     * inflated inputs to the fan-out and round-amount rules. Deduplicating here
+     * rather than loosening the guard below keeps the taint semantics identical
+     * — a wallet reached by two routes still keeps the larger share.
+     */
+    const merged = new Map<string, (typeof queue)[number]>();
+    for (const item of queue) {
+      const prior = merged.get(item.address);
+      if (!prior || item.taint > prior.taint) merged.set(item.address, item);
+    }
+    queue = [...merged.values()];
+
     const next: typeof queue = [];
     emit({ type: "hop", depth: queue[0].depth, wallets: queue.length });
 
