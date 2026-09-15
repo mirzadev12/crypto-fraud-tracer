@@ -39,9 +39,9 @@ interface NavSection {
 const SECTIONS: NavSection[] = [
   {
     name: "Casework",
-    href: "/",
+    href: "/dashboard",
     leaves: [
-      { name: "Queue", href: "/", hint: "Today's complaints, most reachable first" },
+      { name: "Queue", href: "/dashboard", hint: "Today's complaints, most reachable first" },
       { name: "Batch triage", href: "/queue", hint: "A morning of complaints at once" },
       { name: "New case", href: "/investigate", hint: "Open a wallet or a transaction" },
       { name: "Intelligence", href: "/fund-flow", hint: "Fund flow for the open case" },
@@ -136,7 +136,14 @@ export default function Navbar() {
   };
 
   const section = sectionFor(pathname);
-  const sectionActive = (s: NavSection) => s.name === section.name;
+  /*
+   * The landing page belongs to no section — it is the argument for the
+   * product, not a place inside it — so nothing in the bar lights up there.
+   * The destination row still shows Casework's, because that is where a reader
+   * who has finished the argument is going next.
+   */
+  const sectionActive = (s: NavSection) =>
+    pathname !== "/" && s.name === section.name;
 
   return (
     <nav className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur">
@@ -282,7 +289,7 @@ function CaseScope({ address }: { address: string }) {
       </span>
       <span className="font-mono text-[11px] text-brass">{shortAddress(address)}</span>
       <Link
-        href="/"
+        href="/dashboard"
         title="Leave this case and show every case again"
         aria-label="Leave this case"
         className="fx-option-quiet px-2 font-label text-[10px] uppercase tracking-[0.16em] text-faint transition hover:text-brass"
