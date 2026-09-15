@@ -27,6 +27,36 @@ const MAX_DEPTH = 3;
 const TOP_OUTFLOWS = 5;
 const DUST_FRACTION = 0.01;
 
+/**
+ * How stolen money is followed once it mixes with other money in a wallet.
+ *
+ * This is the question every serious tracing argument turns on, and there is no
+ * single right answer — only rules, each with a cost. A wallet holding 9,000
+ * USDT receives 1,000 of the victim's, then sends 1,000 onward:
+ *
+ *   haircut  The wallet is 10% tainted, so everything leaving is 10% tainted:
+ *            100 USDT of the victim's money left. Conservative, never
+ *            over-claims, and *dilutes* — a launderer defeats it by routing
+ *            through high-volume wallets until the share rounds to nothing.
+ *
+ *   fifo     First in, first out. The clean 9,000 arrived first, so it leaves
+ *            first: none of the victim's money has left yet. Harder to dilute
+ *            on purpose, and it is the rule English courts have reached for on
+ *            mixed funds since Clayton's Case (1816).
+ *
+ * Both are defensible and they disagree, sometimes by an order of magnitude.
+ * Running the trace under each brackets the answer instead of asserting one,
+ * which is the honest thing to put in front of an officer — and it is the
+ * answer to the sharpest question this method faces: what happens when the
+ * criminal mixes stolen funds with clean ones.
+ *
+ * Not implemented: poison (every wallet that touches the money is wholly
+ * tainted) taints bystanders within a couple of hops, and LIFO is FIFO's mirror
+ * with no legal tradition behind it. Neither would tell an investigator
+ * anything these two do not.
+ */
+export type TaintModel = "haircut" | "fifo";
+
 export interface TraceRequest {
   address: string;
   /**
@@ -43,6 +73,54 @@ export interface TraceRequest {
    * wallets come back empty: nothing is followed before the fraud date.
    */
   fraudDate: string | "auto";
+  /** How taint survives mixing. Defaults to haircut, which is what shipped. */
+  model?: TaintModel;
+}
+
+/**
+ * FIFO: which part of each outflow is the victim's money.
+ *
+ * The wallet is a queue. Whatever it already held when the tainted money
+ * arrived leaves first, then the tainted tranche, then anything that arrived
+ * afterwards. So an outflow before the money arrived carries none of it, and an
+ * outflow after it carries the victim's money only once the earlier balance is
+ * exhausted.
+ *
+ * The simplification, stated because it bounds what the number means: one
+ * tainted tranche per wallet, at the moment this trace first reached it. A
+ * wallet the money reached twice by different routes is treated as receiving
+ * the larger share once — which is the same assumption the rest of the tracer
+ * already makes when it keeps the larger taint for a wallet reached twice.
+ */
+function fifoShares(
+  outflows: Trc20Transfer[],
+  inflows: Trc20Transfer[],
+  arrivedAt: number,
+  taintedValue: number,
+): Map<string, number> {
+  // What the wallet already held, unspent, at the moment the tainted money
+  // landed. Read from the transfers rather than assumed: a wallet with no prior
+  // history has nothing to pay out first, and the taint leaves immediately.
+  let priorIn = 0;
+  for (const t of inflows) if (t.timestamp < arrivedAt) priorIn += t.value;
+  let priorOut = 0;
+  for (const t of outflows) if (t.timestamp < arrivedAt) priorOut += t.value;
+
+  let clean = Math.max(0, priorIn - priorOut);
+  let dirty = taintedValue;
+
+  const shares = new Map<string, number>();
+  for (const t of [...outflows].sort((a, b) => a.timestamp - b.timestamp)) {
+    if (t.timestamp < arrivedAt) continue; // paid out before the money arrived
+    let need = t.value;
+    const fromClean = Math.min(clean, need);
+    clean -= fromClean;
+    need -= fromClean;
+    const fromDirty = Math.min(dirty, need);
+    dirty -= fromDirty;
+    if (fromDirty > 0) shares.set(t.txHash, fromDirty);
+  }
+  return shares;
 }
 
 /** Deterministic, human-quotable case reference derived from the address. */
@@ -71,6 +149,7 @@ export async function runTrace(
   // Resolved from the root's own outflows when the caller said "auto".
   let reported = typeof req.amount === "number" ? Math.max(0, req.amount) : 0;
 
+  const model: TaintModel = req.model ?? "haircut";
   const grid = new TronGrid();
   const nodes = new Map<string, TraceNode>();
   const edges: TraceEdge[] = [];
@@ -197,6 +276,22 @@ export async function runTrace(
 
       const heldSince = receivedAt.get(item.address) ?? fraudAt;
 
+      /*
+       * Under FIFO the split depends on when each transfer happened and what
+       * the wallet already held, so it is computed once per wallet over every
+       * outflow — not just the five we follow — or the shares would be drawn
+       * from a queue the pruning had already emptied.
+       */
+      const fifo =
+        model === "fifo"
+          ? fifoShares(
+              outAll,
+              transfers.filter((t) => t.to === item.address),
+              Number.isFinite(heldSince) ? heldSince : fraudAt,
+              reported * item.taint,
+            )
+          : null;
+
       for (const t of followed) {
         edges.push({
           from: t.from,
@@ -214,7 +309,12 @@ export async function runTrace(
         next.push({
           address: t.to,
           depth: item.depth + 1,
-          taint: item.taint * (t.value / totalOut),
+          taint: fifo
+            ? // A share of the reported amount, so the units match haircut's.
+              reported > 0
+              ? (fifo.get(t.txHash) ?? 0) / reported
+              : 0
+            : item.taint * (t.value / totalOut),
         });
       }
     }

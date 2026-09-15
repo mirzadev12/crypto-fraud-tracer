@@ -31,8 +31,22 @@ export async function GET(
     return NextResponse.json({ error: check.reason }, { status: 400 });
   }
 
-  // See the POST route: exact-address match only, and the response says so.
-  if (DEMO_MODE) {
+  const url = new URL(request.url);
+  /* ?model=fifo runs the same trace under first-in-first-out instead of the
+     proportional haircut. Anything else, including nothing, is haircut — the
+     model that shipped, so an existing link is unaffected. */
+  const model = url.searchParams.get("model") === "fifo" ? ("fifo" as const) : undefined;
+
+  /*
+   * See the POST route: exact-address match only, and the response says so.
+   *
+   * A frozen case was captured under haircut, so it cannot answer a request for
+   * a different model — returning it would label a haircut figure as FIFO,
+   * which is the one kind of lie this file exists to prevent. A model request
+   * therefore goes to the chain like any other address, and fails honestly if
+   * the network is gone.
+   */
+  if (DEMO_MODE && !model) {
     const held = frozenTrace(address);
     if (held) {
       if (wantsStream(request)) {
@@ -47,7 +61,6 @@ export async function GET(
     }
   }
 
-  const url = new URL(request.url);
   const amountParam = Number(url.searchParams.get("amount"));
   const sinceParam = url.searchParams.get("since");
 
@@ -60,6 +73,7 @@ export async function GET(
     address,
     amount,
     fraudDate: Number.isNaN(since.getTime()) ? "auto" : since.toISOString(),
+    ...(model ? { model } : {}),
   };
 
   if (wantsStream(request)) {
