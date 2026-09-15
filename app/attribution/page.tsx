@@ -5,10 +5,12 @@ import AttributionRegister, {
   type DerivedRow,
   type SeedRow,
 } from "@/components/AttributionRegister";
+import CalibrationPanel, { type Calibration } from "@/components/CalibrationPanel";
 import { PageHeader, buttonStyles } from "@/components/ui";
 import deposits from "@/data/deposit-addresses.json";
 import seeds from "@/data/hot-wallets.json";
 import riskLists from "@/data/risk-lists.json";
+import calibration from "@/data/clustering-calibration.json";
 
 export const metadata: Metadata = {
   title: "Attribution register",
@@ -41,6 +43,7 @@ export default function AttributionPage() {
         }
       />
       <AttributionRegister rows={rows} seeds={seedRows} />
+      <CalibrationPanel data={calibration as Calibration} />
     </AppShell>
   );
 }

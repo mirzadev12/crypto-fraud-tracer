@@ -1,0 +1,474 @@
+{
+  "_method": "A stratified sample of derived deposit addresses, re-read from the public chain and re-tested with the clustering's own predicate (>=2 sweeps, >=90% of inflow forwarded to the recorded hot wallet). Measures whether the pattern persists on transfers the derivation never saw. It does NOT establish ownership: both the derivation and this check read the same public endpoint, and only the exchange can confirm whose account an address is.",
+  "_unreadable": "Addresses the chain would not answer for are recorded and excluded from every rate. A throttled read is not a failed address.",
+  "generatedAt": "2026-09-15T05:31:48.454Z",
+  "predicate": {
+    "minSweeps": 2,
+    "minRatio": 0.9
+  },
+  "population": 241,
+  "sampled": 40,
+  "readable": 31,
+  "unreadable": 9,
+  "held": 31,
+  "continued": 11,
+  "overallRate": 1,
+  "perBand": [
+    {
+      "band": "0.50–0.59",
+      "measured": 7,
+      "held": 7,
+      "continued": 1,
+      "rate": 1
+    },
+    {
+      "band": "0.60–0.74",
+      "measured": 8,
+      "held": 8,
+      "continued": 1,
+      "rate": 1
+    },
+    {
+      "band": "0.75–0.89",
+      "measured": 7,
+      "held": 7,
+      "continued": 2,
+      "rate": 1
+    },
+    {
+      "band": "0.90–0.95",
+      "measured": 9,
+      "held": 9,
+      "continued": 7,
+      "rate": 1
+    }
+  ],
+  "results": [
+    {
+      "address": "TAz5T84UW4VXYTU9ckSSWLYVSbRXEJT2P4",
+      "exchange": "Swapster",
+      "confidence": 0.56,
+      "band": "0.50–0.59",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 5,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 2,
+      "continued": true
+    },
+    {
+      "address": "TCmkn8bmzGJzqokVm3f2PPuiMg3C6Hz6GH",
+      "exchange": "Binance",
+      "confidence": 0.56,
+      "band": "0.50–0.59",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 2,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 2,
+      "continued": false
+    },
+    {
+      "address": "TDm6RFiKw1EVbrRCqEcKuXRGjjYmcjfWLV",
+      "exchange": "UEEx",
+      "confidence": 0.59,
+      "band": "0.50–0.59",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 3,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 3,
+      "continued": false
+    },
+    {
+      "address": "TFjhhys3Qa7Zg22w13wpAvU1ikLbwRB5gS",
+      "confidence": 0.56,
+      "band": "0.50–0.59",
+      "readable": false
+    },
+    {
+      "address": "TJboqfdK656QwuBo6DtgYfeegF3Qbt63tr",
+      "exchange": "UEEx",
+      "confidence": 0.59,
+      "band": "0.50–0.59",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 3,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 3,
+      "continued": false
+    },
+    {
+      "address": "TLnfDKXGyuocjoccNKjLDLFippNtBpfFBa",
+      "confidence": 0.59,
+      "band": "0.50–0.59",
+      "readable": false
+    },
+    {
+      "address": "TMjiGz5bwnYdTAFBHuMaM7fLtjjccPPYUG",
+      "exchange": "Kraken",
+      "confidence": 0.59,
+      "band": "0.50–0.59",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 3,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 3,
+      "continued": false
+    },
+    {
+      "address": "TNxZJbwwqa5ykbhCMk7fQoNeoLEsSzyaX5",
+      "exchange": "Kraken",
+      "confidence": 0.59,
+      "band": "0.50–0.59",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 3,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 3,
+      "continued": false
+    },
+    {
+      "address": "TPwV2UyiWUcW3jMQ3kPktos1RLN3knQurx",
+      "exchange": "Kraken",
+      "confidence": 0.59,
+      "band": "0.50–0.59",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 3,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 3,
+      "continued": false
+    },
+    {
+      "address": "TTopHssfYmo4tghxHKkhZqoBojdwdmTooM",
+      "confidence": 0.56,
+      "band": "0.50–0.59",
+      "readable": false
+    },
+    {
+      "address": "TADutx3o1Piv11MEU1VSUH3UanPR61TrjH",
+      "exchange": "Flipster",
+      "confidence": 0.74,
+      "band": "0.60–0.74",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 8,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 8,
+      "continued": false
+    },
+    {
+      "address": "TBRfyApZ7TAtp9L2CEz6Em7kDvMCiXLRWW",
+      "confidence": 0.65,
+      "band": "0.60–0.74",
+      "readable": false
+    },
+    {
+      "address": "TDpsLwUHcsGBKS53FnVEyaY6tpDRFZes5B",
+      "exchange": "Gate.io",
+      "confidence": 0.74,
+      "band": "0.60–0.74",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 8,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 8,
+      "continued": false
+    },
+    {
+      "address": "TEHnyQP51M7PhJ2LKgisNLVLfTRzyMLaGW",
+      "exchange": "Bybit",
+      "confidence": 0.62,
+      "band": "0.60–0.74",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 4,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 4,
+      "continued": false
+    },
+    {
+      "address": "TGRCieVqWHqeSAAZv5wUznuxf3pEmGEqhL",
+      "exchange": "Binance",
+      "confidence": 0.65,
+      "band": "0.60–0.74",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 5,
+      "ratioNow": 0.9756,
+      "sweepsAtDerivation": 5,
+      "continued": false
+    },
+    {
+      "address": "THhRuKVxKthQwEUhZMRjiS5bggebSbHs6g",
+      "exchange": "Kraken",
+      "confidence": 0.62,
+      "band": "0.60–0.74",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 4,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 4,
+      "continued": false
+    },
+    {
+      "address": "TMeju24m388aYUpQw96gMToote7Gxmb2vg",
+      "exchange": "Kraken",
+      "confidence": 0.6799999999999999,
+      "band": "0.60–0.74",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 7,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 6,
+      "continued": true
+    },
+    {
+      "address": "TQEj8Z9w7E7c1msrqa9y8MrqY81fHuXioD",
+      "confidence": 0.62,
+      "band": "0.60–0.74",
+      "readable": false
+    },
+    {
+      "address": "TTeK3vd2Dce5DaozsrD2PmgV7BE7p4j8Lp",
+      "exchange": "Swapster",
+      "confidence": 0.71,
+      "band": "0.60–0.74",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 7,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 7,
+      "continued": false
+    },
+    {
+      "address": "TVj2WZySVEqNTA6KRDRRHZ3k1yAdG1czc1",
+      "exchange": "KuCoin",
+      "confidence": 0.6799999999999999,
+      "band": "0.60–0.74",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 6,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 6,
+      "continued": false
+    },
+    {
+      "address": "TAuMKwQ3wdQhnqXdkLq8GoSqG7sia2JtP5",
+      "confidence": 0.86,
+      "band": "0.75–0.89",
+      "readable": false
+    },
+    {
+      "address": "TD398tm45wkYT293scCRJJ4RdgfG3cK7PW",
+      "exchange": "KuCoin",
+      "confidence": 0.86,
+      "band": "0.75–0.89",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 12,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 12,
+      "continued": false
+    },
+    {
+      "address": "THiZM2acqTqQ9rfZrEQLyHgg5tk8qrADsC",
+      "exchange": "Gate.io",
+      "confidence": 0.86,
+      "band": "0.75–0.89",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 12,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 12,
+      "continued": false
+    },
+    {
+      "address": "TKGvAJNC1DEXWXcuxLXUNv98zAEQnYHCtP",
+      "exchange": "Flipster",
+      "confidence": 0.86,
+      "band": "0.75–0.89",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 14,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 12,
+      "continued": true
+    },
+    {
+      "address": "TLhwrcSgvjomaiuosqXbTXJNxYecWU1i2R",
+      "confidence": 0.86,
+      "band": "0.75–0.89",
+      "readable": false
+    },
+    {
+      "address": "TNvF7SiquzNXhnfsB4Pa89KkdJpvYjeUxZ",
+      "exchange": "Swapster",
+      "confidence": 0.89,
+      "band": "0.75–0.89",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 13,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 13,
+      "continued": false
+    },
+    {
+      "address": "TQe5Fkh3vM9g4ezH6GwZfrk49YzS5rkKiC",
+      "exchange": "Flipster",
+      "confidence": 0.86,
+      "band": "0.75–0.89",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 12,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 12,
+      "continued": false
+    },
+    {
+      "address": "TRFbvyvi6dy1kbXQvEjH57xy5wmguJDmV7",
+      "exchange": "UEEx",
+      "confidence": 0.83,
+      "band": "0.75–0.89",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 11,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 11,
+      "continued": false
+    },
+    {
+      "address": "TU4yzHr7qvxd5F1Re9SjSiLHvGkZudWVuA",
+      "confidence": 0.8,
+      "band": "0.75–0.89",
+      "readable": false
+    },
+    {
+      "address": "TWbNgaH8q51Ry7QwQnpqLgirSPY8qCp6f8",
+      "exchange": "UEEx",
+      "confidence": 0.83,
+      "band": "0.75–0.89",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 12,
+      "ratioNow": 0.9755,
+      "sweepsAtDerivation": 11,
+      "continued": true
+    },
+    {
+      "address": "TA1K3MhozPEdmXNaxEN1AJPmNoraZr5EmR",
+      "exchange": "Kraken",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 97,
+      "ratioNow": 0.9997,
+      "sweepsAtDerivation": 97,
+      "continued": false
+    },
+    {
+      "address": "TC8tFpSHwJQTd4CUdagR4bX1XSuwNVpegm",
+      "exchange": "Bitget",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 37,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 34,
+      "continued": true
+    },
+    {
+      "address": "TEkeWW7FrX9hGNt2r1pCFgnn3xGRVFCbec",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": false
+    },
+    {
+      "address": "TGEBXLrsQtHBic5V3x791zMW68PN2KjNd1",
+      "exchange": "Bybit",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 101,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 95,
+      "continued": true
+    },
+    {
+      "address": "TKkSS1BMqkEweigbUT5nBsWRtjbFbpzrtw",
+      "exchange": "Binance",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 195,
+      "ratioNow": 1.0042,
+      "sweepsAtDerivation": 131,
+      "continued": true
+    },
+    {
+      "address": "TMmREvrb3uvtYYfMT67ykGApX8JxWq8CJW",
+      "exchange": "Bitget",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 36,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 35,
+      "continued": true
+    },
+    {
+      "address": "TQkdknVnoDQucAR4gye21NiABvwYz9RUmp",
+      "exchange": "Gate.io",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 15,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 15,
+      "continued": false
+    },
+    {
+      "address": "TSvMNZPyk2fE8PLXb72RV9MJcRY9GGUATp",
+      "exchange": "MEXC",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 256,
+      "ratioNow": 0.9868,
+      "sweepsAtDerivation": 167,
+      "continued": true
+    },
+    {
+      "address": "TUy2YmtqtM8DFFwUaJ6AgHqu5GN387hb4k",
+      "exchange": "MEXC",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 97,
+      "ratioNow": 0.9793,
+      "sweepsAtDerivation": 94,
+      "continued": true
+    },
+    {
+      "address": "TX2HkV8XzSfAn84iMY17X8WVQTTRNxCMJP",
+      "exchange": "MEXC",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 218,
+      "ratioNow": 0.9921,
+      "sweepsAtDerivation": 142,
+      "continued": true
+    }
+  ]
+}
