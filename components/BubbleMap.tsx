@@ -207,15 +207,20 @@ function arcPath(link: Link): string {
   return `M ${from.x} ${from.y} Q ${qx} ${qy} ${to.x} ${to.y}`;
 }
 
+const NO_LEADS: Map<string, number> = new Map();
+
 export default function BubbleMap({
   trace,
   selected = null,
   onSelect,
+  leads = NO_LEADS,
   className = "h-[620px]",
 }: {
   trace: TraceResult;
   selected?: string | null;
   onSelect?: (address: string | null) => void;
+  /** Address → lead number, drawn on the bubble. Same numbers as the panel. */
+  leads?: Map<string, number>;
   className?: string;
 }) {
   const { bubbles, links } = useMemo(() => layout(trace), [trace]);
@@ -428,6 +433,41 @@ export default function BubbleMap({
                 {b.kind ? entityPhrase(b) : shortAddress(b.address, 6, 4)}
               </text>
               )}
+
+              {/* Lead number, in the same place on every bubble: upper right,
+                  clear of the caption below and the next ring outward. The
+                  number matches the leads panel, so a finding stated in words
+                  can be found on the map without reading an address. */}
+              {leads.has(b.address) ? (
+                <g>
+                  <circle
+                    cx={b.x}
+                    cy={b.y}
+                    r={b.r + 3}
+                    fill="none"
+                    stroke={color}
+                    strokeOpacity={0.5}
+                  />
+                  <rect
+                    x={b.x + b.r * 0.72 - 8}
+                    y={b.y - b.r * 0.72 - 8}
+                    width={16}
+                    height={16}
+                    fill="#0a0a0a"
+                    stroke={color}
+                    strokeWidth={1.2}
+                  />
+                  <text
+                    x={b.x + b.r * 0.72}
+                    y={b.y - b.r * 0.72 + 4}
+                    textAnchor="middle"
+                    className="pointer-events-none select-none"
+                    style={{ fill: color, fontSize: 11, fontWeight: 700 }}
+                  >
+                    {leads.get(b.address)}
+                  </text>
+                </g>
+              ) : null}
             </g>
           );
         })}

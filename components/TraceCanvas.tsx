@@ -21,6 +21,7 @@ export default function TraceCanvas({
   selected,
   onSelect,
   source,
+  leads,
   view: controlledView,
   height = "h-[620px]",
 }: {
@@ -28,6 +29,12 @@ export default function TraceCanvas({
   selected: string | null;
   onSelect: (address: string | null) => void;
   source?: DataSource;
+  /**
+   * Address → lead number. Every view draws the same number on the same wallet,
+   * so the leads panel and the canvas are one object rather than two lists an
+   * officer has to reconcile by reading addresses.
+   */
+  leads?: Map<string, number>;
   /**
    * Pass this to host the toggle in your own panel header — the canvas then has
    * no chrome of its own, which is one row of furniture fewer above the graph.
@@ -52,6 +59,7 @@ export default function TraceCanvas({
           trace={trace}
           selected={selected}
           onSelect={onSelect}
+          leads={leads}
           className={height}
         />
       ) : view === "bubbles" ? (
@@ -59,6 +67,7 @@ export default function TraceCanvas({
           trace={trace}
           selected={selected}
           onSelect={onSelect}
+          leads={leads}
           className={height}
         />
       ) : (
@@ -66,6 +75,7 @@ export default function TraceCanvas({
           trace={trace}
           selected={selected}
           onSelect={onSelect}
+          leads={leads}
           className={height}
         />
       )}

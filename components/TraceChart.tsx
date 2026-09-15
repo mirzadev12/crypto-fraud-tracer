@@ -37,15 +37,20 @@ function heightPct(value: number, max: number): number {
 /** Under ten minutes between receipt and forwarding — the automation signal. */
 const FAST_SECONDS = 600;
 
+const NO_LEADS: Map<string, number> = new Map();
+
 export default function TraceChart({
   trace,
   selected = null,
   onSelect,
+  leads = NO_LEADS,
   className = "h-[620px]",
 }: {
   trace: TraceResult;
   selected?: string | null;
   onSelect?: (address: string | null) => void;
+  /** Address → lead number. Marked on the transfer that carried the money in. */
+  leads?: Map<string, number>;
   className?: string;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
@@ -76,6 +81,48 @@ export default function TraceChart({
 
     return { edges, first, last, span, maxValue, hops, maxHop };
   }, [trace]);
+
+  /*
+   * Which bar carries a lead number.
+   *
+   * A lead is about a wallet, and a wallet can be fed by several transfers, so
+   * marking every one of them would print the same number across the timeline.
+   * The mark goes on the transfer that moved the most money into that wallet —
+   * the one an investigator would open first anyway.
+   */
+  const markedTx = useMemo(() => {
+    /*
+     * One bar per lead, and never the same bar twice.
+     *
+     * Two things had to be handled here and both were found on real traces.
+     * The reported wallet has no incoming transfer inside its own trace, so a
+     * lead pointing at it had no bar and vanished from this view entirely —
+     * which breaks the promise the leads panel makes, that the same numbers
+     * appear on every canvas. And one transfer is often the outgoing hop of one
+     * lead and the incoming hop of the next, so keying by transfer let the
+     * later lead overwrite the earlier one and a number disappeared again.
+     *
+     * So: each lead takes the largest transfer that brought money into it, or
+     * the largest it sent out where nothing arrived. Where two leads land on
+     * one transfer the bar carries both numbers, which is the honest reading —
+     * that transfer really is the evidence for both — and is better than
+     * silently dropping whichever lead lost the tie.
+     */
+    const out = new Map<string, number[]>();
+    const byRank = [...leads.entries()].sort((a, b) => a[1] - b[1]);
+    for (const [address, rank] of byRank) {
+      const into = trace.edges
+        .filter((e) => e.to === address)
+        .sort((a, b) => b.valueUsdt - a.valueUsdt);
+      const outOf = trace.edges
+        .filter((e) => e.from === address)
+        .sort((a, b) => b.valueUsdt - a.valueUsdt);
+      const pick = (into[0] ?? outOf[0])?.txHash;
+      if (!pick) continue;
+      out.set(pick, [...(out.get(pick) ?? []), rank]);
+    }
+    return out;
+  }, [trace.edges, leads]);
 
   const active = hovered ?? selected;
   const activeEdge =
@@ -139,9 +186,22 @@ export default function TraceChart({
             const left = Number.isFinite(at) ? ((at - model.first) / model.span) * 100 : 0;
             const fast = e.dwellSeconds !== null && e.dwellSeconds < FAST_SECONDS;
             const isActive = active === e.to || active === e.from || hovered === e.txHash;
+            const mark = markedTx.get(e.txHash);
             return (
+              <div key={e.txHash} className="contents">
+                {mark !== undefined ? (
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -translate-x-1/2 border border-brass-dim bg-bg px-1 font-mono text-[10px] font-semibold leading-4 text-brass"
+                    style={{
+                      left: `${left}%`,
+                      bottom: `calc(${heightPct(e.valueUsdt, model.maxValue)}% + 4px)`,
+                    }}
+                  >
+                    {mark.join("·")}
+                  </span>
+                ) : null}
               <button
-                key={e.txHash}
                 type="button"
                 onMouseEnter={() => setHovered(e.txHash)}
                 onMouseLeave={() => setHovered(null)}
@@ -160,6 +220,7 @@ export default function TraceChart({
                   outlineOffset: "1px",
                 }}
               />
+              </div>
             );
           })}
         </div>

@@ -35,6 +35,7 @@ import type { TraceResult } from "@/lib/types";
  */
 const SECTIONS = [
   { id: "finding", name: "Finding" },
+  { id: "next", name: "What next" },
   { id: "why", name: "Why" },
   { id: "flow", name: "Fund flow" },
   { id: "timeline", name: "Timeline" },

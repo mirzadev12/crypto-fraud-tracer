@@ -111,6 +111,8 @@ type TxNodeData = {
   dimmed: boolean;
   /** Barely any of the victim's money came here. */
   background: boolean;
+  /** This wallet is an investigative lead, and this is its number. */
+  leadRank: number | null;
 };
 
 type TxNode = Node<TxNodeData, "tx">;
@@ -125,7 +127,7 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
   const terminal = data.isTerminal;
   return (
     <div
-      className={`${terminal ? "w-[268px]" : "w-[248px]"} border border-line bg-surface px-4 py-4 text-left transition`}
+      className={`relative ${terminal ? "w-[268px]" : "w-[248px]"} border border-line bg-surface px-4 py-4 text-left transition`}
       style={{
         borderLeft: `2px solid ${p.accent}`,
         borderColor: terminal ? "var(--color-brass-dim)" : undefined,
@@ -136,6 +138,17 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
         opacity,
       }}
     >
+      {/* The lead number, hung off the top-left corner so it reads as an index
+          into the leads panel rather than as part of the wallet's own data. */}
+      {data.leadRank !== null ? (
+        <span
+          className="absolute -left-3 -top-3 flex h-6 w-6 items-center justify-center border bg-bg font-mono text-[11px] font-semibold"
+          style={{ borderColor: p.accent, color: p.accent }}
+          aria-hidden="true"
+        >
+          {data.leadRank}
+        </span>
+      ) : null}
       <Handle type="target" position={Position.Left} />
       <div className="flex items-center justify-between gap-2">
         <span
@@ -216,7 +229,11 @@ const nodeTypes = { tx: TxNodeView };
 const COL_WIDTH = 330;
 const ROW_HEIGHT = 158;
 
-function buildGraph(trace: TraceResult, selected: string | null): {
+function buildGraph(
+  trace: TraceResult,
+  selected: string | null,
+  leads: Map<string, number>,
+): {
   nodes: TxNode[];
   edges: Edge[];
 } {
@@ -255,6 +272,7 @@ function buildGraph(trace: TraceResult, selected: string | null): {
           outflowCount: n.outflowCount,
           dimmed: selected !== null && selected !== n.address,
           background: n.taintFraction < 0.01,
+          leadRank: leads.get(n.address) ?? null,
         },
       });
     });
@@ -287,18 +305,25 @@ function buildGraph(trace: TraceResult, selected: string | null): {
 
 /* --------------------------------------------------------------- component */
 
+const NO_LEADS: Map<string, number> = new Map();
+
 export default function TraceGraph({
   trace,
   selected = null,
   onSelect,
+  leads = NO_LEADS,
   className = "h-[560px]",
 }: {
   trace: TraceResult;
   selected?: string | null;
   onSelect?: (address: string | null) => void;
+  leads?: Map<string, number>;
   className?: string;
 }) {
-  const initial = useMemo(() => buildGraph(trace, selected), [trace, selected]);
+  const initial = useMemo(
+    () => buildGraph(trace, selected, leads),
+    [trace, selected, leads],
+  );
   const [nodes, setNodes, onNodesChange] = useNodesState<TxNode>(initial.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initial.edges);
 

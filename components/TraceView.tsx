@@ -17,6 +17,8 @@ import {
 import AddressChip from "./AddressChip";
 import CopyButton from "./CopyButton";
 import CaseContextBar from "./CaseContextBar";
+import InvestigativeLeads from "./InvestigativeLeads";
+import { deriveLeads, flowMetrics, leadMarks } from "@/lib/leads";
 import TraceCanvas, { ViewToggle, type CanvasView } from "./TraceCanvas";
 import {
   CASE_PROOF,
@@ -508,6 +510,13 @@ export default function TraceView({
     : null;
   const hops = trace.nodes.reduce((max, n) => Math.max(max, n.depth), 0);
 
+  // The leads, the numbers on the canvas and the two flow figures are one
+  // derivation, so the panel and the graph can never disagree about which
+  // wallet is lead 2.
+  const leads = useMemo(() => deriveLeads(trace), [trace]);
+  const marks = useMemo(() => leadMarks(leads), [leads]);
+  const flow = useMemo(() => flowMetrics(trace), [trace]);
+
   return (
     <div className="space-y-6">
       {/* Where you are, and what else this case holds. Sticky, so the answer to
@@ -594,6 +603,33 @@ export default function TraceView({
             value={`${hops} hops · ${trace.nodes.length} wallets`}
             hint={`${trace.edges.length} transfers · ${trace.riskFlags.length} signals`}
           />
+          {/* What shape the trail is. A trace that fans into twenty wallets
+              holding five percent each is a different object from one where
+              most of the money went through a single address, and only the
+              second has an obvious next step. */}
+          <StatCard
+            label="Concentration"
+            value={formatPercent(flow.concentration)}
+            hint={
+              flow.concentrationAddress
+                ? `Largest share through one wallet — ${shortAddress(flow.concentrationAddress)}`
+                : "No wallet past the reported address carried the funds"
+            }
+          />
+          {/* The limits in the tracer are load-bearing, but a trail that runs
+              past them goes quiet, and silence reads as "nothing there" rather
+              than "we stopped looking". State the number instead. */}
+          <StatCard
+            label="Left the horizon"
+            value={
+              flow.unresolvedWallets ? formatPercent(flow.unresolvedShare) : "None"
+            }
+            hint={
+              flow.unresolvedWallets
+                ? `${formatUsdt(flow.unresolvedUsdt, { symbol: false })} USDT still moving at hop ${flow.maxDepth}, across ${flow.unresolvedWallets} wallet${flow.unresolvedWallets === 1 ? "" : "s"}`
+                : "Every followed trail ended at an exit or at rest"
+            }
+          />
           {/* How cold the trail is, which decides whether any of this is
               actionable. A crypto complaint rarely arrives inside the hour the
               bank-fraud process is built around, and an officer choosing where
@@ -614,8 +650,19 @@ export default function TraceView({
       </div>
 
       {/* ------------------------------------------------------------ signals */}
+      <div id="next" className="scroll-mt-32">
+        <SectionHeader index="02" title="What next" kicker="Ranked by what can still be done" />
+      </div>
+      <Panel
+        title="Investigative leads"
+        subtitle="Computed from this trace. Each is numbered on the fund-flow canvas below."
+        bodyClassName="px-6 py-2"
+      >
+        <InvestigativeLeads leads={leads} selected={selected} onSelect={setSelected} />
+      </Panel>
+
       <div id="why" className="scroll-mt-32">
-        <SectionHeader index="02" title="Why" kicker="Behavioural signals" />
+        <SectionHeader index="03" title="Why" kicker="Behavioural signals" />
       </div>
       <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <Panel
@@ -635,7 +682,7 @@ export default function TraceView({
 
       {/* ------------------------------------------------------------ graph */}
       <div id="flow" className="scroll-mt-32">
-        <SectionHeader index="03" title="Fund flow" kicker="The working" />
+        <SectionHeader index="04" title="Fund flow" kicker="The working" />
       </div>
       <Panel
         title="Fund flow"
@@ -649,6 +696,7 @@ export default function TraceView({
           selected={selected}
           onSelect={setSelected}
           source={source}
+          leads={marks}
           view={view}
           height="h-[560px]"
         />
@@ -656,7 +704,7 @@ export default function TraceView({
 
       {/* -------------------------------------------------------- timeline */}
       <div id="timeline" className="scroll-mt-32">
-        <SectionHeader index="04" title="Timeline and custody" />
+        <SectionHeader index="05" title="Timeline and custody" />
       </div>
       <div className="grid gap-6 lg:grid-cols-3">
         <Panel title="Movement timeline" className="lg:col-span-2">
