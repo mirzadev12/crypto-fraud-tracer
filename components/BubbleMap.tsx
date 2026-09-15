@@ -21,7 +21,13 @@ import { entityPhrase } from "./ui";
  * the image goes into an evidence packet.
  */
 
-const KIND_COLOR: Record<NodeKind | "none", string> = {
+/**
+ * Exported so `BatchCanvas` draws from this table rather than starting a third
+ * set of hex literals. CONTEXT.md §3 records that colour drift between these
+ * canvases has already happened twice, so the grep after a palette change stays
+ * two files — `TraceGraph` and this one — rather than three.
+ */
+export const KIND_COLOR: Record<NodeKind | "none", string> = {
   victim_reported: "#c6a15b", // brass — the subject of the file
   exchange_deposit: "#c98a34", // suspicious — the exit
   exchange_hot: "#a8a296",
@@ -32,7 +38,7 @@ const KIND_COLOR: Record<NodeKind | "none", string> = {
   none: "#6b6660",
 };
 
-const colorFor = (kind: NodeKind | null | undefined) =>
+export const colorFor = (kind: NodeKind | null | undefined) =>
   KIND_COLOR[(kind ?? "none") as NodeKind | "none"] ?? KIND_COLOR.none;
 
 const VIEW_W = 1000;

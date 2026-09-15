@@ -28,6 +28,7 @@ import {
 import { formatUsdt, shortAddress } from "@/lib/format";
 import { findLinks } from "@/lib/links";
 import LinkGraph from "@/components/LinkGraph";
+import BatchCanvas, { BatchViewToggle, type BatchView } from "@/components/BatchCanvas";
 import { checkTronAddress } from "@/lib/tron";
 import type { TraceResult, TriageLevel } from "@/lib/types";
 import {
@@ -131,6 +132,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
    * same people. Computed from results already in hand — no extra chain read.
    */
   const links = useMemo(() => findLinks(results.map((r) => r.trace)), [results]);
+  const [view, setView] = useState<BatchView>("flow");
 
   const stats = useMemo(() => {
     let critical = 0;
@@ -405,6 +407,23 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
             />
             </div>
           </>
+        ) : null}
+
+        {/* The batch as one picture, before the register lists it as rows.
+            `LinkGraph` below answers "which complaints are the same case"; this
+            answers the wider question the register cannot — where the morning's
+            money went, hop by hop, and which wallets the trails share. A ringed
+            wallet here is one `findLinks` returned, so the drawing and the link
+            panel can never disagree. */}
+        {traced > 1 ? (
+          <Panel
+            title="The morning, drawn"
+            subtitle="Every wallet these complaints touched. A ringed wallet is one more than one of them reached."
+            actions={<BatchViewToggle view={view} onChange={setView} />}
+            bodyClassName=""
+          >
+            <BatchCanvas traces={results.map((e) => e.trace)} view={view} />
+          </Panel>
         ) : null}
 
         <Panel
