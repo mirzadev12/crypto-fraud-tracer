@@ -16,6 +16,7 @@ import {
 } from "@/lib/format";
 import AddressChip from "./AddressChip";
 import CopyButton from "./CopyButton";
+import CaseContextBar from "./CaseContextBar";
 import TraceCanvas, { ViewToggle, type CanvasView } from "./TraceCanvas";
 import {
   CASE_PROOF,
@@ -23,7 +24,6 @@ import {
   Designation,
   Diamond,
   entityPhrase,
-  DataSourceBadge,
   SectionHeader,
   Panel,
   SourceChip,
@@ -510,15 +510,18 @@ export default function TraceView({
 
   return (
     <div className="space-y-6">
+      {/* Where you are, and what else this case holds. Sticky, so the answer to
+          "which case am I in" never scrolls away. */}
+      <CaseContextBar trace={trace} source={source} note={note} />
+
       {/* ---------------------------------------------------------- header */}
       <div className="flex flex-col gap-4 border-b border-line pb-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-faint">{trace.caseId}</span>
-            <DataSourceBadge source={source} note={note} />
-            <TriageBadge level={trace.triage} />
-          </div>
-          <h1 className="mt-4 font-display text-3xl uppercase tracking-[0.08em] text-ink md:text-4xl">
+          {/* The case reference, its disposition and its provenance moved into
+              the sticky bar above, where they stay visible for the whole file
+              instead of scrolling away after the first screen. Repeating them
+              here put the same four facts twice in one eyeline. */}
+          <h1 className="font-display text-3xl uppercase tracking-[0.08em] text-ink md:text-4xl">
             Case file
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
@@ -556,7 +559,9 @@ export default function TraceView({
       </div>
 
       {/* ------------------------------------------------------ money slide */}
-      <SectionHeader index="01" title="Finding" />
+      <div id="finding" className="scroll-mt-32">
+        <SectionHeader index="01" title="Finding" />
+      </div>
       {/* min-w-0 on both children: a grid child defaults to min-width:auto and
           refuses to shrink below its content, and the figure column now carries
           a longer hint than it used to. CONTEXT.md §3 records this failure mode. */}
@@ -609,7 +614,9 @@ export default function TraceView({
       </div>
 
       {/* ------------------------------------------------------------ signals */}
-      <SectionHeader index="02" title="Why" kicker="Behavioural signals" />
+      <div id="why" className="scroll-mt-32">
+        <SectionHeader index="02" title="Why" kicker="Behavioural signals" />
+      </div>
       <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <Panel
           title="Behavioural signals"
@@ -627,7 +634,9 @@ export default function TraceView({
       </div>
 
       {/* ------------------------------------------------------------ graph */}
-      <SectionHeader index="03" title="Fund flow" kicker="The working" />
+      <div id="flow" className="scroll-mt-32">
+        <SectionHeader index="03" title="Fund flow" kicker="The working" />
+      </div>
       <Panel
         title="Fund flow"
         subtitle="Click a wallet to highlight it in the tables below. Flow reads the path in order; Bubbles reads it by weight."
@@ -646,7 +655,9 @@ export default function TraceView({
       </Panel>
 
       {/* -------------------------------------------------------- timeline */}
-      <SectionHeader index="04" title="Timeline and custody" />
+      <div id="timeline" className="scroll-mt-32">
+        <SectionHeader index="04" title="Timeline and custody" />
+      </div>
       <div className="grid gap-6 lg:grid-cols-3">
         <Panel title="Movement timeline" className="lg:col-span-2">
           <MovementTimeline trace={trace} onSelect={setSelected} />
@@ -668,7 +679,7 @@ export default function TraceView({
               <p className="text-sm leading-7 text-muted">{trace.narrative}</p>
             </Panel>
           ) : null}
-          <Panel title="Chain of custody">
+          <Panel title="Chain of custody" className="scroll-mt-32" id="custody">
             <ProvenancePanel trace={trace} />
           </Panel>
         </div>

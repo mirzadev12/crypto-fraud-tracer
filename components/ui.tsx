@@ -130,6 +130,7 @@ export function Panel({
   children,
   className = "",
   bodyClassName = "p-6",
+  id,
 }: {
   title?: ReactNode;
   subtitle?: ReactNode;
@@ -139,6 +140,8 @@ export function Panel({
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
+  /** Anchor target, for a panel the case context bar jumps to. */
+  id?: string;
 }) {
   return (
     // min-w-0: a grid or flex child defaults to min-width:auto and refuses to
@@ -146,6 +149,7 @@ export function Panel({
     // panel pushes the whole page sideways on a phone. This lets the panel
     // shrink and its own overflow-x-auto do the scrolling.
     <section
+      id={id}
       className={`min-w-0 ${framed ? "border border-line bg-surface" : ""} ${className}`}
     >
       {title ? (

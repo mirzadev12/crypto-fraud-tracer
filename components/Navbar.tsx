@@ -6,15 +6,71 @@ import { useState } from "react";
 import { shortAddress } from "@/lib/format";
 import { isValidTronAddress } from "@/lib/tron";
 
-/* Bureau designations, not product names. */
-const navItems = [
-  { name: "Cases", href: "/dashboard" },
-  { name: "Triage", href: "/queue" },
-  { name: "Trace", href: "/investigate" },
-  { name: "Intelligence", href: "/fund-flow" },
-  { name: "Evidence", href: "/reports" },
-  { name: "Help", href: "/help" },
+/**
+ * Two rows, because an officer asks two different questions of a navigation bar.
+ *
+ * The first answers *what am I here to do*, and it has three answers rather
+ * than six. The old bar listed destinations — Cases, Triage, Trace,
+ * Intelligence, Evidence — which is a list of our features, not of their
+ * intents, and three of those five render the same `getCases()` data in three
+ * framings. Reading it, you could not tell which of the three to press, because
+ * the names described the implementation rather than the goal.
+ *
+ * The second row answers *and where within that*, listing only the current
+ * section's destinations. Nothing hides behind a menu and the product stays two
+ * clicks wide.
+ *
+ * **Nothing was removed.** Every route the old bar reached is still reached,
+ * and the case-scoping added in `f3648cc` is preserved exactly.
+ */
+interface NavLeaf {
+  name: string;
+  href: string;
+  /** Tooltip on the destination row — what you get, not what it is called. */
+  hint: string;
+}
+
+interface NavSection {
+  name: string;
+  href: string;
+  leaves: NavLeaf[];
+}
+
+const SECTIONS: NavSection[] = [
+  {
+    name: "Casework",
+    href: "/",
+    leaves: [
+      { name: "Queue", href: "/", hint: "Today's complaints, most reachable first" },
+      { name: "Batch triage", href: "/queue", hint: "A morning of complaints at once" },
+      { name: "New case", href: "/investigate", hint: "Open a wallet or a transaction" },
+      { name: "Intelligence", href: "/fund-flow", hint: "Fund flow for the open case" },
+      { name: "Evidence", href: "/reports", hint: "Printable packets" },
+    ],
+  },
+  {
+    name: "Method",
+    href: "/attribution",
+    leaves: [
+      { name: "Attribution", href: "/attribution", hint: "Where a name comes from" },
+      {
+        name: "Operating notes",
+        href: "/operations",
+        hint: "How this runs, and what it cannot do",
+      },
+    ],
+  },
+  { name: "Help", href: "/help", leaves: [] },
 ];
+
+/** Which section a path belongs to, so the bar can state where you are. */
+function sectionFor(pathname: string): NavSection {
+  if (pathname.startsWith("/attribution") || pathname.startsWith("/operations")) {
+    return SECTIONS[1];
+  }
+  if (pathname.startsWith("/help")) return SECTIONS[2];
+  return SECTIONS[0];
+}
 
 /**
  * The routes that mean "you are inside one case".
@@ -63,12 +119,12 @@ export default function Navbar() {
    * stay unscoped on purpose: they are the way back out, and the register is
    * where you go to pick a different one.
    */
-  const hrefFor = (item: (typeof navItems)[number]) => {
-    if (!caseAddress) return item.href;
+  const hrefFor = (leaf: NavLeaf) => {
+    if (!caseAddress) return leaf.href;
     const encoded = encodeURIComponent(caseAddress);
-    if (item.href === "/fund-flow") return `/fund-flow?address=${encoded}`;
-    if (item.href === "/reports") return `/report/${encoded}`;
-    return item.href;
+    if (leaf.href === "/fund-flow") return `/fund-flow?address=${encoded}`;
+    if (leaf.href === "/reports") return `/report/${encoded}`;
+    return leaf.href;
   };
 
   const isActive = (href: string) => {
@@ -78,6 +134,9 @@ export default function Navbar() {
     if (href === "/reports") return pathname.startsWith("/reports") || pathname.startsWith("/report/");
     return pathname.startsWith(href);
   };
+
+  const section = sectionFor(pathname);
+  const sectionActive = (s: NavSection) => s.name === section.name;
 
   return (
     <nav className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur">
@@ -89,22 +148,19 @@ export default function Navbar() {
           FineX
         </Link>
 
-        <div className="hidden items-center gap-2 lg:flex lg:gap-4">
-          {navItems.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.name}
-                href={hrefFor(item)}
-                aria-current={active ? "page" : undefined}
-                className={`fx-option-quiet whitespace-nowrap px-4 py-2 font-label text-xs font-medium uppercase tracking-[0.24em] ${
-                  active ? "fx-option-on text-brass" : "text-faint hover:text-brass"
-                }`}
-              >
-                {item.name}
-              </Link>
-            );
-          })}
+        <div className="hidden min-w-0 items-center gap-2 lg:flex lg:gap-4">
+          {SECTIONS.map((s) => (
+            <Link
+              key={s.name}
+              href={s.href}
+              aria-current={sectionActive(s) ? "page" : undefined}
+              className={`fx-option-quiet whitespace-nowrap px-4 py-2 font-label text-xs font-medium uppercase tracking-[0.24em] ${
+                sectionActive(s) ? "fx-option-on text-brass" : "text-faint hover:text-brass"
+              }`}
+            >
+              {s.name}
+            </Link>
+          ))}
         </div>
 
         <div className="hidden items-center gap-4 lg:flex">
@@ -131,6 +187,33 @@ export default function Navbar() {
         </button>
       </div>
 
+      {/* -------------------------------------------------- destination row
+          Only the current section's destinations, so nothing hides behind a
+          menu. Help has none, and then the row is not drawn at all rather than
+          left as an empty rule. */}
+      {section.leaves.length ? (
+        <div className="hidden border-t border-line-soft lg:block">
+          <div className="fx-scroll mx-auto flex min-w-0 max-w-7xl items-center gap-1 overflow-x-auto px-6">
+            {section.leaves.map((leaf) => {
+              const active = isActive(leaf.href);
+              return (
+                <Link
+                  key={leaf.name}
+                  href={hrefFor(leaf)}
+                  aria-current={active ? "page" : undefined}
+                  title={leaf.hint}
+                  className={`fx-option-quiet whitespace-nowrap px-3 py-2 font-label text-[11px] uppercase tracking-[0.2em] ${
+                    active ? "fx-option-on text-ink" : "text-faint hover:text-brass"
+                  }`}
+                >
+                  {leaf.name}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
       {menuOpen ? (
         <div className="border-t border-line px-6 py-6 lg:hidden">
           {caseAddress ? (
@@ -138,18 +221,35 @@ export default function Navbar() {
               <CaseScope address={caseAddress} />
             </div>
           ) : null}
-          <div className="flex flex-col divide-y divide-line border-y border-line">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={hrefFor(item)}
-                onClick={() => setMenuOpen(false)}
-                className={`fx-option-quiet px-4 py-4 font-label text-xs font-medium uppercase tracking-[0.24em] ${
-                  isActive(item.href) ? "fx-option-on text-brass" : "text-faint hover:text-brass"
-                }`}
-              >
-                {item.name}
-              </Link>
+          <div className="flex flex-col gap-6">
+            {SECTIONS.map((s) => (
+              <div key={s.name}>
+                <Link
+                  href={s.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`fx-option-quiet block px-4 py-3 font-label text-xs font-semibold uppercase tracking-[0.24em] ${
+                    sectionActive(s) ? "fx-option-on text-brass" : "text-ink"
+                  }`}
+                >
+                  {s.name}
+                </Link>
+                {s.leaves.length ? (
+                  <div className="mt-1 flex flex-col border-l border-line pl-3">
+                    {s.leaves.map((leaf) => (
+                      <Link
+                        key={leaf.name}
+                        href={hrefFor(leaf)}
+                        onClick={() => setMenuOpen(false)}
+                        className={`fx-option-quiet px-4 py-3 font-label text-[11px] uppercase tracking-[0.2em] ${
+                          isActive(leaf.href) ? "fx-option-on text-ink" : "text-faint"
+                        }`}
+                      >
+                        {leaf.name}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             ))}
             <Link
               href="/login"
@@ -182,7 +282,7 @@ function CaseScope({ address }: { address: string }) {
       </span>
       <span className="font-mono text-[11px] text-brass">{shortAddress(address)}</span>
       <Link
-        href="/dashboard"
+        href="/"
         title="Leave this case and show every case again"
         aria-label="Leave this case"
         className="fx-option-quiet px-2 font-label text-[10px] uppercase tracking-[0.16em] text-faint transition hover:text-brass"
