@@ -28,6 +28,7 @@
  * anything an LLM wrote. These are computed, cited, and stated as leads.
  */
 
+import { betweenness } from "./centrality";
 import { formatDwell, formatPercent, formatUsdt } from "./format";
 import type { TraceResult } from "./types";
 
@@ -226,22 +227,49 @@ export function deriveLeads(trace: TraceResult): Lead[] {
     });
   }
 
-  /* 3 — The wallet most of the money went through. An unattributed wallet
-     carrying a large share is the one an investigator should open next, because
-     everything downstream of it inherits from it. */
-  const chokepoint = reached
+  /* 3 — The bottleneck.
+     Two different properties decide this and they disagree often enough to be
+     worth separating: how much of the victim's money a wallet carried, and how
+     many of the routes through the case it sits on. A wallet can hold very
+     little and still be the address every path has to cross — identify that
+     one and the case is covered. Betweenness answers the second question
+     properly (see lib/centrality.ts); taint answers the first and is already
+     on every node. The lead ranks on position and reports both, so neither
+     figure is quietly standing in for the other. */
+  const central = betweenness(
+    trace.nodes.map((n) => n.address),
+    trace.edges,
+  );
+  const candidates = reached
     .filter((n) => !n.label && n.outflowCount > 0)
-    .filter((n) => n.taintFraction >= CHOKEPOINT_MIN_SHARE)
-    .sort((a, b) => b.taintFraction - a.taintFraction)[0];
+    .filter(
+      (n) =>
+        n.taintFraction >= CHOKEPOINT_MIN_SHARE || (central.get(n.address) ?? 0) > 0,
+    );
+  const chokepoint = [...candidates].sort(
+    (a, b) =>
+      (central.get(b.address) ?? 0) - (central.get(a.address) ?? 0) ||
+      b.taintFraction - a.taintFraction,
+  )[0];
   if (chokepoint) {
+    const position = central.get(chokepoint.address) ?? 0;
+    // Only claim the bottleneck when the graph actually says so. On a straight
+    // line every wallet scores zero, and there the honest lead is the older
+    // one: this is simply where most of the money went.
+    const isBottleneck = position > 0;
     draft.push({
       code: "CHOKEPOINT",
-      title: "Most of the money passed through",
-      finding: `${formatPercent(chokepoint.taintFraction)} of the reported amount — ${formatUsdt(chokepoint.taintedValueUsdt)} — passed through this single unattributed wallet before moving on.`,
+      title: isBottleneck ? "Every route runs through here" : "Most of the money passed through",
+      finding: isBottleneck
+        ? `This unattributed wallet lies on more of the routes through this case than any other, and ${formatPercent(chokepoint.taintFraction)} of the reported amount — ${formatUsdt(chokepoint.taintedValueUsdt)} — passed through it.`
+        : `${formatPercent(chokepoint.taintFraction)} of the reported amount — ${formatUsdt(chokepoint.taintedValueUsdt)} — passed through this single unattributed wallet before moving on.`,
       action:
         "Nothing in the label tables attributes it, so it is the most useful wallet on the path to identify. Its own funding history is the next thing to read.",
       address: chokepoint.address,
       evidence: [
+        ...(isBottleneck
+          ? [`betweenness ${position.toFixed(2)} of 1.00 — highest on the path`]
+          : []),
         `${chokepoint.outflowCount} outgoing transfer${chokepoint.outflowCount === 1 ? "" : "s"}`,
         `hop ${chokepoint.depth}`,
         "no attribution on file",
