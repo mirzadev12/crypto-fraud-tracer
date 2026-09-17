@@ -174,6 +174,34 @@ export default function InvestigateForm() {
     touched && address !== "" && !addressCheck.valid && !looksLikeTx && !resolved;
   const showAmountError = touched && amount !== "" && !amountValid;
 
+  /*
+   * Where "View evidence packet" goes, and for which wallet.
+   *
+   * After a trace, the packet for the case on screen, pinned to that run's
+   * amount and window through `traceHref` — the same rule the Permalink follows,
+   * so the packet can never show different figures from the page it was opened
+   * under. Before a trace, the packet for whatever wallet the form holds, with
+   * the amount and date typed so far; the packet page runs that trace itself.
+   * Nothing valid entered, nothing to open.
+   */
+  const evidence = useMemo((): { href: string; address: string } | null => {
+    if (status.kind === "done" && status.lookup.status === "resolved") {
+      return {
+        href: traceHref("report", status.lookup.data),
+        address: status.lookup.data.inputAddress,
+      };
+    }
+    if (!addressCheck.valid && !resolved) return null;
+    const query = new URLSearchParams();
+    if (amount.trim() && amountValid) query.set("amount", String(amountValue));
+    if (fraudDate) query.set("since", new Date(`${fraudDate}T00:00:00.000Z`).toISOString());
+    const qs = query.toString();
+    return {
+      href: `/report/${encodeURIComponent(subject)}${qs ? `?${qs}` : ""}`,
+      address: subject,
+    };
+  }, [status, addressCheck.valid, resolved, amount, amountValid, amountValue, fraudDate, subject]);
+
   return (
     <div className="space-y-24">
       {/* ------------------------------------------------------------ intake */}
@@ -417,6 +445,39 @@ export default function InvestigateForm() {
           )}
         </div>
       ) : null}
+
+      {/* ---------------------------------------------------------- evidence */}
+      {/* The last thing on the page, because it is the last step of a case: once
+          the trace is read, the packet is what goes on the file. It names the
+          wallet it will open, so there is no doubt which case it belongs to. */}
+      <section className="border-t border-line pt-10">
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div className="min-w-0">
+            <Designation>Evidence</Designation>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
+              {evidence ? (
+                <>
+                  The printable packet for{" "}
+                  <span className="font-mono text-ink">{shortAddress(evidence.address)}</span>{" "}
+                  — the finding, every transfer, and the fingerprint of each chain
+                  response behind it.
+                </>
+              ) : (
+                "Enter a wallet address or a transaction above to open its evidence packet."
+              )}
+            </p>
+          </div>
+          {evidence ? (
+            <Link href={evidence.href} className={buttonStyles.primary}>
+              View evidence packet
+            </Link>
+          ) : (
+            <button type="button" disabled className={buttonStyles.primary}>
+              View evidence packet
+            </button>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

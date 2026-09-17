@@ -326,6 +326,18 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   the file it replaces, silently. Merge seeds the map from disk first, and the
   checkpoint writes then never stand in for rows the run was not asked to
   re-derive. **Back up `deposit-addresses.json` before any clustering run.**
+- **New Case ends with a way to the evidence** (`InvestigateForm.tsx`). The
+  last thing on the intake page is an Evidence row with *View evidence packet*,
+  because the packet is the last step of a case. After a trace it opens the
+  packet for the case on screen through `traceHref("report", …)`, pinned to that
+  run's amount and window — the same rule the Permalink follows — so the packet
+  cannot show different figures from the page it was opened under; verified by
+  clicking through to 500.00 USDT on the recorded case. Before a trace it opens
+  the packet for whatever wallet the form holds, with the amount and date typed
+  so far, and the packet page runs that trace itself. With nothing valid entered
+  it is shown disabled with a one-line hint rather than hidden, so the step is
+  visible from the moment the page opens. It always names the wallet it will
+  open. Derived with `useMemo` from the form and the result, never held in state.
 - **A named wallet takes "the" mid-sentence** (`midSentence()` in
   `lib/narrative.ts`). The summary read "reached Binance hot wallet" whenever a
   trace ended at a ground-truth wallet — every live trace to a tagged exchange,
