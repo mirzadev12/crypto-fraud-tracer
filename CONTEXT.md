@@ -326,6 +326,95 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   the file it replaces, silently. Merge seeds the map from disk first, and the
   checkpoint writes then never stand in for rows the run was not asked to
   re-derive. **Back up `deposit-addresses.json` before any clustering run.**
+- **The navigation is named after intents, not features** (`Navbar.tsx`, commit
+  `4588571`). Six designations described the product rather than an officer's
+  goal, and three of them — Cases, Intelligence, Evidence — rendered the same
+  `getCases()` data in three framings, so the bar could not tell a reader which
+  to press. They are grouped under **Casework** (Queue, Batch triage, New case,
+  Intelligence, Evidence), **Method** (Attribution, Operating notes) and
+  **Help**, with a second row listing only the current section's destinations
+  so nothing hides behind a menu. Attribution and Operating notes came out of
+  the footer so "prove it" is one click. Case-scoping inside a case is
+  preserved exactly. A case file gains a sticky context bar — reference,
+  wallet, disposition, provenance, chain, and in-page anchors to its five
+  sections (anchors, not routes: one document, one load); it is
+  `print:hidden`.
+- **`/` is the landing page and `/dashboard` is the queue** (commit `2e5e23d`).
+  Making the queue the home page was tried and reversed: the landing page
+  carries the argument and is the first thing an evaluator sees, and hiding it
+  behind a second URL made the strongest thirty seconds optional. `/about` was
+  removed rather than kept as a duplicate. **No section lights up on `/`** —
+  it is the argument for the product, not a place inside it. Do not move the
+  home page again without re-reading this.
+- **A batch is drawn whole, not only where it links** (`components/BatchCanvas.tsx`,
+  `lib/batch.ts`, commit `2ddf4ef`). `LinkGraph` answers "which complaints are
+  one case"; the batch canvas above the register answers the rest in three
+  views — Flow (every wallet the morning touched, by hop), Exits (where each
+  complaint's money ended) and Weight (which complaint holds the most
+  recoverable money). A union graph: each wallet drawn once with the complaints
+  that reached it. Its ringed convergences come **from `findLinks`, not a second
+  opinion**, so the canvas and the link panel can never disagree about the same
+  batch. Colours come from `BubbleMap`'s exported `KIND_COLOR`, keeping the
+  palette grep to two files.
+- **Every case says which wallet to open next** (`lib/leads.ts`, commit
+  `e511487`). Ranked leads derived from the finished trace — never moved, at
+  rest, named exit, omnibus exit, chokepoint, unresolved tail, rapid forward,
+  sanctions stop — ordered by what can still be done, not by what is most
+  alarming, one lead per wallet, and the same number drawn on that wallet in
+  all three canvases. Nothing new is measured and no model decides. Two guards:
+  an exit's `outflowCount` is zero because the tracer stops there, so an
+  attributed wallet never raises an "at rest" lead off a read that was never
+  made; and the reported wallet is excluded from every rule except the one
+  written for it, because on a CRITICAL case "the money is still where the
+  victim said" is the most actionable sentence. Concentration and the
+  **unresolved tail** (taint still moving at the last hop followed) join the
+  finding, so stopping at the search limits no longer reads as "nothing there".
+- **The confidence figure is measured, and it does not order the rows**
+  (`scripts/calibrate-clustering.mjs` → `data/clustering-calibration.json`,
+  `components/CalibrationPanel.tsx`, commit `b7868ec`). The formula
+  `0.5 + sweeps × 0.03` was never checked. A stratified sample re-read from the
+  chain on 15 Sep: 40 sampled, 31 readable, **31 still meet the clustering's own
+  predicate**, 11 having swept more since. But every confidence band scored
+  identically, so there is **no evidence a 0.95 row is better than a 0.56 row**.
+  The panel says to read confidence as "how much sweep evidence was seen", never
+  as a probability the attribution is correct. **Do not present it as accuracy
+  in the deck.** It is not proof of ownership either — only the exchange can
+  confirm an account — and unreadable addresses are excluded from every rate.
+- **Taint is traced under two models that bracket the answer** (`lib/tracer.ts`
+  `TaintModel`, commit `d56242d`). Haircut (what shipped, the default) is
+  conservative and dilutes through high-volume wallets; FIFO follows the rule
+  courts have used on mixed funds since Clayton's Case. They disagree sharply:
+  on `TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn` haircut puts 660.90 USDT at the exit
+  and FIFO 0.00. Stating both is the honest answer to "what happens when stolen
+  funds are mixed with clean ones". A tracer option, not a contract change.
+  **A recorded case never answers `?model=fifo`** — it was captured under
+  haircut, so that request goes to the chain and fails honestly offline.
+- **The evidence can be checked without trusting this repository**
+  (`scripts/verify-case.mjs`, commit `f10e5fd`). It re-reads each transaction a
+  case rests on straight from the chain by hash, importing nothing from the
+  tracer, so a tracer bug cannot make it pass. Four verdicts kept distinct:
+  CONFIRMED, MISMATCH, MISSING, and UNREADABLE (our problem, not the case's).
+  Run on 15 Sep across the ten recorded cases: **36 confirmed, 0 mismatched,
+  0 missing, 22 unreadable** (an unkeyed run throttled). Its first run reported
+  everything as MISMATCH because hex was compared with base58 — it now borrows
+  the encoder and exits loudly if it cannot, since a verifier wrong in the
+  alarming direction trains people to wave through a real mismatch. It cannot
+  confirm a label's owner, and says so.
+- **A chokepoint is ranked by position, not by what it held** (`lib/centrality.ts`,
+  commit `6792aa0`). Betweenness by Brandes' algorithm, unweighted on purpose —
+  weighting by value would answer "where did most money flow", which taint
+  already answers, and mixing them yields a figure that is neither. Checked on
+  the textbook diamond (junction 1.00, parallels 0.33, ends 0.00) before real
+  data. The lead only claims a bottleneck when one exists; on a straight line
+  it keeps the older sentence. Three recorded cases have a real bottleneck.
+- **A fan-in can no longer put one transfer in the case file twice** (commit
+  `2c9d63f`). A wallet reached from two parents in one hop could be walked
+  twice when the second arrival carried more taint, duplicating its outgoing
+  edges and inflating the fan-out and round-amount rules — on exactly the
+  consolidation shape this product exists to find. Reproduced first, then fixed
+  by collapsing duplicate addresses within a hop before processing, keeping the
+  larger share. The ten recorded cases had 0 duplicates (re-checked 17 Sep) and
+  re-scored unchanged, so `demo-cases.json` was left as it was.
 - **New Case ends with a way to the evidence** (`InvestigateForm.tsx`). The
   last thing on the intake page is an Evidence row with *View evidence packet*,
   because the packet is the last step of a case. After a trace it opens the
@@ -822,6 +911,8 @@ node scripts/hunt-new-address.mjs         # look for a real case exercising NEW_
 node scripts/add-case.mjs <address> "why" # freeze one named wallet into the case file
 node scripts/calibrate-risk.mjs           # measure how often each rule fires on unreported wallets
 node scripts/hunt-indian-vasp.mjs         # re-check the explorer tags for an Indian exchange
+node scripts/calibrate-clustering.mjs     # re-measure whether derived deposit addresses still hold
+node scripts/verify-case.mjs              # re-read every recorded case's transactions from the chain
 NEXT_PUBLIC_DEMO_MODE=true npm run dev    # serve the frozen cases, no network
 ```
 
