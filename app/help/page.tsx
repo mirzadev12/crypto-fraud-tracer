@@ -26,50 +26,72 @@ export const metadata: Metadata = {
  * It documents what exists. When a screen is added, add its row.
  */
 
-const SCREENS = [
+/*
+ * Mirrors the navigation: same two sections, same names, same order. If the
+ * navigation is renamed, rename these — a help page that calls a screen by a
+ * name the menu no longer uses sends the reader looking for something that is
+ * not there.
+ */
+const SECTIONS = [
   {
-    href: "/dashboard",
-    nav: "Cases",
-    what: "The list of cases, most urgent first — and alerts if money moves.",
-    use: "Start here. Any wallet still holding funds is watched, and you'll see an alert at the top if the money starts to move.",
+    name: "Casework",
+    screens: [
+      {
+        href: "/dashboard",
+        nav: "Queue",
+        what: "Today's complaints, most urgent first — and alerts if money moves.",
+        use: "Start here. Any wallet still holding funds is watched, and you'll see an alert at the top if the money starts to move.",
+      },
+      {
+        href: "/queue",
+        nav: "Batch triage",
+        what: "Paste many wallet addresses at once.",
+        use: "Use it for a whole morning of complaints. They are traced one by one and the list sorts itself as answers arrive.",
+      },
+      {
+        href: "/investigate",
+        nav: "New case",
+        what: "Open one complaint: a wallet address or a transaction.",
+        use: "Use it when you have one complaint. When the trace is done, View evidence packet at the bottom opens the report for that wallet.",
+      },
+      {
+        href: "/fund-flow",
+        nav: "Intelligence",
+        what: "The money drawn as a picture.",
+        use: "Three views of the same trace: the path, the weight, and the timing.",
+      },
+      {
+        href: "/reports",
+        nav: "Evidence",
+        what: "Every case as a printable packet.",
+        use: "Open one and print it for the file.",
+      },
+    ],
   },
   {
-    href: "/queue",
-    nav: "Triage",
-    what: "Paste many wallet addresses at once.",
-    use: "Use it for a whole morning of complaints. They are traced one by one and the list sorts itself as answers arrive.",
-  },
-  {
-    href: "/investigate",
-    nav: "Trace",
-    what: "Trace a single wallet.",
-    use: "Use it when you have one address from one complaint.",
-  },
-  {
-    href: "/fund-flow",
-    nav: "Intelligence",
-    what: "The money drawn as a picture.",
-    use: "Three views of the same trace: the path, the weight, and the timing.",
-  },
-  {
-    href: "/reports",
-    nav: "Evidence",
-    what: "Every case as a printable packet.",
-    use: "Open one and print it for the file.",
-  },
-  {
-    href: "/attribution",
-    nav: "Attribution",
-    what: "Every exchange account we can name, and how we worked it out.",
-    use: "Open this when someone asks where your data comes from.",
+    name: "Method",
+    screens: [
+      {
+        href: "/attribution",
+        nav: "Attribution",
+        what: "Every exchange account we can name, and how we worked it out.",
+        use: "Open this when someone asks where your data comes from.",
+      },
+      {
+        href: "/operations",
+        nav: "Operating notes",
+        what: "How this runs, what it costs, and what it cannot do.",
+        use: "Open this before answering questions about the tool itself.",
+      },
+    ],
   },
 ];
 
 const STEPS = [
   {
     n: "1",
-    title: "Paste the address",
-    body: "It starts with T and is 34 characters long. We check it is a real TRON address before anything else happens.",
+    title: "Paste the address or transaction",
+    body: "A wallet address starts with T and is 34 characters long. A transaction is 64 characters. Either is checked before anything else happens, and a transaction shows you the wallet it paid before tracing it.",
   },
   {
     n: "2",
@@ -161,24 +183,29 @@ export default function HelpPage() {
       {/* ---------------------------------------------------------- screens */}
       <section className="mt-16">
         <SectionHeader index="01" title="The screens" kicker="What each one is for" />
-        <ul className="mt-10 divide-y divide-line border-y border-line">
-          {SCREENS.map((s) => (
-            <li key={s.href}>
-              <Link
-                href={s.href}
-                className="fx-option-quiet grid gap-2 px-2 py-6 transition hover:text-brass lg:grid-cols-[10rem_1fr] lg:gap-10"
-              >
-                <span className="font-label text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-                  {s.nav}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-base leading-7 text-ink">{s.what}</span>
-                  <span className="mt-1 block text-sm leading-6 text-faint">{s.use}</span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {SECTIONS.map((section) => (
+          <div key={section.name} className="mt-10">
+            <Designation>{section.name}</Designation>
+            <ul className="mt-4 divide-y divide-line border-y border-line">
+              {section.screens.map((s) => (
+                <li key={s.href}>
+                  <Link
+                    href={s.href}
+                    className="fx-option-quiet grid gap-2 px-2 py-6 transition hover:text-brass lg:grid-cols-[10rem_1fr] lg:gap-10"
+                  >
+                    <span className="font-label text-xs font-semibold uppercase tracking-[0.2em] text-brass">
+                      {s.nav}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-base leading-7 text-ink">{s.what}</span>
+                      <span className="mt-1 block text-sm leading-6 text-faint">{s.use}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </section>
 
       {/* ------------------------------------------------------------ steps */}

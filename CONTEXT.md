@@ -551,8 +551,12 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   help page documents **what exists** — one row per screen, four steps to trace
   a wallet, what the three dispositions mean, what each button gives you, and
   what the tool cannot do — in short sentences with no term the reader has not
-  been given. Two rules: if a line needs reading twice, rewrite it; and when a
-  screen is added, add its row. Linked from the nav and the footer.
+  been given. Three rules: if a line needs reading twice, rewrite it; when a
+  screen is added, add its row; and **the rows mirror the navigation** — same
+  sections (Casework, Method), same names, same order. The navigation was
+  renamed to intents and Help went on calling screens "Cases", "Triage" and
+  "Trace" for names the menu no longer used; a check comparing the two files'
+  name/href pairs now passes exactly. Linked from the nav and the footer.
 - **No Indian VASP is publicly tagged, and this is now evidenced rather than
   asserted** (`scripts/hunt-indian-vasp.mjs` → `data/vasp-scan.json`).
   AGENTS.md §6 wants an Indian exchange among the seeds and says why: Western
