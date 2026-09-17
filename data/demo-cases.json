@@ -1686,7 +1686,7 @@
           ],
           "generatedAt": "2026-09-14T08:54:39.289Z"
         },
-        "narrative": "3,482.70 USDT left the reported wallet after 12 September 2026, followed across 39 transfers and 3 hops. The fastest onward transfer was made 9 minutes after receipt, which is characteristic of automated forwarding rather than a person deciding. 451.43 USDT, 13.0% of the reported amount, reached Binance hot wallet. 5 behavioural rules fired on the path (short dwell, high fanout, peel chain, round amounts, new address). A restraint request naming that account is viable."
+        "narrative": "3,482.70 USDT left the reported wallet after 12 September 2026, followed across 39 transfers and 3 hops. The fastest onward transfer was made 9 minutes after receipt, which is characteristic of automated forwarding rather than a person deciding. 451.43 USDT, 13.0% of the reported amount, reached the Binance hot wallet. 5 behavioural rules fired on the path (short dwell, high fanout, peel chain, round amounts, new address). A restraint request naming that account is viable."
       }
     }
   ]

@@ -326,6 +326,26 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   the file it replaces, silently. Merge seeds the map from disk first, and the
   checkpoint writes then never stand in for rows the run was not asked to
   re-derive. **Back up `deposit-addresses.json` before any clustering run.**
+- **A named wallet takes "the" mid-sentence** (`midSentence()` in
+  `lib/narrative.ts`). The summary read "reached Binance hot wallet" whenever a
+  trace ended at a ground-truth wallet — every live trace to a tagged exchange,
+  and one recorded case. `entityPhrase` is written for a heading, so a plainly
+  named wallet now gets "the" ("an MEXC" / "a OKX" is why the article is not
+  guessed from the first letter); the "a likely …" hedge is untouched. The one
+  stale recorded summary was regenerated from that case's own stored figures,
+  not re-traced — the narrative is a pure function of the trace, so recomputing
+  it needs no chain read, and the diff is that single line.
+- **Wallet risk categorisation is the leads layer, not a second classifier**
+  (`lib/leads.ts`). The problem statement asks for it; leads already class each
+  wallet that matters — never moved, at rest, exit account, omnibus exit,
+  chokepoint, sanctions stop, unresolved tail, rapid forward — with a severity
+  tone and the figures behind it. A separate risk-category column was scoped and
+  dropped as a duplicate; point the deck at leads.
+- **The API is documented where an integrator looks** (`README.md` → API):
+  every route with a working `curl` example, each one run against a server
+  before it was written down. Demo mode answers a recorded address from its
+  frozen file and ignores `amount`/`since` on the permalink — the README says
+  so, because the example returns different figures there.
 - **A CRITICAL finding is watched, because it is true only until the money moves**
   (`lib/watch.ts`, `app/api/watch/route.ts`, `lib/watchlist.ts`,
   `components/WatchAlerts.tsx`). "Funds at rest" is a claim with a timestamp and

@@ -57,6 +57,11 @@ function percent(fraction: number): string {
  */
 function midSentence(phrase: string): string {
   if (phrase.startsWith("Likely ")) return `a likely ${phrase.slice(7)}`;
+  // A plainly named wallet ("Binance hot wallet", "Bybit deposit address") needs
+  // an article too, or the sentence reads "reached Binance hot wallet". "the" is
+  // always grammatical in front of a named wallet; guessing a/an from the first
+  // letter is not ("an MEXC", "a OKX").
+  if (/(hot wallet|deposit address)$/.test(phrase)) return `the ${phrase}`;
   return phrase;
 }
 
