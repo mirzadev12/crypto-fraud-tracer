@@ -2,9 +2,11 @@
 
 import { freezable, traceHref } from "@/lib/api";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { RiskFlag, TraceResult } from "@/lib/types";
 import type { DataSource } from "@/lib/api";
+import { watchTargetFor } from "@/lib/watch";
+import { addWatch } from "@/lib/watchlist";
 import {
   elapsedBetween,
   formatDateTime,
@@ -158,6 +160,12 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
         <p className="mt-4 border-t border-line pt-4 text-sm leading-6 text-muted">
           {trace.triageReason}
         </p>
+        {watchTargetFor(trace) ? (
+          <p className="mt-4 text-xs leading-5 text-faint">
+            <span className="text-brass">On watch.</span> The Cases desk re-checks
+            this wallet and raises an alert if the funds move.
+          </p>
+        ) : null}
       </div>
     );
   }
@@ -479,6 +487,13 @@ export default function TraceView({
 }) {
   const [selected, setSelected] = useState<string | null>(null);
 
+  // A CRITICAL finding is true only until the money moves, so its resting wallet
+  // goes on the desk's watch. This writes to an external store, not to state.
+  useEffect(() => {
+    const target = watchTargetFor(trace);
+    if (target) addWatch(target);
+  }, [trace]);
+
   /*
    * The gap between the last movement we can see and the moment we read the
    * chain. Derived, not stored, so a recorded case ages from its own capture
@@ -711,7 +726,10 @@ export default function TraceView({
           <MovementTimeline trace={trace} onSelect={setSelected} />
         </Panel>
 
-        <div className="space-y-6">
+        {/* min-w-0: this column holds the summary, whose sentences can carry a
+            full 34-character address — unbreakable at min-content, so without it
+            the column refuses to shrink and the page scrolls sideways on a phone. */}
+        <div className="min-w-0 space-y-6">
           {trace.narrative ? (
             /* It exists to be pasted into a case file, so it carries a copy
                button. The subtitle states the one thing that distinguishes it
@@ -724,7 +742,7 @@ export default function TraceView({
               subtitle="Assembled from the figures above. No language model — the same trace always produces the same words."
               actions={<CopyButton value={trace.narrative} label="Copy" />}
             >
-              <p className="text-sm leading-7 text-muted">{trace.narrative}</p>
+              <p className="wrap-anywhere text-sm leading-7 text-muted">{trace.narrative}</p>
             </Panel>
           ) : null}
           <Panel title="Chain of custody" className="scroll-mt-32" id="custody">

@@ -321,7 +321,7 @@ export default function EvidencePacket({
         {/* 5 — narrative */}
         {trace.narrative ? (
           <Section n="5" title="Summary">
-            <p className={`font-document text-lg leading-8 ${SHEET.ink}`}>
+            <p className={`wrap-anywhere font-document text-lg leading-8 ${SHEET.ink}`}>
               {trace.narrative}
             </p>
           </Section>

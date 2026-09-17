@@ -30,8 +30,8 @@ const SCREENS = [
   {
     href: "/dashboard",
     nav: "Cases",
-    what: "The list of cases, most urgent first.",
-    use: "Start here to see what is on the desk today.",
+    what: "The list of cases, most urgent first — and alerts if money moves.",
+    use: "Start here. Any wallet still holding funds is watched, and you'll see an alert at the top if the money starts to move.",
   },
   {
     href: "/queue",

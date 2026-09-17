@@ -326,6 +326,47 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   the file it replaces, silently. Merge seeds the map from disk first, and the
   checkpoint writes then never stand in for rows the run was not asked to
   re-derive. **Back up `deposit-addresses.json` before any clustering run.**
+- **A CRITICAL finding is watched, because it is true only until the money moves**
+  (`lib/watch.ts`, `app/api/watch/route.ts`, `lib/watchlist.ts`,
+  `components/WatchAlerts.tsx`). "Funds at rest" is a claim with a timestamp and
+  nothing told the officer when that timestamp stopped being true. Every CRITICAL
+  trace — opened on its own or landing in bulk triage — puts the wallet holding
+  the funds on a watch, and the Cases desk re-asks the chain one narrow question
+  about each: *has it sent USDT since the case was read?* The problem statement
+  asks for automated alert generation, and this is that, in the shape the
+  constraints allow. **No database and a deployment that sleeps** mean nothing
+  server-side can hold a list or run on a schedule, so the list lives in the
+  officer's browser and the desk checks when it opens and every five minutes
+  while it is open — and the screen says exactly that rather than implying an
+  always-on service. The route is stateless and reads through the same
+  `TronGrid` client and pacing as a trace.
+  **Three answers, never two**: moved, still at rest, or *not checked*.
+  `outflowsSince()` returns null when the chain did not answer and an empty
+  array only when it answered that nothing left; `only_from` and
+  `min_timestamp` were verified against live responses first (a future
+  timestamp returns zero rows with `success: true`). Reporting an unreadable
+  wallet as still at rest is the same lie as calling it empty, told about the
+  wallet an officer is most likely to act on. The first live test hit exactly
+  this — a rate-limited read came back "not checked", correctly.
+  **It fired for real on its first run.** The recorded CRITICAL case
+  `TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx`, captured 14 Sep holding 1,066.11 USDT
+  and never having sent any, had by 17 Sep sent at least 365,201.90 USDT: one
+  141,362.00 transfer and a transfer every thirty minutes to a second wallet.
+  That case was selected by a script for being at rest, not reported by a
+  victim, so it must never be described as fraud proceeds moving — only as a
+  CRITICAL finding going stale and the watch catching it. Movement is grouped
+  by destination (fifty rows of one address is noise), and when more left than
+  was held the screen says the wallet has received funds since, because a judge
+  will otherwise ask how 365k left a wallet holding 1k. Committed illustrative
+  cases are never watched: they were never on TRON, so the answer would always
+  be "still at rest" and would look like a working alert. **To demo it, open the
+  recorded case with `DEMO_MODE` on** — traced live today it is no longer
+  CRITICAL, which is the whole point.
+- **A sentence that can carry an address needs `wrap-anywhere`.** The summary
+  names a full 34-character address on some cases, which is unbreakable at
+  min-content, and it pushed the trace page 5px sideways at 375px. Earlier
+  sweeps missed it because the fixture case's summary contains no address — so
+  sweep a CRITICAL case too, not only the fixture.
 - **The convergence is drawn, not just stated** (`components/LinkGraph.tsx`).
   `findLinks` established the fact and the panel put it in words, but the claim
   this project most wants understood is a *shape*: separate victims, separate

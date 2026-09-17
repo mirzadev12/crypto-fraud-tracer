@@ -27,6 +27,8 @@ import {
 } from "@/lib/api";
 import { formatUsdt, shortAddress } from "@/lib/format";
 import { findLinks } from "@/lib/links";
+import { watchTargetFor } from "@/lib/watch";
+import { addWatch } from "@/lib/watchlist";
 import LinkGraph from "@/components/LinkGraph";
 import BatchCanvas, { BatchViewToggle, type BatchView } from "@/components/BatchCanvas";
 import { checkTronAddress } from "@/lib/tron";
@@ -180,6 +182,8 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
           setLive({ address, note: describeProgress(event) }),
         );
         if (lookup.status === "resolved") {
+          const target = watchTargetFor(lookup.data);
+          if (target) addWatch(target);
           update(address, {
             address,
             state: "done",

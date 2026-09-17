@@ -29,6 +29,8 @@ export const USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 export const USDT_DECIMALS = 6;
 
 const PAGE_LIMIT = 200;
+/** One page is enough to know a watched wallet moved; see `outflowsSince`. */
+const WATCH_LIMIT = 50;
 const MAX_PAGES = 5;
 const RETRY_DELAYS_MS = [800, 2400];
 /**
@@ -137,6 +139,43 @@ export class TronGrid {
     if (!readAnything) this.unread.add(address.trim());
     this.cache.set(key, out);
     return out;
+  }
+
+  /**
+   * USDT the wallet has sent since a moment in time — one request, no paging.
+   *
+   * Built for the watch on wallets still holding funds, which asks one narrow
+   * question and should not pay for a full history to answer it. Both filters
+   * are applied by the endpoint (`only_from`, `min_timestamp`), verified against
+   * live responses before this was written: a future timestamp returns zero rows
+   * with `success: true`.
+   *
+   * Returns **null when the chain did not answer**, and an empty array only when
+   * it answered that nothing left. Those are different findings — "still at
+   * rest" stated about a wallet we could not read is exactly the lie `unread`
+   * exists to prevent — so the caller must never collapse one into the other.
+   */
+  async outflowsSince(
+    address: string,
+    sinceMs: number,
+  ): Promise<{ transfers: Trc20Transfer[]; complete: boolean } | null> {
+    const subject = address.trim();
+    const url =
+      `${BASE}/v1/accounts/${encodeURIComponent(subject)}/transactions/trc20` +
+      `?limit=${WATCH_LIMIT}&only_confirmed=true&only_from=true` +
+      `&min_timestamp=${Math.max(0, Math.floor(sinceMs) + 1)}` +
+      `&contract_address=${USDT_CONTRACT}`;
+
+    const body = await this.getJson(url);
+    if (!body || body.success === false) return null;
+
+    const rows = Array.isArray(body.data) ? body.data : [];
+    const transfers = rows
+      .map(parseTransfer)
+      .filter((t): t is Trc20Transfer => t !== null && t.from === subject);
+    // A full page means there may be more movement than one page shows. The fact
+    // that the wallet moved is certain either way; the count is only a floor.
+    return { transfers, complete: rows.length < WATCH_LIMIT };
   }
 
   /**

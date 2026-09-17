@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import CaseQueue from "@/components/CaseQueue";
+import WatchAlerts from "@/components/WatchAlerts";
 import { PageHeader, buttonStyles } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -28,7 +29,12 @@ export default function DashboardPage() {
           </>
         }
       />
+      {/* The watch sits above the register: an alert that money moved is the
+          most time-critical thing on this desk. */}
       <div className="mt-6">
+        <WatchAlerts />
+      </div>
+      <div className="mt-10">
         <CaseQueue />
       </div>
     </AppShell>
