@@ -257,6 +257,17 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   the chain like any other, failing honestly if the network is gone. **A frozen
   trace never claims to be live** — the route stamps `x-finex-provenance:
   recorded`, `lib/api.ts` reads that header, and the badge reads RECORDED TRACE.
+  **A third rule joins them: a frozen case answers only for the run it is.**
+  The permalink used to serve the recorded case whatever `?amount=` and
+  `?since=` asked for, so a link requesting 1,000 USDT got the captured 500
+  under its own parameters — the same class of lie as answering for an address
+  the case does not belong to, and the one demo mode exists to prevent. The
+  route now compares those parameters against the frozen trace and falls through
+  to the chain when they differ, exactly as `?model=fifo` already did. A link
+  made inside the app carries that run's own figures through `traceHref`, so it
+  still matches and is still served from the file; a bare permalink still means
+  "the recorded run". Verified: bare and matching links answer `recorded`, a
+  different amount or window answers `live` with the run that was asked for.
   Note that `NEXT_PUBLIC_*` values are inlined by Next at *build* time even in
   server code, which is why the unprefixed `DEMO_MODE` is accepted too: it is
   read at runtime, so a built artefact can be switched on the night without a

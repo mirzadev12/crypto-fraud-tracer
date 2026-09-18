@@ -100,9 +100,12 @@ curl "http://localhost:3000/api/trace/TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ?amount=
 ```
 
 On a server running with `DEMO_MODE=true`, an address that has a recorded case
-is answered from its frozen file instead — stamped `x-finex-provenance: recorded`
-— and `amount` and `since` are not applied. `?model=fifo` always goes to the
-chain, because a recorded case was captured under the other model.
+is answered from its frozen file — stamped `x-finex-provenance: recorded` —
+**when the request matches that recorded run**, which a link made inside the app
+always does. Ask for a different `amount` or `since` and it goes to the chain
+like any other request, because the recorded case cannot answer for parameters
+it was not captured under. `?model=fifo` always goes to the chain for the same
+reason.
 
 Start from a transaction instead of a wallet:
 

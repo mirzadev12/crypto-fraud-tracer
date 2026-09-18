@@ -37,6 +37,39 @@ export async function GET(
      model that shipped, so an existing link is unaffected. */
   const model = url.searchParams.get("model") === "fifo" ? ("fifo" as const) : undefined;
 
+  const amountParam = Number(url.searchParams.get("amount"));
+  const sinceParam = url.searchParams.get("since");
+
+  // No amount in a permalink, so adopt whatever actually left the address.
+  const amount: number | "auto" =
+    Number.isFinite(amountParam) && amountParam > 0 ? amountParam : "auto";
+  const since = sinceParam ? new Date(sinceParam) : new Date(Number.NaN);
+
+  /**
+   * A frozen case answers only for the run it actually is.
+   *
+   * A pinned link carries the figures of the run it came from, so a link made
+   * inside the app always matches and is still served from the file. A link
+   * asking for a *different* amount or window is asking a question the recorded
+   * case cannot answer — serving it anyway would print the captured figures
+   * under someone else's parameters, which is the same class of lie as
+   * answering for an address the case does not belong to. Those go to the chain
+   * like any other request and fail honestly when the network is gone.
+   *
+   * No parameters means "the recorded run", which is what a bare permalink to a
+   * recorded case has always meant.
+   */
+  const matchesFrozen = (frozen: { reportedAmountUsdt: number; fraudDate: string }) => {
+    if (amount !== "auto" && Math.abs(amount - frozen.reportedAmountUsdt) > 0.005) {
+      return false;
+    }
+    if (!Number.isNaN(since.getTime())) {
+      const recorded = new Date(frozen.fraudDate).getTime();
+      if (Number.isNaN(recorded) || since.getTime() !== recorded) return false;
+    }
+    return true;
+  };
+
   /*
    * See the POST route: exact-address match only, and the response says so.
    *
@@ -48,7 +81,7 @@ export async function GET(
    */
   if (DEMO_MODE && !model) {
     const held = frozenTrace(address);
-    if (held) {
+    if (held && matchesFrozen(held.trace)) {
       if (wantsStream(request)) {
         return streamTrace(async (emit) => {
           emit({ type: "recorded", caseId: held.trace.caseId });
@@ -61,13 +94,6 @@ export async function GET(
     }
   }
 
-  const amountParam = Number(url.searchParams.get("amount"));
-  const sinceParam = url.searchParams.get("since");
-
-  // No amount in a permalink, so adopt whatever actually left the address.
-  const amount: number | "auto" =
-    Number.isFinite(amountParam) && amountParam > 0 ? amountParam : "auto";
-  const since = sinceParam ? new Date(sinceParam) : new Date(Number.NaN);
   // No date: open the window at the wallet's own first transfer.
   const job: TraceRequest = {
     address,
