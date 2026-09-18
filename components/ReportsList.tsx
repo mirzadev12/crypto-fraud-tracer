@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { getCases, type Sourced } from "@/lib/api";
+import { getCases, isIllustrative, type Sourced } from "@/lib/api";
 import type { CaseSummary } from "@/lib/types";
 import { formatDate, formatUsdt, shortAddress } from "@/lib/format";
 import {
@@ -98,7 +98,11 @@ export default function ReportsList() {
 
       <div className="mt-6 flex items-center justify-between gap-4">
         <Designation>Filed newest first</Designation>
-        <DataSourceBadge source={state.result.source} note={state.result.note} />
+        <DataSourceBadge
+          source={state.result.source}
+          note={state.result.note}
+          label="Committed register"
+        />
       </div>
 
       <ul className="mt-6 divide-y divide-line border-y border-line">
@@ -110,6 +114,14 @@ export default function ReportsList() {
             >
               <span className="font-mono text-xs uppercase tracking-[0.16em] text-faint transition group-hover:text-brass">
                 {c.caseId}
+                {isIllustrative(c.inputAddress) ? (
+                  <span
+                    className="block font-label text-[10px] tracking-[0.16em] text-faint"
+                    title="Illustrative — an address generated for this repository to show a shape, never on the TRON chain."
+                  >
+                    Illustrative
+                  </span>
+                ) : null}
               </span>
 
               <span className="font-mono text-xs text-muted" title={c.inputAddress}>

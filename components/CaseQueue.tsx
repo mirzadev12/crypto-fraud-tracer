@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { getCases, summarize, type Sourced } from "@/lib/api";
+import { getCases, isIllustrative, summarize, type Sourced } from "@/lib/api";
 import type { CaseSummary, TriageLevel } from "@/lib/types";
 import { formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
 import AddressChip from "./AddressChip";
@@ -140,7 +140,11 @@ export default function CaseQueue() {
         title="Complaint queue"
         subtitle="Most suspicious first: critical, then suspicious, then closed, and the largest sum at stake first within each."
         actions={
-          <DataSourceBadge source={state.result.source} note={state.result.note} />
+          <DataSourceBadge
+          source={state.result.source}
+          note={state.result.note}
+          label="Committed register"
+        />
         }
         bodyClassName="p-0"
       >
@@ -203,8 +207,16 @@ export default function CaseQueue() {
                     key={c.caseId}
                     className="h-10 border-b border-line-soft transition last:border-0 hover:bg-surface-2"
                   >
-                    <td className="px-6 py-0 font-mono text-xs text-muted">
+                    <td className="px-6 py-0 font-mono text-xs whitespace-nowrap text-muted">
                       {c.caseId}
+                      {isIllustrative(c.inputAddress) ? (
+                        <span
+                        className="ml-2 font-label text-[10px] uppercase tracking-[0.16em] text-faint"
+                        title="Illustrative — an address generated for this repository to show a shape, never on the TRON chain."
+                      >
+                        Illustrative
+                      </span>
+                      ) : null}
                     </td>
                     <td className="px-6 py-0">
                       <AddressChip address={c.inputAddress} explorer={false} />

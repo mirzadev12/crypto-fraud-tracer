@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
   DEMO_SAMPLES,
   getTrace,
+  sampleHref,
   type TraceLookup,
   type TraceParams,
   type TraceProgress,
@@ -224,14 +225,14 @@ function PreparedCases() {
   return (
     <Panel
       title="Verified traces held on this build"
-      subtitle="Captured from the chain, committed to the repository, and readable with the network off."
+      subtitle="Real cases captured from the chain and committed to the repository. Each opens exactly as it was read; with demo mode on, without touching the network."
       framed={false}
     >
       <ul className="mt-6 divide-y divide-line border-y border-line">
         {DEMO_SAMPLES.map((s) => (
           <li key={s.address}>
             <Link
-              href={`/trace/${s.address}`}
+              href={sampleHref(s)}
               className="group flex flex-col gap-4 py-6 transition hover:bg-surface md:flex-row md:items-center md:gap-10"
             >
               <span className="w-40 shrink-0">
@@ -276,13 +277,19 @@ export function NoTraceState({
   detail?: string;
   onRetry?: () => void;
 }) {
+  // What every trace does. No counts here: a figure typed into prose drifts
+  // from the files it was counted from, and this one had — it still said 11
+  // seed wallets after there were 15.
   const PIPELINE: Array<[string, string]> = [
-    ["01", "Fetch every confirmed TRC-20 transfer for this address from the chain"],
+    ["01", "Read the wallet's confirmed USDT transfers from the chain"],
     ["02", "Trace forward to depth 3, following the five largest outflows per wallet"],
-    ["03", "Carry the victim's taint along each edge and drop transfers under 1%"],
+    [
+      "03",
+      "Carry the victim's share along each transfer made after the money arrived, dropping transfers under 1%",
+    ],
     [
       "04",
-      "Match every address against the label table — 11 seed wallets, 202 sanctioned addresses",
+      "Match every wallet against the label tables — explorer-tagged exchange wallets, derived deposit addresses and sanctioned addresses",
     ],
     ["05", "Score six behavioural rules, then call the disposition"],
   ];
@@ -314,10 +321,9 @@ export function NoTraceState({
                   No trace
                 </dt>
                 <dd className="text-sm leading-6 text-muted">
-                  {detail ?? "The trace service is not deployed on this build."} It
-                  answers on <code className="font-mono text-ink">{endpoint}</code>.
-                  No recorded trace is held for this address, and this build will
-                  not show another address&rsquo;s result in its place.
+                  {detail ?? "The trace could not be completed."} Asked of{" "}
+                  <code className="font-mono text-ink">{endpoint}</code>. This build
+                  will not show another address&rsquo;s result in its place.
                 </dd>
               </div>
             </dl>
@@ -334,7 +340,7 @@ export function NoTraceState({
           </div>
 
           <aside>
-            <Designation>What the pipeline would do</Designation>
+            <Designation>What a trace does</Designation>
             <ol className="mt-6 divide-y divide-line border-y border-line">
               {PIPELINE.map(([n, text]) => (
                 <li key={n} className="flex items-baseline gap-4 py-4">
@@ -344,9 +350,9 @@ export function NoTraceState({
               ))}
             </ol>
             <p className="mt-6 text-xs leading-6 text-faint">
-              The label table and the six rules are in the repository now. The
-              service that runs them over live chain data is the piece still to be
-              deployed.
+              Every step runs on each live trace, and a recorded case is the same
+              steps frozen with the hash of every response they read. The label
+              tables and the six rules are plain files in the repository.
             </p>
           </aside>
         </div>
@@ -422,7 +428,8 @@ export function useTrace(address: string | null, params?: TraceParams): {
   // that is new on every render. The key ties loaded state to one exact run.
   const amount = params?.amount;
   const since = params?.since;
-  const key = `${address}|${amount ?? ""}|${since ?? ""}`;
+  const asOf = params?.asOf;
+  const key = `${address}|${amount ?? ""}|${since ?? ""}|${asOf ?? ""}`;
   // Live progress from the trace stream, tagged with the load it belongs to so a
   // stale stream can never paint over a newer one.
   const [progress, setProgress] = useState<{
@@ -445,7 +452,7 @@ export function useTrace(address: string | null, params?: TraceParams): {
             : { key, attempt, events: [entry] },
         );
       },
-      { amount, since },
+      { amount, since, asOf },
     )
       .then((lookup) => {
         if (!cancelled) setLoaded({ address, attempt, lookup, key });
@@ -467,7 +474,7 @@ export function useTrace(address: string | null, params?: TraceParams): {
     return () => {
       cancelled = true;
     };
-  }, [address, attempt, key, amount, since]);
+  }, [address, attempt, key, amount, since, asOf]);
 
   const current = loaded && loaded.key === key && loaded.attempt === attempt ? loaded : null;
   const events =
@@ -487,12 +494,15 @@ export default function TraceLoader({
   address,
   amount,
   since,
+  asOf,
 }: {
   address: string;
   amount?: number;
   since?: string;
+  /** The moment a pinned run was read; see `traceHref`. */
+  asOf?: string;
 }) {
-  const { current, retry, events } = useTrace(address, { amount, since });
+  const { current, retry, events } = useTrace(address, { amount, since, asOf });
 
   if (!current) return <TraceSkeleton address={address} events={events} />;
 
@@ -510,5 +520,12 @@ export default function TraceLoader({
       />
     );
   }
-  return <TraceView trace={lookup.data} source={lookup.source} note={lookup.note} />;
+  return (
+    <TraceView
+      trace={lookup.data}
+      source={lookup.source}
+      note={lookup.note}
+      asOf={lookup.asOf}
+    />
+  );
 }

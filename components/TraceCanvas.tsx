@@ -118,7 +118,17 @@ function Readout({
     ["EDGES", String(trace.edges.length)],
     ["DEPTH", String(depth)],
     ["TAINT", `${(taint * 100).toFixed(1)}%`],
-    ["FEED", source === "demo" ? "DEMO" : source === "live" ? "LIVE" : "—"],
+    // Provenance, in the same words as the badge: never "demo".
+    [
+      "FEED",
+      source === "demo"
+        ? "RECORDED"
+        : source === "illustrative"
+          ? "ILLUSTRATIVE"
+          : source === "live"
+            ? "LIVE"
+            : "—",
+    ],
   ];
 
   return (

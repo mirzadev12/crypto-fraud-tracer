@@ -70,12 +70,14 @@ export default function EvidencePacket({
   address,
   amount,
   since,
+  asOf,
 }: {
   address: string;
   amount?: number;
   since?: string;
+  asOf?: string;
 }) {
-  const { current, retry, events } = useTrace(address, { amount, since });
+  const { current, retry, events } = useTrace(address, { amount, since, asOf });
 
   if (!current) return <TraceSkeleton address={address} events={events} />;
   if (current.lookup.status === "invalid") {
@@ -108,7 +110,11 @@ export default function EvidencePacket({
       {/* Console chrome — stays dark, never prints. */}
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div className="flex flex-wrap items-center gap-2">
-          <DataSourceBadge source={current.lookup.source} note={current.lookup.note} />
+          <DataSourceBadge
+            source={current.lookup.source}
+            note={current.lookup.note}
+            asOf={current.lookup.asOf}
+          />
           <TriageBadge level={trace.triage} withAction />
         </div>
         <div className="flex gap-2">
@@ -342,9 +348,17 @@ export default function EvidencePacket({
               {formatDateTime(trace.provenance.generatedAt)}
             </Field>
           </dl>
+          {trace.provenance.apiCalls > trace.provenance.responseHashes.length ? (
+            <p className={`mt-6 text-sm leading-7 ${SHEET.body}`}>
+              {trace.provenance.apiCalls - trace.provenance.responseHashes.length} of
+              the requests were refused or timed out, returned nothing and were
+              retried; only responses that arrived are hashed, and nothing in
+              this packet was built from the others.
+            </p>
+          ) : null}
           <div className={`mt-6 border-t pt-4 ${SHEET.ruleSoft}`}>
-            {trace.provenance.responseHashes.map((h) => (
-              <p key={h} className={`break-all font-mono text-xs leading-6 ${SHEET.body}`}>
+            {trace.provenance.responseHashes.map((h, i) => (
+              <p key={`${i}-${h}`} className={`break-all font-mono text-xs leading-6 ${SHEET.body}`}>
                 sha256 {h}
               </p>
             ))}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
-import { DEMO_SAMPLES } from "@/lib/api";
+import { DEMO_SAMPLES, sampleHref } from "@/lib/api";
 import { CASE_PROOF, Designation, Diamond, buttonStyles } from "@/components/ui";
 import { shortAddress } from "@/lib/format";
 
@@ -29,7 +29,7 @@ export default function NotFound() {
           {DEMO_SAMPLES.map((s) => (
             <li key={s.address}>
               <Link
-                href={`/trace/${s.address}`}
+                href={sampleHref(s)}
                 className="group flex flex-col gap-2 py-6 transition hover:bg-surface md:flex-row md:items-center md:gap-10"
               >
                 <span className="flex-1 text-sm leading-6 text-ink">

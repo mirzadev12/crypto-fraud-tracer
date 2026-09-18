@@ -24,13 +24,27 @@ import type { TraceProgress } from "./progress";
 
 export type { TraceProgress };
 
-export type DataSource = "live" | "demo";
+/**
+ * Where a trace came from. `demo` is a recorded trace — real, captured from
+ * the chain, served from a committed file. `illustrative` is a committed case
+ * written by hand to show a shape, on an address that was never on the chain:
+ * it must never wear the same badge as a recorded one, or the badge stops
+ * meaning anything.
+ */
+export type DataSource = "live" | "demo" | "illustrative";
 
 export interface Sourced<T> {
   data: T;
   source: DataSource;
   /** Why we fell back, when we did. Shown in a tooltip, never swallowed. */
   note?: string;
+  /**
+   * Set when a live read was pinned to a past moment by its link. The chain it
+   * describes is the chain as it stood then, and the screen has to say so:
+   * "Live trace" alone reads as today, and on a case whose money has moved
+   * since, that is exactly the misreading that matters.
+   */
+  asOf?: string;
 }
 
 /**
@@ -39,8 +53,8 @@ export interface Sourced<T> {
  * Three outcomes, not two. A valid address nobody has prepared a trace for is
  * not an error and must never be rendered as one: an evaluator pasting a wallet
  * we have never seen is the most likely single moment of the demo, and the
- * honest answer — "valid address, service not deployed, here is what it would
- * do" — says more about the engineering than a fixture would.
+ * honest answer — "valid address, no trace held, here is what a trace does"
+ * — says more about the engineering than a fixture would.
  *
  * `TraceResult` itself is untouched; this discriminates at the API layer only.
  */
@@ -55,24 +69,35 @@ export type TraceLookup =
     }
   | { status: "invalid"; address: string; reason: string };
 
-/** Parameters that pin a trace to one run, carried in a link as ?amount=&since=. */
+/**
+ * Parameters that pin a trace to one run, carried in a link as
+ * ?amount=&since=&asof=.
+ */
 export interface TraceParams {
   amount?: number;
   since?: string;
+  /** Read the chain as it stood at this moment — the moment the run was read. */
+  asOf?: string;
 }
 
 /**
- * A link that reproduces this exact trace: same amount, same window. Without it
- * a shared link re-ran on automatic settings and could show different totals
- * from the ones the officer was looking at.
+ * A link that reproduces this exact trace: same amount, same window, and the
+ * chain as it stood when the trace was read. Without the amount and window a
+ * shared link re-ran on automatic settings; without the moment it re-ran on
+ * today's chain, and any wallet that had moved since showed different figures
+ * from the ones the officer forwarded. Confirmed transfers never change, so a
+ * link pinned to its moment shows the same case on any later day.
  */
 export function traceHref(
   kind: "trace" | "report" | "freeze",
-  trace: Pick<TraceResult, "inputAddress" | "reportedAmountUsdt" | "fraudDate">,
+  trace: Pick<TraceResult, "inputAddress" | "reportedAmountUsdt" | "fraudDate"> & {
+    provenance?: { generatedAt?: string };
+  },
 ): string {
   const query = new URLSearchParams();
   if (trace.reportedAmountUsdt > 0) query.set("amount", String(trace.reportedAmountUsdt));
   if (trace.fraudDate) query.set("since", trace.fraudDate);
+  if (trace.provenance?.generatedAt) query.set("asof", trace.provenance.generatedAt);
   const qs = query.toString();
   return `/${kind}/${encodeURIComponent(trace.inputAddress)}${qs ? `?${qs}` : ""}`;
 }
@@ -112,7 +137,7 @@ export class TraceUnavailableError extends Error {
 
 /* ------------------------------------------------------------- demo fixtures */
 
-/** Addresses that have a committed fixture, for the "try a sample" affordances. */
+/** The three illustrative cases that carry a hand-built trace file. */
 export const DEMO_ADDRESSES = {
   warm: "TS27ffk2xJ95nTMYvLjBimcpqaLNHGiw2S",
   hot: "TYz6M2Fn2egsb15oNZdACtABKotmheGQiD",
@@ -125,15 +150,74 @@ const MOCK_TRACE_FILES: Record<string, string> = {
   [DEMO_ADDRESSES.cold]: "/mock/trace-cold.json",
 };
 
+/**
+ * Every illustrative entry in the register — valid addresses generated for
+ * this repository by `scripts/make-mocks.mjs`, never on the TRON chain. Three
+ * carry a hand-built trace; the rest are register rows only. Listed here so
+ * the interface can say which they are wherever one appears, and so opening a
+ * row that has no trace says so instead of asking the chain about an address
+ * it has never seen and printing "no USDT ever" under a register row that
+ * claims 132,500 USDT reached OKX.
+ */
+const ILLUSTRATIVE = new Set<string>([
+  DEMO_ADDRESSES.warm,
+  DEMO_ADDRESSES.hot,
+  DEMO_ADDRESSES.cold,
+  "THDgxwhf5neEAEDm7VeVhxAk7XXqxqopQm",
+  "TVDQnzYGxoXYJ7bzhsJNUm2odya94LsoR3",
+  "TMNeo6BBQb3bBeZqeKr3wtDKQ2P6y3ihJ1",
+  "TAEX8NDwAUF4AwzsAvo17o2vnHCeGerg6M",
+  "TQGdaUeybYZQ8dD4jQaL2Zajuhun5hR6wz",
+]);
+
+export function isIllustrative(address: string): boolean {
+  return ILLUSTRATIVE.has(address.trim());
+}
+
+/**
+ * The cases offered as "open one of each": real ones, one per disposition,
+ * captured from the chain on 14 September 2026 and frozen in
+ * `data/demo-cases.json`. Each carries the run it was captured under —
+ * window, amount when one was given, and the moment it was read — so its link
+ * replays exactly that case: from the file with demo mode on, from the chain
+ * as it stood then with demo mode off. Both give the same answer, and it is
+ * one that can be re-verified. These used to be the illustrative cases, under
+ * copy that said they had been captured from the chain.
+ */
 export const DEMO_SAMPLES: ReadonlyArray<{
   address: string;
   triage: TriageLevel;
   headline: string;
+  run: { amount?: number; since: string; asOf: string };
 }> = [
-  { address: DEMO_ADDRESSES.warm, triage: "WARM", headline: "Lands on a Binance customer deposit address" },
-  { address: DEMO_ADDRESSES.hot, triage: "HOT", headline: "Funds still at rest — no off-ramp reached" },
-  { address: DEMO_ADDRESSES.cold, triage: "COLD", headline: "Path enters a mixing service" },
+  {
+    address: "TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex",
+    triage: "WARM",
+    headline: "Lands on a MEXC customer deposit address",
+    run: { amount: 7630.48, since: "2026-09-08T19:12:36.000Z", asOf: "2026-09-14T08:51:06.859Z" },
+  },
+  {
+    address: "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
+    triage: "HOT",
+    headline: "Funds still at rest — no off-ramp reached",
+    run: { since: "2026-09-09T13:09:36.000Z", asOf: "2026-09-14T08:51:02.929Z" },
+  },
+  {
+    address: "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
+    triage: "COLD",
+    headline: "Path reaches a sanctioned address",
+    run: { amount: 2000, since: "2024-09-06T07:32:48.000Z", asOf: "2026-09-14T08:51:27.200Z" },
+  },
 ];
+
+/** The link that replays a sample case exactly. */
+export function sampleHref(sample: (typeof DEMO_SAMPLES)[number]): string {
+  const query = new URLSearchParams();
+  if (sample.run.amount) query.set("amount", String(sample.run.amount));
+  query.set("since", sample.run.since);
+  query.set("asof", sample.run.asOf);
+  return `/trace/${encodeURIComponent(sample.address)}?${query.toString()}`;
+}
 
 export function hasDemoTrace(address: string): boolean {
   return Boolean(MOCK_TRACE_FILES[address.trim()]);
@@ -596,31 +680,35 @@ async function fixture(path: string): Promise<unknown> {
 
 /* ------------------------------------------------------------------- cases */
 
+/**
+ * The register is a committed file, and says so.
+ *
+ * There is no case database, and `/api/cases` is deliberately unimplemented
+ * (CONTEXT.md §3): serving these records through it would flip the badge to
+ * "Live" over rows that are not chain reads. This used to ask it anyway on
+ * every page that shows the register, which could only ever 404 — a red line
+ * in the console of every screen, for a request whose answer was known.
+ */
 export async function getCases(): Promise<Sourced<CaseSummary[]>> {
-  try {
-    const json = await getJson("/api/cases");
-    if (Array.isArray(json) && json.every(isCaseSummary)) {
-      return { data: json, source: "live" };
-    }
-    throw new Error("response did not match CaseSummary[]");
-  } catch (err) {
-    const json = await fixture("/mock/cases.json");
-    const data = Array.isArray(json) ? json.filter(isCaseSummary) : [];
-    return {
-      data,
-      source: "demo",
-      note: `/api/cases unavailable (${describe(err)}) — showing committed fixtures.`,
-    };
-  }
+  const json = await fixture("/mock/cases.json");
+  const data = Array.isArray(json) ? json.filter(isCaseSummary) : [];
+  return {
+    data,
+    source: "demo",
+    note:
+      "The register is a committed file, not a case database: real cases captured " +
+      "from the chain, and illustrative ones marked as such in the list.",
+  };
 }
 
 /* ------------------------------------------------------------------ traces */
 
 /**
- * The committed-trace path, unchanged for the three recorded addresses: same
- * file map, same validation, same `normalizeTrace`. The only difference is that
- * "we hold no trace for this address" now returns an outcome instead of
- * throwing, so the UI can render it as a state rather than an error.
+ * The committed-file path, for the illustrative cases only: same file map,
+ * same validation, same `normalizeTrace`. An illustrative register entry with
+ * no trace file comes back unresolved with `detail`, as a state rather than an
+ * error. Real recorded cases never come through here — they are served by the
+ * trace routes, from `data/demo-cases.json`, when demo mode is on.
  */
 async function recordedTrace(
   address: string,
@@ -641,8 +729,16 @@ async function recordedTrace(
       detail: "A recorded trace exists for this address but could not be read.",
     };
   }
-  return { status: "resolved", data: normalizeTrace(json), source: "demo", note };
+  return { status: "resolved", data: normalizeTrace(json), source: "illustrative", note };
 }
+
+const ILLUSTRATIVE_NOTE =
+  "Illustrative case — written by hand to show a shape the pipeline produces. " +
+  "This address was never on the TRON chain, so there is nothing to re-verify.";
+
+const ILLUSTRATIVE_MISSING =
+  "An illustrative register entry: this address was generated for this repository " +
+  "to show a shape and was never on the TRON chain, so there is no trace to read for it.";
 
 /**
  * The three committed illustrative cases are answered from their files rather
@@ -661,7 +757,7 @@ async function recordedTrace(
  * ones included, still goes to the service first.
  */
 function heldLocally(address: string): boolean {
-  return hasDemoTrace(address);
+  return isIllustrative(address);
 }
 
 export async function getTrace(
@@ -676,18 +772,14 @@ export async function getTrace(
   if (!check.valid) return { status: "invalid", address: clean, reason: check.reason };
 
   if (heldLocally(clean)) {
-    return recordedTrace(
-      clean,
-      "GET /api/trace/[address]",
-      "Committed case — held in this build and rendered without a chain read.",
-      "No committed case is held for this address.",
-    );
+    return recordedTrace(clean, "GET /api/trace/[address]", ILLUSTRATIVE_NOTE, ILLUSTRATIVE_MISSING);
   }
 
   try {
     const query = new URLSearchParams();
     if (params?.amount && params.amount > 0) query.set("amount", String(params.amount));
     if (params?.since) query.set("since", params.since);
+    if (params?.asOf) query.set("asof", params.asOf);
     const qs = query.toString();
     const { json, recorded } = await streamJson(
       `/api/trace/${encodeURIComponent(clean)}${qs ? `?${qs}` : ""}`,
@@ -700,16 +792,17 @@ export async function getTrace(
         data: normalizeTrace(json),
         source: recorded ? "demo" : "live",
         ...(recorded ? { note: RECORDED_NOTE } : {}),
+        ...(!recorded && params?.asOf ? { asOf: params.asOf } : {}),
       };
     }
     throw new Error("response did not match TraceResult");
   } catch (err) {
-    return recordedTrace(
-      clean,
-      "GET /api/trace/[address]",
-      `The trace service did not answer (${describe(err)}) — showing the recorded trace.`,
-      `The trace could not be completed: ${describe(err)}.`,
-    );
+    return {
+      status: "unresolved",
+      address: clean,
+      endpoint: "GET /api/trace/[address]",
+      detail: `The trace could not be completed: ${describe(err)}.`,
+    };
   }
 }
 
@@ -723,12 +816,7 @@ export async function runTrace(
   if (!check.valid) return { status: "invalid", address: clean, reason: check.reason };
 
   if (heldLocally(clean)) {
-    return recordedTrace(
-      clean,
-      "POST /api/trace",
-      "Committed case — held in this build and rendered without a chain read.",
-      "No committed case is held for this address.",
-    );
+    return recordedTrace(clean, "POST /api/trace", ILLUSTRATIVE_NOTE, ILLUSTRATIVE_MISSING);
   }
 
   try {
@@ -751,12 +839,12 @@ export async function runTrace(
     }
     throw new Error("response did not match TraceResult");
   } catch (err) {
-    return recordedTrace(
-      clean,
-      "POST /api/trace",
-      `The trace service did not answer (${describe(err)}) — showing the recorded trace.`,
-      `The trace could not be completed: ${describe(err)}.`,
-    );
+    return {
+      status: "unresolved",
+      address: clean,
+      endpoint: "POST /api/trace",
+      detail: `The trace could not be completed: ${describe(err)}.`,
+    };
   }
 }
 

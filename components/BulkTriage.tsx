@@ -535,6 +535,7 @@ function ResultRow({ trace, source }: { trace: TraceResult; source: DataSource }
           <div className="flex flex-wrap items-center gap-2">
             <TriageBadge level={trace.triage} />
             {source === "demo" ? <Chip tone="brand">Recorded</Chip> : null}
+            {source === "illustrative" ? <Chip>Illustrative</Chip> : null}
           </div>
           <p className="mt-4 break-all font-mono text-sm text-ink">{trace.inputAddress}</p>
           <p className="mt-2 max-w-xl text-xs leading-5 text-faint">{trace.triageReason}</p>

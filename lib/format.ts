@@ -107,14 +107,18 @@ export function tronscanTxUrl(txHash: string): string {
  */
 export function readPinned(
   sp: Record<string, string | string[] | undefined>,
-): { amount?: number; since?: string } {
+): { amount?: number; since?: string; asOf?: string } {
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
   const amount = Number(one(sp.amount));
-  const sinceRaw = one(sp.since);
-  const since =
-    sinceRaw && !Number.isNaN(new Date(sinceRaw).getTime()) ? sinceRaw : undefined;
+  const moment = (raw: string | undefined) =>
+    raw && !Number.isNaN(new Date(raw).getTime()) ? raw : undefined;
+  const since = moment(one(sp.since));
+  // The moment the run was read. Checked for shape only: whether it is in the
+  // past is the route's to decide, since render must not read the clock.
+  const asOf = moment(one(sp.asof));
   return {
     ...(Number.isFinite(amount) && amount > 0 ? { amount } : {}),
     ...(since ? { since } : {}),
+    ...(asOf ? { asOf } : {}),
   };
 }

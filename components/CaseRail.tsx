@@ -16,7 +16,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { getCases } from "@/lib/api";
+import { getCases, isIllustrative } from "@/lib/api";
 import { formatUsdt, shortAddress } from "@/lib/format";
 import type { CaseSummary } from "@/lib/types";
 import { Panel, Skeleton, TriageBadge } from "@/components/ui";
@@ -96,6 +96,10 @@ export default function CaseRail({
                       {isActive ? (
                         <span className="font-label text-[10px] uppercase tracking-[0.16em] text-brass">
                           Open
+                        </span>
+                      ) : isIllustrative(c.inputAddress) ? (
+                        <span className="font-label text-[10px] uppercase tracking-[0.16em] text-faint">
+                          Illustrative
                         </span>
                       ) : null}
                     </div>

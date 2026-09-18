@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
-import { DEMO_SAMPLES } from "@/lib/api";
+import { DEMO_SAMPLES, sampleHref } from "@/lib/api";
 import demoCases from "@/data/demo-cases.json";
 import { shortAddress } from "@/lib/format";
 import {
@@ -250,9 +250,10 @@ export default function OperationsPage() {
             <strong className="font-semibold text-ink">captured from the chain</strong> by this
             pipeline, each carrying the SHA-256 of every response it was built
             from. The rest are <strong className="font-semibold text-ink">illustrative</strong>:
-            valid addresses with hand-built traces, kept because they show a
-            fuller trail than short real ones do. Any trace opened here says
-            which it is — the badge reads RECORDED TRACE or LIVE TRACE.
+            valid addresses generated for this repository, never on the chain,
+            some with hand-built traces. Every trace opened anywhere says which
+            it is — the badge reads RECORDED TRACE, LIVE TRACE or ILLUSTRATIVE
+            CASE — and the three below are all real.
           </p>
           <ul className="mt-5 space-y-2">
             {REAL_CASES.map((c) => (
@@ -268,7 +269,7 @@ export default function OperationsPage() {
           {DEMO_SAMPLES.map((s) => (
             <li key={s.address}>
               <Link
-                href={`/trace/${s.address}`}
+                href={sampleHref(s)}
                 className="group flex flex-col gap-4 py-6 transition hover:bg-surface md:flex-row md:items-center md:gap-10"
               >
                 <span className="w-40 shrink-0">
@@ -289,9 +290,11 @@ export default function OperationsPage() {
           ))}
         </ul>
         <p className="mt-6 max-w-2xl text-xs leading-6 text-faint">
-          Each was captured from the chain and committed to the repository, so it
-          reads with the network down and can be re-verified from the response
-          hashes in its packet.
+          Each was captured from the chain on 14 September 2026 and committed to
+          the repository. Its link replays that exact read — from the file with
+          demo mode on, from the chain as it stood then with it off — and every
+          transaction in it can be re-verified from the response hashes in its
+          packet.
         </p>
       </section>
 

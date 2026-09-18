@@ -184,7 +184,7 @@ export default function FundFlowExplorer({
                   <TriageBadge level={current.lookup.data.triage} />
                   <Link
                     href={`/trace/${encodeURIComponent(current.lookup.data.inputAddress)}`}
-                    className="border border-line px-4 py-2 text-xs font-semibold text-muted transition hover:border-faint hover:text-ink"
+                    className="fx-option px-4 py-2 text-xs font-semibold text-muted transition hover:text-ink"
                   >
                     Full result
                   </Link>

@@ -105,12 +105,14 @@ export default function FreezeRequest({
   address,
   amount,
   since,
+  asOf,
 }: {
   address: string;
   amount?: number;
   since?: string;
+  asOf?: string;
 }) {
-  const { current, retry, events } = useTrace(address, { amount, since });
+  const { current, retry, events } = useTrace(address, { amount, since, asOf });
 
   if (!current) return <TraceSkeleton address={address} events={events} />;
   if (current.lookup.status === "invalid") {
@@ -179,7 +181,11 @@ export default function FreezeRequest({
       {/* Console chrome — stays dark, never prints. */}
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div className="flex flex-wrap items-center gap-2">
-          <DataSourceBadge source={current.lookup.source} note={current.lookup.note} />
+          <DataSourceBadge
+            source={current.lookup.source}
+            note={current.lookup.note}
+            asOf={current.lookup.asOf}
+          />
           <TriageBadge level={trace.triage} withAction />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -405,14 +411,19 @@ export default function FreezeRequest({
         {/* ------------------------------------------------------------- 06 */}
         <Section n="06" title="Verification">
           <p className={`text-sm leading-7 ${SHEET.body}`}>
-            This request was generated from {trace.provenance.apiCalls} public
-            blockchain API responses. The SHA-256 digest of each is listed below,
-            so every figure above can be re-derived from the same source data.
+            This request was generated from{" "}
+            {trace.provenance.responseHashes.length} public blockchain API{" "}
+            {trace.provenance.responseHashes.length === 1 ? "response" : "responses"}.
+            The SHA-256 digest of each is listed below, so every figure above can
+            be re-derived from the same source data.
+            {trace.provenance.apiCalls > trace.provenance.responseHashes.length
+              ? ` ${trace.provenance.apiCalls - trace.provenance.responseHashes.length} further requests were refused or timed out and contributed nothing.`
+              : ""}
           </p>
           {trace.provenance.responseHashes.length > 0 ? (
             <ul className={`mt-4 space-y-1 font-mono text-[10px] break-all ${SHEET.faint}`}>
-              {trace.provenance.responseHashes.map((h) => (
-                <li key={h}>{h}</li>
+              {trace.provenance.responseHashes.map((h, i) => (
+                <li key={`${i}-${h}`}>{h}</li>
               ))}
             </ul>
           ) : (

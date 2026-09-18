@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { formatDate, formatDateTime } from "@/lib/format";
 import type { TriageLevel } from "@/lib/types";
 
 /* ============================================================================
@@ -369,9 +370,9 @@ export function SourceChip({ source }: { source: string }) {
 /** What each disposition proves — the five-minute narrative, used on the
  *  landing rows, the intake screen and the trace header. */
 export const CASE_PROOF: Record<string, string> = {
-  WARM: "Proves attribution — names the customer deposit cluster inside the exchange",
-  HOT: "Proves triage — funds still at rest, this is where the next hour goes",
-  COLD: "Proves honesty — the trail enters a mixer and we say so instead of guessing",
+  WARM: "Proves attribution — follows the money to the exchange that received it, and names the customer deposit account where one can be derived",
+  HOT: "Proves triage — the money has not reached an off-ramp yet, so this is where the next hour goes",
+  COLD: "Proves honesty — the trail stops where it cannot be followed, and we say so instead of guessing",
 };
 
 /* -------------------------------------------------------- attribution voice */
@@ -485,18 +486,45 @@ export const buttonStyles = {
 export function DataSourceBadge({
   source,
   note,
+  asOf,
+  label,
 }: {
-  source: "live" | "demo";
+  source: "live" | "demo" | "illustrative";
   note?: string;
+  /** A live read pinned to a past moment — see `Sourced.asOf`. */
+  asOf?: string;
+  /** Replaces "Recorded trace" where the thing badged is not a trace. */
+  label?: string;
 }) {
   if (source === "live") {
     return (
       <span
-        title="Read from the chain by the trace service on this deployment."
+        title={
+          asOf
+            ? `Read from the chain as it stood at ${formatDateTime(asOf)}. This link replays that exact read, so anything these wallets did afterwards is not shown.`
+            : "Read from the chain by the trace service on this deployment."
+        }
         className="inline-flex items-center gap-2 border border-line px-2 py-1 font-label text-xs uppercase tracking-[0.16em] text-faint"
       >
         <span className="h-1 w-1 rotate-45 bg-confirmed" />
-        Live trace
+        {asOf ? `Live trace · as of ${formatDate(asOf)}` : "Live trace"}
+      </span>
+    );
+  }
+  /* An illustrative case is not a recorded one, and must not look like one:
+     a badge that reads the same over a hand-built case and a chain capture
+     stops telling the reader anything. */
+  if (source === "illustrative") {
+    return (
+      <span
+        title={
+          note ??
+          "Illustrative case — written by hand to show a shape the pipeline produces. This address was never on the TRON chain, so there is nothing to re-verify."
+        }
+        className="inline-flex items-center gap-2 border border-dashed border-line px-2 py-1 font-label text-xs uppercase tracking-[0.16em] text-faint"
+      >
+        <span className="h-1 w-1 rotate-45 bg-dim" />
+        Illustrative case
       </span>
     );
   }
@@ -504,12 +532,12 @@ export function DataSourceBadge({
     <span
       title={
         note ??
-        "Recorded trace: captured from the TRON chain on 29 August 2026, committed to the repository, and re-verifiable — the SHA-256 of every response it was built from is carried into the evidence packet."
+        "Recorded trace: captured from the TRON chain by this pipeline, committed to the repository, and re-verifiable — the SHA-256 of every response it was built from is carried into the evidence packet."
       }
       className="inline-flex items-center gap-2 border border-line px-2 py-1 font-label text-xs uppercase tracking-[0.16em] text-faint"
     >
       <span className="h-1 w-1 rotate-45 bg-brass" />
-      Recorded trace
+      {label ?? "Recorded trace"}
     </span>
   );
 }

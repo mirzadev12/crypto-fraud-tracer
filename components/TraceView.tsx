@@ -458,8 +458,8 @@ function ProvenancePanel({ trace }: { trace: TraceResult }) {
           {trace.provenance.responseHashes.length === 0 ? (
             <p className="text-xs text-faint">No response hashes were recorded.</p>
           ) : (
-            trace.provenance.responseHashes.map((h) => (
-              <p key={h} className="break-all font-mono text-xs leading-5 text-muted">
+            trace.provenance.responseHashes.map((h, i) => (
+              <p key={`${i}-${h}`} className="break-all font-mono text-xs leading-5 text-muted">
                 {h}
               </p>
             ))
@@ -467,7 +467,8 @@ function ProvenancePanel({ trace }: { trace: TraceResult }) {
         </div>
         <p className="mt-2 text-xs leading-5 text-faint">
           Each hash fixes the exact API response this trace was built from, so the
-          evidence packet can be re-verified later.
+          evidence packet can be re-verified later. Requests that were refused or
+          timed out return nothing and are not hashed.
         </p>
       </div>
     </div>
@@ -480,10 +481,13 @@ export default function TraceView({
   trace,
   source,
   note,
+  asOf,
 }: {
   trace: TraceResult;
   source: DataSource;
   note?: string;
+  /** Set when a live read was pinned to a past moment by its link. */
+  asOf?: string;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -536,7 +540,7 @@ export default function TraceView({
     <div className="space-y-6">
       {/* Where you are, and what else this case holds. Sticky, so the answer to
           "which case am I in" never scrolls away. */}
-      <CaseContextBar trace={trace} source={source} note={note} />
+      <CaseContextBar trace={trace} source={source} note={note} asOf={asOf} />
 
       {/* ---------------------------------------------------------- header */}
       <div className="flex flex-col gap-4 border-b border-line pb-6 lg:flex-row lg:items-start lg:justify-between">

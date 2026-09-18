@@ -46,10 +46,12 @@ export default function CaseContextBar({
   trace,
   source,
   note,
+  asOf,
 }: {
   trace: TraceResult;
   source: DataSource;
   note?: string;
+  asOf?: string;
 }) {
   const [current, setCurrent] = useState<string>(SECTIONS[0].id);
 
@@ -99,7 +101,7 @@ export default function CaseContextBar({
         </span>
         <AddressChip address={trace.inputAddress} tone="strong" copy explorer={false} origin={false} />
         <TriageBadge level={trace.triage} />
-        <DataSourceBadge source={source} note={note} />
+        <DataSourceBadge source={source} note={note} asOf={asOf} />
         <span className="ml-auto hidden font-label text-[10px] uppercase tracking-[0.2em] text-faint sm:inline">
           TRON · USDT TRC-20
         </span>

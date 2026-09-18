@@ -18,7 +18,7 @@
  * Pure types and one pure function, so both the browser and the route use them.
  */
 
-import { hasDemoTrace } from "./api";
+import { isIllustrative } from "./api";
 import type { TraceResult } from "./types";
 
 export interface WatchItem {
@@ -60,12 +60,16 @@ export type WatchResult =
  * The committed illustrative cases are excluded: they were never on TRON, so a
  * chain read about them can only ever say "still at rest", which would be true
  * and meaningless and would look like a working alert.
+ *
+ * A wallet that returned no history at all is excluded too. It also shows zero
+ * outflows, but only because the chain did not answer for it — the finding
+ * never names it, and a watch on it would be a watch on a guess.
  */
 export function watchTargetFor(trace: TraceResult): WatchItem | null {
   if (trace.triage !== "HOT") return null;
-  if (hasDemoTrace(trace.inputAddress)) return null;
+  if (isIllustrative(trace.inputAddress)) return null;
   const resting = [...trace.nodes]
-    .filter((n) => n.outflowCount === 0 && n.taintedValueUsdt > 0)
+    .filter((n) => n.outflowCount === 0 && n.taintedValueUsdt > 0 && n.firstSeen !== null)
     .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
   if (!resting) return null;
   return {

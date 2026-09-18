@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { DEMO_SAMPLES, runTrace, traceHref, type TraceLookup } from "@/lib/api";
+import { DEMO_SAMPLES, runTrace, sampleHref, traceHref, type TraceLookup } from "@/lib/api";
 import { checkTronAddress, isTxHash } from "@/lib/tron";
 import type { ResolvedTransfer, TxLookup } from "@/lib/txlookup";
 import { formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
@@ -144,28 +144,6 @@ export default function InvestigateForm() {
             ? err.message
             : "The trace could not be run against this address.",
       });
-    }
-  }
-
-  function applySample(sampleAddress: string) {
-    const sample = DEMO_SAMPLES.find((s) => s.address === sampleAddress);
-    setAddress(sampleAddress);
-    setResolved(null);
-    setResolveNote(null);
-    setTouched(false);
-    setStatus({ kind: "idle" });
-    // Pre-fill values that match the committed fixture so the run is coherent.
-    if (sample) {
-      const presets: Record<string, { amount: string; date: string }> = {
-        [DEMO_SAMPLES[0].address]: { amount: "51200", date: "2026-08-29" },
-        [DEMO_SAMPLES[1].address]: { amount: "18500", date: "2026-09-06" },
-        [DEMO_SAMPLES[2].address]: { amount: "240000", date: "2026-08-21" },
-      };
-      const preset = presets[sampleAddress];
-      if (preset) {
-        setAmount(preset.amount);
-        setFraudDate(preset.date);
-      }
     }
   }
 
@@ -384,9 +362,8 @@ export default function InvestigateForm() {
         <ul className="mt-16 divide-y divide-line border-y border-line">
           {DEMO_SAMPLES.map((s) => (
             <li key={s.address}>
-              <button
-                type="button"
-                onClick={() => applySample(s.address)}
+              <Link
+                href={sampleHref(s)}
                 className="group flex w-full flex-col gap-4 py-6 text-left transition hover:bg-surface md:flex-row md:items-center md:gap-16"
               >
                 <span className="w-40 shrink-0">
@@ -397,17 +374,18 @@ export default function InvestigateForm() {
                   {shortAddress(s.address, 10, 8)}
                 </span>
                 <span className="flex items-center gap-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition group-hover:text-brass">
-                  Load
+                  Open
                   <Diamond className="bg-brass-dim" size={4} />
                 </span>
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
         <p className="mt-6 max-w-2xl text-xs leading-6 text-faint">
-          Any other address is read live from the chain. A live trace takes
-          roughly half a minute — it is doing the same work as the recorded
-          cases above, against whatever the wallet is doing today.
+          Each opens as it was read on 14 September 2026, so it shows the same
+          case today. Any other address is read live from the chain. A live
+          trace takes roughly half a minute — it is doing the same work as the
+          recorded cases above, against whatever the wallet is doing today.
         </p>
       </section>
 
@@ -419,7 +397,7 @@ export default function InvestigateForm() {
       {status.kind === "failed" ? (
         <ErrorState
           title="The trace did not run"
-          description={`${status.message} The recorded cases below run without touching the network, if this needs to be shown now.`}
+          description={`${status.message} With demo mode on, the recorded cases above open from their files without touching the network.`}
         />
       ) : null}
 
