@@ -59,9 +59,14 @@ function isRound(value: number): boolean {
  * the rules score that. The trace stays pruned; the reasoning does not.
  */
 export interface Observed {
-  /** Every outflow after the fraud date, before the top-five cut. */
+  /** Every outflow after the money arrived, before the top-five cut. */
   outValues: number[];
-  /** False when the wallet's history was longer than we were willing to read. */
+  /**
+   * How many distinct wallets those outflows went to. Fan-out is a claim about
+   * wallets, not transfers: fifty payments to one address is not a split.
+   */
+  recipients: number;
+  /** False when we hold only the newest part of the wallet's history. */
   historyComplete: boolean;
 }
 
@@ -95,18 +100,27 @@ export function scoreRisk(
     });
   }
 
-  /* 2 — HIGH_FANOUT. The widest split on the path.
+  /* 2 — HIGH_FANOUT. The widest split on the path, in distinct wallets.
      Counted from what the wallet actually did, not from the five outflows the
-     tracer chose to follow — see the note on `Observed` above. `outflowCount`
-     on the node carries the same uncapped figure and is the fallback for a
-     trace scored without the tracer's own record, a recorded case included. */
-  const outCount = new Map<string, number>();
-  for (const e of edges) outCount.set(e.from, (outCount.get(e.from) ?? 0) + 1);
-  for (const n of nodes) {
-    const seen = observed.get(n.address)?.outValues.length ?? n.outflowCount;
-    if (seen > (outCount.get(n.address) ?? 0)) outCount.set(n.address, seen);
+     tracer chose to follow — see the note on `Observed` above. It counts
+     *recipients*: the earlier version counted outgoing transfers, so a wallet
+     paying one address fifty times read "split across 50 wallets", which is a
+     false sentence in a document an officer signs. Without the tracer's own
+     record only the transfers in the trace can be counted, and the rule then
+     under-reports rather than guess — `outflowCount` is a count of transfers,
+     not of wallets, and is no substitute. */
+  const recipients = new Map<string, Set<string>>();
+  for (const e of edges) {
+    const set = recipients.get(e.from) ?? new Set<string>();
+    set.add(e.to);
+    recipients.set(e.from, set);
   }
-  const widest = [...outCount.entries()].sort((a, b) => b[1] - a[1])[0];
+  const fanout = new Map<string, number>();
+  for (const [address, set] of recipients) fanout.set(address, set.size);
+  for (const [address, seen] of observed) {
+    if (seen.recipients > (fanout.get(address) ?? 0)) fanout.set(address, seen.recipients);
+  }
+  const widest = [...fanout.entries()].sort((a, b) => b[1] - a[1])[0];
   if (widest && widest[1] > FANOUT_LIMIT) {
     flags.push({
       code: "HIGH_FANOUT",
@@ -115,10 +129,14 @@ export function scoreRisk(
     });
   }
 
+  // Every wallet that sent anything, for the peel rule below.
+  const senders = new Set<string>([...recipients.keys()]);
+  for (const [address, seen] of observed) if (seen.outValues.length) senders.add(address);
+
   /* 3 — PEEL_CHAIN. Repeated small withdrawals while the bulk moves on.
      Scored against every outflow the wallet made, because the small legs that
      constitute a peel are the first thing "top five by value" throws away. */
-  for (const [address] of outCount) {
+  for (const address of senders) {
     const values =
       observed.get(address)?.outValues ??
       edges.filter((e) => e.from === address).map((e) => e.valueUsdt);

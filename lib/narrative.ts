@@ -73,24 +73,55 @@ const ACTION: Record<TraceResult["triage"], string> = {
 };
 
 /**
+ * What only the tracer knows, and the summary needs to say it truthfully.
+ * Both are optional so a stored trace can still be summarised on its own.
+ */
+export interface NarrativeContext {
+  /**
+   * Whether the amount was reported by the complainant. When it was not, it is
+   * everything that left the wallet, and "N USDT left" is a measurement; when
+   * it was, it is the complaint's figure, and the summary must not present it
+   * as something the chain showed leaving.
+   */
+  amountReported?: boolean;
+  /**
+   * The wallet the disposition names as holding the money, or null when it
+   * names none. The tracer decides this with information a stored trace does
+   * not carry — which wallets could not be read — so its answer is used
+   * whenever it is available instead of being re-derived here.
+   */
+  restingAt?: string | null;
+}
+
+/**
  * Assemble the summary. Returns null when there is nothing to summarise — an
  * empty paragraph is worse than no paragraph in a filed document.
  */
-export function buildNarrative(trace: TraceResult): string | null {
+export function buildNarrative(
+  trace: TraceResult,
+  context: NarrativeContext = {},
+): string | null {
   const sentences: string[] = [];
   const hops = Math.max(0, ...trace.nodes.map((n) => n.depth));
 
   /* 1 — what left, and when. */
-  if (trace.edges.length === 0) {
+  const subject = trace.nodes.find((n) => n.depth === 0);
+  if (subject && subject.firstSeen === null) {
+    // No history at all. A date here would only be the default window the
+    // tracer opened, and would read as if something was looked for after it.
+    sentences.push(`No USDT transfer is on record for ${trace.inputAddress}.`);
+  } else if (trace.edges.length === 0) {
     sentences.push(
       `No USDT left ${trace.inputAddress} after ${whenUtc(trace.fraudDate)} in the transfers examined.`,
     );
   } else {
+    const route = `${
+      trace.edges.length === 1 ? "one transfer" : `${trace.edges.length} transfers`
+    } and ${hops === 1 ? "one hop" : `${hops} hops`}`;
     sentences.push(
-      `${usdt(trace.reportedAmountUsdt)} USDT left the reported wallet after ` +
-        `${whenUtc(trace.fraudDate)}, followed across ${
-          trace.edges.length === 1 ? "one transfer" : `${trace.edges.length} transfers`
-        } and ${hops === 1 ? "one hop" : `${hops} hops`}.`,
+      context.amountReported
+        ? `The reported ${usdt(trace.reportedAmountUsdt)} USDT was followed from the reported wallet after ${whenUtc(trace.fraudDate)}, across ${route}.`
+        : `${usdt(trace.reportedAmountUsdt)} USDT left the reported wallet after ${whenUtc(trace.fraudDate)}, followed across ${route}.`,
     );
   }
 
@@ -118,13 +149,19 @@ export function buildNarrative(trace: TraceResult): string | null {
       `${share} reached ${phrase}${account ? `, customer deposit address ${account}` : ""}.`,
     );
   } else {
-    const atRest = [...trace.nodes]
-      .filter((n) => n.depth > 0 && n.outflowCount === 0)
-      .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
+    // A wallet that returned no history at all shows zero outflows too, and
+    // naming it as holding the money would state the one thing this tool must
+    // never state: that funds are at rest because we could not see them move.
+    const atRest =
+      context.restingAt !== undefined
+        ? trace.nodes.find((n) => n.address === context.restingAt)
+        : [...trace.nodes]
+            .filter((n) => n.depth > 0 && n.outflowCount === 0 && n.firstSeen !== null)
+            .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
     if (atRest) {
       sentences.push(
         `${usdt(atRest.taintedValueUsdt)} USDT is held at ${atRest.address}, ` +
-          `which has made no outgoing transfer.`,
+          `which has made no outgoing transfer since it arrived.`,
       );
     }
   }
@@ -138,8 +175,14 @@ export function buildNarrative(trace: TraceResult): string | null {
     );
   }
   // The action, not the finding again. `triageReason` restates the amount and
-  // the entity, which sentence three has already said in full.
-  sentences.push(ACTION[trace.triage]);
+  // the entity, which sentence three has already said in full. A closed case
+  // with no exit is one where nothing moved to follow, and "past that point"
+  // would name a point that does not exist.
+  sentences.push(
+    trace.triage === "COLD" && !trace.terminal
+      ? "There is nothing to follow from this address; check it against the complaint before the case is closed."
+      : ACTION[trace.triage],
+  );
 
   const text = sentences.join(" ").replace(/\s+/g, " ").trim();
   return text.length ? text : null;

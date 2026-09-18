@@ -2,22 +2,20 @@ import { NextResponse } from "next/server";
 import { checkTronAddress } from "@/lib/tron";
 import { runTrace, type TraceRequest } from "@/lib/tracer";
 import { streamTrace, wantsStream } from "@/lib/trace-stream";
-import { DEMO_MODE, frozenTrace } from "@/lib/demo";
+import { DEMO_MODE, answersFor, frozenTrace } from "@/lib/demo";
 
 /**
  * GET /api/trace/[address] — the shareable permalink for a trace. AGENTS.md §5.
  *
- * The amount and the fraud date are not in the URL, so this re-runs the trace
- * over the wallet's full visible history and adopts everything that left the address as the
- * reported amount. A permalink is therefore "what does this wallet look like
- * now", not a replay of one officer's parameters — the frozen numbers from the
- * original run live in that case's evidence packet.
- *
- * `?amount=` and `?since=` narrow it back to the officer's original parameters.
+ * A bare permalink re-runs the trace over the wallet's full visible history and
+ * adopts everything that left the address as the amount, so it answers "what
+ * does this wallet look like now". A link made inside the app also carries
+ * `?amount=` and `?since=` — the run it came from — so it replays that run
+ * exactly, and `?asof=` pins it to the moment that run was read, so it shows
+ * the same case on any later day. `?model=fifo` traces under
+ * first-in-first-out instead of haircut.
  */
 export const dynamic = "force-dynamic";
-
-
 
 export async function GET(
   request: Request,
@@ -45,43 +43,34 @@ export async function GET(
     Number.isFinite(amountParam) && amountParam > 0 ? amountParam : "auto";
   const since = sinceParam ? new Date(sinceParam) : new Date(Number.NaN);
 
-  /**
-   * A frozen case answers only for the run it actually is.
-   *
-   * A pinned link carries the figures of the run it came from, so a link made
-   * inside the app always matches and is still served from the file. A link
-   * asking for a *different* amount or window is asking a question the recorded
-   * case cannot answer — serving it anyway would print the captured figures
-   * under someone else's parameters, which is the same class of lie as
-   * answering for an address the case does not belong to. Those go to the chain
-   * like any other request and fail honestly when the network is gone.
-   *
-   * No parameters means "the recorded run", which is what a bare permalink to a
-   * recorded case has always meant.
-   */
-  const matchesFrozen = (frozen: { reportedAmountUsdt: number; fraudDate: string }) => {
-    if (amount !== "auto" && Math.abs(amount - frozen.reportedAmountUsdt) > 0.005) {
-      return false;
-    }
-    if (!Number.isNaN(since.getTime())) {
-      const recorded = new Date(frozen.fraudDate).getTime();
-      if (Number.isNaN(recorded) || since.getTime() !== recorded) return false;
-    }
-    return true;
+  const asofParam = url.searchParams.get("asof");
+  const asOf = asofParam ? new Date(asofParam) : null;
+  if (asOf && (Number.isNaN(asOf.getTime()) || asOf.getTime() > Date.now())) {
+    return NextResponse.json(
+      { error: "asof, when given, must be a valid moment in the past." },
+      { status: 400 },
+    );
+  }
+
+  // No date: open the window at the wallet's own first transfer.
+  const job: TraceRequest = {
+    address,
+    amount,
+    fraudDate: Number.isNaN(since.getTime()) ? "auto" : since.toISOString(),
+    ...(model ? { model } : {}),
+    ...(asOf ? { asOf: asOf.toISOString() } : {}),
   };
 
   /*
-   * See the POST route: exact-address match only, and the response says so.
-   *
-   * A frozen case was captured under haircut, so it cannot answer a request for
-   * a different model — returning it would label a haircut figure as FIFO,
-   * which is the one kind of lie this file exists to prevent. A model request
-   * therefore goes to the chain like any other address, and fails honestly if
-   * the network is gone.
+   * Exact-address match only, and only for the run the case recorded — see
+   * `answersFor`. A request for FIFO is by definition not that run: returning
+   * the haircut capture would label a haircut figure as FIFO, which is the one
+   * kind of lie this file exists to prevent, so it goes to the chain like any
+   * other and fails honestly if the network is gone.
    */
-  if (DEMO_MODE && !model) {
+  if (DEMO_MODE) {
     const held = frozenTrace(address);
-    if (held && matchesFrozen(held.trace)) {
+    if (held && answersFor(held.trace, job)) {
       if (wantsStream(request)) {
         return streamTrace(async (emit) => {
           emit({ type: "recorded", caseId: held.trace.caseId });
@@ -93,14 +82,6 @@ export async function GET(
       });
     }
   }
-
-  // No date: open the window at the wallet's own first transfer.
-  const job: TraceRequest = {
-    address,
-    amount,
-    fraudDate: Number.isNaN(since.getTime()) ? "auto" : since.toISOString(),
-    ...(model ? { model } : {}),
-  };
 
   if (wantsStream(request)) {
     return streamTrace((emit) => runTrace(job, emit), "live");

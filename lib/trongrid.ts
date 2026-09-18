@@ -32,13 +32,49 @@ const PAGE_LIMIT = 200;
 /** One page is enough to know a watched wallet moved; see `outflowsSince`. */
 const WATCH_LIMIT = 50;
 const MAX_PAGES = 5;
-const RETRY_DELAYS_MS = [800, 2400];
+const RETRY_DELAYS_MS = [1000, 3000, 6000];
 /**
- * Minimum gap between requests. The public endpoint throttles a burst hard, and
- * a throttled wallet is a wallet we cannot report on — pacing buys back trace
- * completeness for a couple of seconds, which is the right trade.
+ * The gap between requests, and the bounds it moves between.
+ *
+ * The public endpoint throttles a burst hard, and a throttled wallet is a
+ * wallet we cannot report on. A fixed 250 ms gap was not enough without an API
+ * key: the largest recorded capture made 162 requests to get 48 answers, and
+ * three of its wallets went unread — while the same wallets answered at once
+ * when asked two seconds apart. So the gap adapts: every refusal doubles it,
+ * every answer eases it back, and it settles wherever the endpoint actually
+ * is. With a key the endpoint rarely refuses and the gap stays at the floor.
  */
 const MIN_GAP_MS = 250;
+const MAX_GAP_MS = 4000;
+let gapMs = MIN_GAP_MS;
+
+/**
+ * The next moment a request may start, shared by every trace in this process.
+ *
+ * Pacing used to live on each `TronGrid` instance, so two officers tracing at
+ * the same time each kept their own gap and the endpoint saw double the rate.
+ * One clock for the whole server keeps the rate the endpoint sees where the gap
+ * says it is. The slot is reserved synchronously, so concurrent callers can
+ * never compute the same gap and fire together.
+ */
+let nextSlotAt = 0;
+
+async function paced(): Promise<void> {
+  const now = Date.now();
+  const at = Math.max(now, nextSlotAt);
+  nextSlotAt = at + gapMs;
+  if (at > now) await sleep(at - now);
+}
+
+/** The endpoint refused: slow everyone down. */
+function refused(): void {
+  gapMs = Math.min(MAX_GAP_MS, gapMs * 2);
+}
+
+/** The endpoint answered: ease back towards the floor, a tenth at a time. */
+function answered(): void {
+  gapMs = Math.max(MIN_GAP_MS, Math.round(gapMs * 0.9));
+}
 
 export interface Trc20Transfer {
   txHash: string;
@@ -66,7 +102,8 @@ export class TronGrid {
    */
   private unread = new Set<string>();
   /**
-   * Wallets whose history ran past MAX_PAGES and was cut off.
+   * Wallets whose history we hold only part of — it ran past MAX_PAGES, or a
+   * later page failed after earlier ones were read.
    *
    * The distinction matters to one rule in particular. `firstSeen` is derived
    * from the oldest transfer we actually read, so on a truncated wallet it is
@@ -76,7 +113,23 @@ export class TronGrid {
    * never be reported as what we saw.
    */
   private cutOff = new Set<string>();
-  private lastRequestAt = 0;
+  /**
+   * When set, every history is read as it stood at this moment (ms), through
+   * the endpoint's own `max_timestamp` filter — verified against a live
+   * response, and inclusive. A transfer on the chain never changes after it is
+   * confirmed, so a trace run "as of" its original capture time can be re-derived
+   * from the chain on any later day and come out the same. That is what lets a
+   * recorded case be re-scored after a rule changes without the wallets' later
+   * activity leaking into it.
+   */
+  private readonly asOf: number | null;
+
+  constructor(opts: { asOf?: number | null } = {}) {
+    this.asOf =
+      typeof opts.asOf === "number" && Number.isFinite(opts.asOf)
+        ? Math.floor(opts.asOf)
+        : null;
+  }
 
   get apiCalls(): number {
     return this.calls;
@@ -91,7 +144,7 @@ export class TronGrid {
     return this.unread.has(address.trim());
   }
 
-  /** True when this wallet's history was longer than we were willing to read. */
+  /** True when we hold only the newest part of this wallet's history. */
   wasTruncated(address: string): boolean {
     return this.cutOff.has(address.trim());
   }
@@ -113,15 +166,26 @@ export class TronGrid {
     let url =
       `${BASE}/v1/accounts/${encodeURIComponent(address)}/transactions/trc20` +
       `?limit=${PAGE_LIMIT}&only_confirmed=true` +
-      (contract ? `&contract_address=${contract}` : "");
+      (contract ? `&contract_address=${contract}` : "") +
+      (this.asOf !== null ? `&max_timestamp=${this.asOf}` : "");
 
     let readAnything = false;
+    // Whether we reached the end of the wallet's history. Pages come newest
+    // first, so anything that stops the loop early leaves the *oldest* part
+    // unread — and the oldest part is where `firstSeen` comes from.
+    let whole = true;
     for (let page = 0; page < MAX_PAGES && url; page++) {
       const body = await this.getJson(url);
-      if (!body) break;
+      // No body, an explicit failure, or a body with no data array at all: the
+      // chain did not answer this page. Treating that as an empty page would
+      // report a wallet we could not see as one with nothing in it.
+      if (!body || body.success === false || !Array.isArray(body.data)) {
+        whole = false;
+        break;
+      }
       readAnything = true;
 
-      const rows = Array.isArray(body.data) ? body.data : [];
+      const rows: unknown[] = body.data;
       for (const row of rows) {
         const parsed = parseTransfer(row);
         if (parsed) out.push(parsed);
@@ -133,10 +197,15 @@ export class TronGrid {
       if (!next || rows.length < PAGE_LIMIT) break;
       url = next;
       // More to fetch, but this was the last page we allow ourselves.
-      if (page === MAX_PAGES - 1) this.cutOff.add(address.trim());
+      if (page === MAX_PAGES - 1) whole = false;
     }
 
+    // Nothing read at all is an unread wallet. Some pages read and then a
+    // failure is a partial history, which is the same thing as one we cut off
+    // ourselves: the newest transfers are real, the oldest are missing, and
+    // nothing downstream may treat what we saw as the whole of it.
     if (!readAnything) this.unread.add(address.trim());
+    else if (!whole) this.cutOff.add(address.trim());
     this.cache.set(key, out);
     return out;
   }
@@ -167,9 +236,9 @@ export class TronGrid {
       `&contract_address=${USDT_CONTRACT}`;
 
     const body = await this.getJson(url);
-    if (!body || body.success === false) return null;
+    if (!body || body.success === false || !Array.isArray(body.data)) return null;
 
-    const rows = Array.isArray(body.data) ? body.data : [];
+    const rows: unknown[] = body.data;
     const transfers = rows
       .map(parseTransfer)
       .filter((t): t is Trc20Transfer => t !== null && t.from === subject);
@@ -184,9 +253,7 @@ export class TronGrid {
    */
   private async getJson(url: string): Promise<Record<string, unknown> | null> {
     for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
-      const gap = MIN_GAP_MS - (Date.now() - this.lastRequestAt);
-      if (gap > 0) await sleep(gap);
-      this.lastRequestAt = Date.now();
+      await paced();
       this.calls++;
       try {
         const res = await fetch(url, {
@@ -203,6 +270,7 @@ export class TronGrid {
 
         // Rate limited or a transient upstream fault: wait and try again.
         if (res.status === 429 || res.status >= 500) {
+          if (res.status === 429) refused();
           const delay = RETRY_DELAYS_MS[attempt];
           if (delay === undefined) return null;
           await sleep(delay);
@@ -211,6 +279,7 @@ export class TronGrid {
         if (!res.ok) return null;
 
         const text = await res.text();
+        answered();
         // Hash exactly what came back, before anything is parsed out of it.
         this.hashes.push(createHash("sha256").update(text).digest("hex"));
 

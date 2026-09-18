@@ -147,12 +147,20 @@ export function deriveLeads(trace: TraceResult): Lead[] {
      victim gave us, and the one case where that is true is the one where speed
      matters most. Excluding it left the CRITICAL case with nothing under
      "what next", which is precisely backwards. */
+  // Only on a CRITICAL case. A wallet that neither received nor sent anything
+  // inside the window also has no outflows and no edges, and telling an officer
+  // its funds "have not moved" would send them after money it never held.
   const subject = trace.nodes.find((n) => n.depth === 0);
-  if (subject && subject.outflowCount === 0 && trace.edges.length === 0) {
+  if (
+    subject &&
+    trace.triage === "HOT" &&
+    subject.outflowCount === 0 &&
+    trace.edges.length === 0
+  ) {
     draft.push({
       code: "NEVER_MOVED",
       title: "The funds have not moved",
-      finding: `No transfer has been observed leaving the reported wallet since the fraud was reported, and ${formatUsdt(trace.reportedAmountUsdt)} was reported taken.`,
+      finding: `No transfer has been observed leaving the reported wallet since the window opened, and the case is measured against ${formatUsdt(trace.reportedAmountUsdt)}.`,
       action:
         "Nothing has been laundered yet, so this is the case on the list with the shortest window and the best odds. Confirm the balance on a public explorer and escalate before anything moves.",
       address: subject.address,
@@ -170,9 +178,14 @@ export function deriveLeads(trace: TraceResult): Lead[] {
      fetching at an exchange, so an exit's `outflowCount` is zero because we
      never looked, not because the funds are sitting there. Reading that as
      "at rest" would point an officer at a wallet on the strength of a read we
-     did not perform. */
+     did not perform. A wallet that returned no history at all is excluded for
+     the same reason: `firstSeen` is null only when the chain did not answer
+     for it, and zero outflows from an unread wallet is not a finding. */
   const atRest = reached
-    .filter((n) => !n.label && n.outflowCount === 0 && n.taintedValueUsdt > 0)
+    .filter(
+      (n) =>
+        !n.label && n.outflowCount === 0 && n.taintedValueUsdt > 0 && n.firstSeen !== null,
+    )
     .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
   if (atRest) {
     draft.push({

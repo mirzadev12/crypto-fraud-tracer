@@ -11,7 +11,7 @@
  * `lib/tracer.ts` from real transfers read from the chain on the date recorded
  * in the file. What demo mode removes is the network, not the evidence.
  *
- * Two rules govern it, and both come from CONTEXT.md §3:
+ * Three rules govern it, and all come from CONTEXT.md §3:
  *
  *  1. **A frozen trace is never served for an address it does not belong to.**
  *     The lookup is by exact address. If demo mode is on and the address is not
@@ -21,6 +21,7 @@
  *  2. **A frozen trace never claims to be live.** The route stamps
  *     `x-finex-provenance: recorded` on it, `lib/api.ts` reads that header, and
  *     the screen shows RECORDED TRACE rather than LIVE TRACE.
+ *  3. **A frozen trace answers only for the run it is.** See `answersFor`.
  *
  * The file is imported statically rather than read at runtime, so demo mode
  * needs no filesystem and no network — but it does mean a rebuild after
@@ -80,6 +81,50 @@ const CASES: Map<string, FrozenCase> = (() => {
   }
   return out;
 })();
+
+/**
+ * Whether a frozen case answers the run being asked for.
+ *
+ * A frozen case is one run: one amount, one window, haircut taint, and the
+ * chain as it stood when it was captured. Asked for a different amount or
+ * window, it would print its own figures under someone else's parameters —
+ * the same class of lie as answering for an address it does not belong to. A
+ * blank amount or date means "the recorded run", which is what a bare link to
+ * a recorded case has always meant. A request for another taint model is by
+ * definition a question the file cannot answer, and goes to the chain; so does
+ * a request for the chain as of any moment other than the one the case was
+ * read at. As of that exact moment it is the recorded run, which is what a
+ * link made from a recorded case carries.
+ *
+ * Both trace routes use this, so the rule cannot hold on one and not the other
+ * — which is exactly how it stood before: the permalink checked, and the form
+ * and batch triage did not.
+ */
+export function answersFor(
+  frozen: TraceResult,
+  run: {
+    amount: number | "auto";
+    fraudDate: string | "auto";
+    model?: string;
+    asOf?: string;
+  },
+): boolean {
+  if (run.model && run.model !== "haircut") return false;
+  if (run.asOf) {
+    const asked = new Date(run.asOf).getTime();
+    const read = new Date(frozen.provenance.generatedAt).getTime();
+    if (Number.isNaN(asked) || Number.isNaN(read) || Math.abs(asked - read) >= 1000) return false;
+  }
+  if (run.amount !== "auto" && Math.abs(run.amount - frozen.reportedAmountUsdt) > 0.005) {
+    return false;
+  }
+  if (run.fraudDate !== "auto") {
+    const asked = new Date(run.fraudDate).getTime();
+    const recorded = new Date(frozen.fraudDate).getTime();
+    if (Number.isNaN(asked) || Number.isNaN(recorded) || asked !== recorded) return false;
+  }
+  return true;
+}
 
 /** The exact-match lookup. Null means "we hold nothing for this address". */
 export function frozenTrace(address: string): FrozenCase | null {

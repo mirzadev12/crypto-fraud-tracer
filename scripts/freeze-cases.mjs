@@ -128,6 +128,9 @@ async function payersInto(target, { min = 50, take = 3 } = {}) {
 
   const out = [];
   for (const t of inbound) {
+    // The window opens a minute before the payment so the payment is inside
+    // it. It is a window, not an observation: the tracer measures dwell from
+    // transfers the wallet actually received, never from this date.
     const fraudAt = t.at - 60_000;
     const theirs = await chain(t.from);
     if (!theirs) continue;

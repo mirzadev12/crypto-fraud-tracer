@@ -2,12 +2,19 @@ import { NextResponse } from "next/server";
 import { checkTronAddress } from "@/lib/tron";
 import { runTrace, type TraceRequest } from "@/lib/tracer";
 import { streamTrace, wantsStream } from "@/lib/trace-stream";
-import { DEMO_MODE, frozenTrace } from "@/lib/demo";
+import { DEMO_MODE, answersFor, frozenTrace } from "@/lib/demo";
 
 /**
  * POST /api/trace — run a live trace. AGENTS.md §5.
  *
- * Body: { address, amount, fraudDate }
+ * Body: { address, amount?, fraudDate?, model?, asOf? }
+ *
+ * `model: "fifo"` traces under first-in-first-out instead of the proportional
+ * haircut, exactly as `?model=fifo` does on the permalink.
+ *
+ * `asOf` reads the chain as it stood at that moment. It exists so a recorded
+ * case can be re-derived after a rule changes (`scripts/rescore-cases.mjs`);
+ * an investigator never needs it, and the interface never sends it.
  *
  * This reads the chain on every call, so it is deliberately dynamic and never
  * cached: a trace answers "where is the money now", and a cached answer to that
@@ -23,10 +30,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Body must be JSON." }, { status: 400 });
   }
 
-  const { address, amount, fraudDate } = (body ?? {}) as {
+  const { address, amount, fraudDate, model, asOf } = (body ?? {}) as {
     address?: unknown;
     amount?: unknown;
     fraudDate?: unknown;
+    model?: unknown;
+    asOf?: unknown;
   };
 
   if (typeof address !== "string") {
@@ -62,20 +71,31 @@ export async function POST(request: Request) {
     );
   }
 
+  const asOfGiven = typeof asOf === "string" && asOf.trim() !== "";
+  const asOfAt = asOfGiven ? new Date(asOf as string) : new Date(Number.NaN);
+  if (asOfGiven && (Number.isNaN(asOfAt.getTime()) || asOfAt.getTime() > Date.now())) {
+    return NextResponse.json(
+      { error: "asOf, when given, must be a valid moment in the past." },
+      { status: 400 },
+    );
+  }
+
   const job: TraceRequest = {
     address: address.trim(),
     amount: amountGiven ? value : "auto",
     fraudDate: dateGiven ? when.toISOString() : "auto",
+    ...(model === "fifo" ? { model: "fifo" as const } : {}),
+    ...(asOfGiven ? { asOf: asOfAt.toISOString() } : {}),
   };
 
   // Demo mode, AGENTS.md §10. Served only for an address we actually hold a
-  // frozen case for — anything else still goes to the chain, because serving
-  // one address's recorded trace for another is the one lie that would make
-  // every other number on the screen worthless. The header is what stops the
-  // interface calling this live.
+  // frozen case for, and only when the run asked for is the run it recorded —
+  // anything else still goes to the chain, because serving one run's recorded
+  // trace for another is the one lie that would make every other number on the
+  // screen worthless. The header is what stops the interface calling this live.
   if (DEMO_MODE) {
     const held = frozenTrace(address);
-    if (held) {
+    if (held && answersFor(held.trace, job)) {
       if (wantsStream(request)) {
         return streamTrace(async (emit) => {
           emit({ type: "recorded", caseId: held.trace.caseId });
