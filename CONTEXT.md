@@ -406,7 +406,11 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   tracer, so a tracer bug cannot make it pass. Four verdicts kept distinct:
   CONFIRMED, MISMATCH, MISSING, and UNREADABLE (our problem, not the case's).
   Run on 15 Sep across the ten recorded cases: **36 confirmed, 0 mismatched,
-  0 missing, 22 unreadable** (an unkeyed run throttled). Its first run reported
+  0 missing, 22 unreadable** (an unkeyed run throttled). Re-run independently on
+  18 Sep: **38 confirmed, 0 mismatched, 0 missing, 20 unreadable** — the
+  readable set differs between runs because the throttling does, and both runs
+  agree on the part that matters: nothing the chain answered for contradicts a
+  case file. A TronGrid key would close the unreadable gap. Its first run reported
   everything as MISMATCH because hex was compared with base58 — it now borrows
   the encoder and exits loudly if it cannot, since a verifier wrong in the
   alarming direction trains people to wave through a real mismatch. It cannot
