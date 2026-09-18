@@ -34,11 +34,11 @@ npm run dev
 
 Then open <http://localhost:3000>.
 
-The UI works with the backend absent: it serves committed fixtures from
-`public/mock` and labels every screen **Recorded trace** so a recorded result can
-never be mistaken for a live chain read. Nine real cases captured from the live
-pipeline are frozen in `data/demo-cases.json`; set `DEMO_MODE=true` to serve them
-without touching the network.
+Ten real cases captured from the chain by this pipeline are frozen in
+`data/demo-cases.json`; set `DEMO_MODE=true` to serve them without touching the
+network. Every result says where it came from: **Live trace**, **Recorded trace**,
+or **Illustrative case** for the handful of hand-built cases in `public/mock`,
+whose addresses were never on the chain.
 
 ---
 
@@ -58,6 +58,7 @@ without touching the network.
 | `/attribution` | Where a name comes from: the 15 tagged seeds, all 241 derived deposit addresses, the sweep evidence for each, and where the method is wrong. |
 | `/wallet/[address]` | What one address is and who funded it — age, money in and out, and the counterparties on both sides. |
 | `/operations` | The jury-question surface: who runs it, what it costs, what breaks, and what is not built. |
+| `/help` | How to use it, in plain words: what each screen is for, and what the three dispositions mean. |
 
 ---
 
@@ -65,12 +66,18 @@ without touching the network.
 
 ```
 lib/types.ts     frozen contract shared by frontend and backend
-lib/api.ts       the only door to the backend: real API first, fixtures on failure
+lib/trongrid.ts  the only code that talks to the chain: paced, hashed, as-of capable
+lib/tracer.ts    the trace: BFS, five limits, taint, dwell, the disposition
+lib/risk.ts      the six behavioural rules and their reason strings
+lib/labels.ts    one lookup for what an address is, with its source tier
+lib/demo.ts      which recorded case may answer which request
+lib/api.ts       the only door from the UI to the backend
 lib/tron.ts      base58check address validation (no dependencies)
 lib/format.ts    UTC-only, deterministic formatting
-components/      shell, graph, trace view, case queue, evidence packet, primitives
+components/      shell, canvases, trace view, case queue, evidence packet, primitives
 app/             the routes above
-public/mock/     committed fixtures — regenerate with scripts/make-mocks.mjs
+data/            label tables and the frozen recorded cases
+public/mock/     the committed register and illustrative cases — regenerate with scripts/make-mocks.mjs
 ```
 
 ## API
@@ -82,8 +89,8 @@ server.
 
 | Method | Route | Returns |
 | --- | --- | --- |
-| `POST` | `/api/trace` — `{address, amount?, fraudDate?}` | `TraceResult`. Amount and date are optional; omitted, the window opens at the wallet's first transfer. Send `Accept: application/x-ndjson` for streamed progress. |
-| `GET` | `/api/trace/[address]` | `TraceResult` — the permalink. `?amount=&since=` replays one officer's run; `?model=fifo` traces under first-in-first-out instead of haircut. |
+| `POST` | `/api/trace` — `{address, amount?, fraudDate?, model?, asOf?}` | `TraceResult`. Amount and date are optional; omitted, the window opens at the wallet's first transfer. `model: "fifo"` traces under first-in-first-out instead of haircut; `asOf` reads the chain as it stood at that moment. Send `Accept: application/x-ndjson` for streamed progress. |
+| `GET` | `/api/trace/[address]` | `TraceResult` — the permalink. `?amount=&since=&asof=` replays one run exactly, on the chain as it stood when it was read; `?model=fifo` as above. |
 | `GET` | `/api/tx/[hash]` | The USDT transfer inside a transaction: `from`, `to`, amount, time. How a complaint that holds a transaction rather than a wallet becomes a trace. |
 | `GET` | `/api/wallet/[address]` | `WalletProfile` — age, money in and out, counterparties, what funded it. |
 | `POST` | `/api/watch` — `{items: [{address, since}]}` | For each wallet: `moved` (with every outflow and where it went), `still`, or `unchecked` when the chain did not answer. Up to 25 wallets per call. |
@@ -97,15 +104,20 @@ curl -X POST http://localhost:3000/api/trace -H "Content-Type: application/json"
 ```
 
 ```bash
-curl "http://localhost:3000/api/trace/TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ?amount=1000&since=2026-09-01T00:00:00Z"
+curl "http://localhost:3000/api/trace/TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex?amount=7630.48&since=2026-09-08T19:12:36.000Z&asof=2026-09-14T08:51:06.859Z"
 ```
+
+That second call is one of the recorded cases, replayed: the same amount, the
+same window, and the chain as it stood when the case was read. Confirmed
+transfers never change, so it returns the same case on any later day — every
+link the app makes carries these three parameters for that reason.
 
 On a server running with `DEMO_MODE=true`, an address that has a recorded case
 is answered from its frozen file — stamped `x-finex-provenance: recorded` —
-**when the request matches that recorded run**, which a link made inside the app
-always does. Ask for a different `amount` or `since` and it goes to the chain
-like any other request, because the recorded case cannot answer for parameters
-it was not captured under. `?model=fifo` always goes to the chain for the same
+**when the request is that recorded run**: no parameters, or the run's own
+amount, window and moment. Anything else goes to the chain like any other
+request, on both routes, because a recorded case cannot answer for a run it was
+not captured under. `model: "fifo"` always goes to the chain for the same
 reason.
 
 Start from a transaction instead of a wallet:
@@ -142,16 +154,20 @@ decisions behind it, and the external data sources that have been verified.
 
 - **TRON and USDT (TRC-20) only** — that is where the proceeds actually move.
 - **Rules, not machine learning** — every score must be defensible to a judge.
-- **No language model decides attribution** — a summary may be generated; the
-  exchange name is a deterministic lookup against a provenance-tagged table.
+- **No language model runs anywhere.** The investigator summary is assembled
+  from the trace's own figures, and the exchange name is a deterministic lookup
+  against a provenance-tagged table.
 - **Every label carries a confidence and a source**, and the UI shows both.
 - **An unreadable wallet is never reported as an empty one.** A throttled read
   and a wallet with no transfers are the same empty array; the difference is
   tracked, and the tool says "not read" rather than "no activity".
-- **Five of the six behavioural rules have been observed firing on real captured
-  chain data**; all six fire on the committed fixtures. `NEW_ADDRESS` needs a
-  case with a freshly created intermediary and we have not captured one — it is
-  listed here rather than left for someone to find.
+- **All six behavioural rules fire on real recorded cases** — and on a sample of
+  17 unreported wallets, peel-chain fired on 16 and fan-out on 15, so those two
+  are signals to read, not verdicts.
+- **Every recorded case can be re-derived from the chain**, not only re-read:
+  `node scripts/rescore-cases.mjs` recomputes each one as of the moment it was
+  captured, and `node scripts/verify-case.mjs` checks every transaction it rests
+  on without using the tracer at all.
 
 Attribution is an investigative lead, not sole grounds for freezing an account.
 Every evidence packet says so in writing.
@@ -172,16 +188,20 @@ npx tsc --noEmit
 npx eslint .
 ```
 
-### Two ways to read one trace
+### Three ways to read one trace
 
-The fund-flow canvas has a **Flow / Bubbles** toggle, and both views share one
-selection — click a wallet in either and it highlights in the tables beside them.
+The fund-flow canvas has a **Flow / Bubbles / Graph** toggle, and all three share
+one selection — click a wallet in any of them and it highlights in the tables
+beside them.
 
 - **Flow** — hop-by-hop graph, left to right. Answers *where did it go, in what
   order*. Transfers forwarded in under ten minutes are drawn amber.
 - **Bubbles** — the victim at the centre, one ring per hop, every wallet sized by
   the share of the victim's money that reached it. Answers *where did the money
   end up*. A dashed ring means nothing ever left that wallet.
+- **Graph** — every transfer on a timeline, sized by value, over the share of
+  the victim's money that survived each hop. Answers *when did it move, and how
+  much got through*.
 
 Stack: Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4,
 `@xyflow/react` for the flow graph. The bubble map is hand-drawn SVG with a

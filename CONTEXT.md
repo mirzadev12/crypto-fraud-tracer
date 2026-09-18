@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 9 September 2026 (backend live).
+Last updated: 18 September 2026 (the engine audit — see the §3 entries from "Dwell is measured from a transfer that happened" onward).
 
 ---
 
@@ -14,22 +14,22 @@ Last updated: 9 September 2026 (backend live).
 | Area | Files | State |
 | --- | --- | --- |
 | Frozen contract | `lib/types.ts` | Complete, matches AGENTS.md §5 verbatim. **Do not change field names.** |
-| Fixtures | `public/mock/*.json` | 4 files: `cases.json` (8 complaints), `trace-warm/hot/cold.json`. Regenerate with `node scripts/make-mocks.mjs public/mock`. |
-| Data layer | `lib/api.ts` | Calls the real API, falls back to fixtures, validates every response. |
+| Fixtures | `public/mock/*.json` | `cases.json` is the register — the ten real cases, derived from `data/demo-cases.json`, then eight illustrative ones. `trace-warm/hot/cold.json` are three hand-built illustrative traces on addresses never on the chain. Regenerate with `node scripts/make-mocks.mjs public/mock`. |
+| Data layer | `lib/api.ts` | Calls the real API, validates every response, and says where each result came from: live, recorded, or illustrative. |
 | Address validation | `lib/tron.ts` | Full base58check, synchronous, no dependencies. Verified against Node's `crypto` for SHA-256 and against real TRON addresses. |
 | Formatting | `lib/format.ts` | UTC-only, deterministic — no locale or `Date.now()` in render, so SSR and hydration always agree. |
-| Screens | `app/**` | `/`, `/login`, `/dashboard`, `/investigate`, `/trace/[address]`, `/fund-flow`, `/reports`, `/report/[address]`, plus `not-found` and `error`. |
+| Screens | `app/**` | `/`, `/login`, `/dashboard`, `/queue`, `/investigate`, `/trace/[address]`, `/fund-flow`, `/reports`, `/report/[address]`, `/freeze/[address]`, `/wallet/[address]`, `/attribution`, `/operations`, `/help`, plus `not-found` and `error`. |
 | Components | `components/**` | Shell, flow graph, bubble map, trace view, case queue, evidence packet, primitives in `ui.tsx`. |
 
 ### Done — the backend, and it is live
 
 | Area | Files | State |
 | --- | --- | --- |
-| Chain client | `lib/trongrid.ts` | Cache, SHA-256 per response, call counting, 429 backoff, 250ms pacing, and an `didFail` set so an unreadable wallet is never mistaken for an empty one. |
+| Chain client | `lib/trongrid.ts` | Cache, SHA-256 per response, call counting, adaptive pacing shared by the whole server, as-of reads, and two sets — `didFail` and `wasTruncated` — so an unread or partly read wallet is never mistaken for an empty or a whole one. |
 | Seeds | `data/hot-wallets.json` | 15 explorer-tagged exchange wallets, each re-verified live, each with a source URL. The last three carry a `note` recording what the tag does and does not establish. |
 | Sanctions | `data/risk-lists.json` | 202 TRON addresses from the OFAC SDN list, 29 entities. Mixers and community lists are empty **on purpose** — no citable source, and the file says so. |
 | Clustering | `scripts/cluster.mjs` → `data/deposit-addresses.json` | **241 deposit addresses across 10 exchanges**, 15 seeds. That is the number for the slide. `--from N --merge` adds a seed without re-deriving the rest. |
-| Attribution | `lib/labels.ts` | 378 labels in one Map, §9 priority order, honest source tiers. |
+| Attribution | `lib/labels.ts` | 458 labels in one Map (15 + 241 + 202, no overlaps), §9 priority order, honest source tiers. |
 | Rules | `lib/risk.ts` | Six rules, named thresholds, reason strings written as evidence. |
 | Tracer | `lib/tracer.ts` | BFS, five limits, taint, dwell, triage. |
 | Routes | `app/api/trace`, `app/api/trace/[address]` | Live, `force-dynamic`, checksum-validated server-side. |
@@ -43,12 +43,12 @@ own, which is the integration contract in §2 doing its job.
 
 | Area | Files | State |
 | --- | --- | --- |
-| Frozen cases | `data/demo-cases.json` | **Nine real cases across all three dispositions**, captured from the live pipeline: WARM ends at a **Bybit customer deposit address**, COLD ends at **ISIL KHORASAN** from the OFAC list, HOT is an address holding 1,066 USDT that has never sent any. Each is a complete `TraceResult` with its response hashes. |
+| Frozen cases | `data/demo-cases.json` | **Ten real cases across all three dispositions**, captured from the live pipeline on 14 Sep and re-derived as of that moment after the engine audit: WARM ends at a **Bybit** or **MEXC customer deposit address** or a Binance hot wallet, COLD ends at **ISIL KHORASAN** from the OFAC list, HOT is an address that had received at least 5,536 USDT and never sent any. Each is a complete `TraceResult` with its response hashes, and no wallet on any path is unread. |
 | Capture | `scripts/freeze-cases.mjs` | Finds candidates from the committed data, traces them through `POST /api/trace`, keeps a result only if the pipeline independently reached the wanted disposition. `node scripts/freeze-cases.mjs HOT` recaptures one level and leaves the rest alone. |
 | The flag | `lib/demo.ts` | `NEXT_PUBLIC_DEMO_MODE=true` (or `DEMO_MODE=true`). Exact-address match only; a frozen answer is stamped `x-finex-provenance: recorded` and the screen says RECORDED TRACE. |
 
-Verified end to end with the flag on: all three addresses answer in ~165 ms
-from the file with the recorded header, each echoing back its own address; a
+Verified end to end with the flag on: all ten addresses answer from the file
+with the recorded header, each echoing back its own address; a
 valid address *not* in the file still goes to the chain and comes back stamped
 `live`, so nothing leaks a frozen case to an address it does not belong to.
 
@@ -60,24 +60,26 @@ valid address *not* in the file still goes to the chain and comes back stamped
 
 ## 2. The integration contract — how the UI meets the backend
 
-Every screen goes through `lib/api.ts` and nothing else. It tries the real
-endpoint first; on any failure it serves the committed fixture and the screen
-shows an amber **Demo data** badge whose tooltip states the exact reason
-(`POST /api/trace unavailable (404 Not Found) — showing the committed trace.`).
-When the API answers correctly the badge flips to **Live API**. No other change
-is needed anywhere.
+Every screen goes through `lib/api.ts` and nothing else. Every result carries
+where it came from, and the badge says it: **Live trace** (read from the chain
+now — or, on a pinned link, "as of" the moment the run was read), **Recorded
+trace** (a real case served from `data/demo-cases.json` in demo mode), or
+**Illustrative case** (hand-built, on an address never on the chain). A trace
+that fails is an explained "no trace" state, never another address's result.
 
-| Method | Route | Returns | Fallback |
+| Method | Route | Returns | Notes |
 | --- | --- | --- | --- |
-| `GET` | `/api/cases` | `CaseSummary[]` | `/mock/cases.json` |
-| `POST` | `/api/trace` body `{address, amount, fraudDate}` | `TraceResult` | fixture for that address |
-| `GET` | `/api/trace/[address]` | `TraceResult` | fixture for that address |
+| `GET` | `/api/cases` | — | Deliberately unimplemented and no longer asked; the register is `/mock/cases.json`, badged COMMITTED REGISTER. |
+| `POST` | `/api/trace` body `{address, amount?, fraudDate?, model?, asOf?}` | `TraceResult` | |
+| `GET` | `/api/trace/[address]?amount=&since=&asof=&model=` | `TraceResult` | The permalink; a pinned link replays one run exactly. |
 
-Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
+Eight addresses in the register are illustrative (`isIllustrative` in
+`lib/api.ts`), three of them with a hand-built trace (`DEMO_ADDRESSES`):
 
 - `TS27ffk2xJ95nTMYvLjBimcpqaLNHGiw2S` — WARM, ends at a Binance deposit address
 - `TYz6M2Fn2egsb15oNZdACtABKotmheGQiD` — HOT, funds still at rest
-- `TLtQgf2jiNt6aiAvuirZBwbL3SrBa5RKZS` — COLD, path enters a mixer
+- `TLtQgf2jiNt6aiAvuirZBwbL3SrBa5RKZS` — COLD, path enters a mixer (a mixer that
+  exists only in this fixture — the real mixer list is empty on purpose)
 
 **Backend authors, two things matter:**
 
@@ -208,7 +210,9 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   data", "dummy" or "sample". A fixture is a *recorded trace*: captured from the
   chain on a stated date, committed, and re-verifiable from the response hashes
   in its packet. Code identifiers (`DEMO_ADDRESSES`, `public/mock/`) keep their
-  names; only the copy changed.
+  names; only the copy changed. **An illustrative case is not a recorded trace**
+  and never wears that badge — it reads ILLUSTRATIVE CASE, and the canvas gutter
+  reads FEED LIVE / RECORDED / ILLUSTRATIVE, never "demo".
 - **`/operations` is the jury-question surface** and doubles as the officer's
   standing instructions: who runs it, where data sits, what a year costs, what
   breaks in the field, what is not built yet, and — stated plainly — which parts
@@ -242,10 +246,103 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
 - **The reported address is the subject of a case, never its finding.** Only
   wallets the money reached can be an exit, or tracing a known deposit address
   reports that the money "reached" the address it started at.
+- **Dwell is measured from a transfer that happened, never from the fraud
+  date** (`lib/tracer.ts`). The reported wallet's dwell used to be measured from
+  the fraud date, and `scripts/freeze-cases.mjs` sets that date 60 seconds
+  before the wallet's payment — so eight of the ten recorded cases carried
+  "Funds forwarded within 1 minute of receipt", a figure the capture method
+  produced rather than the chain. Each outflow from the reported wallet is now
+  measured from the latest USDT the wallet actually received before it; a wallet
+  the money reached is measured from the transfer that brought it. Re-derived as
+  of capture, the flag stands where the chain supports it — 9, 2, 2, 4 and 4
+  minutes — and is gone from three cases whose real gaps were hours or months
+  (`TJjc21br…` held the money for 261 days). Any capture method that picks a
+  date is safe now; no date can manufacture a dwell.
+- **Only what left after the money arrived is followed.** An intermediary used
+  to be followed through everything it sent after the fraud date, including
+  transfers made before the victim's money reached it — which cannot contain any
+  of it — and a wallet still holding the money could fail to read as at rest
+  because of an older outflow. Each wallet is now followed from its earliest
+  tainted arrival. On `TQGFsqQc…` this moved the Binance exit from 451.43 to
+  1,131.72 USDT: the intermediary sent all 3,568 USDT it received to Binance-Hot
+  7 thirty seconds after the second deposit, and the old figure was diluted by
+  transfers that predated the money. A wallet is also walked once: reached again
+  by a later route it keeps the larger share but is not re-walked, which used to
+  list its transfers twice and re-file it a hop deeper.
+- **Haircut never over-claims, and a zero is not a finding.** A transfer carries
+  at most its own value of the victim's money; the proportional share alone
+  could assign a 500 USDT transfer 2,000 USDT of taint when a reported loss
+  exceeded what left. FIFO's opening balance now counts every outflow before the
+  money arrived, not only those after the fraud date, or money that came and
+  went years earlier sat "ahead" of the victim's. And a wallet carrying none of
+  the victim's money is never the verdict: under FIFO it used to read "0 USDT
+  reached a Binance wallet".
+- **Nothing is CRITICAL about money an address never held.** A valid address
+  with no activity inside the window used to come back CRITICAL with "0 USDT may
+  still be recoverable" — what a judge sees by pasting any unused address. It
+  now closes with "No USDT moved in or out of this address…; check the address
+  and the date against the complaint" (or "No USDT transfer has ever been
+  recorded" for an empty one). A reported wallet that sent nothing reports what
+  arrived; read only in part, it says "at least".
+- **A partial read is never passed off as a whole one** (`lib/trongrid.ts`). A
+  page that failed after earlier pages succeeded used to leave the history
+  looking complete; it now marks it partial (`wasTruncated`), and a response
+  with no `data` array is a failed read, not an empty wallet. The verdict, the
+  summary, the leads and the watch all exclude a wallet that returned no
+  history — each had its own path to naming one as holding the money. This is
+  not hypothetical: the recorded HOT case was chosen from a one-page read
+  ("1,066.11 USDT across 200 transfers"); read in full as of capture it had
+  received at least 5,536.
+- **Pacing is shared and adaptive.** One clock for the whole server, so two
+  officers tracing at once no longer double the rate the endpoint sees, and a
+  gap that doubles on every 429 and eases back on every answer. The largest
+  recorded case went from 162 requests for 48 answers to 110 for 92, and no
+  wallet on any recorded path is unread any more — two cases gained route
+  segments their throttled captures had missed (`TTQd8Bo1…`'s second route ends
+  at a Binance hot wallet; `TBfVDwNS…` gained a hop).
+- **A recorded case can be re-derived, not only re-verified** (`asOf` on the
+  tracer and both trace routes; the endpoint's `max_timestamp`, verified
+  inclusive against a live response). Confirmed transfers never change, so a
+  trace run as of a past moment comes out the same on any later day, and is
+  stamped with the moment it describes. `rescore-cases.mjs` re-derives each case
+  as of its own `generatedAt`, keeps the old capture when a re-read comes back
+  worse (a wallet read at capture and unread now), and refuses a demo-mode
+  server, which would answer from the very file it is re-scoring. Verified: with
+  demo mode off, each sample link re-derives its recorded case identically —
+  verdict, exit, taint, every wallet, every flag and sentence.
+- **HIGH_FANOUT counts wallets, not transfers.** "Funds split across 50 wallets"
+  was the reading for fifty payments to one address. `Observed.recipients` is
+  the distinct count; the rule fires on `TQGFsqQc…` (817 wallets out of a
+  payment processor) and no longer on `TTQd8Bo1…`.
+- **Illustrative cases say so wherever they appear** (`isIllustrative` in
+  `lib/api.ts`). The three hand-built traces wore RECORDED TRACE, and
+  `/operations`, New case and the trace loader offered them as case files
+  "captured from the chain… re-verifiable from the response hashes" — none of it
+  true: their addresses were never on TRON and their hashes are generated. They
+  now wear ILLUSTRATIVE CASE; register rows carry an Illustrative tag; the five
+  illustrative rows without a trace open an explained "no trace" state instead
+  of a live read that printed "no USDT ever" under a row claiming 132,500 USDT
+  reached OKX. Every "open one of each" list now links three real cases as exact
+  replays. The register's real rows are derived from `data/demo-cases.json` by
+  `make-mocks.mjs` — they were hand-typed, and re-running the generator would
+  have erased them — and the register no longer asks `/api/cases`, which could
+  only 404 in the console of every screen.
+- **The freeze request counts responses, not attempts.** It said it was
+  "generated from 162 public blockchain API responses. The SHA-256 digest of each
+  is listed below" and listed 48: `apiCalls` counts refused retries. It now
+  states the responses it lists, and the packet explains the difference.
+- **A figure typed into prose drifts.** The "no trace" screen still said "11
+  seed wallets" when there were 15, and that the trace service was "still to be
+  deployed" a week after it went live. Removed rather than updated; the one
+  exception left on screen is a date that cannot drift — the day the recorded
+  cases were captured.
 - **A link from the app reproduces the run it came from.** `traceHref()` in
-  `lib/api.ts` builds `/trace/<address>?amount=…&since=…` from the trace being
-  viewed, and the Permalink and Evidence packet buttons both use it, so a shared
-  link and its packet show the same totals as the screen they were opened from.
+  `lib/api.ts` builds `/trace/<address>?amount=…&since=…&asof=…` from the trace
+  being viewed, and the Permalink and Evidence packet buttons both use it, so a
+  shared link and its packet show the same totals as the screen they were opened
+  from — on any later day, because `asof` pins the chain to the moment the run
+  was read and confirmed transfers never change. The screen then badges it
+  "Live trace · as of <date>", because "Live trace" alone reads as today.
   `readPinned()` in `lib/format.ts` reads those values on the page and drops
   anything malformed. The earlier link carried only the address, so a trace run
   with an amount or a date reopened on automatic settings and could show
@@ -265,9 +362,12 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   The permalink used to serve the recorded case whatever `?amount=` and
   `?since=` asked for, so a link requesting 1,000 USDT got the captured 500
   under its own parameters — the same class of lie as answering for an address
-  the case does not belong to, and the one demo mode exists to prevent. The
-  route now compares those parameters against the frozen trace and falls through
-  to the chain when they differ, exactly as `?model=fifo` already did. A link
+  the case does not belong to, and the one demo mode exists to prevent. Both
+  routes now compare those parameters against the frozen trace through one
+  function, `answersFor` in `lib/demo.ts`, and fall through to the chain when
+  they differ, exactly as `?model=fifo` already did — the POST route, which New
+  case and batch triage use, had been missed the first time. An `asof` equal to
+  the capture moment is the recorded run; any other moment goes to the chain. A link
   made inside the app carries that run's own figures through `traceHref`, so it
   still matches and is still served from the file; a bare permalink still means
   "the recorded run". Verified: bare and matching links answer `recorded`, a
@@ -410,9 +510,12 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   `TaintModel`, commit `d56242d`). Haircut (what shipped, the default) is
   conservative and dilutes through high-volume wallets; FIFO follows the rule
   courts have used on mixed funds since Clayton's Case. They disagree sharply:
-  on `TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn` haircut puts 660.90 USDT at the exit
-  and FIFO 0.00. Stating both is the honest answer to "what happens when stolen
-  funds are mixed with clean ones". A tracer option, not a contract change.
+  on `TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn`, as of its capture, haircut puts
+  1,131.72 USDT at the Binance exit and FIFO puts none there — under FIFO the
+  victim's tranche left through two other wallets (528 and 439 USDT) and no exit
+  is found within three hops. Stating both is the honest answer to "what happens
+  when stolen funds are mixed with clean ones". A tracer option, not a contract
+  change; `POST /api/trace` takes `model: "fifo"` as the permalink does.
   **A recorded case never answers `?model=fifo`** — it was captured under
   haircut, so that request goes to the chain and fails honestly offline.
 - **The evidence can be checked without trusting this repository**
@@ -425,7 +528,10 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   18 Sep: **38 confirmed, 0 mismatched, 0 missing, 20 unreadable** — the
   readable set differs between runs because the throttling does, and both runs
   agree on the part that matters: nothing the chain answered for contradicts a
-  case file. A TronGrid key would close the unreadable gap. Its first run reported
+  case file. A TronGrid key would close the unreadable gap. Re-run again on 18
+  Sep after the cases were re-derived (50 transfers, fewer than before because
+  the causality rule dropped the ones that predated the money): **33 confirmed,
+  0 mismatched, 0 missing, 17 unreadable**. Its first run reported
   everything as MISMATCH because hex was compared with base58 — it now borrows
   the encoder and exits loudly if it cannot, since a verifier wrong in the
   alarming direction trains people to wave through a real mismatch. It cannot
@@ -475,8 +581,8 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
 - **The API is documented where an integrator looks** (`README.md` → API):
   every route with a working `curl` example, each one run against a server
   before it was written down. Demo mode answers a recorded address from its
-  frozen file and ignores `amount`/`since` on the permalink — the README says
-  so, because the example returns different figures there.
+  frozen file only for the run it recorded, on both routes — the README says so,
+  because the example returns different figures otherwise.
 - **A CRITICAL finding is watched, because it is true only until the money moves**
   (`lib/watch.ts`, `app/api/watch/route.ts`, `lib/watchlist.ts`,
   `components/WatchAlerts.tsx`). "Funds at rest" is a claim with a timestamp and
@@ -500,8 +606,9 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   wallet an officer is most likely to act on. The first live test hit exactly
   this — a rate-limited read came back "not checked", correctly.
   **It fired for real on its first run.** The recorded CRITICAL case
-  `TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx`, captured 14 Sep holding 1,066.11 USDT
-  and never having sent any, had by 17 Sep sent at least 365,201.90 USDT: one
+  `TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx`, which on 14 Sep had received at least
+  5,536 USDT and never sent any (the capture script's own one-page read had said
+  1,066.11 — a floor), had by 17 Sep sent at least 365,201.90 USDT: one
   141,362.00 transfer and a transfer every thirty minutes to a second wallet.
   That case was selected by a script for being at rest, not reported by a
   victim, so it must never be described as fraud proceeds moving — only as a
@@ -511,8 +618,10 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   will otherwise ask how 365k left a wallet holding 1k. Committed illustrative
   cases are never watched: they were never on TRON, so the answer would always
   be "still at rest" and would look like a working alert. **To demo it, open the
-  recorded case with `DEMO_MODE` on** — traced live today it is no longer
-  CRITICAL, which is the whole point.
+  recorded case's sample link** — it replays the capture moment, so it is
+  CRITICAL with or without `DEMO_MODE`, and the desk's watch then fires. Traced
+  bare today it is no longer CRITICAL, which is the whole point. A wallet that
+  returned no history is never put on watch: the finding never names it.
 - **A sentence that can carry an address needs `wrap-anywhere`.** The summary
   names a full 34-character address on some cases, which is unbreakable at
   min-content, and it pushed the trace page 5px sideways at 375px. Earlier
@@ -573,7 +682,9 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   — the thing a pitch actually runs on — would have shown no summary at all.
   `node scripts/rescore-cases.mjs` re-ran them: dispositions unchanged, flags
   unchanged, 6/6 rules, narratives present. Back the file up first; the script
-  refuses to write if any disposition drifted.
+  refuses to write if any disposition drifted. It now re-derives each case **as
+  of its own capture moment**, so a rule change is never confused with a wallet
+  that moved since.
 - **The investigator summary is assembled, not generated** (`lib/narrative.ts`).
   AGENTS.md §11 offers a hosted language model for this paragraph. It was not
   taken, and the reason is §11's own defensive line: the answer to "what if the
@@ -736,9 +847,11 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   rules score that while the trace stays pruned. `TraceNode.outflowCount`
   already carried the true pre-cap figure and is the fallback for a trace scored
   without the tracer's record. **Proof this was real and not theoretical:** the
-  recorded case `TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj` has a wallet that split
-  funds seven ways and flagged neither rule; it now fires both, and the trace
-  screen shows 5 of 6 signals where it showed 3. `NEW_ADDRESS` was a different
+  recorded case `TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj` had a wallet with seven
+  outflows that flagged neither rule; it then fired both. (Correction, 18 Sep:
+  those seven were transfers to at most five wallets, and fan-out now counts
+  wallets — see "HIGH_FANOUT counts wallets" below — so that case keeps
+  PEEL_CHAIN and no longer fires HIGH_FANOUT.) `NEW_ADDRESS` was a different
   fault — an overstatement. It reads `firstSeen` as an opening date, but
   `firstSeen` is the oldest transfer *we read*, so on a wallet whose history ran
   past `MAX_PAGES` it would call a years-old address freshly created;
@@ -807,7 +920,8 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   "VIEW EVIDENCE" reveals the reasons and the addresses. An investigator wants to
   know which rules fired before reading why.
 - **A committed case is never answered by the chain** (`heldLocally` in
-  `lib/api.ts`). The three illustrative addresses were never on TRON. While no
+  `lib/api.ts`, now `isIllustrative` — all eight illustrative register
+  addresses, not only the three with a trace). They were never on TRON. While no
   trace service existed the API call failed and the committed file was used, so
   the graph drew; the moment the service landed it began *succeeding* on them,
   and a synthetic address honestly has no transfers — so an empty one-wallet
@@ -824,7 +938,7 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
 
 - **The interface names no data provider.** This is a tool for professional
   investigators, not a showcase for the stack behind it: no screen says TronGrid
-  or Tronscan. The telemetry gutter reports `FEED LIVE` / `FEED DEMO`, the
+  or Tronscan. The telemetry gutter reports `FEED LIVE` / `RECORDED` / `ILLUSTRATIVE`, the
   explorer link is labelled "Open in block explorer", and the loader says
   "on-chain". Chain and asset (TRON · USDT TRC-20) stay visible — an investigator
   needs to know the scope. Provider names belong in this file and the README,
@@ -943,6 +1057,8 @@ node scripts/calibrate-risk.mjs           # measure how often each rule fires on
 node scripts/hunt-indian-vasp.mjs         # re-check the explorer tags for an Indian exchange
 node scripts/calibrate-clustering.mjs     # re-measure whether derived deposit addresses still hold
 node scripts/verify-case.mjs              # re-read every recorded case's transactions from the chain
+node scripts/rescore-cases.mjs 3010 --only T…   # re-derive named cases as of capture (server without demo mode)
+node scripts/make-share-bundle.mjs        # bundle the source into share/frontend-source.md for a chat
 NEXT_PUBLIC_DEMO_MODE=true npm run dev    # serve the frozen cases, no network
 ```
 
