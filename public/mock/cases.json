@@ -2,7 +2,7 @@
   {
     "caseId": "FX-2026-6619",
     "inputAddress": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
-    "reportedAmountUsdt": 1066.11,
+    "reportedAmountUsdt": 5535.981436,
     "fraudDate": "2026-09-09T13:09:36.000Z",
     "triage": "HOT",
     "terminalEntity": null
@@ -70,6 +70,14 @@
     "fraudDate": "2025-11-14T11:16:06.000Z",
     "triage": "COLD",
     "terminalEntity": "ISIL KHORASAN"
+  },
+  {
+    "caseId": "FX-2026-1956",
+    "inputAddress": "TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn",
+    "reportedAmountUsdt": 3482.7,
+    "fraudDate": "2026-09-12T09:00:18.000Z",
+    "triage": "WARM",
+    "terminalEntity": "Binance"
   },
   {
     "caseId": "FX-2026-0421",

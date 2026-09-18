@@ -7,7 +7,7 @@
 // generated for this repo; the Binance hot wallet referenced in the evidence
 // string is real and tagged on Tronscan.
 import { createHash } from "node:crypto";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const OUT = process.argv[2] ?? "public/mock";
@@ -187,7 +187,26 @@ const cold = {
 };
 
 /* ------------------------------------------------------------------- CASES */
-const cases = [
+
+/*
+ * The register is two kinds of row. The real ones are derived from the frozen
+ * cases in data/demo-cases.json, so they always say what those cases say — they
+ * were once typed into cases.json by hand, and re-running this script would
+ * have silently dropped them from the register. The illustrative ones follow,
+ * on addresses generated for this repository and never on the chain;
+ * `isIllustrative` in lib/api.ts lists them so the interface can say so.
+ */
+const frozen = JSON.parse(readFileSync(new URL("../data/demo-cases.json", import.meta.url), "utf8"));
+const real = frozen.cases.map(({ trace: t }) => ({
+  caseId: t.caseId,
+  inputAddress: t.inputAddress,
+  reportedAmountUsdt: t.reportedAmountUsdt,
+  fraudDate: t.fraudDate,
+  triage: t.triage,
+  terminalEntity: t.terminal ? t.terminal.label.entity : null,
+}));
+
+const illustrative = [
   { caseId: "FX-2026-0421", inputAddress: A.victim2, reportedAmountUsdt: 18500, fraudDate: "2026-09-06T17:40:00.000Z", triage: "HOT", terminalEntity: null },
   { caseId: "FX-2026-0420", inputAddress: A.victim4, reportedAmountUsdt: 7400, fraudDate: "2026-09-06T11:05:00.000Z", triage: "HOT", terminalEntity: null },
   { caseId: "FX-2026-0419", inputAddress: A.victim5, reportedAmountUsdt: 132500, fraudDate: "2026-09-04T20:18:00.000Z", triage: "WARM", terminalEntity: "OKX" },
@@ -198,9 +217,11 @@ const cases = [
   { caseId: "FX-2026-0404", inputAddress: A.victim8, reportedAmountUsdt: 15750, fraudDate: "2026-08-18T19:27:00.000Z", triage: "WARM", terminalEntity: "Kucoin" },
 ];
 
+const cases = [...real, ...illustrative];
+
 const w = (name, v) => writeFileSync(join(OUT, name), JSON.stringify(v, null, 2) + "\n");
 w("trace-warm.json", warm);
 w("trace-hot.json", hot);
 w("trace-cold.json", cold);
 w("cases.json", cases);
-console.log("wrote 4 mock files to " + OUT);
+console.log(`wrote 4 mock files to ${OUT} — register: ${real.length} real, ${illustrative.length} illustrative`);
