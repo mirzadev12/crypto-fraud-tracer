@@ -87,6 +87,7 @@ server.
 | `GET` | `/api/tx/[hash]` | The USDT transfer inside a transaction: `from`, `to`, amount, time. How a complaint that holds a transaction rather than a wallet becomes a trace. |
 | `GET` | `/api/wallet/[address]` | `WalletProfile` — age, money in and out, counterparties, what funded it. |
 | `POST` | `/api/watch` — `{items: [{address, since}]}` | For each wallet: `moved` (with every outflow and where it went), `still`, or `unchecked` when the chain did not answer. Up to 25 wallets per call. |
+| `GET` | `/api/health` | `{ok, commit, demoMode, chainAccess}` — which commit is serving, whether demo mode is on, and whether chain reads carry an API key (`keyed` or `public`; the key itself is never returned). Reads nothing from the chain. |
 | `GET` | `/api/cases` | Deliberately unimplemented. There is no case database, and serving illustrative records through it would claim chain-read data it is not. |
 
 Trace a wallet, and replay an officer's exact run:
@@ -121,6 +122,16 @@ curl -X POST http://localhost:3000/api/watch -H "Content-Type: application/json"
 
 Three answers, never two: a wallet the chain did not answer for comes back
 `unchecked`, never `still`.
+
+Check how a deployment is set up without opening its hosting dashboard:
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+`commit` is filled in on Render and `null` elsewhere. Because it reads nothing
+from the chain, it is also the address to give an uptime monitor if a free
+instance has to be kept awake.
 
 `AGENTS.md` is the build plan. `CONTEXT.md` records what is already done, the
 decisions behind it, and the external data sources that have been verified.

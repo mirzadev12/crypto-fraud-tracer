@@ -129,26 +129,61 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
   {
     q: "What is not built yet?",
     a: (
-      <>
-        <span className="text-ink">Cross-chain tracing.</span> A bridge is a hard
-        stop: the trail ends there and is recorded as such. We looked for a way
-        to do it honestly and could not find one — the officially documented TRON
-        bridge addresses carry no USDT transfers at all, so a detector built on
-        them would ship labels for addresses that never appear in the flows we
-        trace.{" "}
-        <span className="text-ink">A TRON mixer list and a community abuse
-        list</span> are empty, on purpose: no citable public source was
-        available, and an unsourced entry here would close a case wrongly.
-        Sanctioned laundering services are covered under the OFAC list instead.{" "}
-        <span className="text-ink">Rule calibration.</span> We measured how often
-        each behavioural rule fires on wallets nobody reported — peel-chain on
-        94%, fan-out on 88%, sanctioned contact on 0% — so the weaker rules are
-        known to be weak. Re-setting those thresholds against a larger sample is
-        not done. <span className="text-ink">No Indian VASP</span> is in the seed
-        list: 2,500 tagged holders were scanned and not one Indian exchange is
-        publicly tagged, which is the gap a sovereign tool exists to close rather
-        than one we can close with a copied address.
-      </>
+      <ul className="space-y-4">
+        <li>
+          <span className="text-ink">Cross-chain tracing.</span> TRON first,
+          because that is where USDT fraud proceeds move. A bridge is a hard
+          stop: the trail ends there and is recorded as such. We looked for a way
+          to follow it honestly and could not find one — the officially
+          documented TRON bridge addresses carry no USDT transfers at all, so a
+          detector built on them would ship labels for addresses that never
+          appear in the flows we trace. USDT on Ethereum is next: the tracing
+          logic carries over, but attribution data is built per chain, and
+          Ethereum&apos;s starts from zero.
+        </li>
+        <li>
+          <span className="text-ink">NCRP and SAHYOG integration.</span> Not
+          connected — both need access only I4C can grant. Intake already takes
+          what a complaint contains: a wallet or a transaction hash, one at a
+          time or in batches. Next is a documented intake route that accepts a
+          complaint record and returns the trace with a restraint request
+          carrying its acknowledgement number; the live connection follows once
+          access is granted.
+        </li>
+        <li>
+          <span className="text-ink">Machine-learning risk scores.</span> Not
+          built, on purpose. Rules decide every finding, because an attribution
+          an officer acts on has to be explained line by line. A model&apos;s
+          place is ordering the queue, trained on cases I4C has confirmed — it
+          would never name an exchange or set a disposition.
+        </li>
+        <li>
+          <span className="text-ink">Indexing at scale.</span> Every trace reads
+          the chain on demand through a public API — about half a minute per
+          wallet without an API key. At scale, a TRON node the department runs
+          itself indexes token transfers locally: no rate limit, and no outside
+          service sees which wallets are under investigation.
+        </li>
+        <li>
+          <span className="text-ink">A TRON mixer list and a community abuse
+          list</span> are empty, on purpose: no citable public source was
+          available, and an unsourced entry here would close a case wrongly.
+          Sanctioned laundering services are covered under the OFAC list instead.
+        </li>
+        <li>
+          <span className="text-ink">Rule calibration.</span> We measured how
+          often each behavioural rule fires on 17 wallets nobody reported —
+          peel-chain on 16, fan-out on 15, sanctioned contact on none — so the
+          weaker rules are known to be weak. Seventeen is a small sample:
+          re-setting those thresholds needs a few hundred, and is not done.
+        </li>
+        <li>
+          <span className="text-ink">No Indian VASP</span> is in the seed list:
+          2,500 tagged holders were scanned and not one Indian exchange is
+          publicly tagged, which is the gap a sovereign tool exists to close
+          rather than one we can close with a copied address.
+        </li>
+      </ul>
     ),
   },
 ];

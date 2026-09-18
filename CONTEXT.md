@@ -215,7 +215,11 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   are AI-assisted and which are hand-specified. No attribution decision is made
   by a language model. Keep that row honest; one caught omission puts every
   other claim in doubt. The recorded case files live here too, and deliberately
-  not on the landing page.
+  not on the landing page. Its "What is not built yet?" answer names every
+  expectation in the problem statement that is not built — cross-chain,
+  NCRP/SAHYOG, machine-learning risk scores, indexing at scale — each with its
+  plan, worded to match the deck. Keep the two in step, and state a sample size
+  beside any measured rate: the rule base rates come from 17 wallets.
 - **The landing page carries the argument, not the manual.** Detail an
   investigator wants once — how the pipeline works, how an exit is named — sits
   behind a `SectionDialog` row and opens over the page. Built on the native
@@ -294,6 +298,17 @@ Three addresses have committed fixtures (`DEMO_ADDRESSES` in `lib/api.ts`):
   timeout would cut it off. Set `TRONGRID_API_KEY` in the dashboard: without it
   the public endpoint throttles Render's shared IP and the tracer, correctly,
   refuses to state a finding from a wallet it could not read.
+- **A deployment says how it is set up** (`app/api/health/route.ts`). Three
+  Render settings decide how a screener's click behaves — the API key,
+  `DEMO_MODE`, and which commit is serving — and only one teammate can open that
+  dashboard. `GET /api/health` answers all three from outside: `commit` (Render's
+  `RENDER_GIT_COMMIT`), `demoMode`, and `chainAccess` (`keyed` / `public`, never
+  the key). It reads nothing from the chain and renders nothing, so it is also
+  the right target for an uptime pinger if the free instance is kept awake that
+  way. **Watch `render.yaml`:** it pins `plan: free` and `DEMO_MODE: "false"`. If
+  the service was created as a Blueprint, a later edit to that file can put a
+  dashboard change back — so after changing either in the dashboard, change the
+  file to match.
 - **One address at a time is a demo; a morning of them is the product** (`/queue`,
   `components/BulkTriage.tsx`). The pitch has always been "we tell I4C which of
   today's complaints still have recoverable money" — AGENTS.md §9 calls triage
