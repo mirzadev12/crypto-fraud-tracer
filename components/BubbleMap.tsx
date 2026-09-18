@@ -173,21 +173,27 @@ function layout(trace: TraceResult): { bubbles: Bubble[]; links: Link[] } {
   }
 
   const index = new Map(bubbles.map((b) => [b.address, b]));
-  const maxValue = Math.max(...trace.edges.map((e) => e.valueUsdt), 1);
-  const links: Link[] = [];
+  // Several transfers between the same two wallets are one leg, as in the flow
+  // graph and the batch canvas: drawn one per transfer they share one arc, and a
+  // fast transfer could sit under a slow one drawn after it.
+  const byPair = new Map<string, Link>();
   trace.edges.forEach((e, i) => {
     const from = index.get(e.from);
     const to = index.get(e.to);
     if (!from || !to) return;
-    links.push({
-      id: `${e.txHash || "edge"}-${i}`,
-      from,
-      to,
-      valueUsdt: e.valueUsdt,
-      fast: e.dwellSeconds !== null && e.dwellSeconds < 600,
-      width: 1 + (e.valueUsdt / maxValue) * 5,
-    });
+    const fast = e.dwellSeconds !== null && e.dwellSeconds < 600;
+    const key = `${e.from}>${e.to}`;
+    const prior = byPair.get(key);
+    if (prior) {
+      prior.valueUsdt += e.valueUsdt;
+      prior.fast = prior.fast || fast;
+      return;
+    }
+    byPair.set(key, { id: `${e.txHash || "edge"}-${i}`, from, to, valueUsdt: e.valueUsdt, fast, width: 1 });
   });
+  const links = [...byPair.values()];
+  const maxValue = Math.max(...links.map((l) => l.valueUsdt), 1);
+  for (const l of links) l.width = 1 + (l.valueUsdt / maxValue) * 5;
 
   return { bubbles, links };
 }

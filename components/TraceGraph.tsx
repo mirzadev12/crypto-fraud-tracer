@@ -4,10 +4,14 @@ import { useCallback, useEffect, useMemo } from "react";
 import {
   Background,
   BackgroundVariant,
+  BaseEdge,
   Controls,
+  EdgeLabelRenderer,
+  type Edge,
+  type EdgeProps,
+  getSmoothStepPath,
   Handle,
   MarkerType,
-  type Edge,
   type Node,
   type NodeProps,
   Position,
@@ -224,6 +228,65 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
 
 const nodeTypes = { tx: TxNodeView };
 
+/* ------------------------------------------------------------------- edges */
+
+type FlowEdge = Edge<{ lines: string[] }, "flow">;
+
+/**
+ * A smooth-step edge whose label is drawn in the HTML label layer rather than
+ * inside the edge's own SVG. SVG paints in document order, so with the stock
+ * edge a later transfer's line crossed an earlier transfer's label — where two
+ * transfers converge on one wallet they share the last segment, and the amount
+ * of one read as struck through by the other. The label layer sits above every
+ * edge and below the cards, so no line can cross a figure.
+ */
+function FlowEdgeView({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  style,
+  markerEnd,
+  data,
+}: EdgeProps<FlowEdge>) {
+  const [path, labelX, labelY] = getSmoothStepPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+  });
+  return (
+    <>
+      <BaseEdge id={id} path={path} style={style} markerEnd={markerEnd} />
+      {data?.lines.length ? (
+        <EdgeLabelRenderer>
+          <div
+            className="absolute whitespace-nowrap border px-2 py-1 text-center text-xs"
+            style={{
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              background: "#0a0a0a",
+              borderColor: "#2a2a28",
+              color: "#9a948a",
+              fontFamily: "var(--font-plex-mono)",
+            }}
+          >
+            {data.lines.map((line) => (
+              <div key={line}>{line}</div>
+            ))}
+          </div>
+        </EdgeLabelRenderer>
+      ) : null}
+    </>
+  );
+}
+
+const edgeTypes = { flow: FlowEdgeView };
+
 /* ------------------------------------------------------------------ layout */
 
 // Wide enough that an edge label ("2.0K · 376 d 20 h", about 130 px) sits in the
@@ -239,7 +302,7 @@ function buildGraph(
   leads: Map<string, number>,
 ): {
   nodes: TxNode[];
-  edges: Edge[];
+  edges: FlowEdge[];
 } {
   const byDepth = new Map<number, typeof trace.nodes>();
   for (const n of trace.nodes) {
@@ -282,23 +345,55 @@ function buildGraph(
     });
   }
 
-  const edges: Edge[] = trace.edges.map((e, i) => {
+  // Several transfers between the same two wallets are one line. Drawn one per
+  // transfer they lay exactly on top of each other: only the last label showed,
+  // and a transfer forwarded in four minutes could sit under a grey line drawn
+  // after it — hiding the one signal the colour exists to show. The same rule
+  // as the batch canvas: the values sum, and the line is fast if any is.
+  const pairs = new Map<
+    string,
+    { id: string; from: string; to: string; total: number; count: number; fastest: number | null }
+  >();
+  trace.edges.forEach((e, i) => {
+    const key = `${e.from}>${e.to}`;
+    const pair = pairs.get(key);
+    if (pair) {
+      pair.total += e.valueUsdt;
+      pair.count += 1;
+      if (e.dwellSeconds !== null && (pair.fastest === null || e.dwellSeconds < pair.fastest)) {
+        pair.fastest = e.dwellSeconds;
+      }
+      return;
+    }
+    pairs.set(key, {
+      id: `${e.txHash || "edge"}-${i}`,
+      from: e.from,
+      to: e.to,
+      total: e.valueUsdt,
+      count: 1,
+      fastest: e.dwellSeconds,
+    });
+  });
+
+  const edges: FlowEdge[] = [...pairs.values()].map((pair) => {
     // Anything forwarded in under ten minutes is automated movement — the graph
     // says so before the officer reads a single risk flag.
-    const fast = e.dwellSeconds !== null && e.dwellSeconds < 600;
+    const fast = pair.fastest !== null && pair.fastest < 600;
     const stroke = fast ? "#c98a34" : "#3a3936";
+    const lines =
+      pair.count === 1
+        ? [`${formatUsdtCompact(pair.total)} · ${formatDwell(pair.fastest)}`]
+        : [
+            `${formatUsdtCompact(pair.total)} · ${pair.count} transfers`,
+            ...(pair.fastest === null ? [] : [`fastest ${formatDwell(pair.fastest)}`]),
+          ];
     return {
-      id: `${e.txHash || "edge"}-${i}`,
-      source: e.from,
-      target: e.to,
-      type: "smoothstep",
+      id: pair.id,
+      source: pair.from,
+      target: pair.to,
+      type: "flow",
       animated: fast,
-      label: `${formatUsdtCompact(e.valueUsdt)} · ${formatDwell(e.dwellSeconds)}`,
-      labelShowBg: true,
-      labelBgPadding: [6, 3] as [number, number],
-      labelBgBorderRadius: 0,
-      labelBgStyle: { fill: "#0a0a0a", stroke: "#2a2a28" },
-      labelStyle: { fill: "#9a948a", fontSize: 12, fontFamily: "var(--font-plex-mono)" },
+      data: { lines },
       style: { stroke, strokeWidth: fast ? 2 : 1.5 },
       markerEnd: { type: MarkerType.ArrowClosed, color: stroke, width: 16, height: 16 },
     };
@@ -329,7 +424,7 @@ export default function TraceGraph({
     [trace, selected, leads],
   );
   const [nodes, setNodes, onNodesChange] = useNodesState<TxNode>(initial.nodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initial.edges);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(initial.edges);
 
   // Keep the canvas in step when the caller loads a different trace or selects a
   // row in the table beside it.
@@ -345,10 +440,11 @@ export default function TraceGraph({
 
   return (
     <div className={`w-full ${className}`}>
-      <ReactFlow<TxNode, Edge>
+      <ReactFlow<TxNode, FlowEdge>
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
