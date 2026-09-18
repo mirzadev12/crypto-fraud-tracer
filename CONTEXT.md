@@ -125,7 +125,12 @@ Eight addresses in the register are illustrative (`isIllustrative` in
   (`font-mono`) for addresses, hashes and figures. Display serif never appears in
   body copy, and the document serif never leaves the packet.
 - **Spacing is 4 / 8 / 16 / 24 / 40 / 64 / 96 / 128** — Tailwind 1, 2, 4, 6, 10,
-  16, 24, 32. No arbitrary values. A sweep enforces this; keep it enforced.
+  16, 24, 32. No arbitrary values. A sweep enforces this; keep it enforced. It
+  had drifted — 79 off-scale classes across 19 files by 18 Sep, mostly `3`, `5`,
+  `8`, `12` and `20` — and was swept back. One exception stays on purpose:
+  `pl-12` in `InvestigativeLeads.tsx`, which indents a lead's detail to sit
+  under its title past the number column. Re-run the check (grep spacing
+  utilities for values off the scale) after any screen is added.
 - **Art Deco is geometry, not ornament.** `--radius-panel` is `0`; corners are
   square everywhere. `Diamond` (rotated lozenge) is the tick mark, `Rule` is the
   faded brass hairline, `SectionHeader` is index + lozenge + display title + rule.
@@ -133,16 +138,37 @@ Eight addresses in the register are illustrative (`isIllustrative` in
   glassmorphism, no floating blobs, no icon soup.
 - **One gradient exists, and it is a border light** (`.fx-sweep` in
   `app/globals.css`). The primary action is a square dark frame with a single
-  brass arc rotating behind its 1px ring — the element's own background is
-  clipped to the padding box, so the conic layer shows only through the border.
-  It is the animated-conic-border pattern rebuilt to the house rules: square,
-  one arc rather than a spectrum, no blur, no glow around the button. Secondary
+  brass arc travelling its 1px ring. It is the animated-conic-border pattern
+  rebuilt to the house rules: square, one arc rather than a spectrum, no blur,
+  no glow around the button. **The ring is the control's own background**, two
+  layers: a flat face clipped to the padding box, and a conic gradient clipped
+  to the border box that shows only through the transparent border. It moves
+  by animating the gradient's start angle, `--fx-angle`, registered with
+  `@property` so it can be animated. The ring's base is brass-dim all the way round,
+  not transparent, so a primary at rest reads as a frame rather than text with
+  a line moving past it.
+  It used to be an oversized `::after` rotating behind the button, and that
+  failed twice over. The light was painted in whatever stacking context the page
+  provided, so a positioned background in between — the hero's dither and grid
+  plates, the sign-in card — covered it and the primary read as a black box.
+  And a spinning rectangle only covers a box narrower than itself: on the
+  full-width "Continue to console" the light reached the ends for a fraction of
+  each turn, so the frame was mostly a short line on the top edge. A background
+  cannot be occluded by the page and always covers its own box. Do not go back
+  to a pseudo-element. A filled field sets `--fx-face` to its own fill (as a
+  utility — `[--fx-face:var(--color-surface-2)]`), so pointing at it does not
+  change its colour; the CSS reads it with a fallback, because an unlayered
+  default would beat the utility. A disabled primary is a plain hairline with
+  no light, stated in `globals.css` after the hover rules because the
+  `disabled:border-line` utility cannot win against unlayered borders. Secondary
   options carry the same frame lit only on hover (`.fx-sweep-hover`), so the
   light follows the cursor instead of every button holding brass at rest; the
   opaque face appears only while there is an arc to hide, or a secondary on a
   charcoal panel would punch a dark hole in it. Under
   `prefers-reduced-motion` the arc is removed entirely and both fall back to a
-  static border. Do not extend this to a second gradient anywhere: the ban in
+  static border: every rule that draws a ring sits inside a
+  `prefers-reduced-motion: no-preference` block, and the rules outside it are
+  the plain frame that remains. Do not extend this to a second gradient anywhere: the ban in
   the bullet above still stands, and this is the one exception on the record.
 - **Every clickable thing wears the same frame** (`.fx-option`, `.fx-option-quiet`,
   `.fx-option-on`). Nothing in this interface should be identifiable as clickable
@@ -158,7 +184,15 @@ Eight addresses in the register are illustrative (`isIllustrative` in
   dropped and the border itself carries the interaction, warming to brass-dim.
   The first pass at this applied the treatment to the two CTA styles only and
   left the nav, chips, toggles, rows and ghost actions bare — if a new control is
-  added, it takes one of these classes. Its host must not be a plain inline element: an inline box cannot clip, so the oversized arc escapes and the page scrolls sideways. The base layer makes every host inline-block unless a display utility says otherwise.
+  added, it takes one of these classes. The base layer makes every host
+  inline-block unless a display utility says otherwise; it began as a guard
+  against the old rotating arc escaping an inline host, and stays because every
+  control has been laid out with it since. Because the rest state no longer
+  paints over the host's background, a fill a control was given now shows:
+  the search field on `/attribution` and the paste box on `/queue` read as
+  filled fields, and a
+  segmented control's chosen option carries its `bg-white/10` tint, both of
+  which the old `background-color: transparent` silently erased.
 - **The hero visual is the product, not an ornament** (`components/HeroTrace.tsx`).
   A cluster constellation — the register on-chain intelligence is read in — with
   one path lit through it: subject wallet at the heart of its own cluster, two
@@ -987,6 +1021,38 @@ Eight addresses in the register are illustrative (`isIllustrative` in
   two officers reading one packet must see the same time.
 
 ---
+
+- **The polish round of 18–19 Sep, recorded so it is not re-derived.**
+  - **Wallet kinds have one set of on-screen names.** `kindTag()` in
+    `lib/voice.ts` (re-exported from `ui.tsx`): Reported wallet, Intermediary,
+    Customer deposit address, Exchange hot wallet, Mixing service, Sanctioned
+    address, Unlabelled. The trace, the packet, the fund-flow panel and the live
+    log used to print the contract's identifiers with the underscores swapped
+    for spaces ("exchange deposit"), and the case file set every kind in the
+    alarm tone, a customer deposit address included. Only sanctioned and mixer
+    take that tone now.
+  - **Counts agree with their nouns.** `count(n, "hop")` in `lib/format.ts`;
+    the case file said "1 hops · 2 wallets" and "1 transfers · 1 signals".
+  - **The queue's headline figures count real cases only.** The eight
+    illustrative rows are listed and marked in the register but not added into
+    "USDT still reachable", and the caption under the figures says so.
+  - **Icons and a share card are generated, not drawn.** `app/icon.tsx`,
+    `app/apple-icon.tsx` (the brass lozenge) and `app/opengraph-image.tsx`, all
+    via `next/og` at build time. The share card counts its figures from `data/`
+    when it is built, so unlike the landing page's typed figures it cannot drift
+    from the files. `app/favicon.ico` is a committed file made from the 32px PNG
+    `/icon` renders — regenerate it if the icon changes. `metadataBase` reads
+    `RENDER_EXTERNAL_URL`, so the card's absolute URL follows the deployment.
+  - **Pacing floor is 100 ms with a key, 250 ms without.** A 429 still doubles
+    the gap, so a key buys speed without removing the back-off.
+  - **Dwell over 48 hours is stated in days** (`formatDwell`): "3 d 4 h", not
+    "76 h 12 min".
+  - **Flow graph spacing** is 420 × 200 per column and row (`TraceGraph.tsx`).
+    Rows were 158 apart and a card is up to 176 px tall, so cards overlapped;
+    an edge label is about 130 px wide and now sits in the column gap rather
+    than over the cards. Fit zoom runs 0.18–1.5.
+  - **Case actions fill the row at phone width**, so the three read as a set
+    rather than three ragged widths.
 
 ## 4. External facts, verified from this machine (8 Sep 2026)
 
