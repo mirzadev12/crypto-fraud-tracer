@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 18 September 2026 (the engine audit — see the §3 entries from "Dwell is measured from a transfer that happened" onward).
+Last updated: 19 September 2026 (the polish round — see the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened").
 
 ---
 
@@ -1020,8 +1020,6 @@ Eight addresses in the register are illustrative (`isIllustrative` in
 - **Timestamps are UTC and absolute.** No "3 hours ago" — it breaks hydration and
   two officers reading one packet must see the same time.
 
----
-
 - **The polish round of 18–19 Sep, recorded so it is not re-derived.**
   - **Wallet kinds have one set of on-screen names.** `kindTag()` in
     `lib/voice.ts` (re-exported from `ui.tsx`): Reported wallet, Intermediary,
@@ -1051,8 +1049,22 @@ Eight addresses in the register are illustrative (`isIllustrative` in
     Rows were 158 apart and a card is up to 176 px tall, so cards overlapped;
     an edge label is about 130 px wide and now sits in the column gap rather
     than over the cards. Fit zoom runs 0.18–1.5.
+  - **Transfers between the same two wallets are one line on both canvases**
+    (`TraceGraph.tsx`, `BubbleMap.tsx`), by the rule `lib/batch.ts` already
+    used: values sum, the line is fast if any transfer was, and a merged label
+    reads "4.4K · 5 transfers / fastest 4 min". Drawn one per transfer they lay
+    exactly on top of each other. On `TTQd8Bo1…` 11 transfers showed as 5 labels,
+    and a 1,333 USDT forward in under four minutes sat under a grey line drawn
+    after it, so the one signal the amber exists for was hidden. The tables and
+    the timeline still list every transfer.
+  - **Flow-graph labels are drawn in React Flow's HTML label layer**
+    (`FlowEdgeView`), which sits above every edge and below the cards. The stock
+    edge drew its label inside its own SVG, so a later edge's line struck
+    through an earlier edge's figure where two routes converged.
   - **Case actions fill the row at phone width**, so the three read as a set
     rather than three ragged widths.
+
+---
 
 ## 4. External facts, verified from this machine (8 Sep 2026)
 
