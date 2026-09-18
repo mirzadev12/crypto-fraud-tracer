@@ -203,7 +203,7 @@ function WatchRow({
 
   return (
     <li
-      className={`py-5 ${result?.status === "moved" ? "border-l-2 border-critical pl-4" : ""}`}
+      className={`py-6 ${result?.status === "moved" ? "border-l-2 border-critical pl-4" : ""}`}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <div className="min-w-0">
@@ -233,14 +233,14 @@ function WatchRow({
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           <Link
             href={`/trace/${encodeURIComponent(item.caseAddress)}`}
-            className="fx-option px-3 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint transition hover:text-brass"
+            className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint transition hover:text-brass"
           >
             {result?.status === "moved" ? "Re-trace" : "Open case"}
           </Link>
           <button
             type="button"
             onClick={() => removeWatch(item.address)}
-            className="fx-option-quiet px-3 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint transition hover:text-brass"
+            className="fx-option-quiet px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint transition hover:text-brass"
           >
             Stop watching
           </button>
@@ -248,7 +248,7 @@ function WatchRow({
       </div>
 
       {result?.status === "moved" ? (
-        <div className="mt-4 space-y-3">
+        <div className="mt-4 space-y-2">
           <p className="text-sm leading-6 text-ink">
             {result.complete ? "" : "At least "}
             {formatUsdt(movedOut, { symbol: false })} USDT has left this wallet since
@@ -288,7 +288,7 @@ function WatchRow({
           )}
         </div>
       ) : result?.status === "unchecked" ? (
-        <p className="mt-3 text-xs leading-5 text-faint">{result.reason}</p>
+        <p className="mt-2 text-xs leading-5 text-faint">{result.reason}</p>
       ) : null}
     </li>
   );

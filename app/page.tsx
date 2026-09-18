@@ -49,7 +49,7 @@ export default function Home() {
   return (
     <AppShell>
       {/* -------------------------------------------------------------- hero */}
-      <section className="relative -mx-6 -mt-10 overflow-hidden px-6 pb-20 pt-20">
+      <section className="relative -mx-6 -mt-10 overflow-hidden px-6 pb-16 pt-16">
         <div
           className="fx-grid pointer-events-none absolute inset-0 opacity-70"
           aria-hidden="true"
@@ -65,7 +65,7 @@ export default function Home() {
         {/* Split: the claim against the instrument's own output. The strongest
             image this page can carry is what the tool actually draws, so the
             right column is a product panel rather than an ornament. */}
-        <div className="relative grid items-center gap-x-16 gap-y-14 xl:grid-cols-[1.08fr_1fr]">
+        <div className="relative grid items-center gap-x-16 gap-y-16 xl:grid-cols-[1.08fr_1fr]">
           <div className="min-w-0">
             <h1 className="font-display text-4xl uppercase leading-[1.15] tracking-[0.06em] text-ink md:text-5xl">
               Follow the money.
@@ -82,7 +82,7 @@ export default function Home() {
               the money can <strong className="font-semibold text-ink">still be reached</strong>.
             </p>
 
-            <div className="mt-12 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <Link href="/investigate" className={buttonStyles.primary}>
                 Open a case
               </Link>
@@ -93,7 +93,7 @@ export default function Home() {
           </div>
 
           <figure className="min-w-0 border border-line bg-surface">
-            <figcaption className="flex items-center justify-between gap-4 border-b border-line px-4 py-3">
+            <figcaption className="flex items-center justify-between gap-4 border-b border-line px-4 py-4">
               <span className="font-label text-[10px] font-semibold uppercase tracking-[0.2em] text-faint">
                 Fund flow
               </span>
@@ -120,11 +120,11 @@ export default function Home() {
             ["202", "Sanctioned addresses carried", "/attribution"],
             ["0", "Commercial data licences required", null],
           ].map(([figure, label, href]) => (
-            <div key={label} className="min-w-0 border-t border-line pt-5">
+            <div key={label} className="min-w-0 border-t border-line pt-4">
               <dt className="font-mono text-5xl font-light tabular-nums text-ink">
                 {figure}
               </dt>
-              <dd className="mt-3 font-label text-[11px] font-semibold uppercase leading-5 tracking-[0.14em] text-faint">
+              <dd className="mt-2 font-label text-[11px] font-semibold uppercase leading-5 tracking-[0.14em] text-faint">
                 {href ? (
                   /* A figure an evaluator cannot check is a claim. These three
                      open the dataset they were counted from. */

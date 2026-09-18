@@ -20,6 +20,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  count,
   formatDateTime,
   formatUsdt,
   shortAddress,
@@ -249,7 +250,7 @@ export default function WalletOrigin({ address }: { address: string }) {
           Read from the chain in {p.provenance.apiCalls}{" "}
           {p.provenance.apiCalls === 1 ? "call" : "calls"} at{" "}
           {formatDateTime(p.provenance.generatedAt)} ·{" "}
-          {p.transfers.toLocaleString("en-US")} transfers examined ·{" "}
+          {count(p.transfers, "transfer")} examined ·{" "}
           {p.provenance.responseHashes.length} response{" "}
           {p.provenance.responseHashes.length === 1 ? "hash" : "hashes"} recorded.
           {p.historyComplete
@@ -270,7 +271,7 @@ function Parties({ parties, empty }: { parties: Counterparty[]; empty: string })
   return (
     <ul className="divide-y divide-line-soft pt-2">
       {parties.map((party) => (
-        <li key={party.address} className="flex flex-wrap items-start justify-between gap-4 py-5">
+        <li key={party.address} className="flex flex-wrap items-start justify-between gap-4 py-4">
           <div className="min-w-0">
             <Link
               href={`/wallet/${encodeURIComponent(party.address)}`}

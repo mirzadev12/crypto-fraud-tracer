@@ -373,7 +373,7 @@ function BatchFlow({
         <div className="pointer-events-none absolute left-6 top-6 w-72 border border-line bg-bg/95 p-6 backdrop-blur">
           <Designation>{entityPhrase(activeNode.label)}</Designation>
           <p className="mt-2 break-all font-mono text-xs text-ink">{activeNode.address}</p>
-          <dl className="mt-4 space-y-3 border-t border-line pt-4 text-xs">
+          <dl className="mt-4 space-y-2 border-t border-line pt-4 text-xs">
             <div className="flex justify-between gap-4">
               <dt className="font-mono uppercase tracking-[0.2em] text-faint">Complaints</dt>
               <dd className="font-mono tabular-nums text-ink">{activeNode.cases.length}</dd>
@@ -417,7 +417,7 @@ function BatchExits({
 
   return (
     <div className="fx-scroll h-[560px] overflow-y-auto px-6 py-6">
-      <ul className="space-y-8">
+      <ul className="space-y-6">
         {exits.map((group) => {
           const sentinel = isAtRest(group.key) || isUnresolved(group.key);
           const color = sentinel
@@ -434,7 +434,7 @@ function BatchExits({
                       of the heading — two rows reading the same name are two
                       different accounts, not a repeat. */}
                   {group.address ? (
-                    <span className="ml-3 font-mono normal-case tracking-normal text-faint">
+                    <span className="ml-2 font-mono normal-case tracking-normal text-faint">
                       {shortAddress(group.address)}
                     </span>
                   ) : null}
@@ -448,7 +448,7 @@ function BatchExits({
               {/* One cell per complaint, area proportional to what it put here:
                   the destination's weight and how many victims made it up, in
                   one row. */}
-              <div className="mt-3 flex h-10 w-full items-stretch gap-1">
+              <div className="mt-2 flex h-10 w-full items-stretch gap-1">
                 {group.cases
                   .slice()
                   .sort((a, b) => b.usdt - a.usdt)
@@ -529,7 +529,7 @@ function BatchWeight({
                     </span>
                   </span>
                 </div>
-                <div className="mt-1.5 h-2 w-full bg-surface-2">
+                <div className="mt-2 h-2 w-full bg-surface-2">
                   <div
                     className={`h-2 ${meta.dot}`}
                     style={{ width: `${Math.max(row.share * 100, 0.6)}%` }}

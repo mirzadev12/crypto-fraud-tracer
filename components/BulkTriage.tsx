@@ -25,7 +25,7 @@ import {
   type DataSource,
   type TraceProgress,
 } from "@/lib/api";
-import { formatUsdt, shortAddress } from "@/lib/format";
+import { count, formatUsdt, shortAddress } from "@/lib/format";
 import { findLinks } from "@/lib/links";
 import { watchTargetFor } from "@/lib/watch";
 import { addWatch } from "@/lib/watchlist";
@@ -107,7 +107,7 @@ function describeProgress(event: TraceProgress): string {
     case "label":
       return `Attribution matched — ${event.entity}`;
     case "scoring":
-      return `Scoring ${event.wallets} wallets`;
+      return `Scoring ${count(event.wallets, "wallet")}`;
     case "recorded":
       return `Recorded case ${event.caseId}`;
   }
@@ -250,7 +250,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
               spellCheck={false}
               rows={10}
               placeholder={"TXY9...\nTS27...\none address per line"}
-              className="fx-option block w-full resize-y border border-line bg-surface-2 p-4 font-mono text-xs leading-6 text-ink placeholder:text-dim focus:outline-none"
+              className="fx-option block w-full resize-y border border-line bg-surface-2 [--fx-face:var(--color-surface-2)] p-4 font-mono text-xs leading-6 text-ink placeholder:text-dim focus:outline-none"
             />
             <p className="mt-4 text-xs leading-5 text-faint">
               Commas, semicolons and line breaks all separate. Duplicates are dropped.
@@ -374,7 +374,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
               money" — had no single place that said it, and a reader (or a
               camera) needs one frame that does.
             */}
-            <p className="border-l-2 border-brass-dim py-3 pl-6 text-sm leading-7 text-muted">
+            <p className="border-l-2 border-brass-dim py-4 pl-6 text-sm leading-7 text-muted">
               <strong className="font-semibold text-ink">{traced}</strong>{" "}
               {traced === 1 ? "complaint" : "complaints"} traced ·{" "}
               <strong className="font-semibold text-ink">{stats.critical}</strong> still
@@ -392,7 +392,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
                 </>
               ) : null}
             </p>
-            <div className="mt-8 grid gap-6 sm:grid-cols-3">
+            <div className="mt-10 grid gap-6 sm:grid-cols-3">
             <StatCard
               label="Act now"
               value={String(stats.critical)}
@@ -471,7 +471,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
                   </div>
                   <Link
                     href={`/wallet/${encodeURIComponent(link.address)}`}
-                    className="fx-option-quiet mt-3 inline-block break-all px-2 py-1 font-mono text-sm text-ink transition hover:text-brass"
+                    className="fx-option-quiet mt-2 inline-block break-all px-2 py-1 font-mono text-sm text-ink transition hover:text-brass"
                   >
                     {link.address}
                   </Link>

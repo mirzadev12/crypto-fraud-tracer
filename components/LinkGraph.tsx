@@ -132,7 +132,7 @@ export default function LinkGraph({ link }: { link: CaseLink }) {
           <Link
             key={c.inputAddress}
             href={`/trace/${encodeURIComponent(c.inputAddress)}`}
-            className="fx-option inline-block px-3 py-2 font-mono text-xs text-faint transition hover:text-brass"
+            className="fx-option inline-block px-4 py-2 font-mono text-xs text-faint transition hover:text-brass"
           >
             {shortAddress(c.inputAddress)}
           </Link>

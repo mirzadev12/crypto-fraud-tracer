@@ -55,7 +55,16 @@ export default function CaseQueue() {
 
   const cases = state.status === "ready" ? state.result.data : NO_CASES;
 
-  const stats = useMemo(() => summarize(cases), [cases]);
+  /*
+   * The headline figures count the real cases only. The register also lists
+   * illustrative rows, each tagged, and summing them in put 251,650 USDT of
+   * hand-built cases into a 289,098.90 "still actionable" — a figure a reader
+   * takes for the desk's real exposure. The rows stay; the arithmetic does not
+   * include them, and the caption under the figures says so.
+   */
+  const realCases = useMemo(() => cases.filter((c) => !isIllustrative(c.inputAddress)), [cases]);
+  const illustrativeCount = cases.length - realCases.length;
+  const stats = useMemo(() => summarize(realCases), [realCases]);
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -131,10 +140,16 @@ export default function CaseQueue() {
         <StatCard
           label="Still actionable"
           value={formatUsdt(stats.recoverableUsdt, { symbol: false })}
-          hint={`USDT across ${stats.hot + stats.warm} of ${stats.total} complaints`}
+          hint={`USDT across ${stats.hot + stats.warm} of ${stats.total} recorded cases`}
           tone="brand"
         />
       </div>
+      {illustrativeCount > 0 ? (
+        <p className="text-xs leading-5 text-faint">
+          These figures count the {stats.total} recorded cases. The {illustrativeCount}{" "}
+          illustrative rows in the register below are listed and marked, but not counted.
+        </p>
+      ) : null}
 
       <Panel
         title="Complaint queue"
@@ -174,7 +189,7 @@ export default function CaseQueue() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search case, wallet or destination"
-              className="w-full border border-line bg-surface-2 px-4.5 py-2 text-sm text-ink placeholder:text-faint focus:border-brass/50 focus:outline-none"
+              className="w-full border border-line bg-surface-2 px-4 py-2 text-sm text-ink placeholder:text-faint focus:border-brass/50 focus:outline-none"
             />
           </label>
         </div>

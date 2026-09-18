@@ -198,7 +198,7 @@ function TxNodeView({ data, selected }: NodeProps<TxNode>) {
           picture, and a figure alone does not let you compare two wallets at a
           glance across a canvas. */}
       {data.background ? null : (
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mt-2 flex items-center gap-2">
           <span
             className="h-[3px] flex-1 bg-[#2a2a28]"
             role="presentation"
@@ -226,8 +226,12 @@ const nodeTypes = { tx: TxNodeView };
 
 /* ------------------------------------------------------------------ layout */
 
-const COL_WIDTH = 330;
-const ROW_HEIGHT = 158;
+// Wide enough that an edge label ("2.0K · 376 d 20 h", about 130 px) sits in the
+// gap between two columns instead of over the cards on either side of it.
+const COL_WIDTH = 420;
+// A card is up to 176 px tall (the exit card carries more), so rows 158 apart
+// overlapped; 200 leaves a 24 px gap on the house scale.
+const ROW_HEIGHT = 200;
 
 function buildGraph(
   trace: TraceResult,
@@ -292,7 +296,7 @@ function buildGraph(
       label: `${formatUsdtCompact(e.valueUsdt)} · ${formatDwell(e.dwellSeconds)}`,
       labelShowBg: true,
       labelBgPadding: [6, 3] as [number, number],
-      labelBgBorderRadius: 6,
+      labelBgBorderRadius: 0,
       labelBgStyle: { fill: "#0a0a0a", stroke: "#2a2a28" },
       labelStyle: { fill: "#9a948a", fontSize: 12, fontFamily: "var(--font-plex-mono)" },
       style: { stroke, strokeWidth: fast ? 2 : 1.5 },
@@ -354,8 +358,10 @@ export default function TraceGraph({
         // marooned in the middle of a tall canvas at its natural size, which
         // made the wallets small enough that nobody discovered they are
         // clickable. A short trace should fill the space it is given.
-        fitViewOptions={{ padding: 0.14, maxZoom: 1.5 }}
-        minZoom={0.3}
+        // The floor is low enough for the largest case (twelve wallets in one
+        // hop) to fit whole on first view; below 0.3 it used to open cropped.
+        fitViewOptions={{ padding: 0.14, maxZoom: 1.5, minZoom: 0.18 }}
+        minZoom={0.18}
         maxZoom={1.6}
         nodesConnectable={false}
         edgesFocusable={false}

@@ -95,7 +95,7 @@ export default function CaseContextBar({
   return (
     <div className="sticky top-0 z-30 -mx-6 border-b border-line bg-bg/95 px-6 backdrop-blur print:hidden">
       {/* ------------------------------------------------------- identity */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 py-2">
         <span className="font-mono text-xs uppercase tracking-[0.2em] text-faint">
           {trace.caseId}
         </span>
@@ -116,7 +116,7 @@ export default function CaseContextBar({
               key={s.id}
               href={`#${s.id}`}
               aria-current={active ? "true" : undefined}
-              className={`fx-option-quiet whitespace-nowrap px-3 py-2 font-label text-[11px] uppercase tracking-[0.2em] ${
+              className={`fx-option-quiet shrink-0 whitespace-nowrap px-4 py-2 font-label text-[11px] uppercase tracking-[0.2em] ${
                 active ? "fx-option-on text-ink" : "text-faint hover:text-brass"
               }`}
             >

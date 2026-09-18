@@ -10,7 +10,7 @@ import {
   type TraceParams,
   type TraceProgress,
 } from "@/lib/api";
-import { formatDateTime, shortAddress } from "@/lib/format";
+import { count, formatDateTime, shortAddress } from "@/lib/format";
 import TraceView from "./TraceView";
 import {
   CASE_PROOF,
@@ -21,6 +21,7 @@ import {
   Skeleton,
   TriageBadge,
   buttonStyles,
+  kindTag,
 } from "./ui";
 
 /**
@@ -70,20 +71,19 @@ function describeEvent(e: TraceProgress): { text: string; tone: string } {
       };
     case "read":
       return {
-        text: `  read ${shortAddress(e.address, 6, 4)} · ${e.transfers} transfers · ${e.outflows} out`,
+        text: `  read ${shortAddress(e.address, 6, 4)} · ${count(e.transfers, "transfer")} · ${e.outflows} out`,
         tone: "text-faint",
       };
     case "label":
       return {
-        text: `  ◆ ${e.source === "heuristic" ? "likely " : ""}${e.entity} · ${e.kind.replace(
-          /_/g,
-          " ",
-        )} · ${shortAddress(e.address, 6, 4)}`,
+        text: `  ◆ ${e.source === "heuristic" ? "likely " : ""}${e.entity} · ${kindTag(
+          e.kind,
+        ).toLowerCase()} · ${shortAddress(e.address, 6, 4)}`,
         tone: "text-brass",
       };
     case "scoring":
       return {
-        text: `▸ scoring ${e.wallets} wallets across ${e.transfers} transfers`,
+        text: `▸ scoring ${count(e.wallets, "wallet")} across ${count(e.transfers, "transfer")}`,
         tone: "text-ink",
       };
     case "recorded":

@@ -214,7 +214,7 @@ export default function OperationsPage() {
         }
       />
 
-      <dl className="mt-16 divide-y divide-line border-y border-line">
+      <dl className="mt-10 divide-y divide-line border-b border-line">
         {ROWS.map((row, i) => (
           <div key={row.q} className="grid gap-6 py-10 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
             <dt className="flex gap-6">
@@ -245,7 +245,7 @@ export default function OperationsPage() {
           <p className="font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-brass">
             Which cases are real
           </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-muted">
             {REAL_CASES.length} entries in the register were{" "}
             <strong className="font-semibold text-ink">captured from the chain</strong> by this
             pipeline, each carrying the SHA-256 of every response it was built
@@ -255,7 +255,7 @@ export default function OperationsPage() {
             it is — the badge reads RECORDED TRACE, LIVE TRACE or ILLUSTRATIVE
             CASE — and the three below are all real.
           </p>
-          <ul className="mt-5 space-y-2">
+          <ul className="mt-4 space-y-2">
             {REAL_CASES.map((c) => (
               <li key={c.caseId} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                 <span className="font-mono text-xs text-brass">{c.caseId}</span>

@@ -25,6 +25,7 @@ import {
   SourceChip,
   TriageBadge,
   buttonStyles,
+  kindTag,
 } from "./ui";
 
 /** Ordering matches the case queue: whatever still has money comes first. */
@@ -105,7 +106,7 @@ export default function FundFlowExplorer({
                       type="button"
                       onClick={() => open(c.inputAddress)}
                       aria-current={active ? "true" : undefined}
-                      className={`w-full border-l-2 px-4 py-4.5 text-left transition ${
+                      className={`w-full border-l-2 px-4 py-4 text-left transition ${
                         active
                           ? "border-brass bg-brass/[0.08]"
                           : "border-transparent hover:bg-white/[0.03]"
@@ -259,7 +260,7 @@ export default function FundFlowExplorer({
                           <>
                             <span className="text-ink">{selected.label.entity}</span>
                             <Chip tone="neutral">
-                              {selected.label.kind.replace(/_/g, " ")}
+                              {kindTag(selected.label.kind)}
                             </Chip>
                             <SourceChip source={selected.label.source} />
                             <span className="font-mono text-xs text-faint">
@@ -293,13 +294,13 @@ export default function FundFlowExplorer({
                           <p className="font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
                             Transfers · {edges.length}
                           </p>
-                          <ul className="fx-scroll mt-3 max-h-52 space-y-3 overflow-y-auto pr-1">
+                          <ul className="fx-scroll mt-2 max-h-52 space-y-2 overflow-y-auto pr-1">
                             {edges.map((e) => {
                               const out = e.from === selected.address;
                               return (
                                 <li
                                   key={e.txHash}
-                                  className="border-l-2 border-line pl-3"
+                                  className="border-l-2 border-line pl-4"
                                   style={{
                                     borderLeftColor:
                                       e.dwellSeconds !== null && e.dwellSeconds < 600
@@ -307,7 +308,7 @@ export default function FundFlowExplorer({
                                         : undefined,
                                   }}
                                 >
-                                  <div className="flex items-baseline justify-between gap-3">
+                                  <div className="flex items-baseline justify-between gap-4">
                                     <span className="font-label text-[10px] uppercase tracking-[0.16em] text-faint">
                                       {out ? "Sent" : "Received"}
                                     </span>
@@ -344,7 +345,7 @@ export default function FundFlowExplorer({
                           <p className="font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-suspicious">
                             Signals · {flags.length}
                           </p>
-                          <ul className="mt-3 space-y-3">
+                          <ul className="mt-2 space-y-2">
                             {flags.map((f) => (
                               <li key={f.code}>
                                 <p className="font-mono text-[10px] tracking-[0.14em] text-suspicious">

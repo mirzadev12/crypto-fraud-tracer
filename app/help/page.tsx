@@ -213,13 +213,13 @@ export default function HelpPage() {
         <SectionHeader index="02" title="Tracing one wallet" kicker="Four steps" />
         <ol className="mt-10 grid gap-10 md:grid-cols-2">
           {STEPS.map((step) => (
-            <li key={step.n} className="flex gap-6 border-t border-line pt-5">
+            <li key={step.n} className="flex gap-6 border-t border-line pt-6">
               <span className="font-mono text-sm text-brass">{step.n}</span>
               <div className="min-w-0">
                 <p className="font-label text-xs font-semibold uppercase tracking-[0.18em] text-ink">
                   {step.title}
                 </p>
-                <p className="mt-3 text-sm leading-6 text-muted">{step.body}</p>
+                <p className="mt-4 text-sm leading-6 text-muted">{step.body}</p>
               </div>
             </li>
           ))}
@@ -233,7 +233,7 @@ export default function HelpPage() {
           {STATUS.map((s) => (
             <div
               key={s.level}
-              className="grid gap-4 border-t border-line pt-5 lg:grid-cols-[14rem_1fr] lg:gap-10"
+              className="grid gap-4 border-t border-line pt-6 lg:grid-cols-[14rem_1fr] lg:gap-10"
             >
               <dt>
                 <TriageBadge level={s.level} />
@@ -258,7 +258,7 @@ export default function HelpPage() {
       </section>
 
       {/* ----------------------------------------------------------- limits */}
-      <section className="mt-24 mb-8">
+      <section className="mt-24 mb-10">
         <SectionHeader index="05" title="What it cannot do" kicker="Say this before anyone asks" />
         <div className="mt-10 grid gap-10 md:grid-cols-2">
           {LIMITS.map((l) => (
@@ -274,7 +274,7 @@ function Explain({ title, body }: { title: string; body: string }) {
   return (
     <div className="border-l border-line pl-6">
       <Designation>{title}</Designation>
-      <p className="mt-3 text-sm leading-6 text-muted">{body}</p>
+      <p className="mt-4 text-sm leading-6 text-muted">{body}</p>
     </div>
   );
 }

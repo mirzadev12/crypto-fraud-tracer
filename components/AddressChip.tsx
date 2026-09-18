@@ -34,7 +34,7 @@ export default function AddressChip({
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <span
-        className={`font-mono text-[13px] tracking-tight ${tones[tone]} ${full ? "break-all" : ""}`}
+        className={`font-mono text-[13px] tracking-tight ${tones[tone]} ${full ? "break-all" : "whitespace-nowrap"}`}
         title={address}
       >
         {full ? address : shortAddress(address)}

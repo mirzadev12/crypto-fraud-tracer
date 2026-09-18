@@ -125,7 +125,7 @@ export default function AttributionRegister({
                         href={tronscanAddressUrl(seed.address)}
                         target="_blank"
                         rel="noreferrer"
-                        className="fx-option-quiet px-2 py-1 font-mono text-xs text-faint transition hover:text-brass"
+                        className="fx-option-quiet px-2 py-1 align-middle font-mono text-xs text-faint transition hover:text-brass"
                       >
                         {shortAddress(seed.address, 10, 8)}
                       </a>
@@ -169,19 +169,19 @@ export default function AttributionRegister({
                 onChange={(e) => setQuery(e.target.value)}
                 spellCheck={false}
                 placeholder="TSu8w…  ·  Bybit"
-                className="fx-option mt-3 block w-full border border-line bg-surface-2 px-4 py-3 font-mono text-xs text-ink placeholder:text-dim focus:outline-none"
+                className="fx-option mt-4 block w-full border border-line bg-surface-2 [--fx-face:var(--color-surface-2)] px-4 py-2 font-mono text-xs text-ink placeholder:text-dim focus:outline-none"
               />
             </div>
             <div>
               <Designation>Order by</Designation>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-2">
                 {SORTS.map((option) => (
                   <button
                     key={option.key}
                     type="button"
                     onClick={() => setSort(option.key)}
                     aria-pressed={sort === option.key}
-                    className={`px-4 py-3 font-label text-xs uppercase tracking-[0.16em] transition ${
+                    className={`px-4 py-2 font-label text-xs uppercase tracking-[0.16em] transition ${
                       sort === option.key
                         ? "fx-option-on text-brass"
                         : "fx-option-quiet text-faint hover:text-brass"
@@ -199,7 +199,7 @@ export default function AttributionRegister({
               type="button"
               onClick={() => setExchange(null)}
               aria-pressed={exchange === null}
-              className={`px-3 py-2 font-label text-xs uppercase tracking-[0.16em] transition ${
+              className={`px-4 py-2 font-label text-xs uppercase tracking-[0.16em] transition ${
                 exchange === null
                   ? "fx-option-on text-brass"
                   : "fx-option-quiet text-faint hover:text-brass"
@@ -213,7 +213,7 @@ export default function AttributionRegister({
                 type="button"
                 onClick={() => setExchange(name === exchange ? null : name)}
                 aria-pressed={exchange === name}
-                className={`px-3 py-2 font-label text-xs uppercase tracking-[0.16em] transition ${
+                className={`px-4 py-2 font-label text-xs uppercase tracking-[0.16em] transition ${
                   exchange === name
                     ? "fx-option-on text-brass"
                     : "fx-option-quiet text-faint hover:text-brass"
@@ -324,7 +324,7 @@ export default function AttributionRegister({
               rebuilt.
             </p>
           </div>
-          <div className="min-w-0 space-y-8">
+          <div className="min-w-0 space-y-10">
             <Fact
               label="What this is not"
               body="An account name. A deposit cluster identifies the exchange holding the account, not the person behind it — that mapping exists only inside the exchange, which is exactly why a freeze request has to be sent to them."
@@ -350,7 +350,7 @@ function Th({ children, numeric = false }: { children: React.ReactNode; numeric?
   return (
     <th
       scope="col"
-      className={`px-3 py-3 font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-faint ${
+      className={`px-4 py-4 font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-faint ${
         numeric ? "text-right" : "text-left"
       }`}
     >
@@ -360,14 +360,16 @@ function Th({ children, numeric = false }: { children: React.ReactNode; numeric?
 }
 
 function Td({ children, numeric = false }: { children: React.ReactNode; numeric?: boolean }) {
-  return <td className={`px-3 py-4 ${numeric ? "text-right" : "text-left"}`}>{children}</td>;
+  return (
+    <td className={`px-4 py-4 align-middle ${numeric ? "text-right" : "text-left"}`}>{children}</td>
+  );
 }
 
 function Fact({ label, body }: { label: string; body: string }) {
   return (
     <div className="border-l border-line pl-6">
       <Designation>{label}</Designation>
-      <p className="mt-3 text-sm leading-6 text-faint">{body}</p>
+      <p className="mt-4 text-sm leading-6 text-faint">{body}</p>
     </div>
   );
 }

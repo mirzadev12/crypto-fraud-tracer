@@ -62,7 +62,7 @@ export default function CalibrationPanel({ data }: { data: Calibration }) {
             {data.held}
             <span className="text-faint">/{data.readable}</span>
           </p>
-          <p className="mt-3 max-w-sm text-sm leading-6 text-muted">
+          <p className="mt-4 max-w-sm text-sm leading-6 text-muted">
             Of {data.readable} derived addresses re-read from the chain, {data.held} still
             forward at least {Math.round(data.predicate.minRatio * 100)}% of what they
             receive to the same exchange wallet, at least {data.predicate.minSweeps} times.
@@ -73,7 +73,7 @@ export default function CalibrationPanel({ data }: { data: Calibration }) {
             clustering never read, which is the part that could have failed and did not.
           </p>
 
-          <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-5 text-xs">
+          <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-4 text-xs">
             <div>
               <dt className="font-label uppercase tracking-[0.2em] text-faint">Population</dt>
               <dd className="mt-1 font-mono tabular-nums text-ink">{data.population}</dd>
@@ -98,7 +98,7 @@ export default function CalibrationPanel({ data }: { data: Calibration }) {
         {/* ---------------------------------------------------------- bands */}
         <div className="min-w-0">
           <Designation>By confidence band</Designation>
-          <ul className="mt-5 space-y-4">
+          <ul className="mt-4 space-y-4">
             {data.perBand.map((b) => (
               <li key={b.band} className="flex items-center gap-4">
                 <span className="w-24 shrink-0 font-mono text-xs text-faint">{b.band}</span>
@@ -116,11 +116,11 @@ export default function CalibrationPanel({ data }: { data: Calibration }) {
           </ul>
 
           {/* The finding that matters more than the headline. */}
-          <div className="mt-8 border-l-2 border-suspicious pl-5">
+          <div className="mt-6 border-l-2 border-suspicious pl-6">
             <Designation className="!text-suspicious">
               What this does not show
             </Designation>
-            <p className="mt-3 text-sm leading-6 text-muted">
+            <p className="mt-4 text-sm leading-6 text-muted">
               {gradientEvidenced ? (
                 <>
                   The bands differ, so the confidence figure carries some ordering

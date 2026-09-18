@@ -133,7 +133,7 @@ export default function TraceChart({
   return (
     <div className={`flex w-full min-w-0 flex-col ${className}`}>
       {/* ------------------------------------------------------------ readout */}
-      <div className="flex min-h-[64px] shrink-0 flex-wrap items-baseline gap-x-8 gap-y-2 border-b border-line px-6 py-4">
+      <div className="flex min-h-[64px] shrink-0 flex-wrap items-baseline gap-x-6 gap-y-2 border-b border-line px-6 py-4">
         {activeEdge ? (
           <>
             <span className="font-mono text-base text-ink">
@@ -232,10 +232,10 @@ export default function TraceChart({
         </div>
 
         {/* ------------------------------------------------------ taint decay */}
-        <p className="mt-8 font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+        <p className="mt-6 font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
           Taint by hop
         </p>
-        <ul className="mt-4 space-y-3">
+        <ul className="mt-4 space-y-2">
           {model.hops.map((h) => (
             <li key={h.depth} className="flex items-center gap-4">
               <span className="w-14 shrink-0 font-mono text-[10px] tracking-[0.14em] text-faint">

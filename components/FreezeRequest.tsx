@@ -138,7 +138,7 @@ export default function FreezeRequest({
   if (!trace.terminal) {
     return (
       <div className="space-y-6">
-        <div className="border border-line bg-surface p-8">
+        <div className="border border-line bg-surface p-6">
           <Designation>[ nothing to request ]</Designation>
           <h1 className="mt-4 font-display text-2xl uppercase tracking-[0.08em] text-ink">
             No exchange endpoint was identified
@@ -152,7 +152,7 @@ export default function FreezeRequest({
           </p>
           <Link
             href={traceHref("trace", trace)}
-            className={`${buttonStyles.secondary} mt-8`}
+            className={`${buttonStyles.secondary} mt-6`}
           >
             Back to trace
           </Link>
@@ -230,7 +230,7 @@ export default function FreezeRequest({
 
           {/* The guard. It sits above the request, not in a footnote, because a
               reader who stops after the first page must still have seen it. */}
-          <div className={`mt-8 border-l-2 pl-5 ${SHEET.rule}`}>
+          <div className={`mt-10 border-l-2 pl-6 ${SHEET.rule}`}>
             <p className={`text-sm leading-7 ${SHEET.body}`}>
               <strong className={SHEET.ink}>This is a draft prepared from an
               automated investigative lead.</strong>{" "}
@@ -251,11 +251,11 @@ export default function FreezeRequest({
               : "Exchange-controlled wallet"}
           </p>
           {/* Set larger than any heading on the sheet. It is the request. */}
-          <code className="mt-3 block break-all font-mono text-2xl leading-tight tracking-tight md:text-3xl">
+          <code className="mt-4 block break-all font-mono text-2xl leading-tight tracking-tight md:text-3xl">
             {named}
           </code>
 
-          <p className={`mt-5 text-sm leading-7 ${SHEET.body}`}>
+          <p className={`mt-4 text-sm leading-7 ${SHEET.body}`}>
             {isDeposit ? (
               <>
                 Transaction-pattern analysis indicates this address is a customer
@@ -339,8 +339,9 @@ export default function FreezeRequest({
             </Field>
           </dl>
           <p className={`mt-6 text-sm leading-7 ${SHEET.body}`}>
-            The funds were followed across {trace.nodes.length} wallets and{" "}
-            {trace.edges.length} transfers on the TRON network, in USDT (TRC-20),
+            The funds were followed across {trace.nodes.length}{" "}
+            {trace.nodes.length === 1 ? "wallet" : "wallets"} and {trace.edges.length}{" "}
+            {trace.edges.length === 1 ? "transfer" : "transfers"} on the TRON network, in USDT (TRC-20),
             from the reported address to the account named in section 01.
           </p>
         </Section>
@@ -389,7 +390,7 @@ export default function FreezeRequest({
 
         {/* ------------------------------------------------------------- 05 */}
         <Section n="05" title="What is requested">
-          <ol className={`space-y-3 text-sm leading-7 ${SHEET.body}`}>
+          <ol className={`space-y-4 text-sm leading-7 ${SHEET.body}`}>
             {[
               isDeposit
                 ? `Identify the account holder to whom the deposit address in section 01 belongs.`
@@ -443,7 +444,7 @@ export default function FreezeRequest({
               case; with them the exchange can tie the request to a complaint
               on record. They are blanks, not claims — the tool has no way to
               know either number, and still asserts no statute. */}
-          <div className="mt-8 grid gap-8 sm:grid-cols-2">
+          <div className="mt-10 grid gap-10 sm:grid-cols-2">
             <Blank label="FIR number" />
             <Blank label="NCRP acknowledgement number" />
             <Blank label="Name of officer" />

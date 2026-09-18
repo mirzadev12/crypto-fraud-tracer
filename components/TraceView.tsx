@@ -8,6 +8,7 @@ import type { DataSource } from "@/lib/api";
 import { watchTargetFor } from "@/lib/watch";
 import { addWatch } from "@/lib/watchlist";
 import {
+  count,
   elapsedBetween,
   formatDateTime,
   formatDwell,
@@ -35,6 +36,7 @@ import {
   TRIAGE_META,
   TriageBadge,
   buttonStyles,
+  kindTag,
 } from "./ui";
 
 /* ------------------------------------------------------------- risk flags */
@@ -187,7 +189,11 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
           <p className="font-display text-2xl uppercase tracking-[0.1em] text-ink md:text-3xl">
             {entityPhrase(label)}
           </p>
-          <Chip tone="hot">{label.kind.replace(/_/g, " ")}</Chip>
+          {/* Red only where the stop is itself a finding: a sanctions listing
+              or a mixer. An exchange wallet is a place, not an alarm. */}
+          <Chip tone={label.kind === "sanctioned" || label.kind === "mixer" ? "hot" : "neutral"}>
+            {kindTag(label.kind)}
+          </Chip>
         </div>
       )}
 
@@ -427,7 +433,7 @@ function MovementTimeline({
 
 function ProvenancePanel({ trace }: { trace: TraceResult }) {
   return (
-    <div className="grid gap-6 sm:grid-cols-2">
+    <div className="grid gap-6">
       <dl className="space-y-4 text-sm">
         <div className="flex justify-between gap-4">
           <dt className="text-faint">Chain</dt>
@@ -561,7 +567,7 @@ export default function TraceView({
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 lg:justify-end xl:shrink-0 xl:flex-nowrap [&>*]:grow sm:[&>*]:grow-0">
           <Link
             href={`/fund-flow?address=${encodeURIComponent(trace.inputAddress)}`}
             className={buttonStyles.secondary}
@@ -619,8 +625,8 @@ export default function TraceView({
           />
           <StatCard
             label="Path"
-            value={`${hops} hops · ${trace.nodes.length} wallets`}
-            hint={`${trace.edges.length} transfers · ${trace.riskFlags.length} signals`}
+            value={`${count(hops, "hop")} · ${count(trace.nodes.length, "wallet")}`}
+            hint={`${count(trace.edges.length, "transfer")} · ${count(trace.riskFlags.length, "signal")}`}
           />
           {/* What shape the trail is. A trace that fans into twenty wallets
               holding five percent each is a different object from one where

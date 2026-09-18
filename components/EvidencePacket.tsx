@@ -13,7 +13,7 @@ import {
   TraceSkeleton,
   useTrace,
 } from "./TraceLoader";
-import { DataSourceBadge, TRIAGE_META, TriageBadge, buttonStyles } from "./ui";
+import { DataSourceBadge, TRIAGE_META, TriageBadge, buttonStyles, kindTag } from "./ui";
 
 /**
  * The evidence packet is the one place in the product that is a document rather
@@ -173,7 +173,8 @@ export default function EvidencePacket({
             <Field label="Date of fraud">{formatDateTime(trace.fraudDate)}</Field>
             <Field label="Wallets examined">
               <span className="font-mono tabular-nums">
-                {trace.nodes.length} across {trace.edges.length} transfers
+                {trace.nodes.length} {trace.nodes.length === 1 ? "wallet" : "wallets"} across{" "}
+                {trace.edges.length} {trace.edges.length === 1 ? "transfer" : "transfers"}
               </span>
             </Field>
           </dl>
@@ -214,7 +215,7 @@ export default function EvidencePacket({
               >
                 <Field label="Attributed entity">{trace.terminal.label.entity}</Field>
                 <Field label="Attribution type">
-                  {trace.terminal.label.kind.replace(/_/g, " ")}
+                  {kindTag(trace.terminal.label.kind)}
                 </Field>
                 <Field label="Terminal address">
                   <code className="break-all font-mono text-sm">

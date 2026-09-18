@@ -65,6 +65,11 @@ export function formatPercent(fraction: number, digits = 0): string {
   return `${(n * 100).toFixed(digits)}%`;
 }
 
+/** 1 → "1 hop", 3 → "3 hops"; `many` for irregular plurals ("1 hash", "2 hashes"). */
+export function count(n: number, one: string, many = `${one}s`): string {
+  return `${n.toLocaleString("en-US")} ${n === 1 ? one : many}`;
+}
+
 /** "TS27ff…Giw2S" */
 export function shortAddress(address: string, head = 6, tail = 5): string {
   if (!address) return "—";
@@ -81,7 +86,11 @@ export function formatDwell(seconds: number | null | undefined): string {
   if (m < 60) return `${m} min`;
   const h = Math.floor(m / 60);
   const rem = m % 60;
-  return rem === 0 ? `${h} h` : `${h} h ${rem} min`;
+  if (h < 48) return rem === 0 ? `${h} h` : `${h} h ${rem} min`;
+  // Past two days, hours stop being readable: "9044 h 46 min" is 376 days.
+  const d = Math.floor(h / 24);
+  const hrs = h % 24;
+  return hrs === 0 ? `${d} d` : `${d} d ${hrs} h`;
 }
 
 /** Elapsed time between two ISO timestamps, as a dwell-style string. */

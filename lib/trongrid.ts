@@ -44,7 +44,10 @@ const RETRY_DELAYS_MS = [1000, 3000, 6000];
  * every answer eases it back, and it settles wherever the endpoint actually
  * is. With a key the endpoint rarely refuses and the gap stays at the floor.
  */
-const MIN_GAP_MS = 250;
+// With an API key the endpoint allows a far higher rate, so the floor drops and
+// a trace runs in a fraction of the time; the adaptive gap below still backs
+// off the moment it is refused, so a lower floor can only cost a retry.
+const MIN_GAP_MS = process.env.TRONGRID_API_KEY ? 100 : 250;
 const MAX_GAP_MS = 4000;
 let gapMs = MIN_GAP_MS;
 

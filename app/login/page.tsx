@@ -46,7 +46,7 @@ export default function LoginPage() {
 
             <ul className="mt-6 space-y-4 text-sm text-muted">
               {[
-                "Triage every complaint HOT, WARM or COLD",
+                "Triage every complaint as critical, suspicious or closed",
                 "Name the customer deposit address, not just the exchange",
                 "Every label carries a confidence score and a source",
                 "Every API response hashed for chain of custody",

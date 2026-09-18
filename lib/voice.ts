@@ -11,6 +11,33 @@
  */
 
 /**
+ * What kind of wallet something is, as a short tag beside its name.
+ *
+ * The contract's kind codes are not interface copy. Printed as they stand,
+ * "exchange_hot" reads EXCHANGE HOT — the internal code for a CRITICAL case,
+ * which the interface otherwise never shows — and it was printed in the
+ * critical red besides. Every screen that tags a wallet's kind asks here.
+ */
+export function kindTag(kind: string | null | undefined): string {
+  switch (kind) {
+    case "victim_reported":
+      return "Reported wallet";
+    case "intermediary":
+      return "Intermediary";
+    case "exchange_deposit":
+      return "Customer deposit address";
+    case "exchange_hot":
+      return "Exchange hot wallet";
+    case "mixer":
+      return "Mixing service";
+    case "sanctioned":
+      return "Sanctioned address";
+    default:
+      return "Unlabelled";
+  }
+}
+
+/**
  * How an attribution is allowed to be worded.
  *
  * A clustering heuristic supports "likely X deposit cluster". It does not

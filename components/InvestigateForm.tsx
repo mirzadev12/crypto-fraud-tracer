@@ -242,7 +242,7 @@ export default function InvestigateForm() {
               {resolved ? (
                 <div className="mt-6 border-l-2 border-confirmed py-4 pl-6">
                   <Designation>Transaction read</Designation>
-                  <p className="mt-3 text-sm leading-6 text-muted">
+                  <p className="mt-4 text-sm leading-6 text-muted">
                     This transaction moved{" "}
                     <strong className="font-semibold text-ink">
                       {formatUsdt(resolved.valueUsdt)}
@@ -432,7 +432,7 @@ export default function InvestigateForm() {
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="min-w-0">
             <Designation>Evidence</Designation>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
+            <p className="mt-4 max-w-xl text-sm leading-6 text-muted">
               {evidence ? (
                 <>
                   The printable packet for{" "}

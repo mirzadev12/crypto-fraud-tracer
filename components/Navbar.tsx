@@ -209,7 +209,7 @@ export default function Navbar() {
                   href={hrefFor(leaf)}
                   aria-current={active ? "page" : undefined}
                   title={leaf.hint}
-                  className={`fx-option-quiet whitespace-nowrap px-3 py-2 font-label text-[11px] uppercase tracking-[0.2em] ${
+                  className={`fx-option-quiet whitespace-nowrap px-4 py-2 font-label text-[11px] uppercase tracking-[0.2em] ${
                     active ? "fx-option-on text-ink" : "text-faint hover:text-brass"
                   }`}
                 >
@@ -234,20 +234,20 @@ export default function Navbar() {
                 <Link
                   href={s.href}
                   onClick={() => setMenuOpen(false)}
-                  className={`fx-option-quiet block px-4 py-3 font-label text-xs font-semibold uppercase tracking-[0.24em] ${
+                  className={`fx-option-quiet block px-4 py-4 font-label text-xs font-semibold uppercase tracking-[0.24em] ${
                     sectionActive(s) ? "fx-option-on text-brass" : "text-ink"
                   }`}
                 >
                   {s.name}
                 </Link>
                 {s.leaves.length ? (
-                  <div className="mt-1 flex flex-col border-l border-line pl-3">
+                  <div className="mt-1 flex flex-col border-l border-line pl-4">
                     {s.leaves.map((leaf) => (
                       <Link
                         key={leaf.name}
                         href={hrefFor(leaf)}
                         onClick={() => setMenuOpen(false)}
-                        className={`fx-option-quiet px-4 py-3 font-label text-[11px] uppercase tracking-[0.2em] ${
+                        className={`fx-option-quiet px-4 py-4 font-label text-[11px] uppercase tracking-[0.2em] ${
                           isActive(leaf.href) ? "fx-option-on text-ink" : "text-faint"
                         }`}
                       >

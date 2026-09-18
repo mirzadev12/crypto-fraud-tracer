@@ -43,7 +43,7 @@ export default function InvestigativeLeads({
               type="button"
               onClick={() => onSelect(active ? null : lead.address)}
               aria-pressed={active}
-              className={`fx-option-quiet block w-full px-2 py-5 text-left transition ${
+              className={`fx-option-quiet block w-full px-2 py-6 text-left transition ${
                 active ? "bg-white/5" : ""
               }`}
             >
@@ -54,9 +54,9 @@ export default function InvestigativeLeads({
                     {lead.title}
                   </p>
                   <p className="mt-2 text-sm leading-6 text-muted">{lead.finding}</p>
-                  <p className="mt-3 text-xs leading-5 text-faint">{lead.action}</p>
+                  <p className="mt-2 text-xs leading-5 text-faint">{lead.action}</p>
 
-                  <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+                  <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
                     {lead.evidence.map((item) => (
                       <li
                         key={item}
@@ -69,7 +69,7 @@ export default function InvestigativeLeads({
                 </div>
               </div>
             </button>
-            <div className="px-2 pb-5 pl-12">
+            <div className="px-2 pb-6 pl-12">
               <AddressChip address={lead.address} full tone={active ? "brand" : "default"} />
             </div>
           </li>
