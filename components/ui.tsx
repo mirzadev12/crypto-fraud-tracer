@@ -381,7 +381,7 @@ export const CASE_PROOF: Record<string, string> = {
  * Re-exported from `lib/voice.ts`, which is where it now lives so the tracer
  * can use the same wording rule server-side. Import it from either place.
  */
-export { entityPhrase } from "@/lib/voice";
+export { entityPhrase, kindTag } from "@/lib/voice";
 
 /* --------------------------------------------------------------- feedback */
 
@@ -466,7 +466,7 @@ export const buttonStyles = {
    */
   primary:
     `${BUTTON_BASE} fx-sweep text-ink hover:text-brass ` +
-    "disabled:border-line disabled:text-dim disabled:[&::after]:hidden",
+    "disabled:border-line disabled:text-dim",
   /** The same frame, lit only under the cursor. */
   secondary: `${BUTTON_BASE} fx-sweep fx-sweep-hover text-ink hover:text-brass`,
   /** Quiet until pointed at, but still a frame — never bare text. */

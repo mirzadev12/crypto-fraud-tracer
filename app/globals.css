@@ -206,9 +206,44 @@ dialog {
  * square corners, one brass arc instead of a spectrum, no blur, and a dark
  * face so the button is a frame with light moving round it rather than a slab.
  *
- * The mechanism: the element's own background is clipped to the padding box, so
- * the 1px border ring is transparent; the rotating conic layer sits behind that
- * background and is therefore visible only through the ring.
+ * The mechanism is the control's own background, in two layers: a flat face
+ * clipped to the padding box, and a conic gradient clipped to the border box,
+ * which shows only through the 1px transparent border. The light moves by
+ * turning the gradient's start angle (`--fx-angle`, registered below so it can
+ * be animated), not by rotating an element.
+ *
+ * It used to be an oversized pseudo-element spinning behind the button, and
+ * that failed in two ways worth not repeating. It painted in whatever stacking
+ * context the page happened to provide, so a positioned background in between
+ * — the landing hero's plates, the sign-in card — covered it and the primary
+ * action read as a black box. And a rotating rectangle only covers a box
+ * narrower than itself: on a full-width button the light reached the ends for
+ * a fraction of each turn, so most of the time the frame was a short line in
+ * the middle of the top edge. A background cannot be occluded by the page and
+ * always covers its own box, whatever its shape.
+ *
+ * Where `@property` is unsupported the ring simply holds still. Under
+ * `prefers-reduced-motion` there is no ring at all: every rule that draws one
+ * sits in the no-preference block at the end, and the rules above it are the
+ * plain frame that remains.
+ */
+@property --fx-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/*
+ * `.fx-option` is the frame every clickable thing in the interface wears: a
+ * hairline at rest, a brass arc travelling it under the cursor or the keyboard.
+ * `.fx-option-quiet` is the same control with no border until it is pointed
+ * at, for places where a permanent box would turn a row of links into a row of
+ * boxes — the navigation, a ghost action, a segmented control. A secondary
+ * button (`.fx-sweep-hover`) is the primary's frame, held back the same way, so
+ * the light follows the officer rather than every button carrying brass.
+ *
+ * The point is that nothing clickable in this interface should be identifiable
+ * only by its colour. A frame appears the moment the cursor or focus is on it.
  */
 .fx-sweep,
 .fx-option,
@@ -216,56 +251,12 @@ dialog {
   position: relative;
   overflow: hidden;
   border: 1px solid transparent;
-  background-color: var(--color-bg);
-  background-clip: padding-box;
-}
-.fx-sweep::after,
-.fx-option::after,
-.fx-option-quiet::after {
-  content: "";
-  position: absolute;
-  inset: -160%;
-  z-index: -1;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg 250deg,
-    var(--color-brass-dim) 285deg,
-    var(--color-brass) 320deg,
-    var(--color-brass-dim) 345deg,
-    transparent 360deg
-  );
-  animation: fx-sweep-spin 4s linear infinite;
-}
-.fx-sweep:hover::after,
-.fx-option:hover::after,
-.fx-option-quiet:hover::after {
-  animation-duration: 1.8s;
-}
-
-/* The same sweep, held back until the option is pointed at. A secondary option
-   is a plain line frame at rest and lights only under the cursor, so the light
-   follows the officer rather than every button on the screen carrying brass. */
-/*
- * `.fx-option` is the frame every clickable thing in the interface wears: a
- * hairline at rest, a brass arc travelling it under the cursor. `.fx-option-quiet`
- * is the same control with no border until it is pointed at, for places where a
- * permanent box would turn a row of links into a row of boxes — the navigation,
- * a ghost action, a segmented control.
- *
- * The point is that nothing clickable in this interface should be identifiable
- * only by its colour. A frame appears the moment the cursor is over it.
- */
-.fx-sweep-hover,
-.fx-option,
-.fx-option-quiet {
-  /* Transparent face at rest: the opaque face exists only to hide the inside of
-     the arc, so an option on a charcoal panel must not carry one until there is
-     an arc to hide. */
-  background-color: transparent;
   transition:
     border-color 200ms linear,
-    background-color 200ms linear,
     color 200ms linear;
+}
+.fx-sweep {
+  border-color: var(--color-brass-dim);
 }
 .fx-sweep-hover,
 .fx-option {
@@ -280,31 +271,74 @@ dialog {
 .fx-option-on {
   border-color: var(--color-brass-dim);
 }
-.fx-sweep-hover::after,
-.fx-option::after,
-.fx-option-quiet::after {
-  opacity: 0;
-  transition: opacity 200ms linear;
-}
+/* With no light — reduced motion — the frame itself carries the interaction,
+   keyboard focus included. With motion, the block below replaces this. */
 .fx-sweep-hover:hover,
+.fx-sweep-hover:focus-visible,
 .fx-option:hover,
-.fx-option-quiet:hover,
 .fx-option:focus-visible,
+.fx-option-quiet:hover,
 .fx-option-quiet:focus-visible {
-  border-color: transparent;
-  background-color: var(--color-bg);
+  border-color: var(--color-brass-dim);
 }
-.fx-sweep-hover:hover::after,
-.fx-option:hover::after,
-.fx-option-quiet:hover::after,
-.fx-option:focus-visible::after,
-.fx-option-quiet:focus-visible::after {
-  opacity: 1;
+/* A disabled action is a plain hairline with no light, pointed at or not. The
+   utility for it (`disabled:border-line`) cannot win against the unlayered
+   borders above, so the state is stated here, after them, where it can. */
+.fx-sweep:disabled,
+.fx-sweep:disabled:hover,
+.fx-sweep[aria-disabled="true"],
+.fx-sweep[aria-disabled="true"]:hover {
+  border-color: var(--color-line);
 }
 
 @keyframes fx-sweep-spin {
   to {
-    transform: rotate(1turn);
+    --fx-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The ring: a brass-dim frame all the way round with one bright arc
+     travelling it. Always on for a primary action; on a secondary or an
+     option, only while it is pointed at or focused, so an option on a charcoal
+     panel never punches a dark face into it before there is light to frame. */
+  .fx-sweep:not(.fx-sweep-hover):not(:disabled):not([aria-disabled="true"]),
+  .fx-sweep-hover:hover,
+  .fx-sweep-hover:focus-visible,
+  .fx-option:hover,
+  .fx-option:focus-visible,
+  .fx-option-quiet:hover,
+  .fx-option-quiet:focus-visible {
+    border-color: transparent;
+    background:
+      /* The face the light is drawn around. A filled field sets `--fx-face`
+         to its own fill (as a utility, which an unlayered default here would
+         override — hence the fallback), so pointing at it keeps its colour. */
+      linear-gradient(var(--fx-face, var(--color-bg)), var(--fx-face, var(--color-bg)))
+        padding-box,
+      conic-gradient(
+          from var(--fx-angle),
+          var(--color-brass-dim) 0deg 250deg,
+          var(--color-brass) 320deg,
+          var(--color-brass-dim) 360deg
+        )
+        border-box;
+    animation: fx-sweep-spin 4s linear infinite;
+  }
+  .fx-sweep:hover,
+  .fx-sweep:focus-visible,
+  .fx-option:hover,
+  .fx-option:focus-visible,
+  .fx-option-quiet:hover,
+  .fx-option-quiet:focus-visible {
+    animation-duration: 1.8s;
+  }
+  /* A disabled secondary stays dark under the cursor too. */
+  .fx-sweep:disabled:hover,
+  .fx-sweep[aria-disabled="true"]:hover {
+    border-color: var(--color-line);
+    background: none;
+    animation: none;
   }
 }
 
@@ -314,7 +348,6 @@ dialog {
   .fx-settle,
   .fx-sonar,
   .fx-rise,
-  .fx-sweep::after,
   .react-flow__edge-path {
     animation: none !important;
   }
@@ -322,39 +355,6 @@ dialog {
      outright rather than left parked at the head of every edge. */
   .fx-packet {
     display: none;
-  }
-  /* Still a brass frame when the motion is switched off — and the secondary
-     options simply warm their border on hover, with no arc at all. */
-  .fx-sweep {
-    border-color: var(--color-brass-dim);
-  }
-  .fx-sweep-hover,
-  .fx-sweep-hover:hover,
-  .fx-option,
-  .fx-option:hover {
-    border-color: var(--color-line);
-  }
-  .fx-option-quiet,
-  .fx-option-quiet:hover {
-    border-color: transparent;
-  }
-  /* With no arc, the frame itself has to carry the interaction. */
-  .fx-sweep-hover:hover,
-  .fx-option:hover,
-  .fx-option-quiet:hover,
-  .fx-option-on {
-    border-color: var(--color-brass-dim);
-  }
-  .fx-sweep-hover::after,
-  .fx-option::after,
-  .fx-option-quiet::after {
-    display: none;
-  }
-  /* No arc to hide, so no face either. */
-  .fx-sweep-hover:hover,
-  .fx-option:hover,
-  .fx-option-quiet:hover {
-    background-color: transparent;
   }
 }
 
@@ -410,16 +410,24 @@ dialog {
   .fx-print-block {
     break-inside: avoid;
   }
+  /* A control that did print would carry its border light onto paper. */
+  .fx-sweep,
+  .fx-option,
+  .fx-option-quiet {
+    background: none !important;
+  }
   @page {
     margin: 16mm;
   }
 }
 
-/* An inline element cannot clip. Every host of the rotating border arc must be at
-   least inline-block, or the oversized arc escapes its host and makes the whole
-   page scroll sideways (it did, from the nav Sign in link, by an amount that
-   changed as the arc turned). Kept in the base layer so an explicit display
-   utility such as inline-flex or flex still wins. */
+/* Every framed control is at least inline-block, so its border and padding
+   occupy the line box they appear to — an inline host's vertical padding and
+   frame overlap the lines around it. (It began as a guard for the old rotating
+   arc, which escaped an inline host and scrolled the page sideways; the light
+   is a background now, but every control has been laid out with this since.)
+   Kept in the base layer so an explicit display utility such as inline-flex or
+   flex still wins. */
 @layer base {
   .fx-sweep,
   .fx-option,
