@@ -49,13 +49,34 @@ const cormorant = Cormorant_Garamond({
   style: ["normal", "italic"],
 });
 
+const DESCRIPTION =
+  "Trace fraud-linked wallets, follow the money hop by hop, and attribute the exit to an exchange deposit cluster.";
+
 export const metadata: Metadata = {
+  /* Where absolute links in the head point — the preview image above all.
+     Render sets RENDER_EXTERNAL_URL for a web service; the fallback is the
+     deployment itself, so a link shared from anywhere unfolds into the card. */
+  metadataBase: new URL(
+    process.env.RENDER_EXTERNAL_URL ?? "https://crypto-fraud-tracer.onrender.com",
+  ),
   title: {
     default: "FineX // Blockchain Intelligence",
     template: "%s · FineX",
   },
-  description:
-    "Trace fraud-linked wallets, follow the money hop by hop, and attribute the exit to an exchange deposit cluster.",
+  description: DESCRIPTION,
+  applicationName: "FineX",
+  openGraph: {
+    type: "website",
+    siteName: "FineX",
+    title: "FineX // Blockchain Intelligence",
+    description: DESCRIPTION,
+    locale: "en_IN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FineX // Blockchain Intelligence",
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
