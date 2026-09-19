@@ -408,6 +408,30 @@ dialog {
     background: #ffffff;
     color: #111111;
   }
+  /* The shell's own dark ground, or "Background graphics" prints a black frame
+     round the sheet. */
+  .bg-bg {
+    background-color: #ffffff !important;
+  }
+  /* Paper cannot scroll. The transfer table is wider than the printable width
+     (680px minimum, full addresses and hashes), so inside its scroll box the
+     last columns — the timestamp and the transaction hash a reader re-checks
+     the packet by — were cut off every packet printed. On paper it fits the
+     page instead: an address or a hash wraps rather than losing characters.
+     Only those break mid-token — a figure split as "2,000." over "00" is a
+     misreading waiting to happen on a document that gets signed. */
+  .fx-print-sheet .fx-scroll {
+    overflow: visible !important;
+  }
+  .fx-print-sheet table {
+    min-width: 0 !important;
+  }
+  .fx-print-sheet td.font-mono:not(.tabular-nums) {
+    overflow-wrap: anywhere;
+  }
+  .fx-print-sheet td.tabular-nums {
+    white-space: nowrap;
+  }
   .print\:hidden,
   nav,
   footer {
