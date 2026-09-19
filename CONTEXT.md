@@ -1061,6 +1061,21 @@ Eight addresses in the register are illustrative (`isIllustrative` in
     (`FlowEdgeView`), which sits above every edge and below the cards. The stock
     edge drew its label inside its own SVG, so a later edge's line struck
     through an earlier edge's figure where two routes converged.
+  - **The printed packet carries every column** (`app/globals.css`, print
+    block). The transfer table is 840 px wide in a scroll box, and paper cannot
+    scroll: the timestamp, held time and transaction hash — the column a reader
+    re-checks the packet by — were cut off every packet printed. In print the
+    box overflows, the table drops its 680 px minimum, address and hash cells
+    wrap mid-token, and figure cells stay on one line ("2,000." over "00" is a
+    misreading on a signed document). Checked at A4's printable width (673 px at
+    the 16 mm margin) on every recorded packet and freeze request: nothing past
+    the edge, every hash whole. Also in print: the shell's dark ground turns
+    white, so "Background graphics" no longer prints a black frame.
+  - **Skip to content** (`Navbar.tsx`, `.fx-skip`): the first Tab on every page,
+    off-screen until focused, jumping to `<main id="content">` past a dozen nav
+    links. A structural sweep of fifteen screens (names on every control and
+    field, one h1, no heading skips, no duplicate ids, `lang`, titles) found
+    nothing else to fix.
   - **Case actions fill the row at phone width**, so the three read as a set
     rather than three ragged widths.
 
