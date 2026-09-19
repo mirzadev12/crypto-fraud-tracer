@@ -103,6 +103,22 @@ dialog {
   outline-offset: 2px;
 }
 
+/* "Skip to content" (Navbar): held above the top edge until a keyboard reaches
+   it, then dropped into the corner of the bar. */
+.fx-skip {
+  position: absolute;
+  left: 24px;
+  top: 16px;
+  z-index: 50;
+  padding: 8px 16px;
+  border: 1px solid var(--color-brass-dim);
+  background-color: var(--color-bg);
+  transform: translateY(-400%);
+}
+.fx-skip:focus {
+  transform: none;
+}
+
 ::selection {
   background: rgba(184, 147, 90, 0.3);
 }

@@ -147,6 +147,15 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur">
+      {/* The first stop for a keyboard: past a dozen navigation links to the
+          page itself. Off-screen until it has focus. Every page's <main> is
+          #content. */}
+      <a
+        href="#content"
+        className="fx-skip font-label text-xs font-semibold uppercase tracking-[0.2em] text-ink"
+      >
+        Skip to content
+      </a>
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-6 px-6">
         <Link
           href="/"

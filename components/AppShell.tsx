@@ -13,7 +13,9 @@ export default function AppShell({
     <div className="flex min-h-screen flex-col bg-bg text-ink">
       <Navbar />
       <main
-        className={`fx-rise mx-auto w-full flex-1 px-6 py-10 ${wide ? "max-w-[1600px]" : "max-w-7xl"}`}
+        id="content"
+        tabIndex={-1}
+        className={`fx-rise mx-auto w-full flex-1 px-6 py-10 focus:outline-none ${wide ? "max-w-[1600px]" : "max-w-7xl"}`}
       >
         {children}
       </main>

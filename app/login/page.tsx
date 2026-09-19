@@ -21,13 +21,17 @@ export default function LoginPage() {
   const [unit, setUnit] = useState("");
 
   const field =
-    "w-full  border border-line bg-surface-2 px-4 py-4 text-sm text-ink placeholder:text-faint focus:border-brass/50 focus:outline-none";
+    "w-full border border-line bg-surface-2 px-4 py-4 text-sm text-ink placeholder:text-faint focus:border-brass/50 focus:outline-none";
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-ink">
       <Navbar />
 
-      <main className="mx-auto grid w-full min-w-0 max-w-6xl flex-1 items-center gap-10 px-6 py-16 lg:grid-cols-2">
+      <main
+        id="content"
+        tabIndex={-1}
+        className="mx-auto grid w-full min-w-0 max-w-6xl flex-1 items-center gap-10 px-6 py-16 focus:outline-none lg:grid-cols-2"
+      >
         {/* ------------------------------------------------------- context */}
         <section className="relative hidden lg:block">
           <div className="pointer-events-none absolute -inset-10" aria-hidden="true" />
