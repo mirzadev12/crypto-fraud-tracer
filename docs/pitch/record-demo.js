@@ -1,15 +1,19 @@
-/* The screen recording in this folder (FineX-demo-90s.webm), as a script.
+/* The screen recording in this folder (FineX-demo-60s.webm), as a script.
  *
  * How it is run: start a production build with the frozen cases serving —
  *   npm run build ; DEMO_MODE=true npx next start -p 3021
  * — then execute this function against a Playwright session (it takes `page`
  * only to borrow the browser type, and opens its own recording context).
  *
- * It should look like someone using the tool, not like a script: a cursor
- * travels to each control and clicks it, navigation happens by pressing the
- * buttons on screen rather than jumping to URLs, scrolling is done with the
- * wheel in uneven steps, and the pauses vary. Captions are few and plain.
+ * Two rules it is cut to. It must stand alone: someone who has never seen the
+ * tool should understand the product from the film without narration, so the
+ * captions are subtitle-sized and each beat states one thing. And it must look
+ * like someone using the tool, not like a script: a cursor travels to each
+ * control and clicks it, navigation happens by pressing the buttons on screen
+ * rather than jumping to URLs, scrolling is done with the wheel in uneven
+ * steps, and the pauses vary.
  *
+ * Target length is 60 seconds; the returned timeline reports where it went.
  * Re-record whenever a screen it walks through changes.
  */
 async (page) => {
@@ -30,12 +34,14 @@ async (page) => {
       if (document.getElementById('__cap')) return;
       const cap = document.createElement('div');
       cap.id = '__cap';
+      // Subtitle-sized: the film is watched small, in a slide or on a phone.
       cap.style.cssText = [
-        'position:fixed', 'left:26px', 'bottom:24px', 'z-index:2147483646',
-        'max-width:620px', 'padding:9px 16px',
-        'background:rgba(10,10,10,0.92)', 'border:1px solid rgba(122,99,56,0.9)',
-        'color:#f0ead8', 'font:400 16px/1.4 "Segoe UI",Inter,system-ui,sans-serif',
-        'pointer-events:none', 'opacity:0', 'transition:opacity 300ms linear',
+        'position:fixed', 'left:50%', 'bottom:34px', 'transform:translateX(-50%)',
+        'z-index:2147483646', 'max-width:1040px', 'padding:14px 26px', 'text-align:center',
+        'background:rgba(10,10,10,0.93)', 'border:1px solid rgba(122,99,56,0.9)',
+        'color:#f0ead8', 'font:600 26px/1.35 "Segoe UI",Inter,system-ui,sans-serif',
+        'pointer-events:none', 'opacity:0', 'transition:opacity 260ms linear',
+        'box-shadow:0 10px 50px rgba(0,0,0,0.75)',
       ].join(';');
       document.documentElement.appendChild(cap);
 
@@ -90,19 +96,22 @@ async (page) => {
   const p = await ctx.newPage();
   const rnd = (a, z) => Math.round(a + Math.random() * (z - a));
   const wait = (ms) => p.waitForTimeout(ms);
-  const beat = (a = 700, z = 1200) => wait(rnd(a, z));
   const cap = async (t) => { await p.evaluate((x) => window.__cap && window.__cap(x), t); };
 
-  /** Travel to a control, pause the way a person does, then click it. */
-  const click = async (locator, { settle = 450 } = {}) => {
+  const started = Date.now();
+  const timeline = [];
+  const mark = (label) => timeline.push(`${((Date.now() - started) / 1000).toFixed(1)}s ${label}`);
+
+  /** Travel to a control, pause briefly, then click it. */
+  const click = async (locator, { settle = 300 } = {}) => {
     const el = locator.first();
     await el.scrollIntoViewIfNeeded();
-    await wait(280);
+    await wait(180);
     const box = await el.boundingBox();
     if (!box) return false;
     const x = Math.round(box.x + box.width * (0.35 + Math.random() * 0.3));
     const y = Math.round(box.y + box.height * (0.4 + Math.random() * 0.25));
-    await p.evaluate(({ x, y, ms }) => window.__cursorTo(x, y, ms), { x, y, ms: rnd(520, 820) });
+    await p.evaluate(({ x, y, ms }) => window.__cursorTo(x, y, ms), { x, y, ms: rnd(380, 560) });
     await p.mouse.move(x, y);
     await wait(settle);
     await p.evaluate(() => window.__cursorPulse());
@@ -111,16 +120,16 @@ async (page) => {
   };
 
   /** Wheel scrolling in uneven steps, the way a hand does it. */
-  const wheel = async (total, steps = 5) => {
+  const wheel = async (total, steps = 4) => {
     const dir = Math.sign(total);
     let leftToGo = Math.abs(total);
     for (let i = 0; i < steps && leftToGo > 0; i++) {
       const d = Math.min(leftToGo, Math.round((Math.abs(total) / steps) * (0.7 + Math.random() * 0.6)));
       await p.mouse.wheel(0, dir * d);
       leftToGo -= d;
-      await wait(rnd(90, 210));
+      await wait(rnd(70, 150));
     }
-    await wait(rnd(260, 520));
+    await wait(rnd(160, 300));
   };
 
   // CSS uppercases many labels, so match the real text, case-insensitively.
@@ -132,97 +141,89 @@ async (page) => {
         .sort((a, b) => a.textContent.length - b.textContent.length);
       return hits.length ? hits[0].getBoundingClientRect().top - g : null;
     }, { s: text, g: gap });
-    if (y !== null && Math.abs(y) > 40) await wheel(y, Math.max(3, Math.round(Math.abs(y) / 260)));
+    if (y !== null && Math.abs(y) > 40) await wheel(y, Math.max(3, Math.round(Math.abs(y) / 300)));
   };
 
-  // ------------------------------------------------------------- the landing
+  // 0s — what the tool is for
   await p.goto(B + '/', { waitUntil: 'networkidle' });
-  await wait(1100);
-  await p.evaluate(() => window.__cursorTo(760, 300, 700));
-  await cap('A victim reports one wallet. Where did the money go?');
-  await beat(2600, 3200);
-  await wheel(620, 4);
-  await cap('241 exchange deposit addresses, derived from public data.');
-  await beat(2800, 3400);
-  await wheel(-620, 3);
-  await cap('');
+  await wait(800);
+  await p.evaluate(() => window.__cursorTo(720, 320, 600));
+  await cap('A fraud victim reports one wallet. Where did the money go?');
+  await wait(4100);
+  mark('landing');
 
-  // ---------------------------------------------------------------- the case
+  // ~6s — the officer's one input
   await click(p.getByRole('link', { name: 'Open a case' }));
   await p.waitForLoadState('networkidle');
-  await wait(1200);
-  await cap('Paste the wallet from the complaint.');
-  await click(p.locator('#address'), { settle: 300 });
-  for (const ch of W) await p.keyboard.type(ch, { delay: rnd(28, 95) });
-  await beat(900, 1400);
+  await wait(700);
+  await cap('Paste the wallet from the complaint. Nothing else is needed.');
+  await click(p.locator('#address'), { settle: 220 });
+  for (const ch of W) await p.keyboard.type(ch, { delay: rnd(22, 70) });
+  await wait(700);
   await cap('');
   await click(p.getByRole('button', { name: 'Run trace' }));
-  await p.waitForTimeout(rnd(3200, 4200));
+  await p.waitForTimeout(2600);
+  mark('traced');
 
-  await toElement('Customer deposit address', 170);
-  await cap('The exit is an account, not just an exchange.');
-  await beat(3800, 4400);
-  await cap('Confidence and evidence tier, on every label.');
-  await beat(3000, 3600);
+  // ~18s — the finding, which is the whole product
+  await toElement('Customer deposit address', 175);
+  await cap('It names the exchange account the money landed in — the one that can be frozen.');
+  await wait(6200);
+  mark('deposit address');
 
-  await toElement('What next', 140);
-  await cap('Which wallet to open next, ranked.');
-  await beat(3600, 4200);
-
+  // ~26s — why an officer should believe it
   await toElement('Why', 140);
-  await cap('Six rules. Each one says why it fired.');
-  await beat(3600, 4200);
+  await cap('Six rules say why it is suspicious, in plain words.');
+  await wait(4300);
+  mark('rules');
 
+  // ~32s — the trail
   await toElement('Fund flow', 140);
-  await cap('Amber: forwarded in under ten minutes.');
-  await beat(4200, 4800);
+  await cap('The whole trail, hop by hop. Amber: forwarded in under ten minutes.');
+  await wait(5200);
   await cap('');
+  mark('fund flow');
 
-  // ------------------------------------------------------------ the evidence
+  // ~38s — what gets filed
   const packet = p.getByRole('link', { name: /Evidence packet/i });
   if (await packet.count()) { await click(packet); } else { await p.goto(B + '/report/' + W); }
   await p.waitForLoadState('networkidle');
-  await wait(1800);
-  await cap('An evidence packet, with the hash of every chain response.');
-  await beat(3200, 3800);
-  await wheel(900, 5);
-  await beat(2600, 3200);
+  await wait(1100);
+  await cap('One evidence packet, with the hash of every blockchain response behind it.');
+  await wait(4100);
   await cap('');
+  mark('packet');
 
-  // --------------------------------------------------------------- the queue
+  // ~45s — the part that scales
   const batch = p.getByRole('link', { name: /Batch triage/i });
   if (await batch.count()) { await click(batch); } else { await p.goto(B + '/queue'); }
   await p.waitForLoadState('networkidle');
-  await wait(1200);
-  await cap('One wallet is a demo. A morning of complaints is the job.');
-  await beat(2400, 3000);
+  await wait(600);
   const load = p.getByRole('button', { name: /Load the recorded cases/i });
-  if (await load.count()) { await click(load); await wait(900); }
+  if (await load.count()) { await click(load, { settle: 200 }); await wait(400); }
   const build = p.getByRole('button', { name: /Build the queue/i });
-  if (await build.count()) { await click(build); await wait(900); }
-  await cap('');
+  if (await build.count()) { await click(build, { settle: 200 }); await wait(400); }
   const run = p.getByRole('button', { name: /^Run the queue/i });
-  if (await run.count()) await click(run);
+  if (await run.count()) await click(run, { settle: 200 });
+  await cap('A whole morning of complaints, traced in one run.');
   await p.waitForFunction(() => /10 of 10 traced/.test(document.body.innerText), null, { timeout: 60000 }).catch(() => {});
-  await wait(1400);
-  await cap('Ten complaints. Which still hold recoverable money.');
-  await toElement('Traced', 130);
-  await beat(4200, 4800);
-  await wheel(560, 4);
-  await beat(3600, 4200);
-  await cap('');
-
-  // ---------------------------------------------------------------- the sign
-  await click(p.getByRole('link', { name: 'FineX' }));
-  await p.waitForLoadState('networkidle');
-  await wait(1300);
-  await cap('TRON · USDT. No database, no model, no licence fee.');
-  await beat(4000, 4600);
-  await cap('');
   await wait(900);
+  mark('queue run');
+
+  await cap('Which cases still hold recoverable money — and which are really one case.');
+  await toElement('Traced', 130);
+  await wait(5200);
+  mark('register');
+
+  await cap('FineX · TRON · USDT. No database, no model, no licence fee.');
+  await wheel(420, 3);
+  await wait(3600);
+  await cap('');
+  await wait(600);
+  mark('close');
 
   const videoPath = await p.video().path();
   await ctx.close();
   await b.close();
-  return { videoPath };
+  return { videoPath, timeline };
 };
