@@ -258,6 +258,12 @@ Eight addresses in the register are illustrative (`isIllustrative` in
   NCRP/SAHYOG, machine-learning risk scores, indexing at scale — each with its
   plan, worded to match the deck. Keep the two in step, and state a sample size
   beside any measured rate: the rule base rates come from 17 wallets.
+  **It also answers the problem statement's own list** — PS 26183 names fifteen
+  capabilities, and the page maps every one to built (ten), decided against with
+  the reason (two), or not built with the route to it (three). An evaluator from
+  I4C reads their own list, and four of those entries would otherwise look like
+  omissions rather than the scope decisions they are. If a capability is ever
+  built, move its row; do not let the built list outrun the software.
 - **The landing page carries the argument, not the manual.** Detail an
   investigator wants once — how the pipeline works, how an exit is named — sits
   behind a `SectionDialog` row and opens over the page. Built on the native
@@ -1078,6 +1084,19 @@ Eight addresses in the register are illustrative (`isIllustrative` in
     nothing else to fix.
   - **Case actions fill the row at phone width**, so the three read as a set
     rather than three ragged widths.
+
+- **The submission artefacts live in `docs/pitch/`** and are generated, not
+  hand-typed: the stack and methodology write-ups (Markdown and Word), the
+  portal title and description, a one-page evidence sheet carrying a QR to the
+  deployment, the QR itself in light, dark and PNG, and a 91-second silent
+  screen recording of a real run. Facts in them are counted from the repository,
+  so re-count before changing a figure in any of them. The screen recording is
+  driven by `docs/pitch/record-demo.js` against a production build with
+  `DEMO_MODE=true`; re-record it whenever a screen it shows changes.
+  **Live submission facts, checked on sih.gov.in on 21 Sep 2026:** PS 26183 shows
+  28 of 500 ideas submitted and a deadline of 30 September 2026 — the 15
+  September in the guidelines PDF was extended — and only 4–5 teams per problem
+  statement go to the grand finale.
 
 ---
 

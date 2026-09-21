@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Submission artefacts, not application code. record-demo.js is a function
+    // expression meant to be handed to a Playwright session, which the rules
+    // here would flag as an unused expression.
+    "docs/**",
   ]),
 ]);
 

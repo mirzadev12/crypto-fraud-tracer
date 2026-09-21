@@ -188,6 +188,49 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
   },
 ];
 
+/**
+ * Every capability the problem statement asks for, against what this repository
+ * actually contains. Three groups, because the honest answer is three different
+ * answers: built, decided against with a reason, or not yet built with a plan.
+ * The detail behind each unbuilt line is in the questions above — this is the
+ * index, not a second account of it.
+ */
+const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, string]> }> = [
+  {
+    group: "Built and running",
+    note: "Open any recorded case below and every one of these is on screen.",
+    items: [
+      ["Blockchain transaction graph analysis", "Breadth-first tracing with taint carried hop by hop, drawn three ways."],
+      ["Automated exchange and VASP identification", "Attribution is a deterministic lookup: 241 customer deposit addresses derived across 10 exchanges from 15 tagged seeds, each label carrying its confidence and evidence tier."],
+      ["Detection of intermediary laundering wallets", "Six behavioural rules, each stating its reason in a sentence an officer can read out."],
+      ["Risk categorisation of wallets", "Every wallet that matters is classed as an exit, a chokepoint, at rest, a sanctions stop or an unresolved tail."],
+      ["Automated alert generation", "A wallet found holding funds is watched, and the desk re-asks the chain whether it has moved."],
+      ["Fund-flow visualisation and dashboards", "Flow, cluster and timeline views, a case queue ordered by what can still be recovered."],
+      ["Standardised investigation reports", "An evidence packet carrying the SHA-256 of every chain response, and a restraint request drafted from it."],
+      ["API integrations", "Six documented endpoints; a permalink replays a past run exactly."],
+      ["Real-time tracing", "A recorded case answers in milliseconds. A live wallet takes about half a minute on the public endpoint, and less with an API key."],
+      ["Automated investigative recommendations", "Ranked leads naming the next wallet to open, ordered by what can still be done."],
+    ],
+  },
+  {
+    group: "Decided against, and why",
+    note: "These are choices, not gaps. Each one buys something a judge can check.",
+    items: [
+      ["AI/ML-assisted risk detection", "Rules only. An attribution an officer acts on has to be defensible line by line; a model's place is ordering the queue, never naming an exchange."],
+      ["A mixer and community abuse list", "Left empty rather than filled from an uncitable source, since a wrong entry here closes a case that should stay open."],
+    ],
+  },
+  {
+    group: "Not built, with a plan",
+    items: [
+      ["Cross-chain and multi-ecosystem tracing", "TRON first, because that is where USDT fraud proceeds move. A bridge is a hard stop and is recorded as one. USDT on Ethereum is next."],
+      ["NCRP and SAHYOG integration", "Both need access only I4C can grant. Intake already accepts what a complaint contains — a wallet or a transaction hash, singly or in batches."],
+      ["Scalable blockchain indexing", "Every trace reads a public endpoint on demand. At scale, a departmental TRON node indexes transfers locally, with no outside service seeing which wallets are under investigation."],
+    ],
+    note: "",
+  },
+];
+
 /** Read from the frozen file so this can never disagree with the register. */
 const REAL_CASES = (demoCases.cases as Array<{
   address: string;
@@ -228,12 +271,54 @@ export default function OperationsPage() {
         ))}
       </dl>
 
+      {/* The evaluator's own list, answered in their order. A capability we
+          decided against reads as a decision here, not as an omission, and one
+          we have not built carries the plan beside it. */}
+      <section className="mt-24">
+        <SectionHeader
+          index="01"
+          title="Against the problem statement"
+          kicker="Every expectation, and where it stands"
+        />
+        <p className="mt-10 max-w-3xl text-base leading-8 text-muted">
+          The problem statement&rsquo;s feature list, consolidated into fifteen
+          capabilities. Ten are built and can be opened right now, two were
+          decided against for stated reasons, and three are not built — each
+          with the route to building it. Nothing here is aspirational: where a
+          line says built, a case file on this deployment shows it.
+        </p>
+        <div className="mt-16 space-y-16">
+          {PS_COVERAGE.map((block) => (
+            <div key={block.group}>
+              <Designation>{block.group}</Designation>
+              {block.note ? (
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-faint">{block.note}</p>
+              ) : null}
+              <dl className="mt-6 divide-y divide-line border-y border-line">
+                {block.items.map(([need, state]) => (
+                  <div
+                    key={need}
+                    className="grid gap-2 py-4 lg:grid-cols-[1fr_1.4fr] lg:gap-10"
+                  >
+                    <dt className="flex gap-4 text-sm leading-7 text-ink">
+                      <Diamond className="mt-3 shrink-0 bg-brass-dim" size={4} />
+                      <span>{need}</span>
+                    </dt>
+                    <dd className="pl-8 text-sm leading-7 text-muted lg:pl-0">{state}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* The recorded case files live here rather than on the landing page:
           they are what an officer is told to open first, which makes them
           standing instructions rather than a pitch. */}
       <section className="mt-24">
         <SectionHeader
-          index="01"
+          index="02"
           title="Case files to open first"
           kicker="One of each disposition"
         />
