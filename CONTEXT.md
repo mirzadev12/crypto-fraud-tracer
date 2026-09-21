@@ -1088,11 +1088,17 @@ Eight addresses in the register are illustrative (`isIllustrative` in
 - **The submission artefacts live in `docs/pitch/`** and are generated, not
   hand-typed: the stack and methodology write-ups (Markdown and Word), the
   portal title and description, a one-page evidence sheet carrying a QR to the
-  deployment, the QR itself in light, dark and PNG, and a 91-second silent
+  deployment, the QR itself in light, dark and PNG, and a 58-second silent
   screen recording of a real run. Facts in them are counted from the repository,
   so re-count before changing a figure in any of them. The screen recording is
   driven by `docs/pitch/record-demo.js` against a production build with
-  `DEMO_MODE=true`; re-record it whenever a screen it shows changes.
+  `DEMO_MODE=true`; re-record it whenever a screen it shows changes. It is cut
+  to two rules: it must be understandable with no narration — subtitle-sized
+  captions, one statement per beat — and it must look like someone using the
+  tool, so a drawn cursor travels and clicks, navigation happens by pressing
+  the buttons on screen rather than jumping to URLs, and the scrolling and
+  pauses are uneven. The script returns a timeline, so the length can be tuned
+  without watching it back.
   **Live submission facts, checked on sih.gov.in on 21 Sep 2026:** PS 26183 shows
   28 of 500 ideas submitted and a deadline of 30 September 2026 — the 15
   September in the guidelines PDF was extended — and only 4–5 teams per problem
