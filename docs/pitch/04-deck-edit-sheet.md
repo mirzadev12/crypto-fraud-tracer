@@ -8,18 +8,157 @@ was opened and returned 200.** Nothing here is taken from an earlier draft.
 
 ---
 
-## 0. Three faults to fix whatever else changes
+# PART A — the three fixes that move the score
 
-1. **Slide 2 carries a note-to-self into the submission.** The last bullet reads:
-   *"Investigation Dashboard — Visualizes fund flow, risk, attribution confidence
-   and case status. **make suitable infograph to suit it.**"* Delete that last
-   sentence.
-2. **Two reference URLs on slide 6 end in `?utm_source=chatgpt.com`.** That tag
-   tells a reader exactly how the reference list was assembled. Strip it from
-   both.
-3. **Reference 4 on slide 6 describes a TRON link as Ethereum**: "TRON
-   Documentation — … API-based access to **Ethereum** blockchain data". Wrong
-   chain on the one slide that is meant to show sourcing.
+Do these first. Each is an edit to an existing slide in Canva: text you type or
+replace, plus one image. **Nothing is redesigned, nothing moves, no slide is
+added.** Together they take the deck from roughly 7/10 to 8.5–9.
+
+---
+
+## A1 · Put the working tool on slide 6
+
+**Why:** right now a screener cannot reach the live system from the deck at all.
+The GitHub line has no URL and the deployment is not mentioned. A working,
+verifiable system is the rarest thing at idea stage and it is currently invisible.
+
+**In Canva:** Uploads → drag in `qr-finex.png` (in `docs/pitch/`, also sent to
+you). Drop it on slide 6 at about 4 × 4 cm, bottom-right, clear of the reference
+list. Then type beneath it, in the body font already on that slide:
+
+```
+Open the working tool
+crypto-fraud-tracer.onrender.com
+Three recorded cases open straight from the front page.
+```
+
+**Replace** the existing line "Github repository / crypto-fraudtracer-source code
+& documentation" — which carries no link — with:
+
+```
+Source code        github.com/reemrasheed2007/crypto-fraud-tracer
+Live deployment    crypto-fraud-tracer.onrender.com
+```
+
+**Reserve the space for the narrated video** so it does not get squeezed in later:
+
+```
+Demo video (58 s) — ________________________________
+```
+
+**Check the link is awake before you submit.** Render's free plan sleeps after
+inactivity, so a cold click waits about 50 seconds and a screener may just close
+the tab. Either get the API key and an uptime pinger set on `/api/health`, or put
+the video link first and the site second.
+
+---
+
+## A2 · Put the measured numbers on slide 5
+
+**Why:** slide 5 carries no figures at all — every line is an adjective
+(accelerates, supports, prioritizes). "Impact" is a scored criterion and you have
+real, checkable numbers sitting unused.
+
+**In Canva:** add one strip of six figures across the top of slide 5, above the
+existing impact columns. Leave those columns exactly as they are.
+
+```
+241        customer deposit addresses derived
+10         exchanges covered, from 15 public seeds
+202        OFAC-sanctioned TRON addresses
+6 of 6     behavioural rules fire on real recorded cases
+33 / 0     transactions confirmed on an independent re-read / mismatched
+₹0         in commercial data licences
+```
+
+Small caption under the strip:
+
+```
+Counted from the committed repository. The re-read imports nothing from the tracer, so a bug in the tracer cannot make the check pass.
+```
+
+**One correction in FUTURE PROSPECTS on the same slide.** "Real-Time Monitoring"
+is listed as future, but it is built. Replace that entry with:
+
+```
+Real-time monitoring — built: a wallet still holding funds is re-checked and the officer is alerted when the money moves. Next: monitoring that runs server-side, without the desk open.
+```
+
+---
+
+## A3 · Rebuild the references on slide 6
+
+**Why:** this is the slide that is supposed to show sourcing, and today it
+carries two URLs tagged `?utm_source=chatgpt.com`, a TRON link described as
+"Ethereum", a vendor's marketing page — and it is missing the two sources that
+actually underwrite the work.
+
+**Delete** the TRM Labs entry. **Replace** the list with these five, keeping your
+existing numbering style:
+
+```
+1. Smart India Hackathon 2026 — Problem Statement SIH26183
+   Ministry of Home Affairs / I4C
+   https://www.sih.gov.in/sih2026PS
+
+2. UNODC (2024) — Casinos, Money Laundering, Underground Banking and
+   Transnational Organized Crime in East and South-East Asia, p. 20:
+   USDT on TRON "has become a preferred choice". This is why the tool is TRON-first.
+   https://www.unodc.org/roseap/uploads/documents/Publications/2024/Casino_Underground_Banking_Report_2024.pdf
+
+3. OFAC Specially Designated Nationals list, US Department of the Treasury —
+   the source of the 202 sanctioned TRON addresses carried in the tool.
+   https://sanctionslist.ofac.treas.gov/Home/SdnList
+
+4. TronGrid API documentation, TRON — TRC-20 transfer data used for every trace.
+   https://developers.tron.network/reference/trongrid-v1-api-overview
+
+5. NCRP and SAHYOG — the platforms the problem statement asks this system to
+   integrate with.
+   https://cybercrime.gov.in   ·   https://sahyog.mha.gov.in
+```
+
+Two of these are load-bearing and absent today: **OFAC** is where your 202
+sanctioned addresses come from, and **UNODC** is a UN agency stating that your
+chain choice is the correct one. That UNODC line is the strongest sentence
+available to you on this slide.
+
+Keep the "KEY RESEARCH INSIGHT" block; it works. If you want it sharper:
+
+```
+Public blockchain data → traceable fund movement → a named account an exchange can freeze.
+```
+
+---
+
+# PART B — quick corrections (five minutes)
+
+1. **Slide 2 — delete the note-to-self.** The last bullet ends: *"Investigation
+   Dashboard — Visualizes fund flow, risk, attribution confidence and case
+   status. **make suitable infograph to suit it.**"* Delete that final sentence.
+   It reads as an unfinished document.
+2. **Slide 3 — the architecture diagram claims databases you do not have.** It
+   shows "Case Database", "Transaction Database" and "Evidence Repository". There
+   is no database, and *"no database"* is one of your strongest answers on cost
+   and deployability. If the diagram is still editable in Canva, rename those
+   boxes to **"Committed JSON datasets"**, **"Chain reads (cached)"** and
+   **"Evidence packets"**. If it is a flat image, leave it — but know the answer
+   if asked: those are files in the repository, not a database.
+3. **Slide 4 — replace "problem 3: Jury doubt on validation".** That is a risk
+   about your audience, not your system. Use a real one:
+
+```
+problem 3: Public API rate limits
+Mitigation: one shared adaptive pacer (250 ms, 100 ms with a key, doubling on every refusal). A wallet we could not read is reported as unreadable, never as empty.
+```
+
+---
+
+# PART C — the fuller pass
+
+Everything below is the detail behind Parts A and B: the verified figures, the
+tested links, slide-by-slide wording, the problem statement's own capability
+list, and the claims that must never appear.
 
 ---
 
