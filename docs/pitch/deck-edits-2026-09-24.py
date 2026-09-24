@@ -16,7 +16,8 @@ What and why (CONTEXT.md §8.6 and docs/HANDOFF-LOCAL.md §5):
       DEX metrics, InsightX, /api/cases) -> replaced with the patched picture in
       deck-assets/architecture-2026-09-24.png; template footer that showed over
       the flowchart made invisible (slide 6's already is); page number moved
-      below the last tech-stack line it overlapped
+      below the last tech-stack line it overlapped; the process flowchart's
+      "freese request" -> deck-assets/flowchart-2026-09-24.png
   S4  bridges were never "recorded as a hard stop" in code; three vague lines
       made specific and measured
   S5  202 -> 334 sanctioned TRON addresses (OFAC refresh); multi-chain screening
@@ -36,6 +37,7 @@ from pptx.util import Emu, Inches, Pt
 
 HERE = Path(__file__).resolve().parent
 ARCHITECTURE = HERE / "deck-assets" / "architecture-2026-09-24.png"
+FLOWCHART = HERE / "deck-assets" / "flowchart-2026-09-24.png"
 NS = {"a": "http://schemas.openxmlformats.org/drawingml/2006/main"}
 
 DEMO_URL = "https://www.youtube.com/watch?v=A4AipdXDDsk"
@@ -136,6 +138,18 @@ def slide6(deck):
         if rel.is_external and "utm_source=chatgpt.com" in rel.target_ref:
             rel._target = TRONGRID_URL
             rel.__dict__["target_ref"] = TRONGRID_URL  # python-pptx caches this lazily
+    # The hover tooltips still quoted the tagged address.
+    for tip in s._element.iter(f"{{{NS['a']}}}hlinkClick"):
+        if "utm_source=chatgpt.com" in (tip.get("tooltip") or ""):
+            tip.set("tooltip", TRONGRID_URL)
+    # Canva's red underline for the old URL (Group 17) runs past the new,
+    # shorter URL, which carries its own link underline; hide it.
+    old_rule = shape(s, "Group 17")
+    if old_rule is not None:
+        for clr in old_rule._element.iter(f"{{{NS['a']}}}srgbClr"):
+            for old in clr.findall("a:alpha", NS):
+                clr.remove(old)
+            etree.SubElement(clr, f"{{{NS['a']}}}alpha").set("val", "0")
     links = shape(s, "TextBox 46")
     if links is not None:
         paras = links.text_frame.paragraphs
@@ -217,6 +231,18 @@ def slide3(deck):
         data = ARCHITECTURE.read_bytes()
         if not data.startswith(b"\x89PNG"):
             problems.append("architecture asset is not a PNG")
+        else:
+            part._blob = data
+    # The process flowchart (Group 7) said "freese request" in step 9. The
+    # patched picture swaps that one glyph and nothing else.
+    group = shape(s, "Group 7")
+    if group is not None:
+        blip = group._element.find(".//a:blip", NS)
+        rid = blip.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed")
+        part = s.part.related_part(rid)
+        data = FLOWCHART.read_bytes()
+        if not data.startswith(b"\x89PNG"):
+            problems.append("flowchart asset is not a PNG")
         else:
             part._blob = data
 

@@ -178,7 +178,8 @@ measured. Weakest, in order:
 | Portal title/description | `docs/pitch/03-portal-text.md` |
 | Updated Tech Stack / Methodology / Evidence Sheet | `docs/pitch/*.docx`, `docs/pitch/FineX — Evidence Sheet.pdf` |
 | Sanctions refresh | `scripts/refresh-sanctions.mjs` → `data/risk-lists.json`, `data/sanctions-multichain.json` |
-| Edited deck (pptx + pdf) | sent in the chat on 24 Sep; or regenerate with edit_deck.py + the script above |
+| Edited deck (pptx + pdf) | regenerate: `python docs/pitch/edit_deck.py` (original → EDITED), then `deck-edits-2026-09-24.py` on the result, then the PowerPoint COM export |
+| Slide-3 flowchart picture | `docs/pitch/deck-assets/flowchart-2026-09-24.png` ("freese" → "freeze", one glyph) |
 | Slide-3 architecture picture | `docs/pitch/deck-assets/architecture-2026-09-24.png` (how it was made: `patch-architecture.py`) |
 | Website QR | `docs/pitch/qr-finex.png` (encodes https://crypto-fraud-tracer.onrender.com) |
 | Uptime pinger | `.github/workflows/keep-awake.yml` |
