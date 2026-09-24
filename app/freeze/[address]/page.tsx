@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { address } = await params;
   return {
     title: `Freeze request ${shortAddress(decodeURIComponent(address))}`,
-    description: `Draft restraint and preservation request for the exchange account reached from TRON address ${decodeURIComponent(address)}.`,
+    description: `Draft restraint and preservation request for the exchange account reached from wallet ${decodeURIComponent(address)}.`,
   };
 }
 

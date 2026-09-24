@@ -14,6 +14,8 @@ import {
   useTrace,
 } from "./TraceLoader";
 import { DataSourceBadge, TRIAGE_META, TriageBadge, buttonStyles, kindTag } from "./ui";
+import { chainMeta } from "@/lib/chain-meta";
+import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
 
 /**
  * The evidence packet is the one place in the product that is a document rather
@@ -103,7 +105,14 @@ export default function EvidencePacket({
     : null;
 
   const generated = trace.provenance.generatedAt.replace(/\.\d+Z$/, "Z");
-  const caseRef = `CASE ${trace.inputAddress.slice(0, 6).toUpperCase()} · TRON · GENERATED ${generated}`;
+  const chain = chainMeta(trace.chain);
+  // An exit at an exchange named in the FIU-IND annexure; null says nothing.
+  const fiu =
+    trace.terminal &&
+    (trace.terminal.label.kind === "exchange_deposit" || trace.terminal.label.kind === "exchange_hot")
+      ? fiuListing(trace.terminal.label.entity)
+      : null;
+  const caseRef = `CASE ${trace.inputAddress.slice(0, 6).toUpperCase()} · ${chain.name.toUpperCase()} · GENERATED ${generated}`;
 
   return (
     <div className="space-y-6">
@@ -154,7 +163,7 @@ export default function EvidencePacket({
             <p
               className={`mt-4 font-mono text-xs uppercase tracking-[0.18em] ${SHEET.faint}`}
             >
-              {trace.caseId} · TRON · USDT (TRC-20)
+              {trace.caseId} · {chain.scope}
             </p>
           </div>
         </header>
@@ -249,12 +258,19 @@ export default function EvidencePacket({
                     </Field>
                   </div>
                 ) : null}
+                {fiu ? (
+                  <div className="sm:col-span-2">
+                    <Field label="Registration in India">
+                      {fiuSentence(trace.terminal.label.entity, fiu)} Source: {FIU_SOURCE.url}
+                    </Field>
+                  </div>
+                ) : null}
               </dl>
             </>
           ) : (
             <p className={`mt-6 text-sm leading-7 ${SHEET.body}`}>
-              No exchange or labelled service was reached within the traced depth.
-              The funds were last observed at rest, which is recorded in section 4.
+              No exchange or labelled service was reached within the traced depth.{" "}
+              {trace.triageReason}
             </p>
           )}
         </Section>
@@ -393,7 +409,7 @@ export default function EvidencePacket({
 
         <footer className={`mt-10 border-t pt-6 ${SHEET.rule}`}>
           <p className={`font-document text-sm italic leading-6 ${SHEET.body}`}>
-            Prepared by FineX from public TRON blockchain data. This packet
+            Prepared by FineX from {chain.source}. This packet
             records an investigative finding and does not constitute a legal
             determination. SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C ·
             Team FineX.

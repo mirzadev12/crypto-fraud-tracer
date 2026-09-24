@@ -31,7 +31,7 @@ import { watchTargetFor } from "@/lib/watch";
 import { addWatch } from "@/lib/watchlist";
 import LinkGraph from "@/components/LinkGraph";
 import BatchCanvas, { BatchViewToggle, type BatchView } from "@/components/BatchCanvas";
-import { checkTronAddress } from "@/lib/tron";
+import { checkAddress } from "@/lib/address";
 import { identifyChain } from "@/lib/chains";
 import type { TraceResult, TriageLevel } from "@/lib/types";
 import {
@@ -83,11 +83,13 @@ function parseAddresses(raw: string): { queued: string[]; rejected: Rejected[] }
   for (const token of raw.split(/[\s,;]+/)) {
     const candidate = token.trim();
     if (!candidate) continue;
-    if (seen.has(candidate)) continue;
-    seen.add(candidate);
-    const check = checkTronAddress(candidate);
+    const check = checkAddress(candidate);
+    // One entry per wallet: an Ethereum address typed in two cases is one wallet.
+    const key = check.valid ? check.address : candidate;
+    if (seen.has(key)) continue;
+    seen.add(key);
     if (check.valid) {
-      queued.push(candidate);
+      queued.push(check.address);
       continue;
     }
     // Another chain's address is not a typo; say what it is and where it can go.
@@ -95,7 +97,9 @@ function parseAddresses(raw: string): { queued: string[]; rejected: Rejected[] }
     rejected.push({
       line: candidate,
       reason: other
-        ? `${other.chain.name} address — traced on TRON only. Screen it against OFAC from New case.`
+        ? other.chain.traceable
+          ? check.reason
+          : `${other.chain.name} address — FineX traces TRON and Ethereum. Screen it against OFAC from New case.`
         : check.reason,
     });
   }
@@ -252,7 +256,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
         <Panel title="The morning's addresses" framed={false}>
           <div className="pt-4">
             <label htmlFor="bulk" className="sr-only">
-              TRON wallet addresses, one per line
+              TRON or Ethereum wallet addresses, one per line
             </label>
             <textarea
               id="bulk"
@@ -260,7 +264,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
               onChange={(e) => setRaw(e.target.value)}
               spellCheck={false}
               rows={10}
-              placeholder={"TXY9...\nTS27...\none address per line"}
+              placeholder={"TXY9...\n0x4D24...\none address per line"}
               className="fx-option block w-full resize-y border border-line bg-surface-2 [--fx-face:var(--color-surface-2)] p-4 font-mono text-xs leading-6 text-ink placeholder:text-dim focus:outline-none"
             />
             <p className="mt-4 text-xs leading-5 text-faint">

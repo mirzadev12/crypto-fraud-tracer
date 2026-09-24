@@ -15,7 +15,7 @@ import {
   formatPercent,
   formatUsdt,
   shortAddress,
-  tronscanTxUrl,
+  explorerTxUrl,
 } from "@/lib/format";
 import AddressChip from "./AddressChip";
 import CopyButton from "./CopyButton";
@@ -36,6 +36,9 @@ import {
   buttonStyles,
   kindTag,
 } from "./ui";
+import { chainMeta } from "@/lib/chain-meta";
+import { categoryOf } from "@/lib/contracts";
+import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
 
 /* ------------------------------------------------------------- risk flags */
 
@@ -124,14 +127,57 @@ export function RiskFlagList({
 
 /* ----------------------------------------------------------- terminal card */
 
+/**
+ * The Indian-registration line under an exit, from the one government document
+ * that names FIU-IND registrants. Nothing is shown for an exchange not in it:
+ * absence from a 2023 list proves nothing. See lib/fiu.ts.
+ */
+function FiuLine({ exchange }: { exchange: string }) {
+  const listing = fiuListing(exchange);
+  if (!listing) return null;
+  return (
+    <p className="mt-4 text-sm leading-6 text-muted">
+      <span className="font-label text-xs uppercase tracking-[0.18em] text-brass">
+        FIU-IND ·{" "}
+      </span>
+      {fiuSentence(exchange, listing)}{" "}
+      <a
+        href={FIU_SOURCE.url}
+        target="_blank"
+        rel="noreferrer"
+        className="fx-option-quiet px-1 text-faint underline-offset-4 hover:text-ink"
+      >
+        Source
+      </a>
+    </p>
+  );
+}
+
 function TerminalCard({ trace }: { trace: TraceResult }) {
   const meta = TRIAGE_META[trace.triage];
 
   if (!trace.terminal) {
-    // No off-ramp reached: the money is still sitting somewhere.
+    // No off-ramp reached. "At rest" is claimed only by the rule the verdict
+    // uses: a wallet that was read, sent nothing since the money arrived, and
+    // is not a stop the trace chose — an exchange, or a contract, is never read,
+    // and a wallet the chain did not answer for has no history at all, so
+    // either would show zero outflows without the money being there.
     const resting = [...trace.nodes]
-      .filter((n) => n.outflowCount === 0)
+      .filter(
+        (n) =>
+          n.outflowCount === 0 &&
+          n.firstSeen !== null &&
+          (n.depth === 0 || !n.label) &&
+          (n.depth > 0 || trace.edges.length === 0),
+      )
       .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
+    // Where the USDT trail ended because a contract pooled, swapped or bridged it.
+    const pooled = resting
+      ? undefined
+      : [...trace.nodes]
+          .filter((n) => n.depth > 0 && n.label?.kind === "contract" && n.taintedValueUsdt > 0)
+          .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
+    const bridged = pooled?.label ? categoryOf(pooled.label) === "bridge" : false;
     return (
       <div className={`relative  border bg-surface p-6 ${meta.ring}`}>
         {/* The disposition is on the sticky case bar directly above; the card's
@@ -140,8 +186,30 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
           Where the money is now
         </p>
         <p className="mt-4 font-display text-2xl uppercase tracking-[0.08em] text-ink">
-          No exchange reached — funds still at rest
+          {resting
+            ? "No exchange reached — funds still at rest"
+            : pooled
+              ? bridged
+                ? "No exchange reached — the trail left Ethereum"
+                : "No exchange reached — the USDT entered a contract"
+              : "No exchange reached"}
         </p>
+        {pooled ? (
+          <div className="mt-4 space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-muted">{bridged ? "Through" : "Entered"}</span>
+              <span className="text-sm text-ink">{entityPhrase(pooled.label)}</span>
+              <Chip tone="neutral">{kindTag("contract")}</Chip>
+            </div>
+            <AddressChip address={pooled.address} tone="strong" full />
+            <p className="font-mono text-lg text-ink">
+              {formatUsdt(pooled.taintedValueUsdt)}
+              <span className="ml-2 text-xs text-faint">
+                {formatPercent(pooled.taintFraction)} of the reported amount
+              </span>
+            </p>
+          </div>
+        ) : null}
         {resting ? (
           <div className="mt-4 space-y-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -216,11 +284,15 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
           {/* The instruction — name the account, not the exchange — is the
               first investigative lead below, with the confidence to quote;
               saying it here as well put it on the screen twice. */}
+          <FiuLine exchange={label.entity} />
         </div>
       ) : (
-        <div className="mt-6 flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted">Terminal address</span>
-          <AddressChip address={address} tone="strong" full />
+        <div className="mt-6 space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm text-muted">Terminal address</span>
+            <AddressChip address={address} tone="strong" full />
+          </div>
+          {label.kind === "exchange_hot" ? <FiuLine exchange={label.entity} /> : null}
         </div>
       )}
 
@@ -407,7 +479,7 @@ function MovementTimeline({
               </span>
               {e.txHash ? (
                 <a
-                  href={tronscanTxUrl(e.txHash)}
+                  href={explorerTxUrl(e.txHash)}
                   target="_blank"
                   rel="noreferrer noopener"
                   className="font-mono transition hover:text-brass"
@@ -430,7 +502,7 @@ function ProvenancePanel({ trace }: { trace: TraceResult }) {
       <dl className="space-y-4 text-sm">
         <div className="flex justify-between gap-4">
           <dt className="text-faint">Chain</dt>
-          <dd className="font-mono text-ink">TRON · USDT (TRC-20)</dd>
+          <dd className="font-mono text-ink">{chainMeta(trace.chain).scope}</dd>
         </div>
         <div className="flex justify-between gap-4">
           <dt className="text-faint">API calls made</dt>

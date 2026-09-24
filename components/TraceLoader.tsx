@@ -23,6 +23,7 @@ import {
   buttonStyles,
   kindTag,
 } from "./ui";
+import { chainOf } from "@/lib/chain-meta";
 
 /**
  * Fallback loading state, written as a console log, for loads that do not
@@ -36,7 +37,7 @@ import {
  */
 const LOADER_STEPS: Array<{ label: string; detail: string; at: number }> = [
   { label: "resolving address", detail: "", at: 0 },
-  { label: "fetching TRC-20 transfers", detail: "on-chain", at: 220 },
+  { label: "fetching USDT transfers", detail: "on-chain", at: 220 },
   { label: "tracing hops (depth 3)", detail: "", at: 480 },
   { label: "matching labels", detail: "", at: 760 },
   { label: "scoring risk", detail: "", at: 1000 },
@@ -312,8 +313,17 @@ export function NoTraceState({
                   Valid
                 </dt>
                 <dd className="text-sm leading-6 text-muted">
-                  34 characters, TRON mainnet prefix, <strong className="font-semibold text-ink">base58check verified</strong> in the
-                  browser. The input was read, not matched against a list.
+                  {chainOf(address) === "ethereum" ? (
+                    <>
+                      42 characters, an Ethereum address, <strong className="font-semibold text-ink">EIP-55 checked</strong> in the
+                      browser where it carries a checksum. The input was read, not matched against a list.
+                    </>
+                  ) : (
+                    <>
+                      34 characters, TRON mainnet prefix, <strong className="font-semibold text-ink">base58check verified</strong> in the
+                      browser. The input was read, not matched against a list.
+                    </>
+                  )}
                 </dd>
               </div>
               <div className="flex items-baseline gap-6 py-4">
@@ -385,9 +395,10 @@ export function InvalidAddressState({
           <p className="mt-6 text-sm leading-7 text-critical">{reason}</p>
           <p className="mt-6 text-sm leading-7 text-muted">
             Nothing was sent anywhere. A TRON address is 34 characters, begins with
-            T, and carries a four-byte checksum verified in the browser before any
-            request is made — so a mistyped character is caught here rather than
-            costing a call to the chain.
+            T, and carries a four-byte checksum; an Ethereum address is 42
+            characters, begins with 0x, and carries its checksum in the letter
+            case. Both are checked in the browser before any request is made — so a
+            mistyped character is caught here rather than costing a call to the chain.
           </p>
           <Link href="/investigate" className={`${buttonStyles.secondary} mt-10`}>
             Back to intake

@@ -12,15 +12,24 @@ import {
 } from "@/components/ui";
 import SectionDialog from "@/components/SectionDialog";
 import depositAddresses from "@/data/deposit-addresses.json";
+import ethDeposits from "@/data/eth/deposit-addresses.json";
 import riskLists from "@/data/risk-lists.json";
 import multichain from "@/data/sanctions-multichain.json";
 
 /* Counted from the committed files, never typed: a figure typed into prose
    drifts from the file under it (the sanctions figure did, 202 → 334, when the
    list was refreshed). */
-const DEPOSITS = depositAddresses.length;
-const EXCHANGES = new Set(depositAddresses.map((d) => d.exchange)).size;
-const SANCTIONED = riskLists.sanctioned.length;
+const TRON_DEPOSITS = depositAddresses.length;
+const ETH_DEPOSITS = ethDeposits.length;
+const DEPOSITS = TRON_DEPOSITS + ETH_DEPOSITS;
+const TRON_EXCHANGES = new Set(depositAddresses.map((d) => d.exchange)).size;
+const ETH_EXCHANGES = new Set(ethDeposits.map((d) => d.exchange)).size;
+const EXCHANGES = new Set([...depositAddresses, ...ethDeposits].map((d) => d.exchange)).size;
+/* The OFAC-listed addresses a trace can hit: TRON's, and the Ethereum-format ones. */
+const EVM_SANCTIONED = (multichain.addresses as Array<{ address: string }>).filter((a) =>
+  /^0x[0-9a-fA-F]{40}$/.test(a.address),
+).length;
+const SANCTIONED = riskLists.sanctioned.length + EVM_SANCTIONED;
 /* Every asset the OFAC copy lists an address under, TRON's included. */
 const SCREENED_ASSETS = new Set([
   ...Object.keys(multichain.assets),
@@ -113,7 +122,7 @@ export default function Home() {
                 Fund flow
               </span>
               <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-dim">
-                TRON · USDT TRC-20
+                TRON · Ethereum · USDT
               </span>
             </figcaption>
             <div className="px-4 py-6">
@@ -132,7 +141,7 @@ export default function Home() {
           {[
             [String(DEPOSITS), "Customer deposit addresses derived", "/attribution"],
             [String(EXCHANGES), "Exchanges covered by that derivation", "/attribution"],
-            [String(SANCTIONED), "Sanctioned TRON addresses carried", "/attribution"],
+            [String(SANCTIONED), "Sanctioned addresses on the chains traced", "/attribution"],
             ["0", "Commercial data licences required", null],
           ].map(([figure, label, href]) => (
             <div key={label} className="min-w-0 border-t border-line pt-4">
@@ -157,7 +166,9 @@ export default function Home() {
           ))}
         </dl>
         <p className="mt-10 max-w-2xl text-xs leading-6 text-faint">
-          Derived from public chain data and the published OFAC sanctions list,
+          {TRON_DEPOSITS} on TRON across {TRON_EXCHANGES} exchanges and {ETH_DEPOSITS} on
+          Ethereum across {ETH_EXCHANGES}, CoinDCX and WazirX among them. Derived from
+          public chain data and the published OFAC sanctions list,
           which also screens an address from any of the {SCREENED_ASSETS} assets
           it covers. Explorer-tagged exchange wallets are treated as ground truth; the
           deposit clusters are a <strong className="font-semibold text-muted">heuristic</strong> and are
@@ -263,9 +274,9 @@ export default function Home() {
 
           <div className="mt-16 space-y-6 border-t border-line pt-10 text-sm leading-7 text-muted">
             <p>
-              <span className="text-ink">TRON and USDT only.</span> That is where
-              the proceeds move. Another chain is an adapter on the same pipeline,
-              not a new product.
+              <span className="text-ink">USDT on TRON and Ethereum.</span> TRON is where
+              the proceeds mostly move. Ethereum runs on the same engine through a
+              chain adapter — another chain is an adapter, not a new product.
             </p>
             <p>
               <span className="text-ink">Rules, not a model.</span> An
@@ -289,7 +300,7 @@ export default function Home() {
 
       {/* ---------------------------------------------------------- colophon */}
       <section className="mt-24 border-t border-line pt-6 pb-6">
-        <Designation>Bureau of blockchain intelligence · TRON · USDT TRC-20</Designation>
+        <Designation>Bureau of blockchain intelligence · TRON · Ethereum · USDT</Designation>
       </section>
 
     </AppShell>

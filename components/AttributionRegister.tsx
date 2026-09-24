@@ -18,7 +18,8 @@
  */
 
 import { useMemo, useState } from "react";
-import { shortAddress, tronscanAddressUrl } from "@/lib/format";
+import { fiuListing } from "@/lib/fiu";
+import { shortAddress, explorerAddressUrl } from "@/lib/format";
 import { Designation, Panel, SourceChip } from "@/components/ui";
 
 export interface DerivedRow {
@@ -27,8 +28,13 @@ export interface DerivedRow {
   sweepCount: number;
   confidence: number;
   evidence: string;
+  /** The wallet it sweeps into. */
   hotWallet: string;
   windowTruncated: boolean;
+  /** The seed that led to it, when that is not the wallet it sweeps into (Ethereum's funder route). */
+  seed?: string;
+  /** Ethereum: which signal found it — the sweep rule, the exchange's gas wallet, or both. */
+  route?: "sweep" | "funder" | "both";
 }
 
 export interface SeedRow {
@@ -36,6 +42,8 @@ export interface SeedRow {
   exchange: string;
   tag: string;
   source_url: string;
+  /** Ethereum: "deposit_funder" for an exchange's gas wallet. */
+  role?: string;
 }
 
 type Sort = "confidence" | "sweeps" | "exchange";
@@ -49,9 +57,20 @@ const SORTS: ReadonlyArray<{ key: Sort; label: string }> = [
 export default function AttributionRegister({
   rows,
   seeds,
+  chain = "TRON",
+  idPrefix = "tron",
+  searchHint = "TSu8w…  ·  Bybit",
+  method,
 }: {
   rows: DerivedRow[];
   seeds: SeedRow[];
+  /** Named in the section titles when the page carries more than one chain. */
+  chain?: string;
+  /** Keeps element ids unique when two registers share a page. */
+  idPrefix?: string;
+  searchHint?: string;
+  /** Replaces the method panel, for a chain whose derivation differs. */
+  method?: React.ReactNode;
 }) {
   const [query, setQuery] = useState("");
   const [exchange, setExchange] = useState<string | null>(null);
@@ -93,7 +112,7 @@ export default function AttributionRegister({
     <div className="mt-10 space-y-16">
       {/* ------------------------------------------------------------- seeds */}
       <Panel
-        title="Ground truth — the seeds"
+        title={`${chain} · Ground truth — the seeds`}
         subtitle="Exchange wallets carrying a public block-explorer tag. Treated as fact, and the only thing in this pipeline that is."
         framed={false}
       >
@@ -109,7 +128,8 @@ export default function AttributionRegister({
             </thead>
             <tbody>
               {seeds.map((seed) => {
-                const derived = rows.filter((r) => r.hotWallet === seed.address).length;
+                const derived = rows.filter((r) => (r.seed ?? r.hotWallet) === seed.address).length;
+                const registered = fiuListing(seed.exchange);
                 return (
                   <tr key={seed.address} className="border-b border-line-soft">
                     <Td>
@@ -119,10 +139,23 @@ export default function AttributionRegister({
                     </Td>
                     <Td>
                       <span className="text-sm text-muted">{seed.exchange}</span>
+                      {registered ? (
+                        <span
+                          className="mt-1 block font-label text-[10px] uppercase tracking-[0.14em] text-brass"
+                          title={`${registered.legalName} — listed as registered with FIU-IND in the Lok Sabha answer of 4 December 2023`}
+                        >
+                          FIU-IND registered · 2023 list
+                        </span>
+                      ) : null}
+                      {seed.role === "deposit_funder" ? (
+                        <span className="mt-1 block font-label text-[10px] uppercase tracking-[0.14em] text-faint">
+                          Gas wallet for deposit addresses
+                        </span>
+                      ) : null}
                     </Td>
                     <Td>
                       <a
-                        href={tronscanAddressUrl(seed.address)}
+                        href={explorerAddressUrl(seed.address)}
                         target="_blank"
                         rel="noreferrer"
                         className="fx-option-quiet px-2 py-1 align-middle font-mono text-xs text-faint transition hover:text-brass"
@@ -150,7 +183,7 @@ export default function AttributionRegister({
 
       {/* ----------------------------------------------------------- derived */}
       <Panel
-        title={`Derived — ${rows.length} customer deposit addresses`}
+        title={`${chain} · Derived — ${rows.length} customer deposit addresses`}
         subtitle="Heuristic. An address that repeatedly receives from unrelated senders and forwards almost all of it to one tagged exchange wallet is that exchange's customer deposit address."
         framed={false}
         actions={<SourceChip source="heuristic" />}
@@ -159,16 +192,16 @@ export default function AttributionRegister({
           {/* ------------------------------------------------------- controls */}
           <div className="flex flex-wrap items-end gap-6">
             <div className="min-w-0 grow">
-              <label htmlFor="q" className="block">
+              <label htmlFor={`${idPrefix}-q`} className="block">
                 <Designation>Search address or exchange</Designation>
               </label>
               <input
-                id="q"
+                id={`${idPrefix}-q`}
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 spellCheck={false}
-                placeholder="TSu8w…  ·  Bybit"
+                placeholder={searchHint}
                 className="fx-option mt-4 block w-full border border-line bg-surface-2 [--fx-face:var(--color-surface-2)] px-4 py-2 font-mono text-xs text-ink placeholder:text-dim focus:outline-none"
               />
             </div>
@@ -241,7 +274,7 @@ export default function AttributionRegister({
                   <tr key={row.address} className="border-b border-line-soft align-top">
                     <Td>
                       <a
-                        href={tronscanAddressUrl(row.address)}
+                        href={explorerAddressUrl(row.address)}
                         target="_blank"
                         rel="noreferrer"
                         className="fx-option-quiet block px-2 py-1 font-mono text-xs text-ink transition hover:text-brass"
@@ -279,6 +312,11 @@ export default function AttributionRegister({
                       <span className="block max-w-md text-xs leading-5 text-faint">
                         {row.evidence}
                       </span>
+                      {row.route === "both" ? (
+                        <span className="mt-2 inline-block font-label text-[10px] uppercase tracking-[0.14em] text-brass">
+                          Two independent signals
+                        </span>
+                      ) : null}
                       {row.windowTruncated ? (
                         <span className="mt-2 inline-block font-label text-[10px] uppercase tracking-[0.14em] text-dim">
                           Partial window — the true sweep count is at least this
@@ -298,6 +336,7 @@ export default function AttributionRegister({
       </Panel>
 
       {/* --------------------------------------------------------- the method */}
+      {method ?? (
       <Panel title="How a row gets here" framed={false}>
         <div className="grid gap-10 pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="min-w-0 space-y-6 text-sm leading-7 text-muted">
@@ -340,6 +379,7 @@ export default function AttributionRegister({
           </div>
         </div>
       </Panel>
+      )}
     </div>
   );
 }
@@ -365,7 +405,7 @@ function Td({ children, numeric = false }: { children: React.ReactNode; numeric?
   );
 }
 
-function Fact({ label, body }: { label: string; body: string }) {
+export function Fact({ label, body }: { label: string; body: string }) {
   return (
     <div className="border-l border-line pl-6">
       <Designation>{label}</Designation>

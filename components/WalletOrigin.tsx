@@ -24,9 +24,9 @@ import {
   formatDateTime,
   formatUsdt,
   shortAddress,
-  tronscanAddressUrl,
+  explorerAddressUrl,
 } from "@/lib/format";
-import { checkTronAddress } from "@/lib/tron";
+import { checkAddress } from "@/lib/address";
 import type { WalletProfile, Counterparty } from "@/lib/wallet";
 import {
   Chip,
@@ -54,7 +54,7 @@ export default function WalletOrigin({ address }: { address: string }) {
   // Validation is pure and synchronous, so it belongs in render. Setting state
   // for it inside the effect is the cascading-render pattern React 19.2 fails
   // the build on — see the note in CONTEXT.md.
-  const check = checkTronAddress(address);
+  const check = checkAddress(address);
 
   useEffect(() => {
     if (!check.valid) return;
@@ -87,7 +87,7 @@ export default function WalletOrigin({ address }: { address: string }) {
     return (
       <div className="mt-10">
         <ErrorState
-          title="Not a TRON address"
+          title="Not a TRON or Ethereum address"
           description={check.reason}
           action={
             <Link href="/investigate" className={buttonStyles.secondary}>
@@ -136,7 +136,7 @@ export default function WalletOrigin({ address }: { address: string }) {
           description="Nothing is stated about it. An unreadable wallet is not an empty one, and reporting silence as 'no activity' is the one mistake this tool will not make. Try again in a moment."
           action={
             <a
-              href={tronscanAddressUrl(p.address)}
+              href={explorerAddressUrl(p.address)}
               target="_blank"
               rel="noreferrer"
               className={buttonStyles.secondary}

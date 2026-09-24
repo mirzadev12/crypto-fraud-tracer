@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { shortAddress, tronscanAddressUrl } from "@/lib/format";
+import { shortAddress, explorerAddressUrl } from "@/lib/format";
 import CopyButton from "./CopyButton";
 
 /**
@@ -81,7 +81,7 @@ export default function AddressChip({
       ) : null}
       {explorer ? (
         <a
-          href={tronscanAddressUrl(address)}
+          href={explorerAddressUrl(address)}
           target="_blank"
           rel="noreferrer noopener"
           title="Open in block explorer"

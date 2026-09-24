@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { address } = await params;
   return {
     title: `Trace ${shortAddress(decodeURIComponent(address))}`,
-    description: `Fund-flow trace and triage for TRON address ${decodeURIComponent(address)}.`,
+    description: `Fund-flow trace and triage for wallet ${decodeURIComponent(address)}.`,
   };
 }
 

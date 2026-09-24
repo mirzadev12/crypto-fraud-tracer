@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Investigate",
   description:
-    "Trace a victim-reported TRON wallet and identify where the stolen USDT went.",
+    "Trace a victim-reported TRON or Ethereum wallet and identify where the stolen USDT went.",
 };
 
 export default function InvestigatePage() {

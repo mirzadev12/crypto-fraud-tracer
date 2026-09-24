@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { shortAddress } from "@/lib/format";
-import { isValidTronAddress } from "@/lib/tron";
+import { isTraceableAddress } from "@/lib/address";
 
 /**
  * Two rows, because an officer asks two different questions of a navigation bar.
@@ -101,7 +101,7 @@ function caseAddressFrom(pathname: string): string | null {
   }
   // Only a real address scopes the navigation. A malformed segment must not
   // silently send "Evidence" to a packet route for something that is not one.
-  return isValidTronAddress(address) ? address : null;
+  return isTraceableAddress(address) ? address : null;
 }
 
 export default function Navbar() {

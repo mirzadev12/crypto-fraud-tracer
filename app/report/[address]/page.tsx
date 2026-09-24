@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { address } = await params;
   return {
     title: `Evidence packet ${shortAddress(decodeURIComponent(address))}`,
-    description: `Print-ready evidence packet for TRON address ${decodeURIComponent(address)}.`,
+    description: `Print-ready evidence packet for wallet ${decodeURIComponent(address)}.`,
   };
 }
 

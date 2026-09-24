@@ -17,6 +17,7 @@ import {
   TriageBadge,
   buttonStyles,
 } from "./ui";
+import { chainMeta, chainOf } from "@/lib/chain-meta";
 
 type Filter = "ALL" | TriageLevel;
 
@@ -63,6 +64,16 @@ export default function CaseQueue() {
    * include them, and the caption under the figures says so.
    */
   const realCases = useMemo(() => cases.filter((c) => !isIllustrative(c.inputAddress)), [cases]);
+  // The chain is stated once in the header when the whole register is on one;
+  // when it holds both, each row says which, since a 0x address and a T address
+  // are traced on different chains.
+  const mixedChains = useMemo(
+    () => new Set(cases.map((c) => chainOf(c.inputAddress))).size > 1,
+    [cases],
+  );
+  const registerScope = mixedChains
+    ? "TRON · Ethereum · USDT"
+    : chainMeta(chainOf(cases[0]?.inputAddress ?? "T")).scope;
   const illustrativeCount = cases.length - realCases.length;
   const stats = useMemo(() => summarize(realCases), [realCases]);
 
@@ -163,7 +174,7 @@ export default function CaseQueue() {
           label="Committed register"
         />
         }
-        code="TRON · USDT TRC-20"
+        code={registerScope}
         bodyClassName="p-0"
       >
         <div className="flex flex-wrap items-center gap-4 border-b border-line-soft px-6 py-4">
@@ -245,6 +256,11 @@ export default function CaseQueue() {
                     </td>
                     <td className="px-6 py-2">
                       <AddressChip address={c.inputAddress} explorer={false} quiet />
+                      {mixedChains ? (
+                        <span className="ml-2 font-label text-[10px] uppercase tracking-[0.16em] text-faint">
+                          {chainMeta(chainOf(c.inputAddress)).name}
+                        </span>
+                      ) : null}
                     </td>
                     <td className="px-6 py-2 text-right font-mono tabular-nums text-ink">
                       {formatUsdt(c.reportedAmountUsdt, { symbol: false })}

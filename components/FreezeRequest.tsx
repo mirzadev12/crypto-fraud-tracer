@@ -22,6 +22,8 @@ import {
   buttonStyles,
   entityPhrase,
 } from "./ui";
+import { chainMeta } from "@/lib/chain-meta";
+import { fiuListing, fiuSentence } from "@/lib/fiu";
 
 /**
  * The last mile of the product.
@@ -174,7 +176,11 @@ export default function FreezeRequest({
     .sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp));
 
   const generated = trace.provenance.generatedAt.replace(/\.\d+Z$/, "Z");
-  const caseRef = `${trace.caseId} · TRON · USDT (TRC-20) · GENERATED ${generated}`;
+  const chain = chainMeta(trace.chain);
+  // The legal entity the request is addressed to, where the one government
+  // document that names FIU-IND registrants lists it. See lib/fiu.ts.
+  const fiu = fiuListing(label.entity);
+  const caseRef = `${trace.caseId} · ${chain.scope} · GENERATED ${generated}`;
 
   return (
     <div className="space-y-6">
@@ -226,6 +232,11 @@ export default function FreezeRequest({
             >
               To the law-enforcement desk · {label.entity}
             </p>
+            {fiu ? (
+              <p className={`mt-2 text-sm leading-6 ${SHEET.body}`}>
+                {fiuSentence(label.entity, fiu)}
+              </p>
+            ) : null}
           </div>
 
           {/* The guard. It sits above the request, not in a footnote, because a
@@ -341,7 +352,7 @@ export default function FreezeRequest({
           <p className={`mt-6 text-sm leading-7 ${SHEET.body}`}>
             The funds were followed across {trace.nodes.length}{" "}
             {trace.nodes.length === 1 ? "wallet" : "wallets"} and {trace.edges.length}{" "}
-            {trace.edges.length === 1 ? "transfer" : "transfers"} on the TRON network, in USDT (TRC-20),
+            {trace.edges.length === 1 ? "transfer" : "transfers"} on the {chain.name} network, in {chain.asset},
             from the reported address to the account named in section 01.
           </p>
         </Section>

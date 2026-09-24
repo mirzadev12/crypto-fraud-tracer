@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DEMO_SAMPLES, runTrace, sampleHref, traceHref, type TraceLookup } from "@/lib/api";
-import { checkTronAddress, isTxHash } from "@/lib/tron";
+import { checkAddress } from "@/lib/address";
+import { chainMeta } from "@/lib/chain-meta";
+import { isTxHash } from "@/lib/tron";
 import { identifyChain } from "@/lib/chains";
 import type { Screening } from "@/lib/screen";
 import type { ResolvedTransfer, TxLookup } from "@/lib/txlookup";
@@ -43,7 +45,7 @@ const FIELD =
 
 /** The limits are fixed by the pipeline, so the docket states them as facts. */
 const PARAMETERS: Array<[string, string]> = [
-  ["Chain", "TRON · USDT (TRC-20)"],
+  ["Chains", "TRON · Ethereum mainnet · USDT"],
   ["Other chains", "Screened against OFAC, not traced"],
   ["Depth", "3 hops"],
   ["Outflows", "Top 5 per wallet, by value"],
@@ -133,13 +135,20 @@ export default function InvestigateForm() {
   >(null);
   const [screeningBusy, setScreeningBusy] = useState(false);
 
-  const addressCheck = useMemo(() => checkTronAddress(address), [address]);
+  const addressCheck = useMemo(() => checkAddress(address), [address]);
   const looksLikeTx = useMemo(() => isTxHash(address), [address]);
   /** A recognised address on a chain we screen but do not trace. */
   const otherChain = useMemo(() => {
     const guess = identifyChain(address);
     return guess && !guess.chain.traceable ? guess : null;
   }, [address]);
+  /**
+   * Addresses the OFAC screen can answer for: every other chain, and Ethereum
+   * too — a trace never labels the address it starts from, so screening the
+   * reported address itself stays one click away.
+   */
+  const screenable =
+    otherChain ?? (addressCheck.valid && addressCheck.chain === "ethereum" ? identifyChain(address) : null);
   const screened = screening && screening.for === address.trim() ? screening : null;
   /** The wallet the trace will actually run against. */
   const subject = resolved ? resolved.to : address.trim();
@@ -176,7 +185,7 @@ export default function InvestigateForm() {
   /* Screen in an event handler, never an effect — see CONTEXT.md §5. */
   async function screenOtherChain() {
     const candidate = address.trim();
-    if (!otherChain || screeningBusy || screened) return;
+    if (!screenable || screeningBusy || screened) return;
     setScreeningBusy(true);
     try {
       const res = await fetch(`/api/screen/${encodeURIComponent(candidate)}`);
@@ -288,11 +297,13 @@ export default function InvestigateForm() {
                 onBlur={() => {
                   setTouched(true);
                   void resolveHash();
-                  void screenOtherChain();
+                  // Screened on blur only where it is the whole answer: a chain
+                  // FineX does not trace. An Ethereum address offers the button.
+                  if (otherChain) void screenOtherChain();
                 }}
                 spellCheck={false}
                 autoComplete="off"
-                placeholder="T…  or a transaction hash"
+                placeholder="T…  or 0x…  or a transaction hash"
                 aria-invalid={showAddressError}
                 aria-describedby="address-help"
                 className={`${FIELD} mt-4 tracking-tight ${
@@ -318,14 +329,16 @@ export default function InvestigateForm() {
                 {showAddressError
                   ? addressCheck.reason
                   : addressCheck.valid
-                    ? "Checksum valid — the address is well formed."
+                    ? addressCheck.chain === "ethereum"
+                      ? `${addressCheck.checksummed ? "Checksum valid" : "Well formed, typed without a checksum, so a mistyped character cannot be caught"}. ${chainMeta("ethereum").note}`
+                      : "Checksum valid — the address is well formed."
                     : looksLikeTx
                       ? resolving
                         ? "Reading the transaction…"
                         : "That is a transaction hash. We will read it and trace the wallet it paid."
                       : otherChain
-                        ? `${otherChain.chain.name} address${otherChain.verified ? ", checksum valid" : ""}. FineX traces USDT on TRON; an address on another chain is screened against the OFAC sanctions list instead.`
-                        : "A TRON address (T…), or the 64-character hash of the transaction that sent the money."}
+                        ? `${otherChain.chain.name} address${otherChain.verified ? ", checksum valid" : ""}. FineX traces USDT on TRON and Ethereum; an address on another chain is screened against the OFAC sanctions list instead.`
+                        : "A TRON address (T…), an Ethereum address (0x…), or the hash of the transaction that sent the money."}
               </p>
 
               {/* What the hash turned out to be, stated before anything is
@@ -335,7 +348,7 @@ export default function InvestigateForm() {
                 <div className="mt-6 border-l-2 border-confirmed py-4 pl-6">
                   <Designation>Transaction read</Designation>
                   <p className="mt-4 text-sm leading-6 text-muted">
-                    This transaction moved{" "}
+                    This {chainMeta(resolved.chain).name} transaction moved{" "}
                     <strong className="font-semibold text-ink">
                       {formatUsdt(resolved.valueUsdt)}
                     </strong>{" "}
@@ -359,7 +372,7 @@ export default function InvestigateForm() {
 
               {/* Another chain: screened, never traced. Listed is a finding; not
                   listed is stated as exactly that and nothing more. */}
-              {otherChain && !screened ? (
+              {screenable && !screened ? (
                 <div className="mt-6 flex flex-wrap items-center gap-4">
                   <button
                     type="button"

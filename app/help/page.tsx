@@ -91,7 +91,7 @@ const STEPS = [
   {
     n: "1",
     title: "Paste the address or transaction",
-    body: "A wallet address starts with T and is 34 characters long. A transaction is 64 characters. Either is checked before anything else happens, and a transaction shows you the wallet it paid before tracing it. An address from another chain, such as Ethereum or Bitcoin, is not traced: it is checked against the sanctions list instead.",
+    body: "A TRON address starts with T and is 34 characters long. An Ethereum address starts with 0x and is 42 characters long. A transaction is 64 characters, with 0x in front on Ethereum. Each is checked before anything else happens, and a transaction shows you the wallet it paid before tracing it. An address from any other chain, such as Bitcoin, is not traced: it is checked against the sanctions list instead.",
   },
   {
     n: "2",
@@ -157,8 +157,8 @@ const LIMITS = [
     body: "Nobody can. We mark where the trail ends and stop, rather than guess.",
   },
   {
-    title: "It covers TRON and USDT only",
-    body: "That is where this kind of fraud money actually moves.",
+    title: "It covers USDT on TRON and Ethereum only",
+    body: "That is where this kind of fraud money mostly moves. On Ethereum it reads the main network only: the same 0x address on BNB Chain or Polygon is not read. When money goes into a swap or a bridge, the trace stops there and says so.",
   },
   {
     title: "It never reports silence as an answer",
@@ -172,7 +172,7 @@ export default function HelpPage() {
       <PageHeader
         eyebrow="Help"
         title="How to use this"
-        description="FineX follows stolen USDT on the TRON chain and tells you whether the money can still be reached."
+        description="FineX follows stolen USDT on TRON and Ethereum and tells you whether the money can still be reached."
         actions={
           <Link href="/investigate" className={buttonStyles.primary}>
             Trace a wallet

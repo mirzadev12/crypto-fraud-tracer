@@ -3,6 +3,10 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import { DEMO_SAMPLES, sampleHref } from "@/lib/api";
 import demoCases from "@/data/demo-cases.json";
+import tronDeposits from "@/data/deposit-addresses.json";
+import tronSeeds from "@/data/hot-wallets.json";
+import ethDeposits from "@/data/eth/deposit-addresses.json";
+import ethSeeds from "@/data/eth/hot-wallets.json";
 import { shortAddress } from "@/lib/format";
 import {
   CASE_PROOF,
@@ -44,7 +48,7 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         Self-hosted by the deploying agency. No case data leaves it: the wallet
         address, the reported amount and the fraud date stay on the agency&rsquo;s
         own deployment, and nothing is sent to a third-party analytics service.
-        The only outbound calls are reads of public TRON endpoints, which are
+        The only outbound calls are reads of public TRON and Ethereum endpoints, which are
         blockchain data, not case data. There is no database — the label tables
         are plain JSON files in the repository.
       </>
@@ -77,9 +81,10 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         if the trail ends somewhere we hold no label for, we say so instead of
         guessing, and the case is dispositioned on whether the funds are still at
         rest. <span className="text-ink">Cross-chain hops</span> — the trace follows
-        USDT on TRON only, so where money leaves the chain the trail ends at the
-        last TRON wallet it reached; an address on the other chain can be
-        screened against the sanctions list here, but not traced.{" "}
+        USDT on TRON and on Ethereum, each on its own, so where money leaves a
+        chain the trail ends at the last wallet it reached — on Ethereum at the
+        bridge itself, named from the explorer&rsquo;s tag. An address on another
+        chain can be screened against the sanctions list here, but not traced.{" "}
         <span className="text-ink">Mixers</span> — nobody can follow a mixer
         deterministically, so the case is closed at the entry point rather than
         continued on speculation.
@@ -133,17 +138,17 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
     a: (
       <ul className="space-y-4">
         <li>
-          <span className="text-ink">Cross-chain tracing.</span> TRON first,
-          because that is where USDT fraud proceeds move. Where money leaves
-          TRON, the trail ends at the last TRON wallet it reached. We looked for
-          a way to follow a bridge honestly and could not find one — the
-          officially documented TRON bridge addresses carry no USDT transfers at
-          all, so a detector built on them would ship labels for addresses that
-          never appear in the flows we trace. What is built is screening: an
-          address from any chain the OFAC list covers is recognised by its
-          format and checked against that list. USDT on Ethereum is the next
-          tracing adapter: the tracing logic carries over, but attribution data
-          is built per chain, and Ethereum&apos;s starts from zero.
+          <span className="text-ink">Following money across a bridge.</span> USDT
+          is traced on TRON and on Ethereum mainnet, each on its own. On Ethereum,
+          money that enters a bridge stops the trace at the bridge, named from the
+          explorer&rsquo;s own tag, so the case says where it left; following it
+          onto the destination network is not built. On TRON we looked for a way
+          to recognise a bridge honestly and could not find one — the officially
+          documented TRON bridge addresses carry no USDT transfers at all. An
+          address from any other chain the OFAC list covers is recognised and
+          screened. BNB Chain and Polygon use Ethereum&apos;s address format and
+          would run on the same engine; their attribution data is built per chain
+          and starts from zero.
         </li>
         <li>
           <span className="text-ink">NCRP and SAHYOG integration.</span> Not
@@ -164,7 +169,7 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         <li>
           <span className="text-ink">Indexing at scale.</span> Every trace reads
           the chain on demand through a public API — about half a minute per
-          wallet without an API key. At scale, a TRON node the department runs
+          wallet without an API key. At scale, a TRON or Ethereum node the department runs
           itself indexes token transfers locally: no rate limit, and no outside
           service sees which wallets are under investigation.
         </li>
@@ -205,7 +210,7 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
     note: "Open any recorded case below and every one of these is on screen.",
     items: [
       ["Blockchain transaction graph analysis", "Breadth-first tracing with taint carried hop by hop, drawn three ways."],
-      ["Automated exchange and VASP identification", "Attribution is a deterministic lookup: 241 customer deposit addresses derived across 10 exchanges from 15 tagged seeds, each label carrying its confidence and evidence tier."],
+      ["Automated exchange and VASP identification", `Attribution is a deterministic lookup: ${tronDeposits.length} customer deposit addresses derived on TRON across ${new Set(tronDeposits.map((r) => r.exchange)).size} exchanges from ${tronSeeds.length} tagged seeds, and ${ethDeposits.length} on Ethereum across ${new Set(ethDeposits.map((r) => r.exchange)).size} exchanges from ${ethSeeds.length} — CoinDCX and WazirX among them — each label carrying its confidence and evidence tier.`],
       ["Detection of intermediary laundering wallets", "Six behavioural rules, each stating its reason in a sentence an officer can read out."],
       ["Risk categorisation of wallets", "Every wallet that matters is classed as an exit, a chokepoint, at rest, a sanctions stop or an unresolved tail."],
       ["Automated alert generation", "A wallet found holding funds is watched, and the desk re-asks the chain whether it has moved."],
@@ -214,7 +219,8 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
       ["API integrations", "Seven documented endpoints; a permalink replays a past run exactly."],
       ["Real-time tracing", "A recorded case answers in milliseconds. A live wallet takes about half a minute on the public endpoint, and less with an API key."],
       ["Automated investigative recommendations", "Ranked leads naming the next wallet to open, ordered by what can still be done."],
-      ["Multiple blockchain ecosystems — screening", "An address from any chain the OFAC list covers is recognised by its format, checksum verified where the format has one, and screened against that list. Screening, not tracing: the trace stays on TRON."],
+      ["Multiple blockchain ecosystems", "USDT is traced on TRON and on Ethereum mainnet — one engine, a chain adapter underneath. An address from any other chain the OFAC list covers is recognised by its format, checksum verified where the format has one, and screened against that list, not traced."],
+      ["Identification of cross-chain fund movement", "On Ethereum, money that enters a bridge stops the trace there, with the bridge named from the explorer's own tag and the case stating that the trail left the chain. Following it onto the other network is not built — see below."],
     ],
   },
   {
@@ -228,9 +234,9 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
   {
     group: "Not built, with a plan",
     items: [
-      ["Cross-chain and multi-ecosystem tracing", "TRON first, because that is where USDT fraud proceeds move. Where money leaves TRON the trail ends at the last TRON wallet it reached. USDT on Ethereum is the next tracing adapter."],
+      ["Cross-chain tracing", "Each chain is traced on its own. Where money crosses a bridge the trail ends at the bridge; following it onto the destination network, and the other EVM networks (BNB Chain, Polygon) that share Ethereum's address format, are next."],
       ["NCRP and SAHYOG integration", "Both need access only I4C can grant. Intake already accepts what a complaint contains — a wallet or a transaction hash, singly or in batches."],
-      ["Scalable blockchain indexing", "Every trace reads a public endpoint on demand. At scale, a departmental TRON node indexes transfers locally, with no outside service seeing which wallets are under investigation."],
+      ["Scalable blockchain indexing", "Every trace reads a public endpoint on demand. At scale, a departmental TRON or Ethereum node indexes transfers locally, with no outside service seeing which wallets are under investigation."],
     ],
     note: "",
   },
@@ -250,14 +256,27 @@ const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const REAL_CASES = (demoCases.cases as Array<{
   address: string;
   triage: string;
-  trace: { caseId: string; terminal: { label: { entity: string } } | null };
-}>).map((c) => ({
-  caseId: c.trace.caseId,
-  address: c.address,
-  finding: c.trace.terminal
-    ? `ends at ${c.trace.terminal.label.entity}`
-    : "funds at rest, never sent",
-}));
+  trace: {
+    caseId: string;
+    chain?: string;
+    edges: unknown[];
+    nodes: Array<{ depth: number; label: { kind: string; entity: string } | null }>;
+    terminal: { label: { entity: string } } | null;
+  };
+}>).map((c) => {
+  const contract = c.trace.nodes.find((n) => n.depth > 0 && n.label?.kind === "contract");
+  return {
+    caseId: c.trace.caseId,
+    address: c.address,
+    finding: c.trace.terminal
+      ? `ends at ${c.trace.terminal.label.entity}`
+      : contract?.label
+        ? `trail enters ${contract.label.entity}`
+        : c.trace.edges.length === 0
+          ? "funds at rest, never sent"
+          : "funds at rest",
+  };
+});
 
 export default function OperationsPage() {
   return (

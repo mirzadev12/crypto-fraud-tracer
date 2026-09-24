@@ -5,6 +5,7 @@ import AddressChip from "@/components/AddressChip";
 import { DataSourceBadge, TriageBadge } from "@/components/ui";
 import type { DataSource } from "@/lib/api";
 import type { TraceResult } from "@/lib/types";
+import { chainMeta } from "@/lib/chain-meta";
 
 /**
  * Where you are, and what else this case holds.
@@ -122,7 +123,7 @@ export default function CaseContextBar({
         <DataSourceBadge source={source} note={note} asOf={asOf} />
         <div className="ml-auto flex items-center gap-4">
           <span className="hidden font-label text-[10px] uppercase tracking-[0.2em] text-faint sm:inline xl:hidden 2xl:inline">
-            TRON · USDT TRC-20
+            {chainMeta(trace.chain).scope}
           </span>
           {actions ? <div className="hidden items-center gap-2 xl:flex">{actions}</div> : null}
         </div>

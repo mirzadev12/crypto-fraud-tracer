@@ -554,7 +554,7 @@ export function DataSourceBadge({
     <span
       title={
         note ??
-        "Recorded trace: captured from the TRON chain by this pipeline, committed to the repository, and re-verifiable — the SHA-256 of every response it was built from is carried into the evidence packet."
+        "Recorded trace: captured from the chain by this pipeline, committed to the repository, and re-verifiable — the SHA-256 of every response it was built from is carried into the evidence packet."
       }
       className="inline-flex items-center gap-2 border border-line px-2 py-1 font-label text-xs uppercase tracking-[0.16em] text-faint"
     >
