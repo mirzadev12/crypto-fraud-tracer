@@ -58,6 +58,66 @@ try {
   process.exit(1);
 }
 
+/*
+ * Ethereum: a raw node's receipt, decoded here. The case was traced through
+ * Blockscout; the check reads a different provider, so the two can only agree
+ * if the chain does. The decoder is borrowed for the same reason as above.
+ */
+let wordToAddress;
+try {
+  ({ wordToAddress } = require_("../lib/evm.ts"));
+} catch (err) {
+  console.error(`Could not load wordToAddress from lib/evm.ts: ${err?.code ?? err?.message ?? err}`);
+  process.exit(1);
+}
+const ETH_RPC = process.env.ETH_RPC_URL ?? "https://ethereum-rpc.publicnode.com";
+const ETH_USDT = "0xdac17f958d2ee523a2206206994597c13d831ec7";
+const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+
+async function rpc(method, params) {
+  const res = await fetch(ETH_RPC, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+    signal: AbortSignal.timeout(20_000),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const js = await res.json();
+  if (js.error) throw new Error(js.error.message ?? "rpc error");
+  return js.result;
+}
+
+/** One Ethereum transaction's USDT transfers, from the node's receipt. */
+async function fetchEthTransfers(txHash) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const receipt = await rpc("eth_getTransactionReceipt", [txHash]);
+      // A node that answers null has no such transaction — or has pruned it.
+      // A pruned index is our limitation, so it is unreadable, not missing.
+      if (!receipt) return null;
+      if (receipt.status !== "0x1") return [];
+      const block = await rpc("eth_getBlockByNumber", [receipt.blockNumber, false]);
+      const at = block ? parseInt(block.timestamp, 16) * 1000 : 0;
+      return receipt.logs
+        .filter(
+          (l) =>
+            String(l.address).toLowerCase() === ETH_USDT &&
+            l.topics?.[0] === TRANSFER_TOPIC &&
+            l.topics.length === 3,
+        )
+        .map((l) => ({
+          from: wordToAddress(l.topics[1]) ?? "",
+          to: wordToAddress(l.topics[2]) ?? "",
+          value: Number(BigInt(l.data)) / 1e6,
+          at,
+        }));
+    } catch {
+      await sleep(1200 * (attempt + 1));
+    }
+  }
+  return null;
+}
+
 /** base58 already, or the 20-byte hex an event parameter carries. */
 function normalizeAddress(value) {
   const v = String(value ?? "");
@@ -82,6 +142,7 @@ const EPSILON = 0.01;
 
 /** One transaction, read back from the chain by its own hash. */
 async function fetchTransfers(txHash) {
+  if (/^0x/i.test(txHash)) return fetchEthTransfers(txHash);
   const url = `${BASE}/v1/transactions/${txHash}/events?only_confirmed=true`;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -119,10 +180,12 @@ function verdictFor(edge, onChain) {
   if (onChain === null) return { status: "UNREADABLE", note: "endpoint would not answer" };
   if (onChain.length === 0) return { status: "MISSING", note: "no USDT transfer in this transaction" };
 
+  // An Ethereum address is case-insensitive; a TRON address is not.
+  const same = (a, b) => (/^0x/i.test(a) ? a.toLowerCase() === String(b).toLowerCase() : a === b);
   const match = onChain.find(
     (t) =>
-      t.from === edge.from &&
-      t.to === edge.to &&
+      same(t.from, edge.from) &&
+      same(t.to, edge.to) &&
       Math.abs(t.value - edge.valueUsdt) <= EPSILON,
   );
   if (match) {
@@ -136,7 +199,7 @@ function verdictFor(edge, onChain) {
     return { status: "CONFIRMED", note: "" };
   }
 
-  const sameParties = onChain.find((t) => t.from === edge.from && t.to === edge.to);
+  const sameParties = onChain.find((t) => same(t.from, edge.from) && same(t.to, edge.to));
   if (sameParties) {
     return {
       status: "MISMATCH",

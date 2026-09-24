@@ -39,6 +39,20 @@
         "DEMO_MODE": "true"
       },
       "port": 3032
+    },
+    {
+      "name": "crypto-fraud-tracer-live",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "next",
+        "start",
+        "-p",
+        "3034"
+      ],
+      "env": {
+        "DEMO_MODE": "false"
+      },
+      "port": 3034
     }
   ]
 }
