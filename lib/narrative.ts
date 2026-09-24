@@ -204,8 +204,10 @@ export function buildNarrative(
   sentences.push(
     trace.triage === "COLD" && !trace.terminal
       ? "There is nothing to follow from this address; check it against the complaint before the case is closed."
-      : endedInContract
-        ? "The money has not reached an identified off-ramp; the next step is the transaction that sent it into the contract, or the destination network for a bridge."
+      : endedInContract && pooled?.label
+        ? categoryOf(pooled.label) === "bridge"
+          ? "The money has not reached an identified off-ramp; the next step is the bridge transaction, which names where it was delivered on the other network."
+          : "The money has not reached an identified off-ramp; the next step is the transaction that sent it into the contract, which shows what came out and to whom."
         : ACTION[trace.triage],
   );
 

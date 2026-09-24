@@ -1672,7 +1672,34 @@ attribution data, and TRON stays first.
   edge, flag and sentence).
 - Keccak/EIP-55 tests 5/5; tsc, eslint, `npm run build` clean.
 - The Ethereum verifier confirmed a real transfer and flagged the same transfer
-  with a wrong amount.
+  with a wrong amount. It asks several public nodes, because publicnode does
+  not index older transactions (it returned null for a 2021 one that drpc,
+  Cloudflare, 1rpc and Blast all had).
+- **Three recorded Ethereum cases** (`freeze-eth-cases.mjs`, script-selected,
+  not victim reports): WARM `0x77fB78EAC2021Cd52097168873324d3F1200E275` —
+  290 USDT to a derived **CoinDCX** customer deposit address (2021; the freeze
+  request names Neblio Technologies Private Limited); COLD
+  `0x16a8D032ffe880535CD3e1815fe917e96A0715dd` — 14,683 USDT reached an
+  OFAC-listed address (Behzad MESRI); HOT
+  `0xda4E10D8B82ed53d950e2D4312A22331c515569c` — 700 USDT, none left. All three
+  re-derive identically as of capture (the cursor seek works), and every
+  transfer is confirmed on raw nodes (3 of 3). The register now holds 13 real
+  cases (10 TRON, 3 Ethereum).
+- **Contract stop on real data:** a wallet that sent 3,000 USDT into CoW
+  Protocol's settlement contract (tagged DEX) came back HOT, the contract named
+  from its tag, the summary saying USDT stops being traceable there. No
+  small-wallet bridge deposit was found in recent blocks; bridges take the same
+  code path with the bridge sentence.
+- Live on a production build: the Ethereum wallet card, the watch (still /
+  moved, lower-case input accepted), and transaction lookup (`0x` hash on
+  Ethereum; a bare hash falls back to Ethereum when TRON has nothing).
+- **End to end, production build, demo mode: 30 of 30** — 13 recorded cases
+  answer from the file with their own chain, lower-case Ethereum is the same
+  case, a broken checksum is refused, the FIU-IND line on the CoinDCX exit and
+  its freeze request, intake, attribution, a TRON + Ethereum batch in one run,
+  no sideways scroll on ten routes at 375 / 784 / 1100 / 1600, no console
+  errors. (It caught the packet widening to 493 px at 375: packet fields now
+  wrap long tokens.)
 
 ### 10.4 Standing rules for this branch
 
