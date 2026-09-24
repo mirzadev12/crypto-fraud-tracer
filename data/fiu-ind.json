@@ -1,0 +1,149 @@
+{
+  "_source": "Ministry of Finance (Department of Revenue), answer to Lok Sabha Unstarred Question No. 112, answered Monday 4 December 2023, Annexure: \"Details of Virtual Digital Assets Service Providers (VDA SPs) Registered with Financial Intelligence Unit-India (FIU-IND)\"",
+  "_url": "https://sansad.in/getFile/loksabhaquestions/annex/1714/AU112.pdf?source=pqals",
+  "_answered": "2023-12-04",
+  "_retrieved": "2026-09-25",
+  "_note": "FIU-IND does not publish its registered list; this annexure is the government document that names them. It is a snapshot of 4 December 2023. An exchange absent from it is not thereby unregistered — later registrations (Binance among them, per later reporting) are not in it — so absence is never stated as a finding. Legal and trade names are copied exactly as printed, typos included (\"Privare\").",
+  "entities": [
+    {
+      "sno": 1,
+      "legalName": "Neblio Technologies Private Limited",
+      "tradeName": "Coin DCX"
+    },
+    {
+      "sno": 2,
+      "legalName": "ANQ Digital Finserv Privare Limited",
+      "tradeName": "ANQ Finance"
+    },
+    {
+      "sno": 3,
+      "legalName": "Unocoin Technologies Pvt Ltd",
+      "tradeName": "Unocoin"
+    },
+    {
+      "sno": 4,
+      "legalName": "Buyhatke internet private limited",
+      "tradeName": "Onramp"
+    },
+    {
+      "sno": 5,
+      "legalName": "Giottus Technologies Pvt Ltd",
+      "tradeName": "Giottus"
+    },
+    {
+      "sno": 6,
+      "legalName": "Bitbns Internet Private Limited",
+      "tradeName": "Bitbns"
+    },
+    {
+      "sno": 7,
+      "legalName": "Awlencan Innovations India Ltd",
+      "tradeName": "Zebpay"
+    },
+    {
+      "sno": 8,
+      "legalName": "Zanmai Labs PVT LTD",
+      "tradeName": "WazirX"
+    },
+    {
+      "sno": 9,
+      "legalName": "Bitcipher Labs LLP",
+      "tradeName": "Coinswitch"
+    },
+    {
+      "sno": 10,
+      "legalName": "Nextgendev Solutions Private Limited",
+      "tradeName": "CoinswitchX"
+    },
+    {
+      "sno": 11,
+      "legalName": "Rpfas Technologies Pvt Ltd",
+      "tradeName": "Mudrex"
+    },
+    {
+      "sno": 12,
+      "legalName": "Iblock Technologies Pvt Ltd",
+      "tradeName": "Buyucoin"
+    },
+    {
+      "sno": 13,
+      "legalName": "Wollfish Labs Pvt Ltd",
+      "tradeName": "Coindhan"
+    },
+    {
+      "sno": 14,
+      "legalName": "Rario Digital Private Limited",
+      "tradeName": "Rario"
+    },
+    {
+      "sno": 15,
+      "legalName": "Angelic Infotech Pvt Ltd",
+      "tradeName": "Suncrypto"
+    },
+    {
+      "sno": 16,
+      "legalName": "Carretx Technologies Pvt. Ltd.",
+      "tradeName": "Carret"
+    },
+    {
+      "sno": 17,
+      "legalName": "Ante Multimedia Private Limited",
+      "tradeName": null
+    },
+    {
+      "sno": 18,
+      "legalName": "Abhibha Technologies Pvt Ltd",
+      "tradeName": "Onmeta"
+    },
+    {
+      "sno": 19,
+      "legalName": "Smartliving Digital Technologies Pvt. Ltd",
+      "tradeName": "Cryptosmartlife"
+    },
+    {
+      "sno": 20,
+      "legalName": "Ucy Technology Pvt Ltd",
+      "tradeName": "Pyor"
+    },
+    {
+      "sno": 21,
+      "legalName": "Digital Collectibles Pte. Ltd.",
+      "tradeName": "Rario"
+    },
+    {
+      "sno": 22,
+      "legalName": "Veeratva Technologies Private Limited",
+      "tradeName": "Valr"
+    },
+    {
+      "sno": 23,
+      "legalName": "Transak Technology India Private Limited",
+      "tradeName": "Transak"
+    },
+    {
+      "sno": 24,
+      "legalName": "Remizo Technologies India Pvt Ltd",
+      "tradeName": "Getbit"
+    },
+    {
+      "sno": 25,
+      "legalName": "Fin Genie Tech Pvt Ltd",
+      "tradeName": "Bytex"
+    },
+    {
+      "sno": 26,
+      "legalName": "Ardour Labs Pvt Ltd",
+      "tradeName": null
+    },
+    {
+      "sno": 27,
+      "legalName": "Inocyx Technologies Private Limited",
+      "tradeName": "Inocyx"
+    },
+    {
+      "sno": 28,
+      "legalName": "Metatoken Technologies Private Limited",
+      "tradeName": "Fanztar"
+    }
+  ]
+}

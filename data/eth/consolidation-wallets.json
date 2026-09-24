@@ -1,0 +1,9 @@
+[
+  {
+    "address": "0xF6Fc530369cbE3cE503fFE986Ac5c0828d831A9C",
+    "exchange": "WazirX",
+    "confidence": 0.95,
+    "evidence": "Common sweep target of 20 addresses gas-funded by \"WazirX: Deposit Funder 1\"",
+    "sharedBy": 20
+  }
+]

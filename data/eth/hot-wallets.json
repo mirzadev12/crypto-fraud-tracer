@@ -1,0 +1,162 @@
+[
+  {
+    "address": "0x4D24EecEcb86041F47bca41265319e9f06aE2Fcb",
+    "exchange": "CoinDCX",
+    "tag": "CoinDCX: Hot Wallet (CoinDCX 5)",
+    "role": "hot",
+    "source_url": "https://eth.blockscout.com/address/0x4D24EecEcb86041F47bca41265319e9f06aE2Fcb",
+    "tags_seen": [
+      "CoinDCX: Hot Wallet",
+      "HOT WALLET",
+      "Exchange",
+      "CoinDCX 5",
+      "CoinDCX"
+    ],
+    "verified": "2026-09-25",
+    "note": "Every one of 15 addresses gas-funded by CoinDCX: Deposit Funder 1 that held USDT swept all of it here (sampled 24 Sep 2026)."
+  },
+  {
+    "address": "0xC4e805208D8d25b71BDcfB558F29259544EC4fcC",
+    "exchange": "CoinDCX",
+    "tag": "CoinDCX: Deposit Funder 1",
+    "role": "deposit_funder",
+    "source_url": "https://eth.blockscout.com/address/0xC4e805208D8d25b71BDcfB558F29259544EC4fcC",
+    "tags_seen": [
+      "CoinDCX: Deposit Funder 1",
+      "Exchange",
+      "CoinDCX Gas Supplier 1",
+      "CoinDCX"
+    ],
+    "verified": "2026-09-25",
+    "note": "Pays the gas for CoinDCX customer deposit addresses to move their tokens. A seed for the funder route, not a wallet customer money passes through."
+  },
+  {
+    "address": "0x7aeB3314E041153c4F6bbea19AbECBCe20946fD4",
+    "exchange": "WazirX",
+    "tag": "WazirX: Deposit Funder 1",
+    "role": "deposit_funder",
+    "source_url": "https://eth.blockscout.com/address/0x7aeB3314E041153c4F6bbea19AbECBCe20946fD4",
+    "tags_seen": [
+      "WazirX: Deposit Funder 1",
+      "WazirX Gas Supplier 1",
+      "Exchange",
+      "WazirX"
+    ],
+    "verified": "2026-09-25",
+    "note": "Pays the gas for WazirX customer deposit addresses; active on 24 Sep 2026. WazirX has no tagged wallet its deposit addresses currently sweep into, so this is the only public route to WazirX attribution. The WazirX Safe 0x27fD…C9b4, drained in July 2024, is not a seed."
+  },
+  {
+    "address": "0x28C6c06298d514Db089934071355E5743bf21d60",
+    "exchange": "Binance",
+    "tag": "Binance: Hot Wallet (Binance 14)",
+    "role": "hot",
+    "source_url": "https://eth.blockscout.com/address/0x28C6c06298d514Db089934071355E5743bf21d60",
+    "tags_seen": [
+      "Binance: Hot Wallet",
+      "HOT WALLET",
+      "Exchange",
+      "Binance 14",
+      "Binance"
+    ],
+    "verified": "2026-09-25",
+    "note": "3,318 distinct USDT senders in 1,500 blocks (25 Sep 2026). Too large for the explorer to page; its recent inflows are read from a node."
+  },
+  {
+    "address": "0x9642b23Ed1E01Df1092B92641051881a322F5D4E",
+    "exchange": "MEXC",
+    "tag": "MEXC 21",
+    "role": "hot",
+    "source_url": "https://eth.blockscout.com/address/0x9642b23Ed1E01Df1092B92641051881a322F5D4E",
+    "tags_seen": [
+      "MEXC 21",
+      "Exchange"
+    ],
+    "verified": "2026-09-25",
+    "note": "282 distinct USDT senders in 1,500 blocks (25 Sep 2026)."
+  },
+  {
+    "address": "0xA9D1e08C7793af67e9d92fe308d5697FB81d3E43",
+    "exchange": "Coinbase",
+    "tag": "Coinbase Exchange: Hot Wallet (Exchange Gateway 10)",
+    "role": "hot",
+    "source_url": "https://eth.blockscout.com/address/0xA9D1e08C7793af67e9d92fe308d5697FB81d3E43",
+    "tags_seen": [
+      "Coinbase Exchange: Hot Wallet",
+      "Exchange Gateway 10",
+      "HOT WALLET",
+      "Coinbase10",
+      "Coinbase Exchange"
+    ],
+    "verified": "2026-09-25",
+    "note": "A contract, not an externally owned wallet. 568 distinct USDT senders in 1,500 blocks (25 Sep 2026)."
+  },
+  {
+    "address": "0x1AB4973a48dc892Cd9971ECE8e01DcC7688f8F23",
+    "exchange": "Bitget",
+    "tag": "Bitget: Hot Wallet",
+    "role": "hot",
+    "source_url": "https://eth.blockscout.com/address/0x1AB4973a48dc892Cd9971ECE8e01DcC7688f8F23",
+    "tags_seen": [
+      "Bitget: Hot Wallet",
+      "Poisoning Address",
+      "Phish",
+      "Hack",
+      "HOT WALLET",
+      "Exchange",
+      "Bitget"
+    ],
+    "verified": "2026-09-25",
+    "note": "The explorer also attaches \"Poisoning Address / Phish / Hack\" to this wallet, which contradicts its hot-wallet tag. Admitted on its inflow pattern (270 distinct USDT senders in 1,500 blocks, 25 Sep 2026), which is a consolidation wallet’s; treat it as weaker than the others."
+  },
+  {
+    "address": "0x0D0707963952f2fBA59dD06f2b425ace40b492Fe",
+    "exchange": "Gate.io",
+    "tag": "Gate.io: Hot Wallet",
+    "role": "hot",
+    "source_url": "https://eth.blockscout.com/address/0x0D0707963952f2fBA59dD06f2b425ace40b492Fe",
+    "tags_seen": [
+      "Gate.io: Hot Wallet",
+      "Gate Deposit",
+      "DEPOSIT ADDRESS",
+      "Derivatives",
+      "HOT WALLET",
+      "Exchange",
+      "Deribit",
+      "Gate.io"
+    ],
+    "verified": "2026-09-25",
+    "note": "The explorer merges tags from several sources here, including an unrelated Deribit tag. 160 distinct USDT senders in 1,500 blocks (25 Sep 2026)."
+  },
+  {
+    "address": "0x77134cbC06cB00b66F4c7e623D5fdBF6777635EC",
+    "exchange": "Bitfinex",
+    "tag": "Bitfinex: Hot Wallet",
+    "role": "hot",
+    "source_url": "https://eth.blockscout.com/address/0x77134cbC06cB00b66F4c7e623D5fdBF6777635EC",
+    "tags_seen": [
+      "HOT WALLET",
+      "Exchange",
+      "Bitfinex: Hot Wallet",
+      "Bitfinex"
+    ],
+    "verified": "2026-09-25",
+    "note": "24 distinct USDT senders in 1,500 blocks (25 Sep 2026)."
+  },
+  {
+    "address": "0x7491f26A0FCb459111b3a1db2fbFC4035D096933",
+    "exchange": "KuCoin",
+    "tag": "KuCoin: Hot Wallet (KuCoin 33)",
+    "role": "hot",
+    "source_url": "https://eth.blockscout.com/address/0x7491f26A0FCb459111b3a1db2fbFC4035D096933",
+    "tags_seen": [
+      "KuCoin: Hot Wallet",
+      "KuCoin 33",
+      "DEPOSIT ADDRESS",
+      "HOT WALLET",
+      "Exchange",
+      "KuCoin"
+    ],
+    "verified": "2026-09-25",
+    "note": "16 distinct USDT senders in 1,500 blocks (25 Sep 2026)."
+  }
+]
