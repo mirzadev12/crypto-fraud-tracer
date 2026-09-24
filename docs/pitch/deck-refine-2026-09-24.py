@@ -47,6 +47,7 @@ from lxml import etree
 from PIL import Image
 from pptx import Presentation
 from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE
 from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.util import Emu, Inches
 
@@ -58,6 +59,8 @@ R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 NS = {"a": A, "p": P}
 MARKER = "FineX references"
 SITE_URL = "https://crypto-fraud-tracer.onrender.com"
+REPO_URL = "https://github.com/reemrasheed2007/crypto-fraud-tracer"
+DEMO_URL = "https://www.youtube.com/watch?v=A4AipdXDDsk"
 
 problems = []
 
@@ -203,6 +206,17 @@ def para(tx, runs, algn="l", line=1.0, before=0, after=0, bullet=None, indent_in
         r.append(props)
         etree.SubElement(r, q("t")).text = text
     return p
+
+
+def link_overlay(slide, name, x, y, w, h, url):
+    """An invisible rectangle carrying a hyperlink, over text that shows it."""
+    rect = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h))
+    rect.name = name
+    rect.fill.background()
+    rect.line.fill.background()
+    rect.shadow.inherit = False
+    rect.click_action.hyperlink.address = url
+    return rect
 
 
 def add_box(slide, name, x, y, w, h, anchor="t"):
@@ -583,7 +597,15 @@ def slide6(s, part):
         run = repo.text_frame.paragraphs[0].runs[0]
         run.text = "View on GitHub"
         run._r.find(q("rPr")).set("sz", "1400")
-        run.hyperlink.address = "https://github.com/reemrasheed2007/crypto-fraud-tracer"
+        run.hyperlink.address = REPO_URL
+    # PowerPoint's PDF export drops some text hyperlinks — here the GitHub and
+    # the video lines came out unclickable — while a hyperlink on a shape always
+    # survives (tested: five text-link variants on a blank slide, none exported;
+    # a linked transparent rectangle did). So each of those two lines also gets
+    # an invisible linked rectangle over it; the text keeps its own link for
+    # PowerPoint itself.
+    link_overlay(s, "GitHub link area", 1.57, 10.19, 2.00, 0.40, REPO_URL)
+    link_overlay(s, "Video link area", 1.57, 10.90, 4.20, 0.28, DEMO_URL)
     page_number(s, find(s, "TextBox 43", "6"), drop=[find(s, "TextBox 27", "6")])
 
 
