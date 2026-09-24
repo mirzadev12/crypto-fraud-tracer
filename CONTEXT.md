@@ -1370,34 +1370,40 @@ still traced from the file, typo'd TRON still an error, batch names chains,
 operations counts, 334 on the landing page, attribution sentence, no
 horizontal overflow on six routes at 375 / 784 / 1100 px, no console errors.
 
-### 8.6 The deck — proposed, awaiting the user's go-ahead
+### 8.6 The deck — edited on 24 Sep, with the user's go-ahead
 
-The user's Canva deck ships; edits are text-in-place only and never longer
-than the text they replace. Six edits were **proposed** on 24 Sep and the
-files sent to the user, who then asked to see the website first and to say
-when the PPT should be edited — **do not apply them until the user says so.**
-They live in `docs/pitch/deck-edits-2026-09-24.py`, which runs *after*
-`edit_deck.py`, checks every replacement and is idempotent:
+The user's Canva deck ships; edits are text in place (never longer than the
+text replaced), links, and a few corrective nudges — no slide added, no
+template or flow change. `docs/pitch/deck-edits-2026-09-24.py` runs *after*
+`edit_deck.py`, checks every change, refuses to write on a mismatch, and is
+idempotent. It applies: S2 evidence-packet line; S3 architecture picture
+(`docs/pitch/deck-assets/architecture-2026-09-24.png` — the picture named a case
+database, DEX metrics, InsightX, `/api/cases` and an Excel download, none of
+which exist), invisible template footer, page number moved below the tech-stack
+list; S4 three measured lines and the corrected bridge mitigation; S5 334,
+multi-chain screening, ML-ranking prospect, text insets clear of icons; S6 334,
+demo video `https://www.youtube.com/watch?v=A4AipdXDDsk`, clickable links, QR
+(`https://crypto-fraud-tracer.onrender.com`, decoded and checked) enlarged and
+captioned, link lines off the GitHub underline, and the TronGrid reference link
+cleaned of `?utm_source=chatgpt.com`.
 
-- S2 TRACE-TO-ACTION box: the repeated second line → "-SHA-256 evidence packet
-  for every case."
-- S4 problem 2 mitigation: "Recorded as a hard stop; case closes CLOSED." →
-  "Sanctions hit closes it; no guessing past."
-- S5 figure 202 → 334; S6 OFAC line 202 → 334.
-- S5 Multi-Chain → "built: every OFAC-listed chain is screened. Next: tracing
-  Ethereum, BSC."
-- S5 Law-Enforcement Integration → "NCRP / SAHYOG intake; then ML ranking
-  trained on I4C-confirmed cases."
+Two things learned the hard way: Canva exports list bullets as **separate dot
+shapes**, so resizing a bulleted list's text breaks it — move neighbours
+instead; and python-pptx caches a relationship's `target_ref`, so rewriting a
+link target needs the cache entry replaced as well.
 
 QA without PowerPoint: the deck embeds its fonts as uncompressed EOT in
-`ppt/fonts/*.fntdata`. Strip the EOT header (the last `FontDataSize` bytes are
-the TTF), rename each family to the typeface string the slides use ("Calibri
-(MS) Italics"), install, and LibreOffice then renders the deck faithfully. The
+`ppt/fonts/*.fntdata`. Strip the header (the last `FontDataSize` bytes are the
+TTF), rename each family to the typeface string the slides use ("Calibri (MS)
+Italics"), alias real Calibri from the embedded "Calibri (MS)" for the few runs
+that name plain "Calibri", and LibreOffice renders the deck faithfully. The
 PDF sent on 24 Sep was made that way; the user's usual pipeline is PowerPoint
-COM (`Presentations.Open(path,$true,$false,$false)`, `SaveAs(pdf,32)`).
-Seen in that render and **pre-existing**: slide 5's Law-Enforcement text runs
-under the document icon; slide 6's GitHub line sits tight on the "Live tool"
-line. Check both by eye in PowerPoint.
+COM (`Presentations.Open(path,$true,$false,$false)`, `SaveAs(pdf,32)`) — re-export
+and check by eye before submitting.
+
+The structure was checked against real winning SIH decks
+(`github.com/JoysonBeera/sih-winning-presentations`, 2023 and 2024
+cybersecurity winners): same six-slide official template as ours.
 
 ### 8.7 Documents updated on 24 Sep
 
@@ -1455,17 +1461,19 @@ the user's Canva deck: text in place only, never rebuilt, never longer.
 
 ### 8.11 Still pending
 
-1. The user reviews the website, then says whether to apply the deck edits
-   in §8.6.
-2. Demo video URL → line 164 of `edit_deck.py` ("Demo video (58 s):
-   ________"), re-run, re-export, check slide 6, send both files; offer a QR.
-3. Canva-only fixes for the team: slide 3 image says "Case/Transaction
-   Database" (there is no database); slide 5's vertical IMPACT spine; slide 2's
-   RISK VS SOLUTION box repeats the points above it; slide 3's footer overlaps
-   the flowchart.
+1. Export the edited deck through PowerPoint and check each slide by eye
+   (§8.6); re-check against the official template on sih.gov.in.
+2. Demo video: done (slide 6 links `youtube.com/watch?v=A4AipdXDDsk`); keep
+   the video Public or Unlisted.
+3. Canva-only, optional: slide 5's vertical IMPACT spine; slide 2's RISK VS
+   SOLUTION box repeats the points above it. (Slide 3's image and footer are
+   fixed by the script.)
 4. Render: a teammate sets `TRONGRID_API_KEY` and `DEMO_MODE=true`; check
    `/api/health`; add an uptime pinger.
 5. SPOC uploads the team and Annexure A; the leader submits title, description
    and PDF. The LICENSE question goes to the SPOC first.
-6. Merge `claude/optimistic-franklin-isy8fq` into main on both repos when the
-   team is ready — that is what puts screening on the live site.
+6. Merge `claude/optimistic-franklin-isy8fq` into main on the repo Render
+   deploys **before submitting** — the deck now claims screening and 334, and
+   the live site shows neither until then.
+7. Ethereum tracing: decided 24 Sep — grand finale, not before submission.
+8. Full handoff for the local machine: `docs/HANDOFF-LOCAL.md`.

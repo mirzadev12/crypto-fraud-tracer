@@ -13,9 +13,9 @@ was opened and returned 200.** Nothing here is taken from an earlier draft.
 > 52 are newer than 8 Sep), **458 → 590** labels. An address from any other chain
 > the list covers is now recognised and screened — **1,043 addresses across 20
 > assets** — but only TRON is traced. "Bridges are recorded as a hard stop" was
-> never true in code and is gone from every table below. The matching deck text
-> edits are in `deck-edits-2026-09-24.py` — proposed, and applied only when the
-> team says so (CONTEXT.md §8.6).
+> never true in code and is gone from every table below. The matching deck
+> edits — and the demo link, QR caption and slide-3 architecture fix — are
+> applied by `deck-edits-2026-09-24.py` (CONTEXT.md §8.6).
 
 ---
 
