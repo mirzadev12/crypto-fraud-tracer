@@ -13,6 +13,7 @@ import {
 import SectionDialog from "@/components/SectionDialog";
 import depositAddresses from "@/data/deposit-addresses.json";
 import riskLists from "@/data/risk-lists.json";
+import multichain from "@/data/sanctions-multichain.json";
 
 /* Counted from the committed files, never typed: a figure typed into prose
    drifts from the file under it (the sanctions figure did, 202 → 334, when the
@@ -20,6 +21,11 @@ import riskLists from "@/data/risk-lists.json";
 const DEPOSITS = depositAddresses.length;
 const EXCHANGES = new Set(depositAddresses.map((d) => d.exchange)).size;
 const SANCTIONED = riskLists.sanctioned.length;
+/* Every asset the OFAC copy lists an address under, TRON's included. */
+const SCREENED_ASSETS = new Set([
+  ...Object.keys(multichain.assets),
+  ...riskLists.sanctioned.flatMap((s) => (s.asset ?? "TRX").split(",").map((a) => a.trim())),
+]).size;
 
 const METHOD = [
   {
@@ -151,8 +157,9 @@ export default function Home() {
           ))}
         </dl>
         <p className="mt-10 max-w-2xl text-xs leading-6 text-faint">
-          Derived from public chain data and the published OFAC sanctions list.
-          Explorer-tagged exchange wallets are treated as ground truth; the
+          Derived from public chain data and the published OFAC sanctions list,
+          which also screens an address from any of the {SCREENED_ASSETS} assets
+          it covers. Explorer-tagged exchange wallets are treated as ground truth; the
           deposit clusters are a <strong className="font-semibold text-muted">heuristic</strong> and are
           labelled as one everywhere they appear.
         </p>

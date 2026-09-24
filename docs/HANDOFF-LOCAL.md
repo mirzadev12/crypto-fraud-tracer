@@ -2,8 +2,10 @@
 
 The cloud session could not reach sih.gov.in, TronGrid, Render or YouTube, so
 the remaining work moves to the Windows machine. Everything that session
-produced is on branch `claude/optimistic-franklin-isy8fq` of **mirzadev12**.
-Nothing is lost if you follow the three steps below in order.
+produced was merged into **`main`** (fast-forward, no force) on **mirzadev12**
+and on **reemrasheed2007** on 24 Sep — Render redeploys from whichever of the
+two it watches. The work branch `claude/optimistic-franklin-isy8fq` is on both
+too. Nothing is lost if you follow the three steps below in order.
 
 ---
 
@@ -13,24 +15,19 @@ Nothing is lost if you follow the three steps below in order.
 cd "C:\Users\Mohammad Ali\crypto-fraud-tracer"
 git status
 git stash
+git switch main
+git pull origin main
 git fetch mine
-git switch --track mine/claude/optimistic-franklin-isy8fq
+git status
 npm install
 ```
 
-`git stash` only if `git status` showed local changes; `git stash pop` brings
-them back afterwards. If the branch already exists locally, use
-`git switch claude/optimistic-franklin-isy8fq` then `git pull mine claude/optimistic-franklin-isy8fq`.
-
-Then push the same branch to reemrasheed2007 (the cloud session could not — a
-repository with the same name was already attached there):
-
-```
-git push origin claude/optimistic-franklin-isy8fq
-```
-
-That creates the branch on reemrasheed2007 without touching `main`, so Render
-does not redeploy.
+`git stash` only if the first `git status` showed local changes; `git stash
+pop` brings them back afterwards. The second `git status` should say `main` is
+up to date with `origin/main`; `git log --oneline -1` should show the same
+commit as `mine/main`. If reemrasheed2007's `main` was not updated (check the
+commit on GitHub), push it from here: `git push origin mine/main:main` — a
+fast-forward, never `--force`.
 
 ## 2. See the website locally
 
@@ -54,13 +51,14 @@ Open http://localhost:3000. What is new (screenshots in
 
 ```text
 Project: FineX // Blockchain Intelligence — TRON/USDT crypto-fraud tracer, SIH 2026, PS 26183 (MHA/I4C).
-Repo: C:\Users\Mohammad Ali\crypto-fraud-tracer, branch claude/optimistic-franklin-isy8fq (pulled from mine = mirzadev12).
+Repo: C:\Users\Mohammad Ali\crypto-fraud-tracer, branch main (everything from 24 Sep is merged; mirzadev12 is now public).
 Read CLAUDE.md, AGENTS.md and CONTEXT.md first. CONTEXT.md §8 is the full record of the 24 Sep cloud session
 (problem statement verbatim, decisions, OFAC refresh, screening design, research, pending list), and
 docs/HANDOFF-LOCAL.md is the task list. Do not re-derive anything recorded there.
 
 Remotes: origin = reemrasheed2007/crypto-fraud-tracer (never force-push); mine = mirzadev12 (--force-with-lease only).
-Live: https://crypto-fraud-tracer.onrender.com (still the OLD build until the branch is merged — see step A1).
+Live: https://crypto-fraud-tracer.onrender.com — main was fast-forwarded on both repos on 24 Sep, so Render should
+serve the new build; confirm with /api/health (its "commit" is the deployed commit).
 Deadline 30 Sep 2026; aim to finish by 25 Sep. Shell is PowerShell 5.1: no &&. Keep responses terse.
 
 Done on 24 Sep (verified: tsc, eslint, next build, 33 Playwright checks):
@@ -72,6 +70,10 @@ Done on 24 Sep (verified: tsc, eslint, next build, 33 Playwright checks):
 - Figures now: 241 deposit addresses, 10 exchanges, 15 seeds, 334 sanctioned TRON (44 entities), 590 labels,
   1,043 screened addresses / 20 assets, 6/6 rules, verifier 33 confirmed / 0 mismatched, 7 endpoints, 12 scripts.
 - Docs updated (tech stack, methodology, portal text, deck sheet, evidence sheet .docx/.pdf).
+- .github/workflows/keep-awake.yml pings /api/health every 10 min so Render's free instance does not sleep
+  (Render free allows 750 instance-hours a month per workspace; one always-on service uses ~730).
+- Deck: every planned edit is applied by docs/pitch/deck-edits-2026-09-24.py (demo video link, QR caption, clickable
+  links, slide-3 architecture corrected, 202 -> 334, measured feasibility lines); the edited pptx/pdf were sent in chat.
 - Decisions: Ethereum TRACING is for the grand finale, not before submission. AI/ML not built on purpose (future:
   ML ranks the queue, trained on I4C-confirmed cases; rules decide). Bridge "hard stop" claim was false and removed.
 
@@ -85,7 +87,7 @@ B. Deck — the team's Canva deck ships; edit text in place, never rebuild, neve
    "…\ppt sih EDITED.pptx", export PDF via PowerPoint COM (Presentations.Open(path,$true,$false,$false),
    SaveAs(pdf,32); PNGs SaveAs(dir,18)) and check every slide by eye. Then re-check against the official
    template on sih.gov.in.
-C. Merge + deploy readiness (HANDOFF §4), then rate the project and start the P1 improvements (HANDOFF §6).
+C. Deploy readiness (HANDOFF §4 A2–A5), then the portal submission (A6–A8), then the P1/P2 backlog (HANDOFF §6).
 
 Rules: never enter or paste API keys; don't edit plan/DEMO_MODE in render.yaml; never describe the TDii6 wallet's
 movement as fraud proceeds; confidence is not accuracy; don't claim SAHYOG handles VASP freezes; never state an
@@ -99,9 +101,9 @@ it; don't change the core idea or a fundamental feature; push to mirzadev12 firs
 
 | # | Task | Who |
 |---|---|---|
-| A1 | **Merge `claude/optimistic-franklin-isy8fq` into `main`** on the repo Render deploys, so the live site matches the deck (screening, 334). Check `render.yaml` / the Render dashboard for which repo and branch it builds | team lead |
+| A1 | ~~Merge into `main`~~ — **done 24 Sep** on both repos. Confirm Render redeployed: `/api/health` → `commit` should be the new main commit; if auto-deploy is off, press *Manual Deploy* in the dashboard | teammate with dashboard access |
 | A2 | Render: set `TRONGRID_API_KEY` and `DEMO_MODE=true` (dashboard, not `render.yaml`), then open `/api/health` — expect `demoMode: true`, `chainAccess: "keyed"` | teammate with dashboard access |
-| A3 | Uptime pinger on `https://crypto-fraud-tracer.onrender.com/api/health` every 5–10 min (free plan sleeps; a cold click waits ~50 s) | anyone |
+| A3 | ~~Uptime pinger~~ — **done**: `.github/workflows/keep-awake.yml` (GitHub Actions, every 10 min). Check the *Actions* tab shows green runs; enable Actions on the repo if GitHub asks | anyone |
 | A4 | Open the live site cold and warm; open the three recorded cases from `/operations`; check the QR on slide 6 scans to the site | anyone |
 | A5 | YouTube demo: make sure it is Public or Unlisted (not Private) and plays logged-out | video owner |
 | A6 | sih.gov.in: verify deadline, idea title/description limits, PDF size/name rules, and paste the matching version from `docs/pitch/03-portal-text.md` | team lead |
@@ -152,7 +154,7 @@ measured. Weakest, in order:
 
 | Priority | Weakness | Fix |
 |---|---|---|
-| P0 | Live site runs the old build and sleeps | §4 A1–A3 |
+| P0 | Live site ran the old build and slept | Merged and pinger added on 24 Sep; confirm per §4 A1–A3 |
 | P0 | Slide 3 architecture showed components that do not exist | Fixed in the deck script (§5); redo in Canva if preferred |
 | P1 | "Tracing: TRON only" vs "should support multiple ecosystems" | Screening covers it now; say "TRON traced, 20 assets screened" when asked |
 | P1 | No AI/ML | State the design choice in one line (deck S5 has it); do not bolt on an unmeasured model |
@@ -176,3 +178,4 @@ measured. Weakest, in order:
 | Edited deck (pptx + pdf) | sent in the chat on 24 Sep; or regenerate with edit_deck.py + the script above |
 | Slide-3 architecture picture | `docs/pitch/deck-assets/architecture-2026-09-24.png` (how it was made: `patch-architecture.py`) |
 | Website QR | `docs/pitch/qr-finex.png` (encodes https://crypto-fraud-tracer.onrender.com) |
+| Uptime pinger | `.github/workflows/keep-awake.yml` |

@@ -15,7 +15,7 @@ export default function InvestigatePage() {
       <PageHeader
         eyebrow="Case intake"
         title="Open a case"
-        description="Paste the wallet address, or the transaction that sent the money — a complainant rarely has an address, but their exchange can produce the transaction. The trace follows USDT forward and stops at the first address it can attribute."
+        description="Paste the wallet address, or the transaction that sent the money — a complainant rarely has an address, but their exchange can produce the transaction. The trace follows USDT forward and stops at the first address it can attribute. An address from another chain is screened against the OFAC sanctions list instead."
       />
       <div className="mt-6">
         <InvestigateForm />
