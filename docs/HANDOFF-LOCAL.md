@@ -104,20 +104,31 @@ it; don't change the core idea or a fundamental feature; push to mirzadev12 firs
 
 | # | Task | Who |
 |---|---|---|
-| A1 | Merge into `main`: **done on mirzadev12**; **reemrasheed2007 by HANDOFF §1**. Then confirm Render redeployed: `/api/health` → `commit` should be the new main commit; if auto-deploy is off, press *Manual Deploy* in the dashboard | team lead + teammate with dashboard access |
+| A1 | ~~Merge into `main`~~ — **done on both** (24 Sep evening); Render redeployed on its own: `/api/health` → `commit` matched the pushed main | done |
 | A2 | Render: set `TRONGRID_API_KEY` and `DEMO_MODE=true` (dashboard, not `render.yaml`), then open `/api/health` — expect `demoMode: true`, `chainAccess: "keyed"` | teammate with dashboard access |
 | A3 | ~~Uptime pinger~~ — **done**: `.github/workflows/keep-awake.yml` (GitHub Actions, every 10 min). Check the *Actions* tab shows green runs; enable Actions on the repo if GitHub asks | anyone |
 | A4 | Open the live site cold and warm; open the three recorded cases from `/operations`; check the QR on slide 6 scans to the site | anyone |
 | A5 | YouTube demo: make sure it is Public or Unlisted (not Private) and plays logged-out | video owner |
-| A6 | sih.gov.in: verify deadline, idea title/description limits, PDF size/name rules, and paste the matching version from `docs/pitch/03-portal-text.md` | team lead |
+| A6 | sih.gov.in, **checked 24 Sep**: deadline 30 Sep 2026; PS 26183 at 46/500; the guidelines list idea title, idea description and idea presentation (PDF) and state no size or character limit — those appear only after login. Paste the version from `docs/pitch/03-portal-text.md` that fits the field | team lead |
 | A7 | SPOC uploads the team and Annexure A; LICENSE question goes to the SPOC first | SPOC |
 | A8 | Leader submits title, description and the deck PDF; download the submitted PDF and open it once | team lead |
 
-## 5. Deck — done in the cloud session; what is left is PowerPoint
+## 5. Deck — finished 24 Sep evening
 
-`python docs/pitch/deck-edits-2026-09-24.py "ppt sih EDITED.pptx" "ppt sih EDITED.pptx"`
-(after `edit_deck.py`) now applies **everything**, checked and idempotent, and
-the resulting `ppt sih EDITED.pptx` / `.pdf` were sent in the chat on 24 Sep:
+**Final: `ppt sih EDITED.pptx` / `.pdf`, exported through PowerPoint, every
+slide checked by eye.** Three scripts rebuild it from the untouched Canva
+export, in order:
+
+```
+python docs/pitch/edit_deck.py
+python docs/pitch/deck-edits-2026-09-24.py "ppt sih EDITED.pptx" "ppt sih EDITED.pptx"
+python docs/pitch/deck-refine-2026-09-24.py "ppt sih EDITED.pptx" "ppt sih EDITED.pptx"
+```
+
+The third is the alignment and content pass (CONTEXT.md §9.2): all text inside
+its borders, real bullets, the arches cleaned inside their SVGs, the MHA /
+UNODC / Chainalysis figures cited at source, seven linked references, and a
+live-prototype panel on slide 3. The second, applied by the cloud session:
 
 - **S2** second black box → "SHA-256 evidence packet for every case".
 - **S3** architecture picture replaced with `deck-assets/architecture-2026-09-24.png`
@@ -136,10 +147,7 @@ the resulting `ppt sih EDITED.pptx` / `.pdf` were sent in the chat on 24 Sep:
   the TronGrid reference linked to a URL with `?utm_source=chatgpt.com` — now the
   clean URL it displays.
 
-Left for the local machine: export the PDF through PowerPoint COM and check
-every slide by eye (the cloud render used the deck's own embedded fonts, so it
-should match, but PowerPoint is the authority). If the team prefers, redo the
-slide-3 label changes in Canva instead of using the patched picture.
+The PowerPoint export and the by-eye check are done (§9.2 in CONTEXT.md).
 
 Checked against real winning SIH decks
 (`github.com/JoysonBeera/sih-winning-presentations` — 2024 cybersecurity

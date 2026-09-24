@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 24 September 2026 — the multi-chain screening and OFAC refresh round; start at **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
+Last updated: 24 September 2026, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
 
 ---
 
@@ -1192,7 +1192,9 @@ node scripts/verify-case.mjs              # re-read every recorded case's transa
 node scripts/rescore-cases.mjs 3010 --only T…   # re-derive named cases as of capture (server without demo mode)
 node scripts/make-share-bundle.mjs        # bundle the source into share/frontend-source.md for a chat
 node scripts/refresh-sanctions.mjs        # re-derive both sanctions tables from treasury.gov sdn.xml (or pass a path/URL)
-python docs/pitch/deck-edits-2026-09-24.py "ppt sih EDITED.pptx" "ppt sih EDITED.pptx"   # after edit_deck.py
+python docs/pitch/edit_deck.py                                                           # original -> "ppt sih EDITED.pptx"
+python docs/pitch/deck-edits-2026-09-24.py "ppt sih EDITED.pptx" "ppt sih EDITED.pptx"   # then this
+python docs/pitch/deck-refine-2026-09-24.py "ppt sih EDITED.pptx" "ppt sih EDITED.pptx"  # then this (§9.2)
 NEXT_PUBLIC_DEMO_MODE=true npm run dev    # serve the frozen cases, no network
 ```
 
@@ -1461,19 +1463,21 @@ the user's Canva deck: text in place only, never rebuilt, never longer.
 
 ### 8.11 Still pending
 
-1. Export the edited deck through PowerPoint and check each slide by eye
-   (§8.6); re-check against the official template on sih.gov.in.
+1. ~~Export the edited deck through PowerPoint and check each slide by eye~~ —
+   done 24 Sep evening, with a third refinement script (§9.2).
 2. Demo video: done (slide 6 links `youtube.com/watch?v=A4AipdXDDsk`); keep
    the video Public or Unlisted.
-3. Canva-only, optional: slide 5's vertical IMPACT spine; slide 2's RISK VS
-   SOLUTION box repeats the points above it. (Slide 3's image and footer are
-   fixed by the script.)
+3. ~~Canva-only, optional~~ — done by script (§9.2): slide 2's black cards
+   are short lists that no longer repeat the bars; slide 5's column headings sit
+   below their circles. The IMPACT letters are kept as the team's design.
 4. Render: a teammate sets `TRONGRID_API_KEY` and `DEMO_MODE=true`; check
    `/api/health`; add an uptime pinger.
 5. SPOC uploads the team and Annexure A; the leader submits title, description
    and PDF. The LICENSE question goes to the SPOC first.
 6. Merge into main — done on **mirzadev12** (now public) on 24 Sep, as a
-   fast-forward. **reemrasheed2007 is not yet updated**: the cloud session
+   fast-forward, and on **reemrasheed2007** the same evening from the Windows
+   machine; Render serves the pushed commit (§9). Before that, it read:
+   **reemrasheed2007 is not yet updated**: the cloud session
    cannot push there, and two helper sessions it started refused, correctly,
    to push to `main` on a relayed instruction. `docs/HANDOFF-LOCAL.md` §1 does
    it from the Windows machine (`git merge --ff-only mine/main`, `git push
@@ -1484,3 +1488,96 @@ the user's Canva deck: text in place only, never rebuilt, never longer.
    the New case intro now say that other chains are screened.
 7. Ethereum tracing: decided 24 Sep — grand finale, not before submission.
 8. Full handoff for the local machine: `docs/HANDOFF-LOCAL.md`.
+
+---
+
+## 9. The 24 September local session — deck finished, screens decluttered
+
+Run on the Windows machine the same evening, after §8. Everything below is
+committed and deployed (`/api/health` → the pushed commit).
+
+### 9.1 Submission facts, read on sih.gov.in today
+
+PS **SIH26183**: 46 of 500 ideas submitted, deadline **30 September 2026**.
+The guidelines PDF (`SIH 2026 Guidelines.pdf`) lists what the team leader
+enters: verify the pre-entered team, then **idea title, idea description and
+idea presentation (PDF)**. It states no slide count, file-size or character
+limits; those live behind the portal login. 4-5 teams per PS may go to the
+finale. The 2026 idea-template `.pptx` is a download and was not fetched.
+
+### 9.2 The deck is built by three scripts, from the untouched Canva export
+
+`python docs/pitch/edit_deck.py` (original → `ppt sih EDITED.pptx`), then
+`deck-edits-2026-09-24.py EDITED EDITED`, then **`deck-refine-2026-09-24.py
+EDITED EDITED`**, then the PowerPoint COM export. The refine step is the
+alignment pass the user asked for: every text sits inside its border, sized by
+measuring each string with the deck's own embedded fonts (they are full
+families, not subsets, so any glyph renders), then checked in a render.
+Things learned the hard way, so they are not rediscovered:
+- **Canva stores each picture twice** — an SVG copy in the blip's extension
+  list, which PowerPoint draws, and a PNG fallback. The bullet dots and the
+  risk underlines on slide 4 were painted into the arch pictures; cleaning the
+  PNG changed nothing on screen, and dropping the SVG flattened the arches'
+  rounded tops into rectangles. The fix removes, inside the SVG, the paths
+  that carry a fill of their own; the arch paths take the group colour.
+- The slide 1 "Team Name … –" dash had not been lost to a font: the label was
+  too wide for its box and the dash wrapped onto a line below the slide.
+- A copied shape needs fresh `cNvPr` ids, or PowerPoint repairs the file.
+Content added, every figure verified at its primary source: the problem line
+cites **₹22,845 crore reported lost to cyber fraud in 2024** (MHA, Lok Sabha
+USQ 344, 22 Jul 2025 — read from the PDF itself: 22,845.73, NCRP 19,18,865 +
+CFCFRMS 17,18,423 complaints); **UNODC Jan 2024, PDF page 20** ("USDT on the
+TRON blockchain has become a preferred choice for crypto money launderers" —
+quoted from the report); **Chainalysis 2025: stablecoins 63% of illicit
+volume in 2024**. The references are one linked list of seven. Slide 3 gained
+a live-prototype panel (`deck-assets/prototype-2026-09-24.png`, the case file
+from a production build) and slide 3's flowchart says "freeze request".
+
+### 9.3 Decluttering the screens — what was decided
+
+The user's complaint: the site looked cluttered for the investigator it is for.
+Nothing was removed from the evidence; repetition and chrome were.
+- **The case file starts with the finding.** Four bars, a page title, a
+  description and the reported address stood between the navigation and the
+  answer. The actions (Fund flow, Evidence packet, Freeze request) now ride in
+  the sticky case bar at `xl` and sit under it below `xl`; the h1 is
+  screen-reader only; the summary moved up beside the finding it summarises;
+  the six figures are `StatCard compact`; each section is named by its header
+  once (panels under a header no longer repeat its name — `Panel` renders a
+  header for a subtitle or actions alone now). The "If confirmed by…" sentence
+  left the finding card: lead 1 says it, with the confidence to quote.
+- **Found while decluttering: the case bar had been invisible.** The nav and
+  the case bar were both `sticky top-0`, the nav drawn over it, so the bar
+  vanished the moment the page scrolled. The nav publishes its height as
+  `--nav-h` (ResizeObserver); the case bar, `CaseRail` and the fund-flow
+  sidebar stick under it; `.fx-anchor` lands jumps below both; the section
+  marker is read once per frame (the IntersectionObserver missed fast scrolls
+  and jumps). Checked: bar at 100.5–186.5 px under a 100.5 px nav; a jump to
+  Why marks Why.
+- **Queue: one line per case.** Dates wrapped to three lines and set every
+  row's height (now `formatDate`, full time on hover); the Chain column that
+  read TRON on every row went to the panel header; Open is a quiet control;
+  row icons appear on hover (`AddressChip quiet`, hover-capable devices only);
+  an empty watch is one line. A `sr-only` header inside the scrolled table
+  escaped its scroll box and widened the page on a phone — its cell is now
+  `relative`.
+- **New case: the result renders under the form**, not below the recorded
+  examples; the intro text no longer repeats under the input.
+- **A red 0.00 beside "funds still at rest"** is now "Moved on · Nothing has
+  left the reported wallet".
+Verified on a production build with `DEMO_MODE=true`: tsc, eslint and
+`next build` clean; 21/21 functional checks (10/10 recorded cases from the
+file, screening, freeze link, critical case offers no freeze, batch 10 of 10,
+no console errors); 16 routes × 5 widths with no sideways scroll.
+
+### 9.4 The five items the user asked to check (PS coverage)
+
+Checked against the problem statement and the code; nothing new was built,
+because nothing left would be a significant upgrade before submission:
+multi-chain — built as OFAC screening over 20 assets, tracing stays TRON;
+AI/ML risk detection (optional) — not built on purpose, planned as ranking
+trained on I4C-confirmed cases; cross-chain analytics (optional) — roadmap,
+the other-chain address is screened; DeFi / mixers / bridges — sanctions
+coverage 334, a mixer or sanctioned hit closes the case, no bridge claim;
+automated alerts — built (the watch). A contract/DeFi hop detector would need
+a new label kind in the frozen `lib/types.ts`, so it stays out.

@@ -30,13 +30,16 @@ FineX — real-time TRON/USDT attribution with a filed-ready evidence packet
 
 ---
 
-## Idea description — full version (1,581 characters)
+## Idea description — full version (1,652 characters)
 
-Use this if the field allows 1,600 characters or more.
+Use this if the field allows 1,700 characters or more. The scale line is the
+MHA's own figure (Lok Sabha Unstarred Question 344, 22 July 2025), the same
+source the deck cites on slides 2 and 6.
 
 ```
 An officer receives a victim-reported wallet and has hours, not days, before the
-money is cashed out. Existing tools stop at "the funds reached Binance". That is
+money is cashed out; ₹22,845 crore was reported lost to cyber fraud in India in
+2024 (MHA). Existing tools stop at "the funds reached Binance". That is
 not actionable: an exchange cannot freeze an exchange.
 
 FineX traces the wallet forward on TRON, hop by hop, carrying the victim's share
