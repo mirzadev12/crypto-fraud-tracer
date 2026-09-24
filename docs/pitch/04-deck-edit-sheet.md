@@ -6,6 +6,17 @@ exported from `SIHfineX.pptx`) and the repository at commit `5e7e3d9`.
 **Every figure below was re-counted from the committed files today. Every link
 was opened and returned 200.** Nothing here is taken from an earlier draft.
 
+> **Update, 24 September 2026.** Two figures changed and one claim was
+> withdrawn. The OFAC list was refreshed (published 18 Sep 2026) and now reads
+> every entry that decodes as a TRON address, not only those filed under TRX:
+> **202 → 334** sanctioned TRON addresses (79 are filed under USDT, 1 under XBT,
+> 52 are newer than 8 Sep), **458 → 590** labels. An address from any other chain
+> the list covers is now recognised and screened — **1,043 addresses across 20
+> assets** — but only TRON is traced. "Bridges are recorded as a hard stop" was
+> never true in code and is gone from every table below. The matching deck text
+> edits are in `deck-edits-2026-09-24.py` — proposed, and applied only when the
+> team says so (CONTEXT.md §8.6).
+
 ---
 
 # PART A — the three fixes that move the score
@@ -65,7 +76,7 @@ existing impact columns. Leave those columns exactly as they are.
 ```
 241        customer deposit addresses derived
 10         exchanges covered, from 15 public seeds
-202        OFAC-sanctioned TRON addresses
+334        OFAC-sanctioned TRON addresses
 6 of 6     behavioural rules fire on real recorded cases
 33 / 0     transactions confirmed on an independent re-read / mismatched
 ₹0         in commercial data licences
@@ -107,7 +118,7 @@ existing numbering style:
    https://www.unodc.org/roseap/uploads/documents/Publications/2024/Casino_Underground_Banking_Report_2024.pdf
 
 3. OFAC Specially Designated Nationals list, US Department of the Treasury —
-   the source of the 202 sanctioned TRON addresses carried in the tool.
+   the source of the 334 sanctioned TRON addresses carried in the tool.
    https://sanctionslist.ofac.treas.gov/Home/SdnList
 
 4. TronGrid API documentation, TRON — TRC-20 transfer data used for every trace.
@@ -118,7 +129,7 @@ existing numbering style:
    https://cybercrime.gov.in   ·   https://sahyog.mha.gov.in
 ```
 
-Two of these are load-bearing and absent today: **OFAC** is where your 202
+Two of these are load-bearing and absent today: **OFAC** is where your 334
 sanctioned addresses come from, and **UNODC** is a UN agency stating that your
 chain choice is the correct one. That UNODC line is the strongest sentence
 available to you on this slide.
@@ -169,8 +180,9 @@ list, and the claims that must never appear.
 | Customer deposit addresses derived | **241** | `data/deposit-addresses.json` |
 | Exchanges covered | **10** | Binance, Bybit, Kraken, KuCoin, Gate.io, MEXC, Bitget, Flipster, Swapster, UEEx |
 | Explorer-tagged seed wallets | **15** | `data/hot-wallets.json` |
-| OFAC-sanctioned TRON addresses | **202** | `data/risk-lists.json` |
-| Attribution labels in total | **458** | 15 + 241 + 202, no overlaps |
+| OFAC-sanctioned TRON addresses | **334** | `data/risk-lists.json` — OFAC list published 18 Sep 2026 |
+| Attribution labels in total | **590** | 15 + 241 + 334, no overlaps |
+| Addresses screened on any chain | **1,043 across 20 assets** | `data/sanctions-multichain.json` + the TRON list — screening, not tracing |
 | Real cases frozen with response hashes | **10** | `data/demo-cases.json` (1 CRITICAL, 5 SUSPICIOUS, 4 CLOSED) |
 | Behavioural rules, and how many fire on real cases | **6 of 6** | `lib/risk.ts`; all six appear in the frozen cases |
 | Independent re-read of case transactions | **33 confirmed · 0 mismatched · 0 missing** | `scripts/verify-case.mjs`, 18 Sep run (17 unreadable — a throttled unkeyed run) |
@@ -285,7 +297,7 @@ three problem/mitigation pairs with these six (drop the weakest if space is tigh
 | Risk | Mitigation, as we actually handle it |
 |---|---|
 | Public API rate limits | One shared adaptive pacer for the whole server — 250 ms between calls, 100 ms with a key, doubling on every refusal. A wallet we could not read is reported as unreadable, never as empty |
-| Mixers and bridges end the trail | We record the entry and stop. The case closes as CLOSED. We never guess past a bridge |
+| Mixers and bridges end the trail | A sanctioned or mixing service on the path closes the case as CLOSED, and nothing is guessed past it. Where money leaves TRON the trail ends at the last TRON wallet reached; the address on the other chain can be screened against OFAC, not traced |
 | Attribution is a heuristic, not proof | Every label carries a confidence and an evidence tier. Re-tested against the chain: 40 sampled, 31 readable, all 31 still meet the rule. Only the exchange can confirm the accountholder — the packet says so |
 | Some rules are weak | Measured, not assumed: on a sample of **17 unreported wallets**, peel-chain fired on 16 and fan-out on 15, so those two are known to be weak signals on their own |
 | No Indian VASP is publicly tagged | 2,500 tagged accounts scanned, none found. We do not invent one; adding a verified Indian exchange is one row of data and one re-run |
@@ -302,7 +314,7 @@ speed or coverage percentage that we have not measured.**
 
 - 241 customer deposit addresses across 10 exchanges, derived from 15 public
   seeds — at ₹0 in data licences.
-- 202 OFAC-sanctioned TRON addresses carried; 458 labels in all.
+- 334 OFAC-sanctioned TRON addresses carried; 590 labels in all; any other chain OFAC covers is screened (1,043 addresses, 20 assets).
 - 10 real cases captured with the hash of every blockchain response, covering
   all three dispositions.
 - All 6 behavioural rules fire on real recorded cases.
@@ -329,7 +341,7 @@ Replace the list with these, in this order:
    https://www.unodc.org/roseap/uploads/documents/Publications/2024/Casino_Underground_Banking_Report_2024.pdf
    *(This is why the tool is TRON-first. It is the strongest citation on the slide.)*
 3. **OFAC Specially Designated Nationals list**, US Treasury — the source of the
-   202 sanctioned TRON addresses carried in the tool.
+   334 sanctioned TRON addresses carried in the tool.
    https://sanctionslist.ofac.treas.gov/Home/SdnList
 4. **TronGrid API documentation**, TRON — TRC-20 transfer data used for tracing.
    https://developers.tron.network/reference/trongrid-v1-api-overview
@@ -358,15 +370,16 @@ an I4C evaluator reads their own list.
 | Fund-flow visualisation | **Built** — flow, cluster and timeline views |
 | Exchange wallet clustering | **Built** — 241 addresses, 10 exchanges |
 | Pattern detection (peel chains, rapid forwarding, structuring) | **Built** — six rules |
-| Mixer detection | **Partly** — a path touching a sanctioned service closes the case; a dedicated mixer list is empty because no citable public source was found |
+| Mixer detection | **Partly** — a path touching a sanctioned service closes the case (334 TRON addresses, including laundering services OFAC files under USDT); a dedicated mixer list is empty because no citable public source was found |
 | Standardised investigation reports | **Built** — evidence packet and restraint request |
 | Automated investigative recommendations | **Built** — ranked leads naming the next wallet |
 | Dashboards | **Built** — case queue, bulk triage, attribution register |
 | Complaint intake | **Built** — wallet or transaction hash, singly or in bulk |
-| API integrations | **Built** — six documented endpoints |
+| API integrations | **Built** — seven documented endpoints |
 | Wallet risk categorisation | **Built** — exit, chokepoint, at rest, sanctions stop, unresolved tail |
 | Automated alert generation | **Built** — CRITICAL wallets are watched and re-checked while the desk is open. **Finale:** server-side scheduled monitoring |
-| Cross-chain / multi-chain | **Finale** — TRON first, because that is where USDT fraud proceeds move. A chain adapter with USDT on Ethereum traced end to end. Bridges are recorded as a hard stop today, never guessed past |
+| Multiple blockchain ecosystems | **Built — screening.** An address from any chain the OFAC list covers (Bitcoin, Ethereum/EVM, Litecoin, Solana, XRP and more) is recognised by format, checksum verified where it has one, and screened: 1,043 addresses, 20 assets. Not traced |
+| Cross-chain / multi-chain tracing | **Finale** — TRON first, because that is where USDT fraud proceeds move. A chain adapter with USDT on Ethereum traced end to end. Today, where money leaves TRON the trail ends at the last TRON wallet reached, never guessed past |
 | NCRP / SAHYOG integration | **Finale / After SIH** — intake already takes what a complaint contains. Finale: a documented intake API that takes an NCRP complaint record and returns the trace and a restraint request carrying its acknowledgement number. After SIH: the live connection, once I4C grants access |
 | AI/ML-assisted risk detection | **By design, not built** — rules decide every finding, because an attribution an officer acts on must hold up in court. ML's role is ranking, not deciding: a model trained on I4C-confirmed cases orders the queue and never names an exchange or sets a disposition |
 | Scalable blockchain indexing | **After SIH** — today, on-demand chain reads with per-address caching. At scale, a self-hosted TRON full node indexing token transfers locally: no third-party API, no rate limits, and case data never leaves the agency |

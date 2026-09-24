@@ -211,7 +211,7 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
       ["Automated alert generation", "A wallet found holding funds is watched, and the desk re-asks the chain whether it has moved."],
       ["Fund-flow visualisation and dashboards", "Flow, cluster and timeline views, a case queue ordered by what can still be recovered."],
       ["Standardised investigation reports", "An evidence packet carrying the SHA-256 of every chain response, and a restraint request drafted from it."],
-      ["API integrations", "Six documented endpoints; a permalink replays a past run exactly."],
+      ["API integrations", "Seven documented endpoints; a permalink replays a past run exactly."],
       ["Real-time tracing", "A recorded case answers in milliseconds. A live wallet takes about half a minute on the public endpoint, and less with an API key."],
       ["Automated investigative recommendations", "Ranked leads naming the next wallet to open, ordered by what can still be done."],
       ["Multiple blockchain ecosystems — screening", "An address from any chain the OFAC list covers is recognised by its format, checksum verified where the format has one, and screened against that list. Screening, not tracing: the trace stays on TRON."],

@@ -139,6 +139,7 @@ commit, whether demo mode is on, and whether the chain is being read with a key
 ## What is deliberately not built
 
 Stating this is part of the method, not an apology — each has a plan:
-cross-chain tracing, NCRP/SAHYOG integration, machine-learning risk scores,
-indexing at scale, and a mixer list (no citable public source, so the file is
+cross-chain tracing (an address on another chain is screened against OFAC,
+not traced), NCRP/SAHYOG integration, machine-learning risk scores, indexing
+at scale, and a mixer list (no citable public source, so the file is
 empty and says so).

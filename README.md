@@ -146,6 +146,19 @@ curl http://localhost:3000/api/health
 from the chain, it is also the address to give an uptime monitor if a free
 instance has to be kept awake.
 
+Screen an address from any chain the OFAC list covers — here an Ethereum
+address on the list:
+
+```bash
+curl http://localhost:3000/api/screen/0x0330070FD38Ec3bB94F58FA55D40368271E9e54A
+```
+
+`chain.name` is `"Ethereum / EVM"`, `listing.entity` is `"AMNOKGANG TECHNOLOGY
+DEVELOPMENT COMPANY"` with `listing.assets` `["ETH"]`, and `list.published` is
+the date OFAC published the copy screened against. An address that is not
+listed comes back with `listing: null` and a `note` saying that is not a
+clearance.
+
 `AGENTS.md` is the build plan. `CONTEXT.md` records what is already done, the
 decisions behind it, and the external data sources that have been verified.
 

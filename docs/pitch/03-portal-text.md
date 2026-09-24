@@ -30,7 +30,7 @@ FineX — real-time TRON/USDT attribution with a filed-ready evidence packet
 
 ---
 
-## Idea description — full version (1,550 characters)
+## Idea description — full version (1,581 characters)
 
 Use this if the field allows 1,600 characters or more.
 
@@ -49,7 +49,7 @@ which of today's complaints still have recoverable money.
 The attribution dataset is ours and it is derived, not licensed: an address that
 repeatedly forwards 90%+ of its inflow into one tagged exchange wallet is a
 customer deposit address. That yields 241 deposit addresses across 10 exchanges
-from 15 public seeds, plus 202 OFAC-sanctioned addresses — at zero licence cost.
+from 15 public seeds, plus 334 OFAC-sanctioned addresses — at zero licence cost.
 
 Every finding is explainable: six behavioural rules, each stating in plain words
 why it fired. No machine-learning black box makes an attribution, because an
@@ -58,9 +58,9 @@ SHA-256 of every blockchain response behind it, and a draft restraint request.
 
 Working and deployed: https://crypto-fraud-tracer.onrender.com
 
-Scope is deliberate — TRON and USDT, where these proceeds actually move. Cross-
-chain tracing, NCRP/SAHYOG intake and departmental indexing are designed and
-next, not claimed.
+Tracing is TRON/USDT, where these proceeds move; an address on any other chain
+is screened against OFAC. Cross-chain tracing, NCRP/SAHYOG intake and
+departmental indexing are designed and next, not claimed.
 ```
 
 ---
