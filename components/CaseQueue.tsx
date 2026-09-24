@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getCases, isIllustrative, summarize, type Sourced } from "@/lib/api";
 import type { CaseSummary, TriageLevel } from "@/lib/types";
-import { formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
+import { formatDate, formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
 import AddressChip from "./AddressChip";
 import {
   DataSourceBadge,
@@ -151,9 +151,11 @@ export default function CaseQueue() {
         </p>
       ) : null}
 
+      {/* The order is stated once, in the page header above; the chain the
+          whole register is on is stated here instead of in a column that read
+          TRON on every row. */}
       <Panel
         title="Complaint queue"
-        subtitle="Most suspicious first: critical, then suspicious, then closed, and the largest sum at stake first within each."
         actions={
           <DataSourceBadge
           source={state.result.source}
@@ -161,6 +163,7 @@ export default function CaseQueue() {
           label="Committed register"
         />
         }
+        code="TRON · USDT TRC-20"
         bodyClassName="p-0"
       >
         <div className="flex flex-wrap items-center gap-4 border-b border-line-soft px-6 py-4">
@@ -208,21 +211,28 @@ export default function CaseQueue() {
                 <tr className="border-b border-line text-xs uppercase tracking-[0.14em] text-faint">
                   <th className="px-6 py-4 font-normal">Case</th>
                   <th className="px-6 py-4 font-normal">Wallet</th>
-                  <th className="px-6 py-4 font-normal">Chain</th>
                   <th className="px-6 py-4 text-right font-normal">Amount</th>
                   <th className="px-6 py-4 font-normal">Status</th>
                   <th className="px-6 py-4 font-normal">Reported</th>
                   <th className="px-6 py-4 font-normal">Destination</th>
-                  <th className="px-6 py-4" />
+                  {/* relative: sr-only text is absolutely positioned, and without a
+                      positioned cell to hold it, it escapes the table's scroll
+                      box and widens the whole page on a phone. */}
+                  <th className="relative px-6 py-4">
+                    <span className="sr-only">Open</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((c) => (
+                  /* One line per case. The date wrapped to three lines and set
+                     every row's height; the icons and the Open control stay out
+                     of the way until the row is pointed at. */
                   <tr
                     key={c.caseId}
-                    className="h-10 border-b border-line-soft transition last:border-0 hover:bg-surface-2"
+                    className="group border-b border-line-soft transition last:border-0 hover:bg-surface-2"
                   >
-                    <td className="px-6 py-0 font-mono text-xs whitespace-nowrap text-muted">
+                    <td className="px-6 py-2 font-mono text-xs whitespace-nowrap text-muted">
                       {c.caseId}
                       {isIllustrative(c.inputAddress) ? (
                         <span
@@ -233,32 +243,29 @@ export default function CaseQueue() {
                       </span>
                       ) : null}
                     </td>
-                    <td className="px-6 py-0">
-                      <AddressChip address={c.inputAddress} explorer={false} />
+                    <td className="px-6 py-2">
+                      <AddressChip address={c.inputAddress} explorer={false} quiet />
                     </td>
-                    <td className="px-6 py-0 font-label text-xs uppercase tracking-[0.16em] text-faint">
-                      TRON
-                    </td>
-                    <td className="px-6 py-0 text-right font-mono tabular-nums text-ink">
+                    <td className="px-6 py-2 text-right font-mono tabular-nums text-ink">
                       {formatUsdt(c.reportedAmountUsdt, { symbol: false })}
                     </td>
-                    <td className="px-6 py-0">
+                    <td className="px-6 py-2">
                       <TriageBadge level={c.triage} />
                     </td>
-                    <td className="px-6 py-0 font-mono text-xs text-faint">
-                      {formatDateTime(c.fraudDate)}
+                    <td className="px-6 py-2 font-mono text-xs whitespace-nowrap text-faint" title={formatDateTime(c.fraudDate)}>
+                      {formatDate(c.fraudDate)}
                     </td>
-                    <td className="px-6 py-0 text-sm">
+                    <td className="px-6 py-2 text-sm">
                       {c.terminalEntity ? (
                         <span className="text-ink">{c.terminalEntity}</span>
                       ) : (
                         <span className="text-faint">Funds at rest</span>
                       )}
                     </td>
-                    <td className="px-6 py-0 text-right">
+                    <td className="px-6 py-2 text-right">
                       <Link
                         href={`/trace/${encodeURIComponent(c.inputAddress)}`}
-                        className="inline-block fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint hover:text-brass"
+                        className="inline-block fx-option-quiet px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint group-hover:text-brass hover:text-brass"
                         aria-label={`Open for case ${c.caseId}, address ${shortAddress(c.inputAddress)}`}
                       >
                         Open

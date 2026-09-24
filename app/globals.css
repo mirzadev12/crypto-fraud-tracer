@@ -119,6 +119,13 @@ dialog {
   transform: none;
 }
 
+/* A section a jump list scrolls to (the case bar's anchors). It lands below the
+   sticky navigation (--nav-h, published by Navbar) and the case bar under it,
+   instead of behind them. */
+.fx-anchor {
+  scroll-margin-top: calc(var(--nav-h, 0px) + 7rem);
+}
+
 ::selection {
   background: rgba(184, 147, 90, 0.3);
 }

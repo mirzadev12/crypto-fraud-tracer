@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { shortAddress } from "@/lib/format";
 import { isValidTronAddress } from "@/lib/tron";
 
@@ -145,8 +145,28 @@ export default function Navbar() {
   const sectionActive = (s: NavSection) =>
     pathname !== "/" && s.name === section.name;
 
+  /*
+   * The bar is sticky, and so is the case bar under it; both used to stick at
+   * the top of the viewport, where this one — drawn above — hid the case bar
+   * completely the moment the page scrolled. The height is published as
+   * `--nav-h` so anything sticky can sit below the navigation instead of
+   * behind it. Measured rather than assumed: the second row only exists in
+   * sections with destinations, and the phone menu changes the height again.
+   */
+  const navRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const publish = () =>
+      document.documentElement.style.setProperty("--nav-h", `${el.getBoundingClientRect().height}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <nav className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur">
+    <nav ref={navRef} className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur">
       {/* The first stop for a keyboard: past a dozen navigation links to the
           page itself. Off-screen until it has focus. Every page's <main> is
           #content. */}
@@ -156,7 +176,7 @@ export default function Navbar() {
       >
         Skip to content
       </a>
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-6 px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-6">
         <Link
           href="/"
           className="shrink-0 font-display text-lg uppercase tracking-[0.32em] text-ink"

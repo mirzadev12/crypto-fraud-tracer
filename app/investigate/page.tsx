@@ -15,9 +15,9 @@ export default function InvestigatePage() {
       <PageHeader
         eyebrow="Case intake"
         title="Open a case"
-        description="Paste the wallet address, or the transaction that sent the money — a complainant rarely has an address, but their exchange can produce the transaction. The trace follows USDT forward and stops at the first address it can attribute. An address from another chain is screened against the OFAC sanctions list instead."
+        description="A complainant rarely has an address, but their exchange can produce the transaction — either one opens a case. The trace follows the USDT forward and stops at the first address it can attribute; an address on another chain is screened against the OFAC list instead."
       />
-      <div className="mt-6">
+      <div className="mt-10">
         <InvestigateForm />
       </div>
     </AppShell>

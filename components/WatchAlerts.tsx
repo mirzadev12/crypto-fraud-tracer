@@ -100,6 +100,24 @@ export default function WatchAlerts() {
     ? items.filter((i) => current.results.get(i.address)?.status === "moved")
     : [];
 
+  /*
+   * An empty watch is one line, not a panel. It still says what the watch is
+   * and how a wallet gets onto it; it no longer takes a header, a paragraph of
+   * explanation and a second paragraph to say that nothing is on it.
+   */
+  if (!items.length) {
+    return (
+      <p className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-line pb-4 text-xs leading-5 text-faint">
+        <span className="font-label font-semibold uppercase tracking-[0.24em] text-muted">Watch</span>
+        <span aria-hidden="true" className="hidden sm:inline">·</span>
+        <span>
+          Nothing on watch in this browser. A CRITICAL case&apos;s resting wallet is added
+          automatically and re-checked every five minutes while this desk is open.
+        </span>
+      </p>
+    );
+  }
+
   return (
     <Panel
       title={moved.length ? `${moved.length === 1 ? "1 alert" : `${moved.length} alerts`} · funds moved` : "Watch"}
@@ -117,12 +135,7 @@ export default function WatchAlerts() {
         ) : null
       }
     >
-      {!items.length ? (
-        <p className="pt-4 text-sm leading-6 text-faint">
-          Nothing is on watch in this browser. Trace a wallet whose funds are
-          still at rest and it is added here automatically.
-        </p>
-      ) : (
+      {(
         <>
           <p className="pt-4 font-mono text-xs text-faint">
             {checking

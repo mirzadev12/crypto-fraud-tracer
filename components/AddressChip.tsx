@@ -13,6 +13,7 @@ export default function AddressChip({
   copy = true,
   explorer = true,
   origin = true,
+  quiet = false,
   tone = "default",
   className = "",
 }: {
@@ -22,6 +23,13 @@ export default function AddressChip({
   explorer?: boolean;
   /** Link to this wallet's own origin card. Off where it would be self-referential. */
   origin?: boolean;
+  /**
+   * For a table of many addresses: the icons stay out of sight until the row
+   * (a `group`) is pointed at or one of them takes keyboard focus. Twenty rows
+   * of three icons each is noise; one row's worth, where the cursor is, is a
+   * tool. Only on devices that can hover — a touch screen always shows them.
+   */
+  quiet?: boolean;
   tone?: "default" | "brand" | "strong";
   className?: string;
 }) {
@@ -30,6 +38,9 @@ export default function AddressChip({
     brand: "text-brass",
     strong: "text-ink",
   };
+  const icons = quiet
+    ? "inline-flex items-center gap-2 transition-opacity [@media(hover:hover)]:opacity-0 group-hover:opacity-100 focus-within:opacity-100"
+    : "contents";
 
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
@@ -39,6 +50,7 @@ export default function AddressChip({
       >
         {full ? address : shortAddress(address)}
       </span>
+      <span className={icons}>
       {copy ? <CopyButton value={address} label="" /> : null}
       {origin ? (
         /* Every address in the app is now one click from what funded it. The
@@ -93,6 +105,7 @@ export default function AddressChip({
           </svg>
         </a>
       ) : null}
+      </span>
     </span>
   );
 }

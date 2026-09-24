@@ -270,13 +270,13 @@ export default function InvestigateForm() {
   }, [status, addressCheck.valid, resolved, amount, amountValid, amountValue, fraudDate, subject]);
 
   return (
-    <div className="space-y-24">
+    <div className="space-y-16">
       {/* ------------------------------------------------------------ intake */}
-      <section>
-        <SectionHeader index="01" title="Intake" kicker="From the complaint" />
-
+      {/* The page is the intake, so the form carries no section header of its
+          own — the page header above already says what this is. */}
+      <section aria-label="Intake">
         <form onSubmit={onSubmit} noValidate>
-          <div className="mt-16 grid gap-16 lg:grid-cols-[1.7fr_1fr]">
+          <div className="grid gap-16 lg:grid-cols-[1.7fr_1fr]">
             <div className="min-w-0">
               <label htmlFor="address">
                 <Designation>Wallet address or transaction</Designation>
@@ -325,7 +325,7 @@ export default function InvestigateForm() {
                         : "That is a transaction hash. We will read it and trace the wallet it paid."
                       : otherChain
                         ? `${otherChain.chain.name} address${otherChain.verified ? ", checksum valid" : ""}. FineX traces USDT on TRON; an address on another chain is screened against the OFAC sanctions list instead.`
-                        : "Paste the wallet address, or the transaction that sent the money. A complainant rarely has an address; their exchange can produce the transaction."}
+                        : "A TRON address (T…), or the 64-character hash of the transaction that sent the money."}
               </p>
 
               {/* What the hash turned out to be, stated before anything is
@@ -447,9 +447,9 @@ export default function InvestigateForm() {
             {/* The standing limits, stated rather than hidden in helper text. */}
             <aside>
               <Designation>Trace parameters</Designation>
-              <dl className="mt-6 divide-y divide-line border-y border-line">
+              <dl className="mt-4 divide-y divide-line border-y border-line">
                 {PARAMETERS.map(([term, value]) => (
-                  <div key={term} className="flex items-baseline gap-6 py-4">
+                  <div key={term} className="flex items-baseline gap-6 py-2">
                     <dt className="w-24 shrink-0 font-label text-xs uppercase tracking-[0.16em] text-faint">
                       {term}
                     </dt>
@@ -457,24 +457,57 @@ export default function InvestigateForm() {
                   </div>
                 ))}
               </dl>
-              <p className="mt-6 text-xs leading-6 text-faint">
-                Fixed by the pipeline, not by the operator. Every trace in the
-                register was run under exactly these limits, which is what makes
-                two case files comparable.
+              <p className="mt-4 text-xs leading-5 text-faint">
+                Fixed limits: every case file is traced the same way, so any two
+                are comparable.
               </p>
             </aside>
           </div>
         </form>
       </section>
 
+      {/* ----------------------------------------------------------- results */}
+      {/* Straight under the form that asked for it. It used to render below the
+          recorded examples, so an officer scrolled past three sample cases to
+          read their own. */}
+      {status.kind === "running" ? (
+        <TraceSkeleton address={address} events={status.events} />
+      ) : null}
+
+      {status.kind === "failed" ? (
+        <ErrorState
+          title="The trace did not run"
+          description={`${status.message} With demo mode on, the recorded cases below open from their files without touching the network.`}
+        />
+      ) : null}
+
+      {status.kind === "done" ? (
+        <div className="border-t border-line pt-10">
+          {status.lookup.status === "resolved" ? (
+            <TraceView
+              trace={status.lookup.data}
+              source={status.lookup.source}
+              note={status.lookup.note}
+            />
+          ) : status.lookup.status === "invalid" ? (
+            <InvalidAddressState
+              address={status.lookup.address}
+              reason={status.lookup.reason}
+            />
+          ) : (
+            <NoTraceState
+              address={status.lookup.address}
+              endpoint={status.lookup.endpoint}
+              detail={status.lookup.detail}
+            />
+          )}
+        </div>
+      ) : null}
+
       {/* -------------------------------------------------------- case files */}
       <section>
-        <SectionHeader
-          index="02"
-          title="Recorded traces"
-          kicker="Captured from the chain"
-        />
-        <ul className="mt-16 divide-y divide-line border-y border-line">
+        <SectionHeader title="Recorded traces" kicker="Captured from the chain" />
+        <ul className="mt-10 divide-y divide-line border-y border-line">
           {DEMO_SAMPLES.map((s) => (
             <li key={s.address}>
               <Link
@@ -496,48 +529,11 @@ export default function InvestigateForm() {
             </li>
           ))}
         </ul>
-        <p className="mt-6 max-w-2xl text-xs leading-6 text-faint">
+        <p className="mt-4 max-w-2xl text-xs leading-5 text-faint">
           Each opens as it was read on 14 September 2026, so it shows the same
-          case today. Any other address is read live from the chain. A live
-          trace takes roughly half a minute — it is doing the same work as the
-          recorded cases above, against whatever the wallet is doing today.
+          case today. Any other address is read live, in about half a minute.
         </p>
       </section>
-
-      {/* ----------------------------------------------------------- results */}
-      {status.kind === "running" ? (
-        <TraceSkeleton address={address} events={status.events} />
-      ) : null}
-
-      {status.kind === "failed" ? (
-        <ErrorState
-          title="The trace did not run"
-          description={`${status.message} With demo mode on, the recorded cases above open from their files without touching the network.`}
-        />
-      ) : null}
-
-      {status.kind === "done" ? (
-        <div className="border-t border-line pt-16">
-          {status.lookup.status === "resolved" ? (
-            <TraceView
-              trace={status.lookup.data}
-              source={status.lookup.source}
-              note={status.lookup.note}
-            />
-          ) : status.lookup.status === "invalid" ? (
-            <InvalidAddressState
-              address={status.lookup.address}
-              reason={status.lookup.reason}
-            />
-          ) : (
-            <NoTraceState
-              address={status.lookup.address}
-              endpoint={status.lookup.endpoint}
-              detail={status.lookup.detail}
-            />
-          )}
-        </div>
-      ) : null}
 
       {/* ---------------------------------------------------------- evidence */}
       {/* The last thing on the page, because it is the last step of a case: once

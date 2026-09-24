@@ -153,20 +153,26 @@ export function Panel({
       id={id}
       className={`min-w-0 ${framed ? "border border-line bg-surface" : ""} ${className}`}
     >
-      {title ? (
+      {/* A panel under a section header that already names it takes no title
+          of its own — the same word twice in one eyeline is the clutter this
+          interface is trying not to have — but its instructions and controls
+          still need a header row. */}
+      {title || subtitle || actions || code ? (
         <header
           className={`flex flex-wrap items-center justify-between gap-4 ${
             framed ? "border-b border-line px-6 py-4" : "border-b border-line pb-4"
           }`}
         >
           <div className="flex min-w-0 items-center gap-2">
-            <Diamond className="bg-brass-dim" size={5} />
+            {title ? <Diamond className="bg-brass-dim" size={5} /> : null}
             <div className="min-w-0">
-              <h2 className="font-label text-xs font-semibold uppercase tracking-[0.24em] text-ink">
-                {title}
-              </h2>
+              {title ? (
+                <h2 className="font-label text-xs font-semibold uppercase tracking-[0.24em] text-ink">
+                  {title}
+                </h2>
+              ) : null}
               {subtitle ? (
-                <p className="mt-1 text-xs leading-5 text-faint">{subtitle}</p>
+                <p className={`${title ? "mt-1" : ""} text-xs leading-5 text-faint`}>{subtitle}</p>
               ) : null}
             </div>
           </div>
@@ -199,17 +205,25 @@ function Split({ value }: { value: string }) {
   );
 }
 
-/** A figure, report style: label, rule, number. No card. */
+/**
+ * A figure, report style: label, rule, number. No card.
+ *
+ * `compact` is for a column of figures beside a finding: the finding is the
+ * loudest thing on that screen, so the figures around it step down a size
+ * instead of competing with it.
+ */
 export function StatCard({
   label,
   value,
   hint,
   tone = "default",
+  compact = false,
 }: {
   label: string;
   value: string;
   hint?: string;
   tone?: "default" | "hot" | "warm" | "cold" | "brand";
+  compact?: boolean;
 }) {
   const toneText: Record<string, string> = {
     default: "text-ink",
@@ -218,21 +232,24 @@ export function StatCard({
     hot: "text-critical",
     warm: "text-suspicious",
   };
-  const size =
-    value.length > 9
+  const size = compact
+    ? value.length > 9
+      ? "text-lg"
+      : "text-2xl"
+    : value.length > 9
       ? "text-2xl md:text-3xl"
       : value.length > 6
         ? "text-3xl md:text-4xl"
         : "text-4xl md:text-5xl";
   return (
-    <div className="border-t border-line pt-4">
+    <div className={`min-w-0 border-t border-line ${compact ? "pt-2" : "pt-4"}`}>
       <Designation>{label}</Designation>
       <p
-        className={`mt-4 font-mono font-light tabular-nums tracking-tight ${size} ${toneText[tone]}`}
+        className={`${compact ? "mt-2" : "mt-4"} font-mono font-light tabular-nums tracking-tight ${size} ${toneText[tone]}`}
       >
         <Split value={value} />
       </p>
-      {hint ? <p className="mt-2 text-xs leading-5 text-faint">{hint}</p> : null}
+      {hint ? <p className={`${compact ? "mt-1" : "mt-2"} text-xs leading-5 text-faint`}>{hint}</p> : null}
     </div>
   );
 }
@@ -471,6 +488,11 @@ export const buttonStyles = {
   secondary: `${BUTTON_BASE} fx-sweep fx-sweep-hover text-ink hover:text-brass`,
   /** Quiet until pointed at, but still a frame — never bare text. */
   ghost: `${BUTTON_BASE} fx-option-quiet px-4 text-faint hover:text-brass`,
+  /** The same two frames at bar height, for actions that ride in a sticky bar. */
+  primarySm:
+    "inline-flex items-center justify-center gap-2 px-4 py-2 font-label text-[11px] font-semibold uppercase tracking-[0.2em] transition fx-sweep text-ink hover:text-brass",
+  secondarySm:
+    "inline-flex items-center justify-center gap-2 px-4 py-2 font-label text-[11px] font-semibold uppercase tracking-[0.2em] transition fx-sweep fx-sweep-hover text-ink hover:text-brass",
 };
 
 /* ------------------------------------------------------------ data source */

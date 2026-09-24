@@ -24,7 +24,6 @@ import InvestigativeLeads from "./InvestigativeLeads";
 import { deriveLeads, flowMetrics, leadMarks } from "@/lib/leads";
 import TraceCanvas, { ViewToggle, type CanvasView } from "./TraceCanvas";
 import {
-  CASE_PROOF,
   Chip,
   Designation,
   Diamond,
@@ -34,7 +33,6 @@ import {
   SourceChip,
   StatCard,
   TRIAGE_META,
-  TriageBadge,
   buttonStyles,
   kindTag,
 } from "./ui";
@@ -136,12 +134,11 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
       .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
     return (
       <div className={`relative  border bg-surface p-6 ${meta.ring}`}>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="font-label text-xs uppercase tracking-[0.28em] text-faint">
-            Where the money is now
-          </p>
-          <TriageBadge level={trace.triage} size="lg" />
-        </div>
+        {/* The disposition is on the sticky case bar directly above; the card's
+            border carries its colour, so the badge is not repeated here. */}
+        <p className="font-label text-xs uppercase tracking-[0.28em] text-faint">
+          Where the money is now
+        </p>
         <p className="mt-4 font-display text-2xl uppercase tracking-[0.08em] text-ink">
           No exchange reached — funds still at rest
         </p>
@@ -177,12 +174,9 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
 
   return (
     <div className={`relative  border bg-surface p-6 ${meta.ring}`}>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="font-label text-xs uppercase tracking-[0.28em] text-faint">
-          {isDeposit ? "Attributed destination" : "End of traceable path"}
-        </p>
-        <TriageBadge level={trace.triage} size="lg" />
-      </div>
+      <p className="font-label text-xs uppercase tracking-[0.28em] text-faint">
+        {isDeposit ? "Attributed destination" : "End of traceable path"}
+      </p>
 
       {isDeposit ? null : (
         <div className="mt-4 flex flex-wrap items-baseline gap-4">
@@ -219,10 +213,9 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
             </span>
             <SourceChip source={label.source} />
           </div>
-          <p className="mt-4 text-xs leading-5 text-muted">
-            If confirmed by {label.entity}, this is the account that can be
-            frozen. Name it in the request — not just the exchange.
-          </p>
+          {/* The instruction — name the account, not the exchange — is the
+              first investigative lead below, with the confidence to quote;
+              saying it here as well put it on the screen twice. */}
         </div>
       ) : (
         <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -534,6 +527,9 @@ export default function TraceView({
     ? trace.nodes.find((n) => n.address === trace.terminal!.address)
     : null;
   const hops = trace.nodes.reduce((max, n) => Math.max(max, n.depth), 0);
+  const movedOn =
+    reachedTerminal?.taintedValueUsdt ??
+    Math.max(...trace.nodes.map((n) => (n.depth > 0 ? n.taintedValueUsdt : 0)), 0);
 
   // The leads, the numbers on the canvas and the two flow figures are one
   // derivation, so the panel and the graph can never disagree about which
@@ -542,88 +538,99 @@ export default function TraceView({
   const marks = useMemo(() => leadMarks(leads), [leads]);
   const flow = useMemo(() => flowMetrics(trace), [trace]);
 
+  /*
+   * The case's three actions. Only an exchange endpoint can action a restraint;
+   * a mixer or a sanctioned entity cannot, so the freeze request is not offered
+   * there, and the evidence packet becomes the primary instead.
+   */
+  const actions = (small: boolean) => {
+    const primary = small ? buttonStyles.primarySm : buttonStyles.primary;
+    const secondary = small ? buttonStyles.secondarySm : buttonStyles.secondary;
+    return (
+      <>
+        <Link href={`/fund-flow?address=${encodeURIComponent(trace.inputAddress)}`} className={secondary}>
+          Fund flow
+        </Link>
+        <Link href={traceHref("report", trace)} className={freezable(trace) ? secondary : primary}>
+          Evidence packet
+        </Link>
+        {freezable(trace) ? (
+          <Link href={traceHref("freeze", trace)} className={primary}>
+            Freeze request
+          </Link>
+        ) : null}
+      </>
+    );
+  };
+
   return (
     <div className="space-y-6">
-      {/* Where you are, and what else this case holds. Sticky, so the answer to
-          "which case am I in" never scrolls away. */}
-      <CaseContextBar trace={trace} source={source} note={note} asOf={asOf} />
-
-      {/* ---------------------------------------------------------- header */}
-      <div className="flex flex-col gap-4 border-b border-line pb-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          {/* The case reference, its disposition and its provenance moved into
-              the sticky bar above, where they stay visible for the whole file
-              instead of scrolling away after the first screen. Repeating them
-              here put the same four facts twice in one eyeline. */}
-          <h1 className="font-display text-3xl uppercase tracking-[0.08em] text-ink md:text-4xl">
-            Case file
-          </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
-            {CASE_PROOF[trace.triage]}
-          </p>
-          <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-muted">
-            <span className="font-label text-xs uppercase tracking-[0.2em] text-faint">Victim-reported address</span>
-            <AddressChip address={trace.inputAddress} tone="strong" full />
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2 lg:justify-end xl:shrink-0 xl:flex-nowrap [&>*]:grow sm:[&>*]:grow-0">
-          <Link
-            href={`/fund-flow?address=${encodeURIComponent(trace.inputAddress)}`}
-            className={buttonStyles.secondary}
-          >
-            Open in Fund Flow
-          </Link>
-          <Link
-            href={traceHref("report", trace)}
-            className={
-              freezable(trace) ? buttonStyles.secondary : buttonStyles.primary
-            }
-          >
-            Evidence packet
-          </Link>
-          {/* Only an exchange endpoint can action a restraint; a mixer or a
-              sanctioned entity cannot, so the document is not offered there. */}
-          {freezable(trace) ? (
-            <Link href={traceHref("freeze", trace)} className={buttonStyles.primary}>
-              Freeze request
-            </Link>
-          ) : null}
-        </div>
-      </div>
+      {/* Where you are, what else this case holds, and what to do with it.
+          Sticky, so none of it scrolls away. The case reference, disposition,
+          provenance and the actions all live here — a second header under it
+          repeated them and pushed the finding below the first screen. */}
+      <CaseContextBar trace={trace} source={source} note={note} asOf={asOf} actions={actions(true)} />
+      <h1 className="sr-only">Case file {trace.caseId}</h1>
+      <div className="flex flex-wrap gap-2 xl:hidden [&>*]:grow sm:[&>*]:grow-0">{actions(false)}</div>
 
       {/* ------------------------------------------------------ money slide */}
-      <div id="finding" className="scroll-mt-32">
+      <div id="finding" className="fx-anchor">
         <SectionHeader index="01" title="Finding" />
       </div>
       {/* min-w-0 on both children: a grid child defaults to min-width:auto and
           refuses to shrink below its content, and the figure column now carries
           a longer hint than it used to. CONTEXT.md §3 records this failure mode. */}
       <div className="grid min-w-0 gap-6 lg:grid-cols-3">
-        <div className="min-w-0 lg:col-span-2">
+        <div className="min-w-0 space-y-6 lg:col-span-2">
           <TerminalCard trace={trace} />
+          {trace.narrative ? (
+            /* It exists to be pasted into a case file, so it sits with the
+               finding it summarises and carries a copy button. It is assembled
+               from this trace's own figures, so it cannot drift from them, and
+               the same trace always produces the same sentences. */
+            <Panel
+              title="Investigator summary"
+              subtitle="Assembled from this trace's figures — no language model."
+              actions={<CopyButton value={trace.narrative} label="Copy" />}
+            >
+              <p className="wrap-anywhere text-sm leading-7 text-muted">{trace.narrative}</p>
+            </Panel>
+          ) : null}
         </div>
-        <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="grid min-w-0 content-start gap-4 sm:grid-cols-2 lg:grid-cols-1">
           <StatCard
+            compact
             label="Reported amount"
             value={formatUsdt(trace.reportedAmountUsdt, { symbol: false })}
             hint={`Fraud reported ${formatDateTime(trace.fraudDate)}`}
           />
+          {/* Past the reported wallet only — the reported wallet is the subject
+              of the case, never its finding. When nothing has left it, the
+              figure says so in words: a red 0.00 beside "funds still at rest"
+              read as if the money had vanished. */}
           <StatCard
-            label={trace.terminal ? "Reached destination" : "Traced value"}
-            value={formatUsdt(
-              reachedTerminal?.taintedValueUsdt ??
-                Math.max(...trace.nodes.map((n) => (n.depth > 0 ? n.taintedValueUsdt : 0)), 0),
-              { symbol: false },
-            )}
+            compact
+            label={trace.terminal ? "Reached destination" : "Moved on"}
+            value={formatUsdt(movedOn, { symbol: false })}
             hint={
               reachedTerminal
                 ? `${formatPercent(reachedTerminal.taintFraction)} of the victim's funds`
-                : "Largest tainted balance on the path"
+                : movedOn > 0
+                  ? "Largest tainted balance past the reported wallet"
+                  : "Nothing has left the reported wallet"
             }
-            tone={trace.triage === "HOT" ? "hot" : trace.triage === "WARM" ? "warm" : "cold"}
+            tone={
+              movedOn === 0
+                ? "default"
+                : trace.triage === "HOT"
+                  ? "hot"
+                  : trace.triage === "WARM"
+                    ? "warm"
+                    : "cold"
+            }
           />
           <StatCard
+            compact
             label="Path"
             value={`${count(hops, "hop")} · ${count(trace.nodes.length, "wallet")}`}
             hint={`${count(trace.edges.length, "transfer")} · ${count(trace.riskFlags.length, "signal")}`}
@@ -633,6 +640,7 @@ export default function TraceView({
               most of the money went through a single address, and only the
               second has an obvious next step. */}
           <StatCard
+            compact
             label="Concentration"
             value={formatPercent(flow.concentration)}
             hint={
@@ -645,6 +653,7 @@ export default function TraceView({
               past them goes quiet, and silence reads as "nothing there" rather
               than "we stopped looking". State the number instead. */}
           <StatCard
+            compact
             label="Left the horizon"
             value={
               flow.unresolvedWallets ? formatPercent(flow.unresolvedShare) : "None"
@@ -662,6 +671,7 @@ export default function TraceView({
               it out from two timestamps. Aged against the moment the chain was
               read, never Date.now() — that is non-deterministic in render. */}
           <StatCard
+            compact
             label="Trail age"
             value={staleness ? staleness.value : "—"}
             hint={
@@ -675,30 +685,25 @@ export default function TraceView({
       </div>
 
       {/* ------------------------------------------------------------ signals */}
-      <div id="next" className="scroll-mt-32">
-        <SectionHeader index="02" title="What next" kicker="Ranked by what can still be done" />
+      {/* Each section is named once, by its header. The panels under a header
+          no longer repeat its name in a second label and a third kicker. */}
+      <div id="next" className="fx-anchor">
+        <SectionHeader index="02" title="What next" kicker="Numbered on the fund-flow canvas" />
       </div>
-      <Panel
-        title="Investigative leads"
-        subtitle="Computed from this trace. Each is numbered on the fund-flow canvas below."
-        bodyClassName="px-6 py-2"
-      >
+      <Panel bodyClassName="px-6 py-2">
         <InvestigativeLeads leads={leads} selected={selected} onSelect={setSelected} />
       </Panel>
 
-      <div id="why" className="scroll-mt-32">
-        <SectionHeader index="03" title="Why" kicker="Behavioural signals" />
+      <div id="why" className="fx-anchor">
+        <SectionHeader index="03" title="Why" />
       </div>
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
-        <Panel
-          title="Behavioural signals"
-          subtitle="Rule-based. Every one of them explainable in court."
-        >
+      <div className="grid items-start gap-6 lg:grid-cols-[1fr_1.4fr]">
+        <Panel title="Behavioural signals">
           <RiskFlagList flags={trace.riskFlags} onSelect={setSelected} />
         </Panel>
         <Panel
           title="Wallets on the path"
-          subtitle="Taint is the share of the victim's money that reached each address."
+          subtitle="Taint: the share of the victim's money that reached each address."
           bodyClassName="p-0"
         >
           <NodesTable trace={trace} selected={selected} onSelect={setSelected} />
@@ -706,14 +711,12 @@ export default function TraceView({
       </div>
 
       {/* ------------------------------------------------------------ graph */}
-      <div id="flow" className="scroll-mt-32">
-        <SectionHeader index="04" title="Fund flow" kicker="The working" />
+      <div id="flow" className="fx-anchor">
+        <SectionHeader index="04" title="Fund flow" />
       </div>
       <Panel
-        title="Fund flow"
-        subtitle="Click a wallet to highlight it in the tables below. Flow reads the path in order; Bubbles reads it by weight."
+        subtitle="Click a wallet to highlight it here and in the tables. Flow: the path in order · Bubbles: by weight · Graph: by time."
         actions={<ViewToggle view={view} onChange={setView} />}
-        code={trace.caseId}
         bodyClassName="p-0"
       >
         <TraceCanvas
@@ -728,37 +731,18 @@ export default function TraceView({
       </Panel>
 
       {/* -------------------------------------------------------- timeline */}
-      <div id="timeline" className="scroll-mt-32">
+      <div id="timeline" className="fx-anchor">
         <SectionHeader index="05" title="Timeline and custody" />
       </div>
-      <div className="grid gap-6 lg:grid-cols-3">
+      {/* items-start: each panel is as tall as what it holds. Stretched to the
+          taller neighbour, a short timeline became a large empty box. */}
+      <div className="grid items-start gap-6 lg:grid-cols-3">
         <Panel title="Movement timeline" className="lg:col-span-2">
           <MovementTimeline trace={trace} onSelect={setSelected} />
         </Panel>
-
-        {/* min-w-0: this column holds the summary, whose sentences can carry a
-            full 34-character address — unbreakable at min-content, so without it
-            the column refuses to shrink and the page scrolls sideways on a phone. */}
-        <div className="min-w-0 space-y-6">
-          {trace.narrative ? (
-            /* It exists to be pasted into a case file, so it carries a copy
-               button. The subtitle states the one thing that distinguishes it
-               from every other "AI summary" a judge will have been shown that
-               week: it is assembled from the figures above it, so it cannot
-               drift from them, and the same trace always produces the same
-               sentences. */
-            <Panel
-              title="Investigator summary"
-              subtitle="Assembled from the figures above. No language model — the same trace always produces the same words."
-              actions={<CopyButton value={trace.narrative} label="Copy" />}
-            >
-              <p className="wrap-anywhere text-sm leading-7 text-muted">{trace.narrative}</p>
-            </Panel>
-          ) : null}
-          <Panel title="Chain of custody" className="scroll-mt-32" id="custody">
-            <ProvenancePanel trace={trace} />
-          </Panel>
-        </div>
+        <Panel title="Chain of custody" className="fx-anchor" id="custody">
+          <ProvenancePanel trace={trace} />
+        </Panel>
       </div>
     </div>
   );

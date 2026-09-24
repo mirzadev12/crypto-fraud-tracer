@@ -63,7 +63,7 @@ export default function CaseRail({
       title="Cases"
       subtitle="The case you are reading is marked. Pick another to move on."
       bodyClassName="p-0"
-      className="print:hidden xl:sticky xl:top-24 xl:self-start"
+      className="print:hidden xl:sticky xl:top-[calc(var(--nav-h,6rem)+1.5rem)] xl:self-start"
     >
       {cases.length && !onRegister ? (
         <p className="border-b border-line-soft p-4 text-xs leading-5 text-faint">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import AddressChip from "@/components/AddressChip";
 import { DataSourceBadge, TriageBadge } from "@/components/ui";
 import type { DataSource } from "@/lib/api";
@@ -47,53 +47,71 @@ export default function CaseContextBar({
   source,
   note,
   asOf,
+  actions,
 }: {
   trace: TraceResult;
   source: DataSource;
   note?: string;
   asOf?: string;
+  /**
+   * The case's own actions — fund flow, packet, freeze request. They ride in
+   * the bar on wide screens so the next step is one click from anywhere in the
+   * file, not only from its top; below `xl` the page carries them instead,
+   * because a sticky bar that wraps to two or three lines hides the page.
+   */
+  actions?: ReactNode;
 }) {
   const [current, setCurrent] = useState<string>(SECTIONS[0].id);
+  const barRef = useRef<HTMLDivElement>(null);
 
   /*
-   * Which section the reader is in.
+   * Which section the reader is in: the last one whose heading has passed
+   * under the sticky chrome (the navigation plus this bar), or the last one of
+   * all once the page is scrolled to its end.
    *
-   * An IntersectionObserver rather than a scroll handler: it reports only when
-   * a boundary is crossed, so there is no work on every frame of a scroll, and
-   * the whole thing unhooks itself on unmount. The top margin is what makes it
-   * mark the section *under the bar* rather than the one at the very top of the
-   * viewport, which is otherwise off by the height of the sticky chrome.
+   * Read once per animation frame while scrolling. It used to be an
+   * IntersectionObserver on the headings, which only reported when a heading
+   * crossed a narrow band — so a jump, or a fast scroll past a short heading,
+   * left the bar marking a section the reader had already left.
    */
   useEffect(() => {
-    const seen = new Map<string, number>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          seen.set(entry.target.id, entry.intersectionRatio);
-        }
-        let best: string | null = null;
-        let bestRatio = 0;
-        for (const { id } of SECTIONS) {
-          const ratio = seen.get(id) ?? 0;
-          if (ratio > bestRatio) {
-            bestRatio = ratio;
-            best = id;
-          }
-        }
-        if (best) setCurrent(best);
-      },
-      { rootMargin: "-140px 0px -55% 0px", threshold: [0, 0.25, 0.5, 1] },
-    );
-
-    for (const { id } of SECTIONS) {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    }
-    return () => observer.disconnect();
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")) || 0;
+      // Past the bar with room to spare: a jump lands a heading 7rem under the
+      // navigation (.fx-anchor), which must count as having reached it.
+      const line = navH + (barRef.current?.offsetHeight ?? 90) + 40;
+      let best: string = SECTIONS[0].id;
+      for (const { id } of SECTIONS) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= line) best = id;
+      }
+      const atEnd =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      if (atEnd) best = SECTIONS[SECTIONS.length - 1].id;
+      setCurrent(best);
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
   }, []);
 
   return (
-    <div className="sticky top-0 z-30 -mx-6 border-b border-line bg-bg/95 px-6 backdrop-blur print:hidden">
+    // Pinned under the navigation (its height is --nav-h), not at the top of
+    // the viewport, where the navigation is drawn over it.
+    <div
+      ref={barRef}
+      className="sticky top-[var(--nav-h,0px)] z-30 -mx-6 border-b border-line bg-bg/95 px-6 backdrop-blur print:hidden"
+    >
       {/* ------------------------------------------------------- identity */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 py-2">
         <span className="font-mono text-xs uppercase tracking-[0.2em] text-faint">
@@ -102,9 +120,12 @@ export default function CaseContextBar({
         <AddressChip address={trace.inputAddress} tone="strong" copy explorer={false} origin={false} />
         <TriageBadge level={trace.triage} />
         <DataSourceBadge source={source} note={note} asOf={asOf} />
-        <span className="ml-auto hidden font-label text-[10px] uppercase tracking-[0.2em] text-faint sm:inline">
-          TRON · USDT TRC-20
-        </span>
+        <div className="ml-auto flex items-center gap-4">
+          <span className="hidden font-label text-[10px] uppercase tracking-[0.2em] text-faint sm:inline xl:hidden 2xl:inline">
+            TRON · USDT TRC-20
+          </span>
+          {actions ? <div className="hidden items-center gap-2 xl:flex">{actions}</div> : null}
+        </div>
       </div>
 
       {/* ------------------------------------------------------- sections */}

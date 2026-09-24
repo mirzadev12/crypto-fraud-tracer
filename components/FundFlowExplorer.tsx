@@ -89,7 +89,7 @@ export default function FundFlowExplorer({
         title="Cases"
         subtitle="Pick a complaint to load its flow."
         bodyClassName="p-0"
-        className="lg:sticky lg:top-24 lg:self-start"
+        className="lg:sticky lg:top-[calc(var(--nav-h,6rem)+1.5rem)] lg:self-start"
       >
         <ul className="fx-scroll max-h-[70vh] divide-y divide-line-soft overflow-y-auto">
           {cases.length === 0

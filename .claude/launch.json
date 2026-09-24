@@ -10,6 +10,35 @@
       ],
       "autoPort": true,
       "port": 3000
+    },
+    {
+      "name": "crypto-fraud-tracer-demo",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3031"
+      ],
+      "env": {
+        "DEMO_MODE": "true"
+      },
+      "port": 3031
+    },
+    {
+      "name": "crypto-fraud-tracer-prod",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "next",
+        "start",
+        "-p",
+        "3032"
+      ],
+      "env": {
+        "DEMO_MODE": "true"
+      },
+      "port": 3032
     }
   ]
 }

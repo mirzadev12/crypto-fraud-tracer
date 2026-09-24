@@ -264,14 +264,14 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
               className="fx-option block w-full resize-y border border-line bg-surface-2 [--fx-face:var(--color-surface-2)] p-4 font-mono text-xs leading-6 text-ink placeholder:text-dim focus:outline-none"
             />
             <p className="mt-4 text-xs leading-5 text-faint">
-              Commas, semicolons and line breaks all separate. Duplicates are dropped.
-              Every address is checked against its base58 checksum before anything is
-              read from the chain. The recorded cases are the {sample.length} wallets
-              already captured from the chain for this build — real addresses, so a
-              run here is a real run.
+              One per line — commas and semicolons work too. Each address is
+              checksum-checked before any chain read; duplicates are dropped.
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center gap-4">
+            {/* One column, one width: the primary, then the two ways to fill
+                the box. In a 20rem row they wrapped onto three lines with three
+                different indents. */}
+            <div className="mt-6 flex flex-col items-stretch gap-2">
               <button
                 type="button"
                 onClick={load}
@@ -284,11 +284,12 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
                 type="button"
                 onClick={() => setRaw(sample.join(String.fromCharCode(10)))}
                 disabled={running}
+                title={`The ${sample.length} wallets already captured from the chain for this build — real addresses, so a run here is a real run.`}
                 className={buttonStyles.ghost}
               >
-                Load the recorded cases
+                Load the {sample.length} recorded cases
               </button>
-              <label className="fx-option-quiet inline-flex cursor-pointer items-center px-4 py-4 font-label text-xs font-semibold uppercase tracking-[0.2em] text-faint transition hover:text-brass">
+              <label className="fx-option-quiet inline-flex cursor-pointer items-center justify-center px-4 py-4 font-label text-xs font-semibold uppercase tracking-[0.2em] text-faint transition hover:text-brass">
                 Load a file
                 <input
                   type="file"
