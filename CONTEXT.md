@@ -1472,9 +1472,12 @@ the user's Canva deck: text in place only, never rebuilt, never longer.
    `/api/health`; add an uptime pinger.
 5. SPOC uploads the team and Annexure A; the leader submits title, description
    and PDF. The LICENSE question goes to the SPOC first.
-6. ~~Merge into main~~ — done 24 Sep: `main` fast-forwarded to the work branch
-   on mirzadev12 (now public) and reemrasheed2007, so Render redeploys from
-   whichever it watches. Confirm with `/api/health` (`commit`).
+6. Merge into main — done on **mirzadev12** (now public) on 24 Sep, as a
+   fast-forward. **reemrasheed2007 is not yet updated**: the cloud session
+   cannot push there, and two helper sessions it started refused, correctly,
+   to push to `main` on a relayed instruction. `docs/HANDOFF-LOCAL.md` §1 does
+   it from the Windows machine (`git merge --ff-only mine/main`, `git push
+   origin main`). Confirm the deploy with `/api/health` (`commit`).
    `.github/workflows/keep-awake.yml` pings `/api/health` every 10 minutes so
    the free instance does not sleep (Render free: 750 instance-hours a month
    per workspace; one always-on service uses ~730). The landing caption and

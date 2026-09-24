@@ -2,10 +2,11 @@
 
 The cloud session could not reach sih.gov.in, TronGrid, Render or YouTube, so
 the remaining work moves to the Windows machine. Everything that session
-produced was merged into **`main`** (fast-forward, no force) on **mirzadev12**
-and on **reemrasheed2007** on 24 Sep — Render redeploys from whichever of the
-two it watches. The work branch `claude/optimistic-franklin-isy8fq` is on both
-too. Nothing is lost if you follow the three steps below in order.
+produced was merged into **`main`** on **mirzadev12** (fast-forward, no
+force; the repo is now public) on 24 Sep. **reemrasheed2007 is not updated
+yet**: the cloud session cannot push there, and the helper sessions it started
+correctly refused to push to someone's `main` on a relayed instruction. Step 1
+below does it in one command. Render redeploys from whichever repo it watches.
 
 ---
 
@@ -15,19 +16,20 @@ too. Nothing is lost if you follow the three steps below in order.
 cd "C:\Users\Mohammad Ali\crypto-fraud-tracer"
 git status
 git stash
-git switch main
-git pull origin main
 git fetch mine
-git status
+git fetch origin
+git switch main
+git merge --ff-only mine/main
+git push origin main
 npm install
 ```
 
-`git stash` only if the first `git status` showed local changes; `git stash
-pop` brings them back afterwards. The second `git status` should say `main` is
-up to date with `origin/main`; `git log --oneline -1` should show the same
-commit as `mine/main`. If reemrasheed2007's `main` was not updated (check the
-commit on GitHub), push it from here: `git push origin mine/main:main` — a
-fast-forward, never `--force`.
+`git stash` only if `git status` showed local changes; `git stash pop` brings
+them back afterwards. `git merge --ff-only` refuses rather than creating a
+merge if the two `main`s have diverged — if it refuses, stop and look at
+`git log --oneline -5 origin/main` before doing anything else. `git push origin
+main` is the fast-forward that updates **reemrasheed2007** and triggers Render
+if it watches that repo. Never `--force` on origin.
 
 ## 2. See the website locally
 
@@ -51,14 +53,15 @@ Open http://localhost:3000. What is new (screenshots in
 
 ```text
 Project: FineX // Blockchain Intelligence — TRON/USDT crypto-fraud tracer, SIH 2026, PS 26183 (MHA/I4C).
-Repo: C:\Users\Mohammad Ali\crypto-fraud-tracer, branch main (everything from 24 Sep is merged; mirzadev12 is now public).
+Repo: C:\Users\Mohammad Ali\crypto-fraud-tracer, branch main. Everything from 24 Sep is on mine/main (mirzadev12, now
+public); origin/main (reemrasheed2007) is updated by HANDOFF §1 — check `git log --oneline -1 origin/main` equals mine/main.
 Read CLAUDE.md, AGENTS.md and CONTEXT.md first. CONTEXT.md §8 is the full record of the 24 Sep cloud session
 (problem statement verbatim, decisions, OFAC refresh, screening design, research, pending list), and
 docs/HANDOFF-LOCAL.md is the task list. Do not re-derive anything recorded there.
 
 Remotes: origin = reemrasheed2007/crypto-fraud-tracer (never force-push); mine = mirzadev12 (--force-with-lease only).
-Live: https://crypto-fraud-tracer.onrender.com — main was fast-forwarded on both repos on 24 Sep, so Render should
-serve the new build; confirm with /api/health (its "commit" is the deployed commit).
+Live: https://crypto-fraud-tracer.onrender.com — Render serves the new build once the repo it watches has the new main
+(mirzadev12: done; reemrasheed2007: after HANDOFF §1). Confirm with /api/health ("commit" is the deployed commit).
 Deadline 30 Sep 2026; aim to finish by 25 Sep. Shell is PowerShell 5.1: no &&. Keep responses terse.
 
 Done on 24 Sep (verified: tsc, eslint, next build, 33 Playwright checks):
@@ -101,7 +104,7 @@ it; don't change the core idea or a fundamental feature; push to mirzadev12 firs
 
 | # | Task | Who |
 |---|---|---|
-| A1 | ~~Merge into `main`~~ — **done 24 Sep** on both repos. Confirm Render redeployed: `/api/health` → `commit` should be the new main commit; if auto-deploy is off, press *Manual Deploy* in the dashboard | teammate with dashboard access |
+| A1 | Merge into `main`: **done on mirzadev12**; **reemrasheed2007 by HANDOFF §1**. Then confirm Render redeployed: `/api/health` → `commit` should be the new main commit; if auto-deploy is off, press *Manual Deploy* in the dashboard | team lead + teammate with dashboard access |
 | A2 | Render: set `TRONGRID_API_KEY` and `DEMO_MODE=true` (dashboard, not `render.yaml`), then open `/api/health` — expect `demoMode: true`, `chainAccess: "keyed"` | teammate with dashboard access |
 | A3 | ~~Uptime pinger~~ — **done**: `.github/workflows/keep-awake.yml` (GitHub Actions, every 10 min). Check the *Actions* tab shows green runs; enable Actions on the repo if GitHub asks | anyone |
 | A4 | Open the live site cold and warm; open the three recorded cases from `/operations`; check the QR on slide 6 scans to the site | anyone |
