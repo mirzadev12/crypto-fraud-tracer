@@ -76,8 +76,10 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         failing a trace. <span className="text-ink">Unlabelled addresses</span> —
         if the trail ends somewhere we hold no label for, we say so instead of
         guessing, and the case is dispositioned on whether the funds are still at
-        rest. <span className="text-ink">Cross-chain hops</span> — a bridge is a
-        hard stop today; the trail ends at the bridge and is recorded as such.{" "}
+        rest. <span className="text-ink">Cross-chain hops</span> — the trace follows
+        USDT on TRON only, so where money leaves the chain the trail ends at the
+        last TRON wallet it reached; an address on the other chain can be
+        screened against the sanctions list here, but not traced.{" "}
         <span className="text-ink">Mixers</span> — nobody can follow a mixer
         deterministically, so the case is closed at the entry point rather than
         continued on speculation.
@@ -132,14 +134,16 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
       <ul className="space-y-4">
         <li>
           <span className="text-ink">Cross-chain tracing.</span> TRON first,
-          because that is where USDT fraud proceeds move. A bridge is a hard
-          stop: the trail ends there and is recorded as such. We looked for a way
-          to follow it honestly and could not find one — the officially
-          documented TRON bridge addresses carry no USDT transfers at all, so a
-          detector built on them would ship labels for addresses that never
-          appear in the flows we trace. USDT on Ethereum is next: the tracing
-          logic carries over, but attribution data is built per chain, and
-          Ethereum&apos;s starts from zero.
+          because that is where USDT fraud proceeds move. Where money leaves
+          TRON, the trail ends at the last TRON wallet it reached. We looked for
+          a way to follow a bridge honestly and could not find one — the
+          officially documented TRON bridge addresses carry no USDT transfers at
+          all, so a detector built on them would ship labels for addresses that
+          never appear in the flows we trace. What is built is screening: an
+          address from any chain the OFAC list covers is recognised by its
+          format and checked against that list. USDT on Ethereum is the next
+          tracing adapter: the tracing logic carries over, but attribution data
+          is built per chain, and Ethereum&apos;s starts from zero.
         </li>
         <li>
           <span className="text-ink">NCRP and SAHYOG integration.</span> Not
@@ -210,6 +214,7 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
       ["API integrations", "Six documented endpoints; a permalink replays a past run exactly."],
       ["Real-time tracing", "A recorded case answers in milliseconds. A live wallet takes about half a minute on the public endpoint, and less with an API key."],
       ["Automated investigative recommendations", "Ranked leads naming the next wallet to open, ordered by what can still be done."],
+      ["Multiple blockchain ecosystems — screening", "An address from any chain the OFAC list covers is recognised by its format, checksum verified where the format has one, and screened against that list. Screening, not tracing: the trace stays on TRON."],
     ],
   },
   {
@@ -223,13 +228,23 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
   {
     group: "Not built, with a plan",
     items: [
-      ["Cross-chain and multi-ecosystem tracing", "TRON first, because that is where USDT fraud proceeds move. A bridge is a hard stop and is recorded as one. USDT on Ethereum is next."],
+      ["Cross-chain and multi-ecosystem tracing", "TRON first, because that is where USDT fraud proceeds move. Where money leaves TRON the trail ends at the last TRON wallet it reached. USDT on Ethereum is the next tracing adapter."],
       ["NCRP and SAHYOG integration", "Both need access only I4C can grant. Intake already accepts what a complaint contains — a wallet or a transaction hash, singly or in batches."],
       ["Scalable blockchain indexing", "Every trace reads a public endpoint on demand. At scale, a departmental TRON node indexes transfers locally, with no outside service seeing which wallets are under investigation."],
     ],
     note: "",
   },
 ];
+
+/* The counts in the paragraph above the list come from the list, so adding a
+   row can never leave the prose saying fifteen when there are sixteen. */
+const COVERAGE_COUNTS = PS_COVERAGE.map((block) => block.items.length);
+const COVERAGE_TOTAL = COVERAGE_COUNTS.reduce((a, b) => a + b, 0);
+const WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+  "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
+  "eighteen", "nineteen", "twenty"];
+const word = (n: number) => WORDS[n] ?? String(n);
+const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** Read from the frozen file so this can never disagree with the register. */
 const REAL_CASES = (demoCases.cases as Array<{
@@ -281,9 +296,10 @@ export default function OperationsPage() {
           kicker="Every expectation, and where it stands"
         />
         <p className="mt-10 max-w-3xl text-base leading-8 text-muted">
-          The problem statement&rsquo;s feature list, consolidated into fifteen
-          capabilities. Ten are built and can be opened right now, two were
-          decided against for stated reasons, and three are not built — each
+          The problem statement&rsquo;s feature list, consolidated into{" "}
+          {word(COVERAGE_TOTAL)} capabilities. {capital(word(COVERAGE_COUNTS[0]))} are
+          built and can be opened right now, {word(COVERAGE_COUNTS[1])} were
+          decided against for stated reasons, and {word(COVERAGE_COUNTS[2])} are not built — each
           with the route to building it. Nothing here is aspirational: where a
           line says built, a case file on this deployment shows it.
         </p>

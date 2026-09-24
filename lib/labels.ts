@@ -36,7 +36,14 @@ type DepositRow = {
   confidence: number;
   evidence?: string;
 };
-type Sanctioned = { address: string; list: string; entity?: string; program?: string };
+type Sanctioned = {
+  address: string;
+  list: string;
+  entity?: string;
+  program?: string;
+  /** The asset OFAC filed it under. Usually TRX; a designation naming the token files it under USDT. */
+  asset?: string;
+};
 type Mixer = { address: string; name?: string };
 type Community = { address: string; reports?: number; source?: string };
 
@@ -100,7 +107,10 @@ for (const row of (riskLists.sanctioned ?? []) as Sanctioned[]) {
     kind: "sanctioned",
     confidence: 1,
     source: "sanctions",
-    evidence: [row.list, row.program].filter(Boolean).join(" · ") || undefined,
+    evidence:
+      [row.list, row.program, row.asset && row.asset !== "TRX" ? `filed under ${row.asset}` : null]
+        .filter(Boolean)
+        .join(" · ") || undefined,
   });
 }
 

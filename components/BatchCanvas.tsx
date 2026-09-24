@@ -205,7 +205,7 @@ function BatchFlow({
   /*
    * Which nodes get a caption.
    *
-   * One entity can hold many addresses — the sanctions list alone puts 202 TRON
+   * One entity can hold many addresses — the sanctions list alone puts 334 TRON
    * addresses under 29 names — so captioning every attributed wallet wrote
    * "ISIL KHORASAN" across the canvas six times and said nothing the sixth
    * time. A convergence is always captioned because it is the finding; every

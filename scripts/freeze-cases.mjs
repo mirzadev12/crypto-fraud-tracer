@@ -14,7 +14,7 @@
  *
  * Finding the candidates is the same trick the whole project rests on, run
  * backwards. We already hold 165 addresses that sweep into exchange hot wallets
- * and 202 addresses from the OFAC list; anyone who *sent* to one of those has,
+ * and 334 addresses from the OFAC list; anyone who *sent* to one of those has,
  * by construction, a trail that ends there. So:
  *
  *   WARM — someone who paid into a known customer deposit address

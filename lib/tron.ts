@@ -84,7 +84,7 @@ export function sha256(input: Uint8Array): Uint8Array {
 
 /* ------------------------------------------------------------------ base58 */
 
-function base58Decode(input: string): Uint8Array | null {
+export function base58Decode(input: string): Uint8Array | null {
   const bytes: number[] = [0];
   for (const ch of input) {
     const value = B58_MAP[ch];

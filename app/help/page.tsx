@@ -91,7 +91,7 @@ const STEPS = [
   {
     n: "1",
     title: "Paste the address or transaction",
-    body: "A wallet address starts with T and is 34 characters long. A transaction is 64 characters. Either is checked before anything else happens, and a transaction shows you the wallet it paid before tracing it.",
+    body: "A wallet address starts with T and is 34 characters long. A transaction is 64 characters. Either is checked before anything else happens, and a transaction shows you the wallet it paid before tracing it. An address from another chain, such as Ethereum or Bitcoin, is not traced: it is checked against the sanctions list instead.",
   },
   {
     n: "2",

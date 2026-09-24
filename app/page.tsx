@@ -11,6 +11,15 @@ import {
   buttonStyles,
 } from "@/components/ui";
 import SectionDialog from "@/components/SectionDialog";
+import depositAddresses from "@/data/deposit-addresses.json";
+import riskLists from "@/data/risk-lists.json";
+
+/* Counted from the committed files, never typed: a figure typed into prose
+   drifts from the file under it (the sanctions figure did, 202 → 334, when the
+   list was refreshed). */
+const DEPOSITS = depositAddresses.length;
+const EXCHANGES = new Set(depositAddresses.map((d) => d.exchange)).size;
+const SANCTIONED = riskLists.sanctioned.length;
 
 const METHOD = [
   {
@@ -115,9 +124,9 @@ export default function Home() {
       <section className="border-t border-line py-16">
         <dl className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            ["241", "Customer deposit addresses derived", "/attribution"],
-            ["10", "Exchanges covered by that derivation", "/attribution"],
-            ["202", "Sanctioned addresses carried", "/attribution"],
+            [String(DEPOSITS), "Customer deposit addresses derived", "/attribution"],
+            [String(EXCHANGES), "Exchanges covered by that derivation", "/attribution"],
+            [String(SANCTIONED), "Sanctioned TRON addresses carried", "/attribution"],
             ["0", "Commercial data licences required", null],
           ].map(([figure, label, href]) => (
             <div key={label} className="min-w-0 border-t border-line pt-4">

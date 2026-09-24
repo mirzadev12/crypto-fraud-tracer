@@ -32,6 +32,7 @@ import { addWatch } from "@/lib/watchlist";
 import LinkGraph from "@/components/LinkGraph";
 import BatchCanvas, { BatchViewToggle, type BatchView } from "@/components/BatchCanvas";
 import { checkTronAddress } from "@/lib/tron";
+import { identifyChain } from "@/lib/chains";
 import type { TraceResult, TriageLevel } from "@/lib/types";
 import {
   Chip,
@@ -85,8 +86,18 @@ function parseAddresses(raw: string): { queued: string[]; rejected: Rejected[] }
     if (seen.has(candidate)) continue;
     seen.add(candidate);
     const check = checkTronAddress(candidate);
-    if (check.valid) queued.push(candidate);
-    else rejected.push({ line: candidate, reason: check.reason });
+    if (check.valid) {
+      queued.push(candidate);
+      continue;
+    }
+    // Another chain's address is not a typo; say what it is and where it can go.
+    const other = identifyChain(candidate);
+    rejected.push({
+      line: candidate,
+      reason: other
+        ? `${other.chain.name} address — traced on TRON only. Screen it against OFAC from New case.`
+        : check.reason,
+    });
   }
   return { queued, rejected };
 }

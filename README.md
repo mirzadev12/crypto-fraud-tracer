@@ -93,6 +93,7 @@ server.
 | `GET` | `/api/trace/[address]` | `TraceResult` — the permalink. `?amount=&since=&asof=` replays one run exactly, on the chain as it stood when it was read; `?model=fifo` as above. |
 | `GET` | `/api/tx/[hash]` | The USDT transfer inside a transaction: `from`, `to`, amount, time. How a complaint that holds a transaction rather than a wallet becomes a trace. |
 | `GET` | `/api/wallet/[address]` | `WalletProfile` — age, money in and out, counterparties, what funded it. |
+| `GET` | `/api/screen/[address]` | Sanctions screening for an address on any chain the OFAC list covers: the chain, recognised from the format (checksum verified where the format has one), and the listing if there is one. Reads no chain. Not listed is not a clearance, and the response says so. |
 | `POST` | `/api/watch` — `{items: [{address, since}]}` | For each wallet: `moved` (with every outflow and where it went), `still`, or `unchecked` when the chain did not answer. Up to 25 wallets per call. |
 | `GET` | `/api/health` | `{ok, commit, demoMode, chainAccess}` — which commit is serving, whether demo mode is on, and whether chain reads carry an API key (`keyed` or `public`; the key itself is never returned). Reads nothing from the chain. |
 | `GET` | `/api/cases` | Deliberately unimplemented. There is no case database, and serving illustrative records through it would claim chain-read data it is not. |
@@ -152,7 +153,9 @@ decisions behind it, and the external data sources that have been verified.
 
 ## Scope, stated up front
 
-- **TRON and USDT (TRC-20) only** — that is where the proceeds actually move.
+- **Tracing is TRON and USDT (TRC-20) only** — that is where the proceeds
+  actually move. An address from another chain is recognised and screened
+  against the OFAC sanctions list, never traced.
 - **Rules, not machine learning** — every score must be defensible to a judge.
 - **No language model runs anywhere.** The investigator summary is assembled
   from the trace's own figures, and the exchange name is a deterministic lookup

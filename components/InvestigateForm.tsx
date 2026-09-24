@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DEMO_SAMPLES, runTrace, sampleHref, traceHref, type TraceLookup } from "@/lib/api";
 import { checkTronAddress, isTxHash } from "@/lib/tron";
+import { identifyChain } from "@/lib/chains";
+import type { Screening } from "@/lib/screen";
 import type { ResolvedTransfer, TxLookup } from "@/lib/txlookup";
-import { formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
+import { count, formatDate, formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
 import TraceView from "./TraceView";
 import {
   InvalidAddressState,
@@ -42,12 +44,62 @@ const FIELD =
 /** The limits are fixed by the pipeline, so the docket states them as facts. */
 const PARAMETERS: Array<[string, string]> = [
   ["Chain", "TRON · USDT (TRC-20)"],
+  ["Other chains", "Screened against OFAC, not traced"],
   ["Depth", "3 hops"],
   ["Outflows", "Top 5 per wallet, by value"],
   ["Dust", "Under 1% of amount traced, dropped"],
   ["Window", "After the fraud date, or full history"],
   ["Stop", "First attributable address"],
 ];
+
+/** What screening an address on another chain found, in an officer's words. */
+function ScreeningResult({
+  screened,
+}: {
+  screened: { for: string; result: Screening | null; error: string | null };
+}) {
+  const { result, error } = screened;
+  if (!result) {
+    return (
+      <div className="mt-6 border-l-2 border-critical py-4 pl-6">
+        <p className="text-sm leading-6 text-muted">
+          Not screened: {error ?? "no answer"}. Nothing is concluded about this address.
+        </p>
+      </div>
+    );
+  }
+  const published = result.list.published ? formatDate(result.list.published) : "its latest publication";
+  const scope = `${count(result.list.addresses, "address", "addresses")} across ${count(result.list.assets, "asset")} on the OFAC Specially Designated Nationals list published ${published}`;
+
+  if (result.listing) {
+    const l = result.listing;
+    return (
+      <div className="mt-6 border-l-2 border-critical py-4 pl-6">
+        <Designation>OFAC SDN · listed</Designation>
+        <p className="mt-4 text-lg leading-7 text-ink">{l.entity}</p>
+        <p className="mt-2 font-mono text-xs text-faint">
+          {[l.program, `filed under ${l.assets.join(", ")}`].filter(Boolean).join(" · ")}
+        </p>
+        <p className="mt-4 text-sm leading-6 text-muted">
+          This address is on the sanctions list — screened against {scope}. Record it
+          on the case file, and confirm against the current list before acting on it.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-6 border-l-2 border-line py-4 pl-6">
+      <Designation>OFAC SDN · not listed</Designation>
+      <p className="mt-4 text-sm leading-6 text-muted">
+        Screened against {scope}. This address is not on it — which is not a
+        clearance: OFAC lists only some of the addresses a designated party controls.
+      </p>
+      {result.chain?.note ? (
+        <p className="mt-4 text-xs leading-5 text-faint">{result.chain.note}</p>
+      ) : null}
+    </div>
+  );
+}
 
 export default function InvestigateForm() {
   const [address, setAddress] = useState("");
@@ -69,9 +121,26 @@ export default function InvestigateForm() {
   const [resolved, setResolved] = useState<ResolvedTransfer | null>(null);
   const [resolving, setResolving] = useState(false);
   const [resolveNote, setResolveNote] = useState<string | null>(null);
+  /*
+   * An address from another chain. FineX traces TRON only, but a complaint does
+   * not choose its chain, so such an address is screened against the OFAC list
+   * for its chain instead of being refused as "not a TRON address". The result
+   * is tagged with the address it answers for, so it can never sit under a
+   * different value (the pattern in CONTEXT.md §5).
+   */
+  const [screening, setScreening] = useState<
+    { for: string; result: Screening | null; error: string | null } | null
+  >(null);
+  const [screeningBusy, setScreeningBusy] = useState(false);
 
   const addressCheck = useMemo(() => checkTronAddress(address), [address]);
   const looksLikeTx = useMemo(() => isTxHash(address), [address]);
+  /** A recognised address on a chain we screen but do not trace. */
+  const otherChain = useMemo(() => {
+    const guess = identifyChain(address);
+    return guess && !guess.chain.traceable ? guess : null;
+  }, [address]);
+  const screened = screening && screening.for === address.trim() ? screening : null;
   /** The wallet the trace will actually run against. */
   const subject = resolved ? resolved.to : address.trim();
   const amountValue = Number(amount);
@@ -101,6 +170,26 @@ export default function InvestigateForm() {
       );
     } finally {
       setResolving(false);
+    }
+  }
+
+  /* Screen in an event handler, never an effect — see CONTEXT.md §5. */
+  async function screenOtherChain() {
+    const candidate = address.trim();
+    if (!otherChain || screeningBusy || screened) return;
+    setScreeningBusy(true);
+    try {
+      const res = await fetch(`/api/screen/${encodeURIComponent(candidate)}`);
+      if (!res.ok) throw new Error(`the screening service answered HTTP ${res.status}`);
+      setScreening({ for: candidate, result: (await res.json()) as Screening, error: null });
+    } catch (err) {
+      setScreening({
+        for: candidate,
+        result: null,
+        error: err instanceof Error ? err.message : "the screening service could not be reached",
+      });
+    } finally {
+      setScreeningBusy(false);
     }
   }
 
@@ -149,7 +238,7 @@ export default function InvestigateForm() {
 
   // A transaction hash is not a malformed address; it is the other valid input.
   const showAddressError =
-    touched && address !== "" && !addressCheck.valid && !looksLikeTx && !resolved;
+    touched && address !== "" && !addressCheck.valid && !looksLikeTx && !resolved && !otherChain;
   const showAmountError = touched && amount !== "" && !amountValid;
 
   /*
@@ -199,6 +288,7 @@ export default function InvestigateForm() {
                 onBlur={() => {
                   setTouched(true);
                   void resolveHash();
+                  void screenOtherChain();
                 }}
                 spellCheck={false}
                 autoComplete="off"
@@ -233,7 +323,9 @@ export default function InvestigateForm() {
                       ? resolving
                         ? "Reading the transaction…"
                         : "That is a transaction hash. We will read it and trace the wallet it paid."
-                      : "Paste the wallet address, or the transaction that sent the money. A complainant rarely has an address; their exchange can produce the transaction."}
+                      : otherChain
+                        ? `${otherChain.chain.name} address${otherChain.verified ? ", checksum valid" : ""}. FineX traces USDT on TRON; an address on another chain is screened against the OFAC sanctions list instead.`
+                        : "Paste the wallet address, or the transaction that sent the money. A complainant rarely has an address; their exchange can produce the transaction."}
               </p>
 
               {/* What the hash turned out to be, stated before anything is
@@ -264,6 +356,29 @@ export default function InvestigateForm() {
                   <p className="text-sm leading-6 text-muted">{resolveNote}</p>
                 </div>
               ) : null}
+
+              {/* Another chain: screened, never traced. Listed is a finding; not
+                  listed is stated as exactly that and nothing more. */}
+              {otherChain && !screened ? (
+                <div className="mt-6 flex flex-wrap items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => void screenOtherChain()}
+                    disabled={screeningBusy}
+                    className={buttonStyles.secondary}
+                  >
+                    {screeningBusy ? (
+                      <>
+                        <Spinner /> Screening
+                      </>
+                    ) : (
+                      "Screen against OFAC"
+                    )}
+                  </button>
+                </div>
+              ) : null}
+
+              {screened ? <ScreeningResult screened={screened} /> : null}
 
               <div className="mt-16 grid gap-16 sm:grid-cols-2">
                 <div>

@@ -9,6 +9,7 @@ import CalibrationPanel, { type Calibration } from "@/components/CalibrationPane
 import { PageHeader, buttonStyles } from "@/components/ui";
 import deposits from "@/data/deposit-addresses.json";
 import seeds from "@/data/hot-wallets.json";
+import multichain from "@/data/sanctions-multichain.json";
 import riskLists from "@/data/risk-lists.json";
 import calibration from "@/data/clustering-calibration.json";
 
@@ -35,7 +36,7 @@ export default function AttributionPage() {
       <PageHeader
         eyebrow="Attribution"
         title="Where a name comes from"
-        description={`${rows.length} customer deposit addresses across ${exchanges} exchanges, derived from ${seedRows.length} explorer-tagged wallets, plus ${sanctioned} addresses from the published OFAC sanctions list covering ${sanctionedEntities} entities. Nothing here was bought, and every row states the evidence it rests on.`}
+        description={`${rows.length} customer deposit addresses across ${exchanges} exchanges, derived from ${seedRows.length} explorer-tagged wallets, plus ${sanctioned} TRON addresses from the published OFAC sanctions list covering ${sanctionedEntities} entities — and ${multichain.count} more on other chains, which an address from any of them is screened against. Nothing here was bought, and every row states the evidence it rests on.`}
         actions={
           <Link href="/operations" className={buttonStyles.secondary}>
             How this runs
