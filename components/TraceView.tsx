@@ -145,7 +145,7 @@ function FiuLine({ exchange }: { exchange: string }) {
         href={FIU_SOURCE.url}
         target="_blank"
         rel="noreferrer"
-        className="fx-option-quiet px-1 text-faint underline-offset-4 hover:text-ink"
+        className="fx-option-quiet px-1 align-baseline text-faint underline-offset-4 hover:text-ink"
       >
         Source
       </a>

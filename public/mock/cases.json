@@ -80,6 +80,30 @@
     "terminalEntity": "Binance"
   },
   {
+    "caseId": "FX-2021-4112",
+    "inputAddress": "0x77fB78EAC2021Cd52097168873324d3F1200E275",
+    "reportedAmountUsdt": 290,
+    "fraudDate": "2021-12-05T08:02:49.000Z",
+    "triage": "WARM",
+    "terminalEntity": "CoinDCX"
+  },
+  {
+    "caseId": "FX-2025-6303",
+    "inputAddress": "0x16a8D032ffe880535CD3e1815fe917e96A0715dd",
+    "reportedAmountUsdt": 29427.872373,
+    "fraudDate": "2025-02-23T18:32:35.000Z",
+    "triage": "COLD",
+    "terminalEntity": "Behzad MESRI"
+  },
+  {
+    "caseId": "FX-2026-9960",
+    "inputAddress": "0xda4E10D8B82ed53d950e2D4312A22331c515569c",
+    "reportedAmountUsdt": 700,
+    "fraudDate": "2026-09-24T20:23:35.000Z",
+    "triage": "HOT",
+    "terminalEntity": null
+  },
+  {
     "caseId": "FX-2026-0421",
     "inputAddress": "TYz6M2Fn2egsb15oNZdACtABKotmheGQiD",
     "reportedAmountUsdt": 18500,

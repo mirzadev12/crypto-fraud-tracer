@@ -1613,6 +1613,240 @@
         },
         "narrative": "The reported 3,482.70 USDT was followed from the reported wallet after 12 September 2026, across 26 transfers and 3 hops. The fastest onward transfer was made one minute after receipt, which is characteristic of automated forwarding rather than a person deciding. 1,131.72 USDT, 32.5% of the reported amount, reached the Binance hot wallet. 5 behavioural rules fired on the path (short dwell, high fanout, peel chain, round amounts, new address). A restraint request naming that account is viable."
       }
+    },
+    {
+      "address": "0x77fB78EAC2021Cd52097168873324d3F1200E275",
+      "capturedAt": "2026-09-24T21:24:54.791Z",
+      "triage": "WARM",
+      "selectedBecause": "paid 290.00 USDT to a derived CoinDCX customer deposit address 0x5B8170Acc999A3e6F5d1261AfbFFe21158608815 on 2021-12-05; its whole USDT history (2 transfers) fits one page, so the trace reads all of it",
+      "request": {
+        "amount": 290,
+        "fraudDate": "2021-12-05T08:02:49.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2021-4112",
+        "inputAddress": "0x77fB78EAC2021Cd52097168873324d3F1200E275",
+        "chain": "ethereum",
+        "reportedAmountUsdt": 290,
+        "fraudDate": "2021-12-05T08:02:49.000Z",
+        "nodes": [
+          {
+            "address": "0x77fB78EAC2021Cd52097168873324d3F1200E275",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 290,
+            "taintFraction": 1,
+            "firstSeen": "2021-11-10T08:58:38.000Z",
+            "outflowCount": 1
+          },
+          {
+            "address": "0x5B8170Acc999A3e6F5d1261AfbFFe21158608815",
+            "depth": 1,
+            "label": {
+              "entity": "CoinDCX",
+              "kind": "exchange_deposit",
+              "confidence": 0.56,
+              "source": "heuristic",
+              "evidence": "Gas-funded by \"CoinDCX: Deposit Funder 1\"; 2 sweeps, 100% of inflow to 0x07f0…5915"
+            },
+            "taintedValueUsdt": 290,
+            "taintFraction": 1,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "0x77fB78EAC2021Cd52097168873324d3F1200E275",
+            "to": "0x5B8170Acc999A3e6F5d1261AfbFFe21158608815",
+            "valueUsdt": 290,
+            "txHash": "0x6d1ca46db9fdd124b0d317af8e9e334ecb5c9fcbb7abaeec50ad1d21886d84e3",
+            "timestamp": "2021-12-05T08:03:49.000Z",
+            "dwellSeconds": 2156711
+          }
+        ],
+        "terminal": {
+          "address": "0x5B8170Acc999A3e6F5d1261AfbFFe21158608815",
+          "label": {
+            "entity": "CoinDCX",
+            "kind": "exchange_deposit",
+            "confidence": 0.56,
+            "source": "heuristic",
+            "evidence": "Gas-funded by \"CoinDCX: Deposit Funder 1\"; 2 sweeps, 100% of inflow to 0x07f0…5915"
+          },
+          "depositAddress": "0x5B8170Acc999A3e6F5d1261AfbFFe21158608815"
+        },
+        "riskFlags": [],
+        "triage": "WARM",
+        "triageReason": "290 USDT reached a likely CoinDCX customer deposit address; a freeze request naming that address is viable.",
+        "provenance": {
+          "apiCalls": 1,
+          "responseHashes": [
+            "b8d0fe9ad0642668ee4dd0a962799de7d7d7c3d2bdaa0e0fc0a70de49d7adf16"
+          ],
+          "generatedAt": "2026-09-24T21:24:54.788Z"
+        },
+        "narrative": "The reported 290.00 USDT was followed from the reported wallet after 5 December 2021, across one transfer and one hop. 290.00 USDT, 100.0% of the reported amount, reached a likely CoinDCX deposit cluster, customer deposit address 0x5B8170Acc999A3e6F5d1261AfbFFe21158608815. A restraint request naming that account is viable."
+      }
+    },
+    {
+      "address": "0x16a8D032ffe880535CD3e1815fe917e96A0715dd",
+      "capturedAt": "2026-09-24T21:25:04.656Z",
+      "triage": "COLD",
+      "selectedBecause": "paid 29427.87 USDT to the OFAC-listed address of Behzad MESRI 0xb5A69Da691670F62510793F79a9B36c7db1A7b7c on 2025-02-23; its whole USDT history (9 transfers) fits one page, so the trace reads all of it",
+      "request": {
+        "amount": 29427.872373,
+        "fraudDate": "2025-02-23T18:32:35.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2025-6303",
+        "inputAddress": "0x16a8D032ffe880535CD3e1815fe917e96A0715dd",
+        "chain": "ethereum",
+        "reportedAmountUsdt": 29427.872373,
+        "fraudDate": "2025-02-23T18:32:35.000Z",
+        "nodes": [
+          {
+            "address": "0x16a8D032ffe880535CD3e1815fe917e96A0715dd",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 29427.872373,
+            "taintFraction": 1,
+            "firstSeen": "2025-02-23T17:55:47.000Z",
+            "outflowCount": 2
+          },
+          {
+            "address": "0x5141B82f5fFDa4c6fE1E372978F1C5427640a190",
+            "depth": 1,
+            "label": {
+              "entity": "1inch: Aggregation Executor 4",
+              "kind": "contract",
+              "confidence": 1,
+              "source": "ground_truth",
+              "evidence": "Explorer-tagged \"1inch: Aggregation Executor 4 / 1inch\""
+            },
+            "taintedValueUsdt": 14744.927679,
+            "taintFraction": 0.5010531339877066,
+            "firstSeen": null,
+            "outflowCount": 0
+          },
+          {
+            "address": "0xb5A69Da691670F62510793F79a9B36c7db1A7b7c",
+            "depth": 1,
+            "label": {
+              "entity": "Behzad MESRI",
+              "kind": "sanctioned",
+              "confidence": 1,
+              "source": "sanctions",
+              "evidence": "OFAC SDN · CYBER2, HRIT-IR · filed under ETH"
+            },
+            "taintedValueUsdt": 14682.944694,
+            "taintFraction": 0.49894686601229343,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "0x16a8D032ffe880535CD3e1815fe917e96A0715dd",
+            "to": "0x5141B82f5fFDa4c6fE1E372978F1C5427640a190",
+            "valueUsdt": 29552.1,
+            "txHash": "0x7e8d6de7c60c6a1114e67fd74ab4b696863a6a0d447ecc8457f1cac178b8192f",
+            "timestamp": "2025-02-25T01:08:47.000Z",
+            "dwellSeconds": 103548
+          },
+          {
+            "from": "0x16a8D032ffe880535CD3e1815fe917e96A0715dd",
+            "to": "0xb5A69Da691670F62510793F79a9B36c7db1A7b7c",
+            "valueUsdt": 29427.872373,
+            "txHash": "0x3616ac430ab854d537b4b4c1f79a8d891ec30b465395fbd374bfed0cd5f2c363",
+            "timestamp": "2025-02-23T18:33:35.000Z",
+            "dwellSeconds": 2268
+          }
+        ],
+        "terminal": {
+          "address": "0xb5A69Da691670F62510793F79a9B36c7db1A7b7c",
+          "label": {
+            "entity": "Behzad MESRI",
+            "kind": "sanctioned",
+            "confidence": 1,
+            "source": "sanctions",
+            "evidence": "OFAC SDN · CYBER2, HRIT-IR · filed under ETH"
+          },
+          "depositAddress": null
+        },
+        "riskFlags": [
+          {
+            "code": "SANCTIONED_CONTACT",
+            "reason": "Path intersects an address listed under sanctions (Behzad MESRI) — deterministic tracing stops here and the case is documented.",
+            "atAddress": "0xb5A69Da691670F62510793F79a9B36c7db1A7b7c"
+          }
+        ],
+        "triage": "COLD",
+        "triageReason": "14,683 USDT of the reported amount reached Behzad MESRI; the trail cannot be followed deterministically past that point, so the case should be documented and closed.",
+        "provenance": {
+          "apiCalls": 1,
+          "responseHashes": [
+            "37b048a083dc17d56cf353a4aa7a1fc3016436fdb8021177f5959c7019092255"
+          ],
+          "generatedAt": "2026-09-24T21:25:04.654Z"
+        },
+        "narrative": "The reported 29,427.87 USDT was followed from the reported wallet after 23 February 2025, across 2 transfers and one hop. 14,682.94 USDT, 49.9% of the reported amount, reached Behzad MESRI — sanctioned. One behavioural rule fired on the path (sanctioned contact). The trail cannot be followed deterministically past that point, so the case should be documented and closed."
+      }
+    },
+    {
+      "address": "0xda4E10D8B82ed53d950e2D4312A22331c515569c",
+      "capturedAt": "2026-09-24T21:26:16.315Z",
+      "triage": "HOT",
+      "selectedBecause": "received 700.00 USDT across 1 transfer(s) and has never sent any — its whole history read from one page",
+      "request": {
+        "fraudDate": "2026-09-24T20:23:35.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2026-9960",
+        "inputAddress": "0xda4E10D8B82ed53d950e2D4312A22331c515569c",
+        "chain": "ethereum",
+        "reportedAmountUsdt": 700,
+        "fraudDate": "2026-09-24T20:23:35.000Z",
+        "nodes": [
+          {
+            "address": "0xda4E10D8B82ed53d950e2D4312A22331c515569c",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 700,
+            "taintFraction": 1,
+            "firstSeen": "2026-09-24T20:24:35.000Z",
+            "outflowCount": 0
+          }
+        ],
+        "edges": [],
+        "terminal": null,
+        "riskFlags": [],
+        "triage": "HOT",
+        "triageReason": "700 USDT arrived at this address after the reported fraud on 24 September 2026 and none of it has left — it has not reached an off-ramp and can still be acted on.",
+        "provenance": {
+          "apiCalls": 1,
+          "responseHashes": [
+            "a0691bb3fd6e4a65ec3c36f17d343e16935faa9e4de7c3708e751bd213dafca9"
+          ],
+          "generatedAt": "2026-09-24T21:26:16.313Z"
+        },
+        "narrative": "No USDT left 0xda4E10D8B82ed53d950e2D4312A22331c515569c after 24 September 2026 in the transfers examined. The money has not reached an off-ramp and can still be acted on."
+      }
     }
   ]
 }

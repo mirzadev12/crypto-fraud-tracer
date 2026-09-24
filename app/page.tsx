@@ -284,9 +284,9 @@ export default function Home() {
               is a rule that can be defended line by line.
             </p>
             <p>
-              <span className="text-ink">No model decides attribution.</span> A
-              summary may be generated; the entity name is a deterministic lookup
-              against a provenance-tagged table.
+              <span className="text-ink">No model decides anything.</span> The
+              summary is assembled from the trace&rsquo;s own figures, and the entity
+              name is a deterministic lookup against a provenance-tagged table.
             </p>
           </div>
 

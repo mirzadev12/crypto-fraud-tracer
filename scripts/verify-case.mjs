@@ -70,12 +70,25 @@ try {
   console.error(`Could not load wordToAddress from lib/evm.ts: ${err?.code ?? err?.message ?? err}`);
   process.exit(1);
 }
-const ETH_RPC = process.env.ETH_RPC_URL ?? "https://ethereum-rpc.publicnode.com";
+/*
+ * Public nodes differ in how far back they index transactions: on 25 Sep 2026
+ * publicnode answered null for a 2021 transaction that drpc, Cloudflare, 1rpc
+ * and Blast all returned. So each hash is asked of several, and only when none
+ * has it is it reported — as unreadable, not missing, since an index that does
+ * not reach back that far is a limit of the node, not a fact about the chain.
+ */
+const ETH_RPCS = (process.env.ETH_RPC_URL ? [process.env.ETH_RPC_URL] : []).concat([
+  "https://eth.drpc.org",
+  "https://cloudflare-eth.com",
+  "https://1rpc.io/eth",
+  "https://eth-mainnet.public.blastapi.io",
+  "https://ethereum-rpc.publicnode.com",
+]);
 const ETH_USDT = "0xdac17f958d2ee523a2206206994597c13d831ec7";
 const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
 
-async function rpc(method, params) {
-  const res = await fetch(ETH_RPC, {
+async function rpc(method, params, url) {
+  const res = await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
@@ -89,14 +102,13 @@ async function rpc(method, params) {
 
 /** One Ethereum transaction's USDT transfers, from the node's receipt. */
 async function fetchEthTransfers(txHash) {
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (const url of ETH_RPCS) {
     try {
-      const receipt = await rpc("eth_getTransactionReceipt", [txHash]);
-      // A node that answers null has no such transaction — or has pruned it.
-      // A pruned index is our limitation, so it is unreadable, not missing.
-      if (!receipt) return null;
+      const receipt = await rpc("eth_getTransactionReceipt", [txHash], url);
+      // Null: this node does not index it. Ask the next one.
+      if (!receipt) continue;
       if (receipt.status !== "0x1") return [];
-      const block = await rpc("eth_getBlockByNumber", [receipt.blockNumber, false]);
+      const block = await rpc("eth_getBlockByNumber", [receipt.blockNumber, false], url);
       const at = block ? parseInt(block.timestamp, 16) * 1000 : 0;
       return receipt.logs
         .filter(
@@ -112,7 +124,7 @@ async function fetchEthTransfers(txHash) {
           at,
         }));
     } catch {
-      await sleep(1200 * (attempt + 1));
+      await sleep(400);
     }
   }
   return null;

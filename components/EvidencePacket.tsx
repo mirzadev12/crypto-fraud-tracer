@@ -59,11 +59,14 @@ function Section({
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
+    // A grid item refuses to shrink below its content without min-w-0, and a
+    // field can carry a 42-character address or a source URL with no break in
+    // it; wrap-anywhere lets either break rather than widen the packet.
+    <div className="min-w-0">
       <dt className={`font-mono text-xs uppercase tracking-[0.16em] ${SHEET.faint}`}>
         {label}
       </dt>
-      <dd className={`mt-1 text-sm ${SHEET.ink}`}>{children}</dd>
+      <dd className={`mt-1 text-sm wrap-anywhere ${SHEET.ink}`}>{children}</dd>
     </div>
   );
 }

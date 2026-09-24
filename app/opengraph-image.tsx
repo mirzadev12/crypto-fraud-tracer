@@ -1,7 +1,9 @@
 import { ImageResponse } from "next/og";
 import depositAddresses from "@/data/deposit-addresses.json";
+import ethDeposits from "@/data/eth/deposit-addresses.json";
 import hotWallets from "@/data/hot-wallets.json";
 import riskLists from "@/data/risk-lists.json";
+import multichain from "@/data/sanctions-multichain.json";
 
 /**
  * The card a shared link unfolds into — in a chat, an email, a slide's link
@@ -24,10 +26,17 @@ const BRASS_DIM = "#7a6338";
 const BG = "#0a0a0a";
 
 export default function OpengraphImage() {
-  const deposits = (depositAddresses as Array<{ exchange: string }>).length;
-  const exchanges = new Set((depositAddresses as Array<{ exchange: string }>).map((d) => d.exchange)).size;
+  const all = [
+    ...(depositAddresses as Array<{ exchange: string }>),
+    ...(ethDeposits as Array<{ exchange: string }>),
+  ];
+  const deposits = all.length;
+  const exchanges = new Set(all.map((d) => d.exchange)).size;
   const seeds = (hotWallets as unknown[]).length;
-  const sanctioned = ((riskLists as { sanctioned?: unknown[] }).sanctioned ?? []).length;
+  // TRON's OFAC addresses and the Ethereum-format ones: what a trace can hit.
+  const sanctioned =
+    ((riskLists as { sanctioned?: unknown[] }).sanctioned ?? []).length +
+    (multichain.addresses as Array<{ address: string }>).filter((a) => /^0x[0-9a-fA-F]{40}$/.test(a.address)).length;
 
   return new ImageResponse(
     (
@@ -73,7 +82,7 @@ export default function OpengraphImage() {
           <div style={{ fontSize: 22, color: FAINT }}>
             {`Derived from ${seeds} tagged exchange wallets, using public data only`}
           </div>
-          <div style={{ fontSize: 22, color: FAINT }}>TRON · USDT (TRC-20) · SIH 2026 · PS 26183</div>
+          <div style={{ fontSize: 22, color: FAINT }}>TRON · Ethereum · USDT · SIH 2026 · PS 26183</div>
         </div>
       </div>
     ),
