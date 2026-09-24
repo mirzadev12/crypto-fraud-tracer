@@ -576,6 +576,14 @@ def slide6(s, part):
     if gh is not None:
         gh.text_frame.paragraphs[0].runs[0].text = "GitHub repository"
         place(gh, w=3.80)  # "GitHub" is wider than "Github"; keep it on one line
+    # The repository as a short link, like the live-tool and video lines under
+    # it, rather than the full URL spelled out.
+    repo = find(s, "TextBox 42", "github.com/")
+    if repo is not None:
+        run = repo.text_frame.paragraphs[0].runs[0]
+        run.text = "View on GitHub"
+        run._r.find(q("rPr")).set("sz", "1400")
+        run.hyperlink.address = "https://github.com/reemrasheed2007/crypto-fraud-tracer"
     page_number(s, find(s, "TextBox 43", "6"), drop=[find(s, "TextBox 27", "6")])
 
 
