@@ -2,7 +2,7 @@
 
 **SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C · Team FineX**
 
-An investigator pastes a victim-reported TRON wallet address. FineX follows the
+An investigator pastes a victim-reported TRON or Ethereum wallet address. FineX follows the
 stolen USDT hop by hop, names the exchange **customer deposit address** that
 received it — the account that can actually be frozen — flags laundering patterns
 in plain English, and calls the case **HOT**, **WARM** or **COLD** by whether the
@@ -16,9 +16,11 @@ data, and you can check it: open the address on any TRON explorer and the sweep
 pattern is there. Everyone else's tool stops at "the funds went to Binance."
 Naming the deposit address is what makes the result actionable.
 
-**241 customer deposit addresses across 10 exchanges, from 15 explorer-tagged
-seed wallets, on zero commercial data licences.** The derivation is browsable at
-`/attribution` — every row with its evidence and a link to verify it.
+**241 customer deposit addresses across 10 exchanges on TRON, from 15
+explorer-tagged seed wallets — and 193 across 8 exchanges on Ethereum from 10,
+52 of them at Indian exchanges (CoinDCX and WazirX) — on zero commercial data
+licences.** The derivation is browsable at `/attribution` — every row with its
+evidence and a link to verify it.
 
 ---
 
@@ -66,25 +68,33 @@ whose addresses were never on the chain.
 
 ```
 lib/types.ts     frozen contract shared by frontend and backend
-lib/trongrid.ts  the only code that talks to the chain: paced, hashed, as-of capable
+lib/chain-client.ts  what the tracer needs from a chain; one interface, two chains
+lib/trongrid.ts  TRON: paced, hashed, as-of capable
+lib/ethclient.ts Ethereum (Blockscout REST): the same rules, as-of by cursor seek
+lib/evm.ts       Keccak-256 and EIP-55, no dependencies
+lib/address.ts   one address check for both traceable chains
+lib/contracts.ts where USDT on Ethereum stops being traceable: pools, routers, bridges
 lib/tracer.ts    the trace: BFS, five limits, taint, dwell, the disposition
 lib/risk.ts      the six behavioural rules and their reason strings
-lib/labels.ts    one lookup for what an address is, with its source tier
+lib/labels.ts    one lookup for what an address is, both chains, with its source tier
+lib/fiu.ts       FIU-IND registration of an exit exchange, from the Lok Sabha annexure
 lib/demo.ts      which recorded case may answer which request
 lib/api.ts       the only door from the UI to the backend
 lib/tron.ts      base58check address validation (no dependencies)
 lib/format.ts    UTC-only, deterministic formatting
 components/      shell, canvases, trace view, case queue, evidence packet, primitives
 app/             the routes above
-data/            label tables and the frozen recorded cases
+data/            label tables (data/eth/ for Ethereum) and the frozen recorded cases
 public/mock/     the committed register and illustrative cases — regenerate with scripts/make-mocks.mjs
 ```
 
 ## API
 
 Every screen is built on these routes, so anything the interface does can be
-done from another system. All inputs are checksum-validated server-side; a
-malformed address never reaches the chain. Examples use `curl` against a local
+done from another system. Every trace, wallet and watch route takes a TRON
+address (`T…`) or an Ethereum address (`0x…`) and reads the chain it belongs
+to; a transaction hash is looked up on either. All inputs are checksum-validated
+server-side (base58check, EIP-55); a malformed address never reaches the chain. Examples use `curl` against a local
 server.
 
 | Method | Route | Returns |
@@ -95,7 +105,7 @@ server.
 | `GET` | `/api/wallet/[address]` | `WalletProfile` — age, money in and out, counterparties, what funded it. |
 | `GET` | `/api/screen/[address]` | Sanctions screening for an address on any chain the OFAC list covers: the chain, recognised from the format (checksum verified where the format has one), and the listing if there is one. Reads no chain. Not listed is not a clearance, and the response says so. |
 | `POST` | `/api/watch` — `{items: [{address, since}]}` | For each wallet: `moved` (with every outflow and where it went), `still`, or `unchecked` when the chain did not answer. Up to 25 wallets per call. |
-| `GET` | `/api/health` | `{ok, commit, demoMode, chainAccess}` — which commit is serving, whether demo mode is on, and whether chain reads carry an API key (`keyed` or `public`; the key itself is never returned). Reads nothing from the chain. |
+| `GET` | `/api/health` | `{ok, commit, demoMode, chainAccess, ethereumAccess}` — which commit is serving, whether demo mode is on, and whether TRON and Ethereum reads carry an API key (`keyed` or `public`; a key itself is never returned). Reads nothing from the chain. |
 | `GET` | `/api/cases` | Deliberately unimplemented. There is no case database, and serving illustrative records through it would claim chain-read data it is not. |
 
 Trace a wallet, and replay an officer's exact run:
@@ -166,9 +176,13 @@ decisions behind it, and the external data sources that have been verified.
 
 ## Scope, stated up front
 
-- **Tracing is TRON and USDT (TRC-20) only** — that is where the proceeds
-  actually move. An address from another chain is recognised and screened
-  against the OFAC sanctions list, never traced.
+- **Tracing is USDT on TRON (TRC-20) and Ethereum mainnet (ERC-20)** — TRON is
+  where the proceeds mostly move; Ethereum runs on the same engine through a
+  chain adapter. The same `0x` address on BNB Chain, Polygon or another EVM
+  network is not read, and every Ethereum result says so. Where USDT enters a
+  DEX pool, router or bridge, the trace stops there and names it from the
+  explorer's own tag. An address from any other chain is recognised and
+  screened against the OFAC sanctions list, never traced.
 - **Rules, not machine learning** — every score must be defensible to a judge.
 - **No language model runs anywhere.** The investigator summary is assembled
   from the trace's own figures, and the exchange name is a deterministic lookup
@@ -203,6 +217,14 @@ npx tsc --noEmit
 ```bash
 npx eslint .
 ```
+
+```bash
+node --test "tests/*.test.mjs"
+```
+
+The tests cover what has a right answer independent of this repository:
+Keccak-256 against published vectors and against Node's own SHA3-256 at every
+input length up to 420 bytes, and EIP-55 against the examples in the EIP.
 
 ### Three ways to read one trace
 

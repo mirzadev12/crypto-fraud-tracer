@@ -76,6 +76,11 @@ const value = (t) => Number(BigInt(t.total?.value ?? "0")) / 1e6;
 
 /** A wallet whose whole USDT history is one page, or null. */
 async function ordinary(address) {
+  // An exchange wallet has sent thousands of transactions, and the explorer
+  // takes up to twenty seconds to page one. Its nonce, from the node, says so
+  // in a fraction of a second.
+  const nonce = parseInt((await rpc("eth_getTransactionCount", [address, "latest"])) ?? "", 16);
+  if (!Number.isFinite(nonce) || nonce > 60) return null;
   const js = await page(address);
   if (!js?.items || js.next_page_params || js.items.length >= 50) return null;
   return js.items;

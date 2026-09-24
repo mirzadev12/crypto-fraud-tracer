@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 24 September 2026, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
+Last updated: 25 September 2026 — **Ethereum tracing on the local branch `feat/ethereum`, for the grand finale (§10); not merged, not pushed.** Before that: 24 September, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
 
 ---
 
@@ -1581,3 +1581,103 @@ the other-chain address is screened; DeFi / mixers / bridges — sanctions
 coverage 334, a mixer or sanctioned hit closes the case, no bridge claim;
 automated alerts — built (the watch). A contract/DeFi hop detector would need
 a new label kind in the frozen `lib/types.ts`, so it stays out.
+
+---
+
+## 10. Ethereum tracing — branch `feat/ethereum`, 25 September 2026
+
+Built for the grand finale on a **local branch only**: not merged into `main`,
+not pushed, not deployed. `main`, Render and the deck are exactly as §9 left
+them. The design is `docs/superpowers/specs/2026-09-25-ethereum-tracing-design.md`
+(approved 24 Sep: full parity, USDT only, Indian exchanges first, one engine
+with a chain adapter underneath). §8.2's rejection of an Ethereum tracer was for
+the submission; its three reasons are now answered — it was tested live, it has
+attribution data, and TRON stays first.
+
+### 10.1 What was measured, and what it decided
+
+- **The deposit rule holds on Ethereum** when seeded at a real consolidation
+  wallet: at Binance 14, 13 of 16 sampled senders met the exact TRON rule.
+- **Indian exchanges are reachable through their gas wallets.** Exchanges pay
+  the gas that lets a customer deposit address move tokens, from a wallet the
+  explorer tags "Deposit Funder". CoinDCX's and WazirX's were active on 23–24
+  Sep; every CoinDCX-funded address with USDT swept it into the tagged CoinDCX 5,
+  and WazirX's funded addresses sweep into a wallet no explorer tags. That is
+  the **funder route**, and it is the only public route to WazirX.
+- **Address poisoning is endemic.** Look-alike addresses send dust and spoofed
+  zero-value transfers into exchange wallets; unfiltered, the only "deposit
+  address" found on one Bybit wallet was a look-alike. Zero-value transfers are
+  dropped at parse; nothing under 1 USDT counts in clustering.
+- **Blockscout** (`eth.blockscout.com/api/v2`, keyless, **180 requests per 60 s
+  per IP**, stated in its `x-ratelimit-*` headers): newest first only (ascending
+  is HTTP 422); the page cursor seeks to any block (`block_number=N&index=0`),
+  which is how as-of reads work; the largest exchange wallets time out (524).
+  Tags are **only** in transfer rows (`from`/`to.metadata.tags`), never on the
+  address endpoint. EIP-7702 accounts come back `is_contract: true,
+  proxy_type: "eip7702"`. Transaction-scoped rows carry `timestamp: null`.
+  With a key the Pro API (`api.blockscout.com/1/api/v2`, bearer token) is used;
+  it refuses keyless requests (402).
+- **A public node** (`ethereum-rpc.publicnode.com`) answers `eth_getLogs`
+  keyless for roughly the last 8,000 blocks, and receipts for verification.
+- **FIU-IND publishes no register.** The Ministry of Finance's answer to Lok
+  Sabha Unstarred Question 112 (4 Dec 2023) has an annexure naming the 28
+  registered VASPs, legal and trade names — `data/fiu-ind.json` copies it.
+
+### 10.2 What was built
+
+- `lib/chain-client.ts` (the interface), `lib/ethclient.ts` (Blockscout, same
+  rules as TronGrid: cache, SHA-256, counted calls, shared adaptive pacing that
+  also reads the rate-limit headers, unread vs truncated, as-of by cursor seek),
+  `lib/evm.ts` (Keccak-256, EIP-55 — `node --test "tests/*.test.mjs"`),
+  `lib/address.ts` (one check for both chains; the canonical spelling is what
+  every step compares), `lib/contracts.ts`, `lib/chain-meta.ts`, `lib/fiu.ts`.
+- **The frozen contract gained two additive changes**, recorded in its header:
+  `chain: "tron" | "ethereum"` and NodeKind `"contract"`. `SHARED_INFRASTRUCTURE`
+  in `lib/links.ts` includes `contract` — two complaints that both used Uniswap
+  are not linked.
+- **Contract stop.** Money entering a DEX pool, router or bridge stops the
+  trace there, named from the explorer's tag; Safe multisigs and EIP-7702
+  accounts are followed as wallets. The disposition is HOT with its own
+  sentence; `terminal` stays null, so no freeze request. The case-file card,
+  packet, summary and leads all say "the trail left Ethereum" or "entered a
+  contract", never "at rest".
+- **Fixed on both chains while here:** the case-file card titled every
+  exit-less case "funds still at rest" and chose any zero-outflow wallet as the
+  resting one, and the packet said "last observed at rest" — either could name
+  an unread wallet or a contract. Both follow the verdict's rule now.
+- **Attribution:** `data/eth/hot-wallets.json` — 10 seeds, each tag read from
+  live transfer rows and its inflows looked at (the Blockscout-tagged Bybit
+  wallet `0xee5B…047A` is excluded: it receives from Bybit itself; Bitget's
+  wallet also carries contradictory "Poisoning Address / Phish" tags and was
+  admitted on its inflow pattern, with a note). `scripts/cluster-eth.mjs`
+  (no key, 16.9 min): **193 deposit addresses across 8 exchanges, 52 at Indian
+  exchanges** (CoinDCX 29, WazirX 23), 11 CoinDCX addresses on both signals,
+  1 derived WazirX wallet (shared by 20). KuCoin 33 gave 0 of 30 — an honest zero.
+- **Sanctions:** the 124 EVM-format OFAC addresses (48 entities) are labels.
+- **Screens:** every case names its chain and asset; explorer links follow the
+  address form; intake, batch triage, nav scoping and the wallet card accept
+  both chains; the Ethereum network line says BNB Chain and Polygon are not
+  read; `/attribution` has an Ethereum register (Indian exchanges marked
+  FIU-IND); `/operations` lists "multiple ecosystems" and "identification of
+  cross-chain fund movement" as built and cross-chain *tracing* as not; the
+  landing figures count both chains from `data/`.
+- **Scripts:** `freeze-eth-cases.mjs` (captures Ethereum cases through a live
+  server, never touches TRON cases, backs up outside the repo);
+  `verify-case.mjs` checks Ethereum edges against a raw node's receipts.
+
+### 10.3 Checks run
+
+- **TRON regression gate: 10 of 10 recorded TRON cases re-derived identically**
+  as of capture through the new engine (disposition, exit, taint, every node,
+  edge, flag and sentence).
+- Keccak/EIP-55 tests 5/5; tsc, eslint, `npm run build` clean.
+- The Ethereum verifier confirmed a real transfer and flagged the same transfer
+  with a wrong amount.
+
+### 10.4 Standing rules for this branch
+
+Local only: no push, no merge, no Render change, no deck change, until the user
+decides. Ethereum recorded cases are chosen by script and are never victim
+reports or "fraud proceeds". The FIU-IND line is a December 2023 fact and
+absence from it is never stated. Confidence is not accuracy, on both chains.
+
