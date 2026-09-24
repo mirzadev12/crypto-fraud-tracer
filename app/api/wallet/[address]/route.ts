@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkTronAddress } from "@/lib/tron";
+import { checkAddress } from "@/lib/address";
 import { profileWallet } from "@/lib/wallet";
 
 /**
@@ -22,14 +22,15 @@ export async function GET(
   ctx: RouteContext<"/api/wallet/[address]">,
 ) {
   const { address: raw } = await ctx.params;
-  const address = decodeURIComponent(raw).trim();
+  const typed = decodeURIComponent(raw).trim();
 
   // Checked server-side as well as in the browser: a malformed address must
   // never reach the chain client, and must never be confused with an unknown one.
-  const check = checkTronAddress(address);
+  const check = checkAddress(typed);
   if (!check.valid) {
-    return NextResponse.json({ error: check.reason, address }, { status: 400 });
+    return NextResponse.json({ error: check.reason, address: typed }, { status: 400 });
   }
+  const address = check.address;
 
   try {
     const profile = await profileWallet(address);

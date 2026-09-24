@@ -18,12 +18,15 @@
  * transaction moved no USDT it says so rather than guessing at intent.
  */
 
+import type { ChainName } from "./chain-client";
+import { EthClient } from "./ethclient";
 import { hexToTronAddress, isTxHash } from "./tron";
 import { USDT_CONTRACT, USDT_DECIMALS } from "./trongrid";
 
 const BASE = "https://api.trongrid.io";
 
 export interface ResolvedTransfer {
+  chain: ChainName;
   txHash: string;
   from: string;
   to: string;
@@ -45,15 +48,66 @@ interface EventRow {
   result?: Record<string, unknown>;
 }
 
+/**
+ * Either chain. The form of the hash says where to look first — Ethereum
+ * prints hashes with `0x`, TRON without — and the other chain is asked only
+ * when the first has nothing, so a hash pasted in the other chain's style is
+ * still found. Whichever chain answers is named in the result.
+ */
 export async function resolveTxHash(raw: string): Promise<TxLookup> {
-  const txHash = raw.trim().replace(/^0x/i, "").toLowerCase();
-  if (!isTxHash(txHash)) {
+  const typed = raw.trim();
+  if (!isTxHash(typed)) {
     return {
       status: "not-a-hash",
-      reason: "A TRON transaction hash is 64 hexadecimal characters.",
+      reason: "A transaction hash is 64 hexadecimal characters (Ethereum prints it with 0x in front).",
     };
   }
+  const bare = typed.replace(/^0x/i, "").toLowerCase();
+  if (/^0x/i.test(typed)) {
+    const eth = await resolveEthTx(`0x${bare}`);
+    if (eth !== "not-found") return eth;
+    const tron = await resolveTronTx(bare);
+    return tron.status === "resolved" ? tron : { status: "no-usdt", txHash: `0x${bare}`, reason: "No transaction with this hash was found on Ethereum, and on TRON it moved no USDT." };
+  }
+  const tron = await resolveTronTx(bare);
+  if (tron.status === "resolved" || tron.status === "unreadable") return tron;
+  const eth = await resolveEthTx(`0x${bare}`);
+  return eth === "not-found" || eth.status !== "resolved" ? tron : eth;
+}
 
+/** Ethereum: the transaction's USDT Transfer rows, or "not-found". */
+async function resolveEthTx(txHash: string): Promise<TxLookup | "not-found"> {
+  const read = await new EthClient().transfersInTx(txHash);
+  if (!read) {
+    return {
+      status: "unreadable",
+      txHash,
+      reason: "The Ethereum chain did not answer for this transaction. Nothing is stated about it.",
+    };
+  }
+  if (!read.found) return "not-found";
+  const best = [...read.transfers].sort((a, b) => b.value - a.value)[0];
+  if (!best) {
+    return {
+      status: "no-usdt",
+      txHash,
+      reason: "This Ethereum transaction exists but moved no USDT. Only USDT is traced here.",
+    };
+  }
+  return {
+    status: "resolved",
+    transfer: {
+      chain: "ethereum",
+      txHash,
+      from: best.from,
+      to: best.to,
+      valueUsdt: best.value,
+      timestamp: new Date(best.timestamp).toISOString(),
+    },
+  };
+}
+
+async function resolveTronTx(txHash: string): Promise<TxLookup> {
   let body: { data?: EventRow[] } | null = null;
   try {
     const res = await fetch(
@@ -96,6 +150,7 @@ export async function resolveTxHash(raw: string): Promise<TxLookup> {
     const valueUsdt = rawValue / 10 ** USDT_DECIMALS;
     if (!best || valueUsdt > best.valueUsdt) {
       best = {
+        chain: "tron",
         txHash,
         from,
         to,

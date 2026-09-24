@@ -21,6 +21,7 @@
  */
 
 import { createHash } from "node:crypto";
+import type { ChainClient, Transfer } from "./chain-client";
 
 const BASE = "https://api.trongrid.io";
 
@@ -79,21 +80,15 @@ function answered(): void {
   gapMs = Math.max(MIN_GAP_MS, Math.round(gapMs * 0.9));
 }
 
-export interface Trc20Transfer {
-  txHash: string;
-  from: string;
-  to: string;
-  /** Already divided down by the token's decimals. */
-  value: number;
-  timestamp: number;
-  symbol: string;
-}
+/** The shape every chain client returns; the TRON name is kept for its callers. */
+export type Trc20Transfer = Transfer;
 
 /**
  * Per-trace bookkeeping. One of these is created for each trace so the counts
  * and hashes in the evidence packet belong to that trace and nothing else.
  */
-export class TronGrid {
+export class TronGrid implements ChainClient {
+  readonly chain = "tron" as const;
   private cache = new Map<string, Trc20Transfer[]>();
   private hashes: string[] = [];
   private calls = 0;

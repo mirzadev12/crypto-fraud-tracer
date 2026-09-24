@@ -1,11 +1,18 @@
 // FROZEN CONTRACT — see AGENTS.md §5.
 // The frontend builds against this file. Do not change a field name or a type
 // after hour one. Add nothing here without telling the whole team first.
+//
+// Two additive changes since, for Ethereum tracing (grand finale, 25 Sep 2026,
+// docs/superpowers/specs/2026-09-25-ethereum-tracing-design.md §6): `chain`
+// gained "ethereum", and NodeKind gained "contract" — a smart contract the
+// trace stopped at because following it would follow other people's money.
+// Nothing was renamed or removed.
 
 export type TriageLevel = "HOT" | "WARM" | "COLD";
 export type LabelSource = "ground_truth" | "heuristic" | "sanctions" | "community";
 export type NodeKind   = "victim_reported" | "intermediary" | "exchange_deposit"
-                       | "exchange_hot" | "mixer" | "sanctioned" | "unknown";
+                       | "exchange_hot" | "mixer" | "sanctioned" | "unknown"
+                       | "contract";
 
 export interface Label {
   entity: string;              // "Binance"
@@ -44,7 +51,7 @@ export interface RiskFlag {
 export interface TraceResult {
   caseId: string;
   inputAddress: string;
-  chain: "tron";
+  chain: "tron" | "ethereum";
   reportedAmountUsdt: number;
   fraudDate: string;
   nodes: TraceNode[];

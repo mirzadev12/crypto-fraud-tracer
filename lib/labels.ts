@@ -24,8 +24,12 @@
 // Relative, not aliased: this module is exercised directly by node as well as
 // by Next, and the "@/" alias only resolves inside the bundler.
 import depositAddresses from "../data/deposit-addresses.json";
+import ethConsolidation from "../data/eth/consolidation-wallets.json";
+import ethDeposits from "../data/eth/deposit-addresses.json";
+import ethHotWallets from "../data/eth/hot-wallets.json";
 import hotWallets from "../data/hot-wallets.json";
 import riskLists from "../data/risk-lists.json";
+import multichain from "../data/sanctions-multichain.json";
 import type { Label } from "./types";
 
 type HotWallet = { address: string; exchange: string; tag?: string; source_url?: string };
@@ -46,6 +50,26 @@ type Sanctioned = {
 };
 type Mixer = { address: string; name?: string };
 type Community = { address: string; reports?: number; source?: string };
+type EthSeed = {
+  address: string;
+  exchange: string;
+  tag: string;
+  /** "deposit_funder": the exchange's gas wallet for customer deposit addresses. */
+  role?: string;
+};
+type EthDerived = { address: string; exchange: string; confidence: number; evidence?: string };
+type MultichainRow = { address: string; assets?: string[]; entity?: string; program?: string };
+
+const EVM = /^0x[0-9a-fA-F]{40}$/;
+/**
+ * The key an address is stored and looked up under. An Ethereum address is
+ * case-insensitive on the chain, so its key is lower case: two spellings of one
+ * wallet are one label. A TRON address is case-sensitive and kept exactly.
+ */
+const keyOf = (address: string): string => {
+  const a = address.trim();
+  return EVM.test(a) ? a.toLowerCase() : a;
+};
 
 const LABELS = new Map<string, Label>();
 
@@ -54,7 +78,7 @@ const LABELS = new Map<string, Label>();
 // 4 — community reports, the weakest tier.
 for (const row of (riskLists.community ?? []) as Community[]) {
   if (!row?.address) continue;
-  LABELS.set(row.address, {
+  LABELS.set(keyOf(row.address), {
     entity: row.source ? `Reported on ${row.source}` : "Community-reported address",
     kind: "unknown",
     confidence: 0.3,
@@ -64,9 +88,9 @@ for (const row of (riskLists.community ?? []) as Community[]) {
 }
 
 // 3 — deposit addresses we derived ourselves. Heuristic, and labelled as such.
-for (const row of depositAddresses as DepositRow[]) {
+for (const row of [...(depositAddresses as DepositRow[]), ...(ethDeposits as EthDerived[])]) {
   if (!row?.address) continue;
-  LABELS.set(row.address, {
+  LABELS.set(keyOf(row.address), {
     entity: row.exchange,
     kind: "exchange_deposit",
     confidence: row.confidence,
@@ -75,10 +99,34 @@ for (const row of depositAddresses as DepositRow[]) {
   });
 }
 
-// 2 — exchange hot wallets carrying a public explorer tag.
+// 2b — Ethereum only: a wallet that the deposit addresses an exchange's own
+// tagged gas wallet funds all sweep into. Derived, so heuristic, and outranked
+// by any explorer tag on the same address below.
+for (const row of ethConsolidation as EthDerived[]) {
+  if (!row?.address) continue;
+  LABELS.set(keyOf(row.address), {
+    entity: row.exchange,
+    kind: "exchange_hot",
+    confidence: row.confidence,
+    source: "heuristic",
+    evidence: row.evidence,
+  });
+}
+
+// 2 — exchange wallets carrying a public explorer tag, on either chain.
+for (const row of ethHotWallets as EthSeed[]) {
+  if (!row?.address) continue;
+  LABELS.set(keyOf(row.address), {
+    entity: row.exchange,
+    kind: "exchange_hot",
+    confidence: 1,
+    source: "ground_truth",
+    evidence: `Explorer-tagged "${row.tag}"${row.role === "deposit_funder" ? " (gas wallet for customer deposit addresses)" : ""}`,
+  });
+}
 for (const row of hotWallets as HotWallet[]) {
   if (!row?.address) continue;
-  LABELS.set(row.address, {
+  LABELS.set(keyOf(row.address), {
     entity: row.exchange,
     kind: "exchange_hot",
     confidence: 1,
@@ -90,7 +138,7 @@ for (const row of hotWallets as HotWallet[]) {
 // 1 — mixing services. Empty today, and deliberately so: see data/risk-lists.json.
 for (const row of (riskLists.mixers ?? []) as Mixer[]) {
   if (!row?.address) continue;
-  LABELS.set(row.address, {
+  LABELS.set(keyOf(row.address), {
     entity: row.name ?? "Mixing service",
     kind: "mixer",
     confidence: 0.9,
@@ -100,9 +148,24 @@ for (const row of (riskLists.mixers ?? []) as Mixer[]) {
 }
 
 // 0 — sanctions outrank everything.
+// Ethereum-format addresses on the same OFAC list, whatever asset OFAC filed
+// them under — the address is the same account on Ethereum either way.
+for (const row of ((multichain as { addresses?: MultichainRow[] }).addresses ?? [])) {
+  if (!row?.address || !EVM.test(row.address)) continue;
+  LABELS.set(keyOf(row.address), {
+    entity: row.entity ?? "Sanctioned entity",
+    kind: "sanctioned",
+    confidence: 1,
+    source: "sanctions",
+    evidence:
+      ["OFAC SDN", row.program, row.assets?.length ? `filed under ${row.assets.join(", ")}` : null]
+        .filter(Boolean)
+        .join(" · "),
+  });
+}
 for (const row of (riskLists.sanctioned ?? []) as Sanctioned[]) {
   if (!row?.address) continue;
-  LABELS.set(row.address, {
+  LABELS.set(keyOf(row.address), {
     entity: row.entity ?? "Sanctioned entity",
     kind: "sanctioned",
     confidence: 1,
@@ -116,7 +179,7 @@ for (const row of (riskLists.sanctioned ?? []) as Sanctioned[]) {
 
 /** The only way to ask what an address is. */
 export function lookup(address: string): Label | null {
-  return LABELS.get(address.trim()) ?? null;
+  return LABELS.get(keyOf(address)) ?? null;
 }
 
 /** True when a trace should stop expanding here — we have our answer. */
@@ -126,26 +189,30 @@ export function isTerminal(label: Label | null): boolean {
     label.kind === "exchange_deposit" ||
     label.kind === "exchange_hot" ||
     label.kind === "mixer" ||
-    label.kind === "sanctioned"
+    label.kind === "sanctioned" ||
+    label.kind === "contract"
   );
 }
 
 /** For the operations page and the slide: what the table actually holds. */
-export function labelStats() {
+export function labelStats(chain?: "tron" | "ethereum") {
+  const rows = [...LABELS.entries()]
+    .filter(([key]) => !chain || (chain === "ethereum") === key.startsWith("0x"))
+    .map(([, label]) => label);
   let hot = 0;
   let deposit = 0;
   let sanctioned = 0;
   let mixer = 0;
-  for (const label of LABELS.values()) {
+  for (const label of rows) {
     if (label.kind === "exchange_hot") hot++;
     else if (label.kind === "exchange_deposit") deposit++;
     else if (label.kind === "sanctioned") sanctioned++;
     else if (label.kind === "mixer") mixer++;
   }
   const exchanges = new Set(
-    [...LABELS.values()]
+    rows
       .filter((l) => l.kind === "exchange_deposit" || l.kind === "exchange_hot")
       .map((l) => l.entity),
   );
-  return { total: LABELS.size, hot, deposit, sanctioned, mixer, exchanges: exchanges.size };
+  return { total: rows.length, hot, deposit, sanctioned, mixer, exchanges: exchanges.size };
 }

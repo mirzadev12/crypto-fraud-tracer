@@ -32,6 +32,8 @@ export function kindTag(kind: string | null | undefined): string {
       return "Mixing service";
     case "sanctioned":
       return "Sanctioned address";
+    case "contract":
+      return "Smart contract";
     default:
       return "Unlabelled";
   }

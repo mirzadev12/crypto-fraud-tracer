@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkTronAddress } from "@/lib/tron";
+import { checkAddress } from "@/lib/address";
 import { runTrace, type TraceRequest } from "@/lib/tracer";
 import { streamTrace, wantsStream } from "@/lib/trace-stream";
 import { DEMO_MODE, answersFor, frozenTrace } from "@/lib/demo";
@@ -22,12 +22,13 @@ export async function GET(
   ctx: RouteContext<"/api/trace/[address]">,
 ) {
   const { address: raw } = await ctx.params;
-  const address = decodeURIComponent(raw).trim();
-
-  const check = checkTronAddress(address);
+  const check = checkAddress(decodeURIComponent(raw));
   if (!check.valid) {
     return NextResponse.json({ error: check.reason }, { status: 400 });
   }
+  // One spelling per wallet: an Ethereum address is case-insensitive on the
+  // chain, and a recorded case is matched on the exact string.
+  const address = check.address;
 
   const url = new URL(request.url);
   /* ?model=fifo runs the same trace under first-in-first-out instead of the

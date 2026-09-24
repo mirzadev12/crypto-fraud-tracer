@@ -29,6 +29,7 @@
  */
 
 import { betweenness } from "./centrality";
+import { categoryOf } from "./contracts";
 import { formatDwell, formatPercent, formatUsdt } from "./format";
 import type { TraceResult } from "./types";
 
@@ -37,6 +38,7 @@ export type LeadCode =
   | "AT_REST"
   | "EXIT_ACCOUNT"
   | "EXIT_OMNIBUS"
+  | "CONTRACT_STOP"
   | "CHOKEPOINT"
   | "SANCTIONS_STOP"
   | "UNRESOLVED_TAIL"
@@ -65,10 +67,11 @@ const PRIORITY: Record<LeadCode, number> = {
   AT_REST: 0,
   EXIT_ACCOUNT: 1,
   EXIT_OMNIBUS: 2,
-  CHOKEPOINT: 3,
-  UNRESOLVED_TAIL: 4,
-  RAPID_FORWARD: 5,
-  SANCTIONS_STOP: 6,
+  CONTRACT_STOP: 3,
+  CHOKEPOINT: 4,
+  UNRESOLVED_TAIL: 5,
+  RAPID_FORWARD: 6,
+  SANCTIONS_STOP: 7,
 };
 
 const MAX_LEADS = 5;
@@ -235,6 +238,44 @@ export function deriveLeads(trace: TraceResult): Lead[] {
       evidence: [
         `${formatPercent(terminalNode.taintFraction)} of the reported amount`,
         "omnibus wallet — account not on-chain",
+      ],
+      tone: "neutral",
+    });
+  }
+
+  /* 2b — The USDT trail ended in a contract (Ethereum). Not an exit and not a
+     dead end: the transaction that sent the money in says what came out, or,
+     for a bridge, where on the other network it went. */
+  const pooled = [...reached]
+    .filter((n) => n.label?.kind === "contract" && n.taintedValueUsdt > 0)
+    .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
+  if (pooled?.label) {
+    const category = categoryOf(pooled.label);
+    const entity = category === "other" ? "an unlabelled smart contract" : pooled.label.entity;
+    draft.push({
+      code: "CONTRACT_STOP",
+      title:
+        category === "bridge"
+          ? "The trail left Ethereum here"
+          : category === "defi"
+            ? "The USDT was swapped or pooled here"
+            : "The trail entered a contract",
+      finding:
+        category === "bridge"
+          ? `${formatUsdt(pooled.taintedValueUsdt)} entered ${entity}, a cross-chain bridge.`
+          : category === "defi"
+            ? `${formatUsdt(pooled.taintedValueUsdt)} entered ${entity}, a DeFi contract.`
+            : `${formatUsdt(pooled.taintedValueUsdt)} entered ${entity}.`,
+      action:
+        category === "bridge"
+          ? "The money continues on another network. The bridge transaction names the destination there — open it on a public explorer, then trace or screen that address on its own network."
+          : category === "defi"
+            ? "What came out is another asset, or other people's USDT, which this trace does not follow. The transaction that sent the money in shows what came out and to whom — open it on a public explorer."
+            : "Where the money went next depends on what the contract does. Open the transaction on a public explorer; if the contract turns out to be a wallet, trace from it directly.",
+      address: pooled.address,
+      evidence: [
+        `${formatPercent(pooled.taintFraction)} of the reported amount`,
+        pooled.label.evidence ?? "smart contract",
       ],
       tone: "neutral",
     });

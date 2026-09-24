@@ -22,6 +22,8 @@ export function GET() {
       commit: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? null,
       demoMode: DEMO_MODE,
       chainAccess: process.env.TRONGRID_API_KEY ? "keyed" : "public",
+      // The same question for Ethereum reads. Never the key.
+      ethereumAccess: process.env.BLOCKSCOUT_API_KEY ? "keyed" : "public",
     },
     { headers: { "Cache-Control": "no-store" } },
   );

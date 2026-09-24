@@ -28,6 +28,7 @@
  * regenerating it.
  */
 
+import { canonicalAddress } from "./address";
 import frozen from "../data/demo-cases.json";
 import type { TraceResult } from "./types";
 
@@ -73,8 +74,8 @@ const CASES: Map<string, FrozenCase> = (() => {
     if (typeof row !== "object" || row === null) continue;
     const r = row as Record<string, unknown>;
     if (typeof r.address !== "string" || !isTraceLike(r.trace)) continue;
-    out.set(r.address.trim(), {
-      address: r.address.trim(),
+    out.set(canonicalAddress(r.address), {
+      address: canonicalAddress(r.address),
       capturedAt: typeof r.capturedAt === "string" ? r.capturedAt : "",
       trace: r.trace,
     });
@@ -128,7 +129,9 @@ export function answersFor(
 
 /** The exact-match lookup. Null means "we hold nothing for this address". */
 export function frozenTrace(address: string): FrozenCase | null {
-  return CASES.get(address.trim()) ?? null;
+  // Exact match on the one spelling of the address: case never makes an
+  // Ethereum wallet a different wallet, and never makes a TRON one the same.
+  return CASES.get(canonicalAddress(address)) ?? null;
 }
 
 /** For the operations page and the freeze script's own reporting. */

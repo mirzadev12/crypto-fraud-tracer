@@ -101,12 +101,23 @@ export function elapsedBetween(fromIso: string, toIso: string): string {
   return formatDwell((b - a) / 1000);
 }
 
-export function tronscanAddressUrl(address: string): string {
-  return `https://tronscan.org/#/address/${encodeURIComponent(address)}`;
+/**
+ * The public explorer page for an address or a transaction, on its own chain.
+ * The form decides the chain: an Ethereum address or hash starts `0x`, a TRON
+ * address starts `T`, and a TRON transaction hash is bare hex.
+ */
+export function explorerAddressUrl(address: string): string {
+  const a = address.trim();
+  return /^0x/i.test(a)
+    ? `https://etherscan.io/address/${encodeURIComponent(a)}`
+    : `https://tronscan.org/#/address/${encodeURIComponent(a)}`;
 }
 
-export function tronscanTxUrl(txHash: string): string {
-  return `https://tronscan.org/#/transaction/${encodeURIComponent(txHash)}`;
+export function explorerTxUrl(txHash: string): string {
+  const h = txHash.trim();
+  return /^0x/i.test(h)
+    ? `https://etherscan.io/tx/${encodeURIComponent(h)}`
+    : `https://tronscan.org/#/transaction/${encodeURIComponent(h)}`;
 }
 
 /**

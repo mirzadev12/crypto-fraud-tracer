@@ -11,7 +11,7 @@
  * changes and no screen changes. The badge just flips to "Live".
  */
 
-import { checkTronAddress } from "./tron";
+import { checkAddress } from "./address";
 import type {
   CaseSummary,
   Label,
@@ -262,7 +262,7 @@ function isTraceLike(v: unknown): v is Record<string, unknown> {
 
 const NODE_KINDS: ReadonlyArray<NodeKind> = [
   "victim_reported", "intermediary", "exchange_deposit", "exchange_hot",
-  "mixer", "sanctioned", "unknown",
+  "mixer", "sanctioned", "unknown", "contract",
 ];
 
 const LABEL_SOURCES: ReadonlyArray<LabelSource> = [
@@ -475,7 +475,7 @@ function normalizeTrace(raw: Record<string, unknown>): TraceResult {
         ? raw.inputAddress
         : nodes[0]?.address ?? "",
 
-    chain: "tron",
+    chain: raw.chain === "ethereum" ? "ethereum" : "tron",
 
     reportedAmountUsdt: reportedAmount,
 
@@ -765,11 +765,11 @@ export async function getTrace(
   onProgress?: (event: TraceProgress) => void,
   params?: TraceParams,
 ): Promise<TraceLookup> {
-  const clean = address.trim();
-
-  // Checked here so a malformed address is never confused with an unknown one.
-  const check = checkTronAddress(clean);
-  if (!check.valid) return { status: "invalid", address: clean, reason: check.reason };
+  // Checked here so a malformed address is never confused with an unknown one;
+  // the canonical spelling is what every later step compares.
+  const check = checkAddress(address);
+  if (!check.valid) return { status: "invalid", address: address.trim(), reason: check.reason };
+  const clean = check.address;
 
   if (heldLocally(clean)) {
     return recordedTrace(clean, "GET /api/trace/[address]", ILLUSTRATIVE_NOTE, ILLUSTRATIVE_MISSING);
@@ -810,10 +810,9 @@ export async function runTrace(
   req: TraceRequest,
   onProgress?: (event: TraceProgress) => void,
 ): Promise<TraceLookup> {
-  const clean = req.address.trim();
-
-  const check = checkTronAddress(clean);
-  if (!check.valid) return { status: "invalid", address: clean, reason: check.reason };
+  const check = checkAddress(req.address);
+  if (!check.valid) return { status: "invalid", address: req.address.trim(), reason: check.reason };
+  const clean = check.address;
 
   if (heldLocally(clean)) {
     return recordedTrace(clean, "POST /api/trace", ILLUSTRATIVE_NOTE, ILLUSTRATIVE_MISSING);

@@ -19,6 +19,7 @@
  * evidence printed six inches above it, and this cannot.
  */
 
+import { categoryOf } from "./contracts";
 import { entityPhrase } from "./voice";
 import type { TraceResult } from "./types";
 
@@ -138,6 +139,12 @@ export function buildNarrative(
 
   /* 3 — where it ended. The product's one claim, worded by the same rule the
      rest of the interface uses. */
+  // A contract the trace stopped at (Ethereum): the USDT trail ends there.
+  const pooled = trace.terminal
+    ? undefined
+    : [...trace.nodes]
+        .filter((n) => n.depth > 0 && n.label?.kind === "contract" && n.taintedValueUsdt > 0)
+        .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
   if (trace.terminal) {
     const reached = trace.nodes.find((n) => n.address === trace.terminal?.address);
     const phrase = midSentence(entityPhrase(trace.terminal.label));
@@ -163,6 +170,16 @@ export function buildNarrative(
         `${usdt(atRest.taintedValueUsdt)} USDT is held at ${atRest.address}, ` +
           `which has made no outgoing transfer since it arrived.`,
       );
+    } else if (pooled?.label) {
+      const share = `${usdt(pooled.taintedValueUsdt)} USDT, ${percent(pooled.taintFraction)} of the reported amount,`;
+      const category = categoryOf(pooled.label);
+      sentences.push(
+        category === "bridge"
+          ? `${share} left Ethereum through ${pooled.label.entity}.`
+          : category === "defi"
+            ? `${share} entered ${pooled.label.entity}, a DeFi contract, where USDT stops being traceable as USDT.`
+            : `${share} entered an unlabelled smart contract, where USDT stops being traceable as USDT.`,
+      );
     }
   }
 
@@ -178,10 +195,18 @@ export function buildNarrative(
   // the entity, which sentence three has already said in full. A closed case
   // with no exit is one where nothing moved to follow, and "past that point"
   // would name a point that does not exist.
+  const endedInContract =
+    trace.triage === "HOT" &&
+    !!pooled &&
+    !trace.nodes.some(
+      (n) => n.depth > 0 && !n.label && n.outflowCount === 0 && n.firstSeen !== null && n.taintedValueUsdt > 0,
+    );
   sentences.push(
     trace.triage === "COLD" && !trace.terminal
       ? "There is nothing to follow from this address; check it against the complaint before the case is closed."
-      : ACTION[trace.triage],
+      : endedInContract
+        ? "The money has not reached an identified off-ramp; the next step is the transaction that sent it into the contract, or the destination network for a bridge."
+        : ACTION[trace.triage],
   );
 
   const text = sentences.join(" ").replace(/\s+/g, " ").trim();

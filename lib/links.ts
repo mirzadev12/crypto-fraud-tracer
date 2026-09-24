@@ -23,8 +23,12 @@
 
 import type { Label, TraceResult } from "./types";
 
-/** Labels that describe a service everyone shares, not an account. */
-const SHARED_INFRASTRUCTURE = new Set(["exchange_hot", "mixer", "sanctioned"]);
+/**
+ * Labels that describe a service everyone shares, not an account. A contract
+ * the trace stopped at — a DEX pool, a router, a bridge — is shared by everyone
+ * who uses it, so two complaints that both passed through Uniswap are not linked.
+ */
+const SHARED_INFRASTRUCTURE = new Set(["exchange_hot", "mixer", "sanctioned", "contract"]);
 
 export interface LinkedCase {
   caseId: string;

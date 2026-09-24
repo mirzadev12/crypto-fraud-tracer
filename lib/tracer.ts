@@ -20,11 +20,15 @@
  * address" instead of "this address exists".
  */
 
+import { checkAddress } from "./address";
+import type { ChainClient, Transfer } from "./chain-client";
+import { categoryOf, contractLabel, stopsTrace } from "./contracts";
+import { EthClient } from "./ethclient";
 import { isTerminal, lookup } from "./labels";
 import { buildNarrative } from "./narrative";
 import { scoreRisk, type Observed } from "./risk";
 import type { TraceProgress } from "./progress";
-import { TronGrid, type Trc20Transfer } from "./trongrid";
+import { TronGrid } from "./trongrid";
 import type { Label, TraceEdge, TraceNode, TraceResult, TriageLevel } from "./types";
 
 const MAX_DEPTH = 3;
@@ -161,8 +165,8 @@ export interface TraceRequest {
  * already makes when it keeps the larger taint for a wallet reached twice.
  */
 function fifoShares(
-  outflows: Trc20Transfer[],
-  inflows: Trc20Transfer[],
+  outflows: Transfer[],
+  inflows: Transfer[],
   arrivedAt: number,
   taintedValue: number,
 ): Map<string, number> {
@@ -203,7 +207,12 @@ export async function runTrace(
   req: TraceRequest,
   onProgress?: (event: TraceProgress) => void,
 ): Promise<TraceResult> {
-  const root = req.address.trim();
+  // The chain comes from the address itself, and so does its one spelling: an
+  // Ethereum address is case-insensitive on the chain and must not become two
+  // nodes because it was typed two ways.
+  const checked = checkAddress(req.address);
+  const chain = checked.valid ? checked.chain : "tron";
+  const root = checked.valid ? checked.address : req.address.trim();
   const emit = (event: TraceProgress) => {
     try {
       onProgress?.(event);
@@ -224,7 +233,7 @@ export async function runTrace(
   let reported = typeof req.amount === "number" ? Math.max(0, req.amount) : 0;
 
   const model: TaintModel = req.model ?? "haircut";
-  const grid = new TronGrid({ asOf });
+  const grid: ChainClient = chain === "ethereum" ? new EthClient({ asOf }) : new TronGrid({ asOf });
   const nodes = new Map<string, TraceNode>();
   const edges: TraceEdge[] = [];
   /** Per wallet, what was read before this tracer's own limits pruned it. */
@@ -313,7 +322,20 @@ export async function runTrace(
       }
 
       const isRoot = item.address === root;
-      const label = isRoot ? rootLabel : lookup(item.address);
+      let label = isRoot ? rootLabel : lookup(item.address);
+      /*
+       * Money that enters a DEX pool, a router or a bridge on Ethereum stops
+       * being traceable as USDT: a pool pays out to unrelated swappers, and
+       * following it would name one of them. The explorer's own record of the
+       * address — gathered from the row that brought the money here, so it
+       * costs no request — says whether it is such a contract and what it is.
+       * The label table is asked first, so a sanctioned or exchange contract
+       * keeps its label; a smart-contract wallet is followed like any wallet.
+       */
+      if (!isRoot && !label) {
+        const info = grid.contractInfo?.(item.address) ?? null;
+        if (info && stopsTrace(info)) label = contractLabel(info);
+      }
       const stopHere = !isRoot && isTerminal(label);
       if (label && !isRoot) {
         emit({
@@ -330,7 +352,7 @@ export async function runTrace(
       // the fetch here is not just an optimisation: Binance-Hot 7 has millions
       // of transfers, and pulling them would spend the whole rate-limit budget
       // enumerating an exchange's own bookkeeping.
-      const transfers: Trc20Transfer[] = stopHere
+      const transfers: Transfer[] = stopHere
         ? []
         : await grid.transfers(item.address);
 
@@ -559,7 +581,7 @@ export async function runTrace(
   const result: TraceResult = {
     caseId: caseIdFor(root, fraudIso),
     inputAddress: root,
-    chain: "tron",
+    chain,
     reportedAmountUsdt: micro(reported),
     fraudDate: fraudIso,
     nodes: nodeList,
@@ -669,6 +691,26 @@ function decide(
       triageReason: `${usdt(atRest.taintedValueUsdt)} USDT is sitting at an unattributed address that has made no outgoing transfer since the money arrived — it has not reached an off-ramp yet and can still be acted on.`,
       terminal: null,
       restingAt: atRest.address,
+    };
+  }
+
+  // The trail left USDT on this chain: a pool swapped it, or a bridge took it
+  // elsewhere. Not an exit, so not WARM and no freeze request; not closed, so
+  // not COLD; the sentence says where it went and why the trace ends there.
+  const pooled = reached.find((n) => n.label?.kind === "contract");
+  if (pooled && pooled.label) {
+    const amount = usdt(pooled.taintedValueUsdt);
+    const category = categoryOf(pooled.label);
+    return {
+      triage: "HOT" as TriageLevel,
+      triageReason:
+        category === "bridge"
+          ? `${amount} USDT left Ethereum through ${pooled.label.entity}; the trail continues on another network, which this trace does not read.`
+          : category === "defi"
+            ? `${amount} USDT entered ${pooled.label.entity}, a smart contract; USDT tracing ends where a contract pools the money or converts it to another asset.`
+            : `${amount} USDT entered an unlabelled smart contract; the trail cannot be followed as USDT past that point.`,
+      terminal: null,
+      restingAt: null,
     };
   }
 

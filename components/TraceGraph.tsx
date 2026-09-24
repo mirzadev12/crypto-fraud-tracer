@@ -69,6 +69,15 @@ const KIND_STYLE: Record<NodeKind | "none", Palette> = {
     chip: "rgba(207,95,85,0.12)",
     caption: "Sanctioned entity",
   },
+  // Where the USDT trail ended because a contract pooled, swapped or bridged
+  // it. A stop, not a finding, so it takes the neutral exchange-wallet greys.
+  contract: {
+    ring: "#3a3936",
+    bg: "#141414",
+    accent: "#a8a296",
+    chip: "rgba(168,162,150,0.10)",
+    caption: "Smart contract",
+  },
   intermediary: {
     ring: "#2a2a28",
     bg: "#141414",

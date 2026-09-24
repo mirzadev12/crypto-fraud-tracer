@@ -24,6 +24,9 @@
  */
 
 import { lookup } from "./labels";
+import { checkAddress } from "./address";
+import type { ChainClient, ChainName } from "./chain-client";
+import { EthClient } from "./ethclient";
 import { TronGrid } from "./trongrid";
 import type { Label } from "./types";
 
@@ -39,6 +42,7 @@ export interface Counterparty {
 
 export interface WalletProfile {
   address: string;
+  chain: ChainName;
   label: Label | null;
   /** False when the chain could not be read at all — state nothing else. */
   readable: boolean;
@@ -81,12 +85,15 @@ function rank(
 }
 
 export async function profileWallet(address: string): Promise<WalletProfile> {
-  const subject = address.trim();
-  const grid = new TronGrid();
+  const checked = checkAddress(address);
+  const subject = checked.valid ? checked.address : address.trim();
+  const grid: ChainClient =
+    checked.valid && checked.chain === "ethereum" ? new EthClient() : new TronGrid();
   const transfers = await grid.transfers(subject);
 
   const base = {
     address: subject,
+    chain: grid.chain,
     label: lookup(subject),
     provenance: {
       apiCalls: grid.apiCalls,

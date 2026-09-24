@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkTronAddress } from "@/lib/tron";
+import { checkAddress } from "@/lib/address";
 import { runTrace, type TraceRequest } from "@/lib/tracer";
 import { streamTrace, wantsStream } from "@/lib/trace-stream";
 import { DEMO_MODE, answersFor, frozenTrace } from "@/lib/demo";
@@ -44,10 +44,13 @@ export async function POST(request: Request) {
 
   // Checked server-side too. The browser checks it to save a round trip, not to
   // be trusted.
-  const check = checkTronAddress(address);
+  const check = checkAddress(address);
   if (!check.valid) {
     return NextResponse.json({ error: check.reason }, { status: 400 });
   }
+  // One spelling per wallet: an Ethereum address is case-insensitive on the
+  // chain, and a recorded case is matched on the exact string.
+  const subject = check.address;
 
   // Both optional. A blank amount traces everything that left the wallet; a
   // blank date opens the window at the wallet's own first transfer. Only a value
@@ -81,7 +84,7 @@ export async function POST(request: Request) {
   }
 
   const job: TraceRequest = {
-    address: address.trim(),
+    address: subject,
     amount: amountGiven ? value : "auto",
     fraudDate: dateGiven ? when.toISOString() : "auto",
     ...(model === "fifo" ? { model: "fifo" as const } : {}),
@@ -94,7 +97,7 @@ export async function POST(request: Request) {
   // trace for another is the one lie that would make every other number on the
   // screen worthless. The header is what stops the interface calling this live.
   if (DEMO_MODE) {
-    const held = frozenTrace(address);
+    const held = frozenTrace(subject);
     if (held && answersFor(held.trace, job)) {
       if (wantsStream(request)) {
         return streamTrace(async (emit) => {

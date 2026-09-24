@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { checkAddress } from "@/lib/address";
+import { EthClient } from "@/lib/ethclient";
 import { lookup } from "@/lib/labels";
-import { checkTronAddress } from "@/lib/tron";
 import { TronGrid } from "@/lib/trongrid";
 import type { WatchResult } from "@/lib/watch";
 import { entityPhrase } from "@/lib/voice";
@@ -43,7 +44,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const grid = new TronGrid();
+  // One client per chain, each with its own pacing; a desk may watch both.
+  const tron = new TronGrid();
+  const eth = new EthClient();
   const results: WatchResult[] = [];
 
   for (const item of raw) {
@@ -55,7 +58,8 @@ export async function POST(request: Request) {
       item && typeof item === "object" ? String((item as { since?: unknown }).since ?? "") : "",
     );
 
-    if (!checkTronAddress(address).valid || !Number.isFinite(sinceMs)) {
+    const check = checkAddress(address);
+    if (!check.valid || !Number.isFinite(sinceMs)) {
       results.push({
         address,
         status: "unchecked",
@@ -64,7 +68,8 @@ export async function POST(request: Request) {
       continue;
     }
 
-    const read = await grid.outflowsSince(address, sinceMs);
+    const client = check.chain === "ethereum" ? eth : tron;
+    const read = await client.outflowsSince(check.address, sinceMs);
     if (!read) {
       results.push({
         address,
@@ -101,7 +106,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     checkedAt: new Date().toISOString(),
-    apiCalls: grid.apiCalls,
+    apiCalls: tron.apiCalls + eth.apiCalls,
     results,
   });
 }

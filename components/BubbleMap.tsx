@@ -31,6 +31,7 @@ export const KIND_COLOR: Record<NodeKind | "none", string> = {
   victim_reported: "#c6a15b", // brass — the subject of the file
   exchange_deposit: "#c98a34", // suspicious — the exit
   exchange_hot: "#a8a296",
+  contract: "#a8a296", // a stop, not a finding: neutral like an exchange wallet
   mixer: "#cf5f55", // critical
   sanctioned: "#cf5f55",
   intermediary: "#6b6660",

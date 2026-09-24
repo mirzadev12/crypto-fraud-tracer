@@ -1,8 +1,9 @@
 /**
- * Which chain an address belongs to — recognised, never traced.
+ * Which chain an address belongs to — recognised, and traced only on TRON and
+ * Ethereum.
  *
- * FineX traces USDT on TRON and nothing else; that scope is the product's whole
- * argument (AGENTS.md §2). But the problem statement asks the system to
+ * FineX traces USDT on TRON, where Indian fraud money mostly moves (AGENTS.md
+ * §2), and on Ethereum mainnet since the grand-finale build. But the problem statement asks the system to
  * "support multiple blockchain ecosystems", and a complaint does not choose its
  * chain: an officer will paste an Ethereum or Bitcoin address sooner or later.
  * The old answer was "not a valid TRON address", which is true and useless. The
@@ -39,7 +40,7 @@ export interface ChainInfo {
   id: ChainId;
   /** How the chain is named on screen. */
   name: string;
-  /** Whether FineX traces this chain today. Only TRON. */
+  /** Whether FineX traces this chain today: TRON, and Ethereum mainnet. */
   traceable: boolean;
   /** One line on what the format also covers, where that matters. */
   note?: string;
@@ -50,8 +51,8 @@ export const CHAINS: Record<ChainId, ChainInfo> = {
   evm: {
     id: "evm",
     name: "Ethereum / EVM",
-    traceable: false,
-    note: "The same address format is used on Ethereum, BNB Smart Chain, Arbitrum, Polygon and other EVM chains.",
+    traceable: true,
+    note: "Traced on Ethereum mainnet. The same address format is used on BNB Smart Chain, Arbitrum, Polygon and other EVM chains, which are not read.",
   },
   bitcoin: {
     id: "bitcoin",
