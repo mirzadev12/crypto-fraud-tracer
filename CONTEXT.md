@@ -720,7 +720,7 @@ Eight addresses in the register are illustrative (`isIllustrative` in
   line it falls on before shipping it.
   It pays off on the committed data: three of the ten frozen cases converge on
   one MEXC customer deposit address, `TX1so33jdGd8JkYD7JVB6q1i4QUDhPB2MN`,
-  27,930.22 USDT between them. The panel only renders when there is a link, and
+  27,930.21 USDT between them. The panel only renders when there is a link, and
   the register is unchanged above it.
 - **Re-capture the frozen cases whenever the tracer's output gains a field.**
   The narrative shipped and all ten recorded cases still had none, so demo mode

@@ -29,6 +29,7 @@ import {
   type TraceProgress,
 } from "@/lib/api";
 import { count, formatUsdt, shortAddress } from "@/lib/format";
+import { combinedHref, groupByExchange } from "@/lib/combined";
 import { findLinks } from "@/lib/links";
 import { watchTargetFor } from "@/lib/watch";
 import { addWatch } from "@/lib/watchlist";
@@ -119,6 +120,11 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
    * same people. Computed from results already in hand — no extra chain read.
    */
   const links = useMemo(() => findLinks(results.map((r) => r.trace)), [results]);
+  // Complaints that ended at the same exchange: one letter to it, not one each.
+  const combined = useMemo(
+    () => groupByExchange(results.map((r) => ({ trace: r.trace, ack: r.ack }))),
+    [results],
+  );
   const [view, setView] = useState<BatchView>("flow");
 
   const stats = useMemo(() => {
@@ -440,6 +446,42 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
             />
             </div>
           </>
+        ) : null}
+
+        {combined.length ? (
+          <Panel
+            title="One request per exchange"
+            subtitle="Complaints whose money reached the same exchange, in one letter to it."
+            framed={false}
+          >
+            <ul className="divide-y divide-line">
+              {combined.map((group) => {
+                const accounts = new Set(group.entries.map((e) => e.trace.terminal!.address));
+                const usdt = group.entries.reduce((sum, e) => {
+                  const exit = e.trace.terminal!.address;
+                  return sum + (e.trace.nodes.find((n) => n.address === exit)?.taintedValueUsdt ?? 0);
+                }, 0);
+                return (
+                  <li key={group.entity} className="flex flex-wrap items-center justify-between gap-4 py-4">
+                    <div className="min-w-0">
+                      <p className="text-sm text-ink">{group.entity}</p>
+                      <p className="mt-1 text-xs leading-5 text-faint">
+                        {group.entries.length} complaints ·{" "}
+                        {accounts.size === 1 ? "1 account" : `${accounts.size} accounts`} ·{" "}
+                        {formatUsdt(usdt, { symbol: false })} USDT
+                      </p>
+                    </div>
+                    <Link
+                      href={combinedHref(group.entity, group.entries)}
+                      className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
+                    >
+                      Combined request
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </Panel>
         ) : null}
 
         {/* The batch as one picture, before the register lists it as rows.

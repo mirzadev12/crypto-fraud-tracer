@@ -50,7 +50,8 @@ import { fiuListing, fiuSentence } from "@/lib/fiu";
  * literal for the same reason the packet's are — the app tokens are dark.
  */
 
-const SHEET = {
+/** Shared with the combined request (CombinedFreezeRequest), so the two documents cannot drift apart. */
+export const SHEET = {
   ink: "text-[#141412]",
   body: "text-[#4a4741]",
   faint: "text-[#75726a]",
@@ -58,7 +59,7 @@ const SHEET = {
   ruleSoft: "border-[#e6e2d8]",
 };
 
-function Section({
+export function Section({
   n,
   title,
   children,
@@ -80,7 +81,7 @@ function Section({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
       <dt className={`font-mono text-xs uppercase tracking-[0.16em] ${SHEET.faint}`}>
@@ -92,7 +93,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 /** A line the issuing officer completes by hand or in the PDF. */
-function Blank({
+export function Blank({
   label,
   width = "w-full",
   value,

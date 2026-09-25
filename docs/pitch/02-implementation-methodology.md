@@ -131,7 +131,7 @@ commit, whether demo mode is on, and whether the chain is being read with a key
 | Independent re-read of recorded cases | 33 confirmed · 0 mismatched · 0 missing |
 | Clustering still holds on re-read sample | 31 of 31 readable addresses still meet the rule |
 | Dispositions covered by real frozen cases | all three (CRITICAL, SUSPICIOUS, CLOSED) |
-| Complaints converging on one account | 3 of 10 cases share one MEXC deposit address, 27,930.22 USDT between them |
+| Complaints converging on one account | 3 of 10 cases share one MEXC deposit address, 27,930.21 USDT between them |
 | Demo mode, network off | all 10 cases answer from file, stamped "recorded" |
 
 ---
