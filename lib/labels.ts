@@ -25,6 +25,7 @@
 // by Next, and the "@/" alias only resolves inside the bundler.
 import depositAddresses from "../data/deposit-addresses.json";
 import ethConsolidation from "../data/eth/consolidation-wallets.json";
+import ethCalibration from "../data/eth/clustering-calibration.json";
 import ethDeposits from "../data/eth/deposit-addresses.json";
 import ethHotWallets from "../data/eth/hot-wallets.json";
 import hotWallets from "../data/hot-wallets.json";
@@ -87,15 +88,30 @@ for (const row of (riskLists.community ?? []) as Community[]) {
   });
 }
 
+// Derived rows the independent gas-payer check contradicts
+// (scripts/calibrate-clustering-eth.mjs): their gas was paid by another
+// entity's gas or custody wallet, so someone else may manage the address. The
+// row stays — its sweeps are real — but its evidence says so, and the packet
+// and freeze request print evidence, so the doubt travels with the name.
+const GAS_CONFLICT = new Map(
+  (
+    (ethCalibration as { gasPayer?: { conflicting?: Array<{ address: string; tags?: string }> } })
+      .gasPayer?.conflicting ?? []
+  ).map((c) => [keyOf(c.address), c.tags ?? "another entity's wallet"] as const),
+);
+
 // 3 — deposit addresses we derived ourselves. Heuristic, and labelled as such.
 for (const row of [...(depositAddresses as DepositRow[]), ...(ethDeposits as EthDerived[])]) {
   if (!row?.address) continue;
+  const conflict = GAS_CONFLICT.get(keyOf(row.address));
   LABELS.set(keyOf(row.address), {
     entity: row.exchange,
     kind: "exchange_deposit",
     confidence: row.confidence,
     source: "heuristic",
-    evidence: row.evidence,
+    evidence: conflict
+      ? `${row.evidence}. Caution: its gas was paid by "${conflict.split(" / ")[0]}", not by ${row.exchange} — another party may manage this address`
+      : row.evidence,
   });
 }
 

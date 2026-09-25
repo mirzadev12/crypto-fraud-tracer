@@ -7,6 +7,7 @@ import AttributionRegister, {
   type SeedRow,
 } from "@/components/AttributionRegister";
 import CalibrationPanel, { type Calibration } from "@/components/CalibrationPanel";
+import GasPayerCheck, { type GasPayer } from "@/components/GasPayerCheck";
 import { PageHeader, Panel, buttonStyles } from "@/components/ui";
 import deposits from "@/data/deposit-addresses.json";
 import seeds from "@/data/hot-wallets.json";
@@ -16,6 +17,7 @@ import ethWallets from "@/data/eth/consolidation-wallets.json";
 import multichain from "@/data/sanctions-multichain.json";
 import riskLists from "@/data/risk-lists.json";
 import calibration from "@/data/clustering-calibration.json";
+import ethCalibration from "@/data/eth/clustering-calibration.json";
 import { fiuListing } from "@/lib/fiu";
 
 export const metadata: Metadata = {
@@ -89,6 +91,24 @@ export default function AttributionPage() {
             searchHint="0x85B5…  ·  CoinDCX"
             method={<EthereumMethod wallets={ethWallets.length} />}
           />
+          <CalibrationPanel
+            data={ethCalibration as Calibration}
+            title="Ethereum · Does an attribution hold when read again?"
+            rule={{
+              clause:
+                "forward at least 90% of what they receive to the wallets they were found sweeping to — twice or more for an address found by its sweeps, once or more for one the exchange paid gas to",
+              label: "≥90% · ≥2 sweeps, or funded + ≥1",
+            }}
+          >
+            {"gasPayer" in ethCalibration ? (
+              <GasPayerCheck
+                data={(ethCalibration as { gasPayer: GasPayer }).gasPayer}
+                confidenceOf={Object.fromEntries(
+                  ethRows.map((r) => [r.address.toLowerCase(), r.confidence]),
+                )}
+              />
+            ) : null}
+          </CalibrationPanel>
         </div>
       ) : null}
     </AppShell>

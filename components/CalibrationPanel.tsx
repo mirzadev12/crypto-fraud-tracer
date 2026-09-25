@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Designation, Panel } from "@/components/ui";
 import { formatDate } from "@/lib/format";
 
@@ -23,13 +24,14 @@ import { formatDate } from "@/lib/format";
  * unevidenced, and that is what it says.
  */
 
-interface BandRow {
-  band: string;
+interface Tally {
   measured: number;
   held: number;
   continued: number;
   rate: number | null;
 }
+
+type BandRow = Tally & { band: string };
 
 export interface Calibration {
   generatedAt: string;
@@ -41,18 +43,68 @@ export interface Calibration {
   continued: number;
   overallRate: number | null;
   predicate: { minSweeps: number; minRatio: number };
+  /** When the rows were derived, where recorded; the gap to generatedAt is how long the pattern had to fail. */
+  derivedAt?: string | null;
   perBand: BandRow[];
+  /** Ethereum only: rows found by their sweeps, by the exchange's gas wallet, or both. */
+  perRoute?: Array<Tally & { route: string }>;
 }
 
-export default function CalibrationPanel({ data }: { data: Calibration }) {
-  const gradientEvidenced =
-    data.perBand.filter((b) => b.measured > 0 && b.rate !== null).some((b) => (b.rate ?? 1) < 1);
+const ROUTE_NAME: Record<string, string> = {
+  sweep: "Sweeps",
+  funder: "Gas-funded",
+  both: "Both",
+};
+
+/**
+ * What the per-band rates say about the confidence figure, from the numbers
+ * alone. Only rates that rise with the band are evidence the figure orders
+ * rows; rates that differ in any other order are evidence it does not.
+ */
+function gradientOf(bands: BandRow[]): "same" | "rising" | "unordered" {
+  const rates = bands
+    .filter((b) => b.measured > 0 && b.rate !== null)
+    .sort((a, b) => a.band.localeCompare(b.band))
+    .map((b) => b.rate as number);
+  if (rates.every((r) => r === rates[0])) return "same";
+  return rates.every((r, i) => i === 0 || r >= rates[i - 1]) ? "rising" : "unordered";
+}
+
+export default function CalibrationPanel({
+  data,
+  title = "Is the confidence figure measured or asserted?",
+  rule,
+  className = "mt-16",
+  children,
+}: {
+  data: Calibration;
+  title?: string;
+  /** The rule re-applied, when it is not the TRON one: a clause for the headline and a short label. */
+  rule?: { clause: string; label: string };
+  className?: string;
+  /** A further measurement, set under the two columns. */
+  children?: ReactNode;
+}) {
+  const gradient = gradientOf(data.perBand);
+  const everyRow = data.sampled === data.population;
+  // How long the pattern had to fail. Both moments come from the data, never
+  // the clock, so the sentence is the same on every render.
+  const gapHours = data.derivedAt
+    ? (new Date(data.generatedAt).getTime() - new Date(data.derivedAt).getTime()) / 3_600_000
+    : null;
+  const gap =
+    gapHours === null || !Number.isFinite(gapHours)
+      ? null
+      : gapHours < 48
+        ? `${Math.max(1, Math.round(gapHours))} hours`
+        : `${Math.round(gapHours / 24)} days`;
+  const soon = gapHours !== null && gapHours < 24 * 7;
 
   return (
     <Panel
-      title="Is the confidence figure measured or asserted?"
-      subtitle={`A sample re-read from the chain on ${formatDate(data.generatedAt)} and re-tested with the clustering's own rule.`}
-      className="mt-16"
+      title={title}
+      subtitle={`${everyRow ? "Every derived address" : "A sample"} re-read from the chain on ${formatDate(data.generatedAt)} and re-tested with the clustering's own rule.`}
+      className={className}
     >
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         {/* ------------------------------------------------------- headline */}
@@ -63,10 +115,18 @@ export default function CalibrationPanel({ data }: { data: Calibration }) {
             <span className="text-faint">/{data.readable}</span>
           </p>
           <p className="mt-4 max-w-sm text-sm leading-6 text-muted">
-            Of {data.readable} derived addresses re-read from the chain, {data.held} still
-            forward at least {Math.round(data.predicate.minRatio * 100)}% of what they
-            receive to the same exchange wallet, at least {data.predicate.minSweeps} times.
+            Of {data.readable} derived addresses re-read from the chain, {data.held} still{" "}
+            {rule?.clause ??
+              `forward at least ${Math.round(data.predicate.minRatio * 100)}% of what they receive to the same exchange wallet, at least ${data.predicate.minSweeps} times`}
+            .
           </p>
+          {soon ? (
+            <p className="mt-4 max-w-sm text-sm leading-6 text-muted">
+              Re-read {gap} after the derivation, so most rows were re-tested on the very
+              transfers that found them, which shows only that nothing reversed. The test is
+              the rows that swept again since.
+            </p>
+          ) : null}
           <p className="mt-4 max-w-sm text-sm leading-6 text-muted">
             <span className="text-ink">{data.continued}</span> of them have swept more times
             than the derivation recorded — the pattern continued on transfers the
@@ -89,7 +149,8 @@ export default function CalibrationPanel({ data }: { data: Calibration }) {
             <div>
               <dt className="font-label uppercase tracking-[0.2em] text-faint">Rule</dt>
               <dd className="mt-1 font-mono tabular-nums text-ink">
-                ≥{data.predicate.minSweeps} sweeps · ≥{Math.round(data.predicate.minRatio * 100)}%
+                {rule?.label ??
+                  `≥${data.predicate.minSweeps} sweeps · ≥${Math.round(data.predicate.minRatio * 100)}%`}
               </dd>
             </div>
           </dl>
@@ -115,17 +176,53 @@ export default function CalibrationPanel({ data }: { data: Calibration }) {
             ))}
           </ul>
 
+          {data.perRoute?.length ? (
+            <>
+              <Designation className="mt-10">By route</Designation>
+              <ul className="mt-4 space-y-4">
+                {data.perRoute
+                  .filter((r) => r.measured > 0)
+                  .map((r) => (
+                    <li key={r.route} className="flex items-center gap-4">
+                      <span className="w-24 shrink-0 font-mono text-xs text-faint">
+                        {ROUTE_NAME[r.route] ?? r.route}
+                      </span>
+                      <span className="h-[6px] min-w-0 flex-1 bg-surface-2">
+                        <span
+                          className="block h-full bg-brass-dim"
+                          style={{ width: `${(r.rate ?? 0) * 100}%` }}
+                        />
+                      </span>
+                      <span className="w-20 shrink-0 text-right font-mono text-xs tabular-nums text-ink">
+                        {r.held}/{r.measured}
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            </>
+          ) : null}
+
           {/* The finding that matters more than the headline. */}
           <div className="mt-6 border-l-2 border-suspicious pl-6">
             <Designation className="!text-suspicious">
               What this does not show
             </Designation>
             <p className="mt-4 text-sm leading-6 text-muted">
-              {gradientEvidenced ? (
+              {gradient === "rising" ? (
                 <>
-                  The bands differ, so the confidence figure carries some ordering
-                  information — but the sample is small and the difference should not be
-                  quoted as a precision.
+                  The rate rises with the band, so the confidence figure carries some
+                  ordering information — but the numbers in each band are small and the
+                  difference should not be quoted as a precision. It is still not a
+                  probability that the attribution is correct.
+                </>
+              ) : gradient === "unordered" ? (
+                <>
+                  The bands differ, but not in the order the confidence figure predicts. So
+                  this measurement gives{" "}
+                  <span className="text-ink">no evidence that a higher figure is a better
+                  row</span>. The confidence figure should be read as &ldquo;how much sweep
+                  evidence was seen&rdquo;, which is what it counts, and not as a
+                  probability that the attribution is correct.
                 </>
               ) : (
                 <>
@@ -146,6 +243,7 @@ export default function CalibrationPanel({ data }: { data: Calibration }) {
           </div>
         </div>
       </div>
+      {children}
     </Panel>
   );
 }
