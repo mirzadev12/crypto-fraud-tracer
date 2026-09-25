@@ -13,7 +13,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getTrace, type DataSource } from "@/lib/api";
+import { getTrace, traceHref, type DataSource } from "@/lib/api";
 import { chainMeta } from "@/lib/chain-meta";
 import type { CombinedCase } from "@/lib/combined";
 import { fiuListing, fiuSentence } from "@/lib/fiu";
@@ -23,6 +23,7 @@ import { Blank, Field, SHEET, Section } from "./FreezeRequest";
 import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
 import { FingerprintLine } from "./PacketFingerprint";
 import SendingGuide from "./SendingGuide";
+import OutcomeRecorder from "./OutcomeRecorder";
 import { Designation, Spinner, buttonStyles, entityPhrase } from "./ui";
 
 type Loaded = { c: CombinedCase; trace: TraceResult; source: DataSource };
@@ -439,6 +440,26 @@ export default function CombinedFreezeRequest({
           </p>
         </footer>
       </article>
+
+      {/* After it is sent: one record per complaint in the letter. Never printed. */}
+      <OutcomeRecorder
+        targets={loaded.flatMap((l) => {
+          const t = l.trace.terminal;
+          if (!t) return [];
+          return [
+            {
+              chain: l.trace.chain,
+              caseId: l.trace.caseId,
+              address: l.trace.inputAddress,
+              exchange: entity,
+              account: t.depositAddress ?? t.address,
+              tracedUsdt: l.trace.nodes.find((n) => n.address === t.address)?.taintedValueUsdt ?? 0,
+              ...(l.c.ack ? { ack: l.c.ack } : {}),
+              href: traceHref("freeze", l.trace, l.c.ack),
+            },
+          ];
+        })}
+      />
     </div>
   );
 }

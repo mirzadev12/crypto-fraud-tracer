@@ -1741,6 +1741,7 @@ changing a feature; this section only records what matters across them.
 | 12 | More Indian exchanges — CoinSwitch (28 addresses, 2021); no other Indian VASP wallet is publicly tagged | `12-more-indian-exchanges.md` |
 | 13 | Tracing backwards — a wallet's payers, and the exchanges that funded them one hop back (`/api/payers`, wallet card) | `13-tracing-backwards.md` |
 | 14 | Law-enforcement contacts — each exchange's own channel and conditions above every freeze request; 14 of 17 found, 3 recorded as not found; a "Duration of the restriction" blank | `14-law-enforcement-contacts.md` |
+| 15 | Recording outcomes — what each exchange did with a freeze request, counted by exchange on the Case queue; kept in the browser, exported and imported to combine desks | `15-recording-outcomes.md` |
 
 Cross-cutting decisions:
 

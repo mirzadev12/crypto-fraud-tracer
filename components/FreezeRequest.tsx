@@ -27,6 +27,7 @@ import { fiuListing, fiuSentence } from "@/lib/fiu";
 import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
 import { FingerprintBlock } from "./PacketFingerprint";
 import SendingGuide from "./SendingGuide";
+import OutcomeRecorder from "./OutcomeRecorder";
 
 /**
  * The last mile of the product.
@@ -509,6 +510,22 @@ export default function FreezeRequest({
           </p>
         </footer>
       </article>
+
+      {/* After it is sent: what the exchange did. Never printed. */}
+      <OutcomeRecorder
+        targets={[
+          {
+            chain: trace.chain,
+            caseId: trace.caseId,
+            address: trace.inputAddress,
+            exchange: label.entity,
+            account: named,
+            tracedUsdt: terminalNode?.taintedValueUsdt ?? 0,
+            ...(ack ? { ack } : {}),
+            href: traceHref("freeze", trace, ack),
+          },
+        ]}
+      />
     </div>
   );
 }

@@ -49,7 +49,7 @@ whose addresses were never on the chain.
 | Route | What it is |
 | --- | --- |
 | `/` | The pitch: what the tool does and where its limits are. |
-| `/dashboard` | Today's complaint queue, ordered by triage rather than arrival. |
+| `/dashboard` | Today's complaint queue, ordered by triage rather than arrival — with the freeze requests sent from this browser and what each exchange did, counted by exchange. |
 | `/investigate` | Address, amount and fraud date in; a full trace out. The address checksum is verified in the browser before anything is sent. |
 | `/trace/[address]` | The full result: destination, fund-flow canvas, wallet table, risk flags, movement timeline, chain of custody. |
 | `/fund-flow` | Canvas-first explorer with a case rail and a wallet inspector. |

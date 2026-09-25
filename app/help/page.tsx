@@ -138,6 +138,10 @@ const BUTTONS = [
     body: "The letter you send the exchange, naming the account to restrict. It only appears when there is an exchange that can act on it. Sign it before it goes out.",
   },
   {
+    title: "Record what happened",
+    body: "Under every freeze request. After you send it, write down what the exchange did. The case queue counts these, exchange by exchange. They stay in your browser; export them to share.",
+  },
+  {
     title: "Permalink",
     body: "A link that reopens this exact result with the same figures. Safe to forward.",
   },

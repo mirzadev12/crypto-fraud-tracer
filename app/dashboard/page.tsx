@@ -3,6 +3,7 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import CaseQueue from "@/components/CaseQueue";
 import WatchAlerts from "@/components/WatchAlerts";
+import OutcomesDesk from "@/components/OutcomesDesk";
 import { PageHeader, buttonStyles } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -36,6 +37,10 @@ export default function DashboardPage() {
       </div>
       <div className="mt-10">
         <CaseQueue />
+      </div>
+      {/* What came of the freeze requests sent from this desk. */}
+      <div className="mt-16">
+        <OutcomesDesk />
       </div>
     </AppShell>
   );
