@@ -16,6 +16,8 @@ import {
 import { DataSourceBadge, TRIAGE_META, TriageBadge, buttonStyles, kindTag } from "./ui";
 import { chainMeta } from "@/lib/chain-meta";
 import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
+import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
+import { FingerprintBlock, FingerprintCheck } from "./PacketFingerprint";
 
 /**
  * The evidence packet is the one place in the product that is a document rather
@@ -77,6 +79,7 @@ export default function EvidencePacket({
   since,
   asOf,
   ack,
+  fp,
 }: {
   address: string;
   amount?: number;
@@ -84,6 +87,8 @@ export default function EvidencePacket({
   asOf?: string;
   /** The complaint's acknowledgement number, from a complaint sheet. */
   ack?: string;
+  /** A fingerprint to check this packet's findings against, from a copy's check link. */
+  fp?: string;
 }) {
   const { current, retry, events } = useTrace(address, { amount, since, asOf });
 
@@ -119,6 +124,10 @@ export default function EvidencePacket({
       ? fiuListing(trace.terminal.label.entity)
       : null;
   const caseRef = `CASE ${trace.inputAddress.slice(0, 6).toUpperCase()} · ${chain.name.toUpperCase()} · GENERATED ${generated}`;
+  const fingerprint = findingsFingerprint(trace);
+  // Re-opens this run exactly, pinned to the moment it was read.
+  const check = checkHref(trace, current.lookup.source, { amount, since, asOf, ack }, fingerprint);
+  const custodyN = trace.narrative ? "6" : "5";
 
   return (
     <div className="space-y-6">
@@ -148,6 +157,16 @@ export default function EvidencePacket({
           </button>
         </div>
       </div>
+
+      {fp ? (
+        <FingerprintCheck
+          expected={fp}
+          actual={fingerprint}
+          source={current.lookup.source}
+          readAt={trace.provenance.generatedAt}
+          onRetry={retry}
+        />
+      ) : null}
 
       {/* ------------------------------------------------------------ sheet */}
       <article
@@ -362,7 +381,7 @@ export default function EvidencePacket({
         ) : null}
 
         {/* 6 — custody */}
-        <Section n={trace.narrative ? "6" : "5"} title="Chain of custody">
+        <Section n={custodyN} title="Chain of custody">
           <dl className="grid gap-6 sm:grid-cols-3">
             <Field label="API calls made">
               <span className="font-mono tabular-nums">{trace.provenance.apiCalls}</span>
@@ -391,6 +410,16 @@ export default function EvidencePacket({
               </p>
             ))}
           </div>
+        </Section>
+
+        {/* fingerprint — what lets a copy be checked */}
+        <Section n={String(Number(custodyN) + 1)} title="Fingerprint">
+          <FingerprintBlock
+            fingerprint={fingerprint}
+            href={check}
+            readAt={trace.provenance.generatedAt}
+            qr
+          />
         </Section>
 
         {/* limitations */}

@@ -131,7 +131,7 @@ const STATUS = [
 const BUTTONS = [
   {
     title: "Evidence packet",
-    body: "The whole case on one printable page, with a fingerprint of every piece of chain data behind it.",
+    body: "The whole case on one printable page. It ends with a fingerprint and a code. Anyone holding a copy can scan the code to check its figures against the chain.",
   },
   {
     title: "Freeze request",

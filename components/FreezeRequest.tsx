@@ -24,6 +24,8 @@ import {
 } from "./ui";
 import { chainMeta } from "@/lib/chain-meta";
 import { fiuListing, fiuSentence } from "@/lib/fiu";
+import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
+import { FingerprintBlock } from "./PacketFingerprint";
 
 /**
  * The last mile of the product.
@@ -456,6 +458,14 @@ export default function FreezeRequest({
           ) : (
             <p className={`mt-4 text-xs ${SHEET.faint}`}>No response hashes recorded.</p>
           )}
+          {/* The evidence packet for this case prints the same fingerprint. */}
+          <div className={`mt-6 border-t pt-6 ${SHEET.ruleSoft}`}>
+            <FingerprintBlock
+              fingerprint={findingsFingerprint(trace)}
+              href={checkHref(trace, current.lookup.source, { amount, since, asOf, ack })}
+              readAt={trace.provenance.generatedAt}
+            />
+          </div>
         </Section>
 
         {/* ------------------------------------------------------------- 07 */}

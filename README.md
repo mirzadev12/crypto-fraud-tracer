@@ -54,7 +54,7 @@ whose addresses were never on the chain.
 | `/trace/[address]` | The full result: destination, fund-flow canvas, wallet table, risk flags, movement timeline, chain of custody. |
 | `/fund-flow` | Canvas-first explorer with a case rail and a wallet inspector. |
 | `/reports` | Every case as an evidence packet. |
-| `/report/[address]` | The packet itself — print-ready, and it states its own limitations. |
+| `/report/[address]` | The packet itself — print-ready, and it states its own limitations. It ends with a fingerprint of its findings and a code; opened with `?fp=`, the packet re-derives the case and says whether a copy's fingerprint still matches (`docs/features/07-tamper-evident-packet.md`). |
 | `/freeze/[address]` | The restraint request an officer actually sends, naming the account to restrict. States in writing that it is a lead requiring an authorised signature. |
 | `/queue` | Bulk triage. Paste a morning of complaints; they are traced in turn and the register reorders itself as answers land, most recoverable first. |
 | `/attribution` | Where a name comes from: the 15 tagged seeds, all 241 derived deposit addresses, the sweep evidence for each, and where the method is wrong. |
@@ -225,8 +225,9 @@ node --import ./tests/register.mjs --test "tests/*.test.mjs"
 
 The tests cover what has a right answer independent of this repository:
 Keccak-256 against published vectors and against Node's own SHA3-256 at every
-input length up to 420 bytes, EIP-55 against the examples in the EIP, and the
-complaint-sheet parser. `tests/register.mjs` lets Node load the app's
+input length up to 420 bytes, EIP-55 against the examples in the EIP, the QR
+encoder against a code made by a different encoder (`docs/pitch/qr-finex-light.svg`,
+reproduced module for module), and the complaint-sheet parser. `tests/register.mjs` lets Node load the app's
 TypeScript directly; no test dependency is installed.
 
 ### Three ways to read one trace

@@ -3,6 +3,7 @@ import AppShell from "@/components/AppShell";
 import CaseRail from "@/components/CaseRail";
 import EvidencePacket from "@/components/EvidencePacket";
 import { readPinned, shortAddress } from "@/lib/format";
+import { readFingerprint } from "@/lib/fingerprint";
 
 type Params = { params: Promise<{ address: string }> };
 
@@ -20,7 +21,10 @@ export default async function ReportPage({
 }: PageProps<"/report/[address]">) {
   const { address } = await params;
   // The packet reproduces the same run as the trace it was opened from.
-  const pinned = readPinned(await searchParams);
+  const sp = await searchParams;
+  const pinned = readPinned(sp);
+  // Present when a copy of a packet is being checked (its "check link").
+  const fp = readFingerprint(sp.fp);
   const clean = decodeURIComponent(address);
   return (
     /*
@@ -33,7 +37,7 @@ export default async function ReportPage({
       <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
         <CaseRail active={clean} kind="report" />
         <div className="min-w-0">
-          <EvidencePacket address={clean} {...pinned} />
+          <EvidencePacket address={clean} {...pinned} fp={fp} />
         </div>
       </div>
     </AppShell>

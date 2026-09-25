@@ -20,6 +20,8 @@ import { fiuListing, fiuSentence } from "@/lib/fiu";
 import { formatDateTime, formatPercent, formatUsdt, shortAddress } from "@/lib/format";
 import type { Label, TraceResult } from "@/lib/types";
 import { Blank, Field, SHEET, Section } from "./FreezeRequest";
+import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
+import { FingerprintLine } from "./PacketFingerprint";
 import { Designation, Spinner, buttonStyles, entityPhrase } from "./ui";
 
 type Loaded = { c: CombinedCase; trace: TraceResult; source: DataSource };
@@ -383,8 +385,23 @@ export default function CombinedFreezeRequest({
             Each complaint listed was traced from public blockchain data, and its own evidence
             packet lists the SHA-256 of every chain response it rests on — {hashes} responses in
             all. Each case can be re-derived from the chain as of the moment it was read and will
-            show the figures above.
+            show the figures above. Each complaint&rsquo;s findings fingerprint is listed with the
+            link that checks it: the link re-derives that complaint and states whether its
+            findings still produce the fingerprint.
           </p>
+          <ul className="mt-6 space-y-4">
+            {loaded.map((l) => {
+              const fp = findingsFingerprint(l.trace);
+              return (
+                <FingerprintLine
+                  key={l.c.address}
+                  label={`${l.trace.caseId}${l.c.ack ? ` · NCRP ${l.c.ack}` : ""}`}
+                  fingerprint={fp}
+                  href={checkHref(l.trace, l.source, l.c, fp)}
+                />
+              );
+            })}
+          </ul>
         </Section>
 
         <Section n="07" title="Issued by">
