@@ -1737,13 +1737,14 @@ changing a feature; this section only records what matters across them.
 | 08 | Ethereum attributions re-read and re-tested | `08-ethereum-confidence-measured.md` |
 | 09 | Checks on every push, demo-mode smoke check | `09-checks-on-every-push.md` |
 | 10 | BNB Chain USDT — **not built: blocked.** No keyless source: Blockscout has no BSC (404), Routescan "chain not supported", Etherscan's free tier refuses the chain, Ankr needs a key (403). Needs a paid key the user sets | — |
-| 11 | Polygon USDT — **not built yet, deferred.** Feasible (Blockscout serves Polygon keyless, USDT 6 decimals), but a `0x` address is valid on both chains, so every link, route, watch entry and recorded case would have to carry the chain; weighed against its value it waits | — |
+| 11 | Polygon USDT — **not built, decided with evidence.** Feasible (Blockscout serves Polygon keyless, USDT 6 decimals), but of the Indian exchange wallets tagged on Polygon only one CoinDCX wallet ever moved USDT (last Oct 2025); WazirX and CoinSwitch none. A `0x` address is valid on both chains, so every link, route, watch entry and recorded case would have to carry the chain — too much risk for that reach | — |
 | 12 | More Indian exchanges — CoinSwitch (28 addresses, 2021); no other Indian VASP wallet is publicly tagged | `12-more-indian-exchanges.md` |
 | 13 | Tracing backwards — a wallet's payers, and the exchanges that funded them one hop back (`/api/payers`, wallet card) | `13-tracing-backwards.md` |
 | 14 | Law-enforcement contacts — each exchange's own channel and conditions above every freeze request; 14 of 17 found, 3 recorded as not found; a "Duration of the restriction" blank | `14-law-enforcement-contacts.md` |
 | 15 | Recording outcomes — what each exchange did with a freeze request, counted by exchange on the Case queue; kept in the browser, exported and imported to combine desks | `15-recording-outcomes.md` |
 | 16 | By state — a complaint sheet's State column (36 states and UTs, common spellings) groups a batch: complaints, critical, at an exchange, closed, not read, USDT reachable, exchanges reached | `16-by-state.md` |
 | 17 | Hindi — the Help page only (`?lang=hi`), machine-drafted and marked for native-speaker review; documents stay English | `17-hindi-help.md` |
+| 18–21 | Server-side watch, case database and logins, bridge following, self-hosted nodes — **not built**: each needs a database, an always-on server or infrastructure this hackathon build deliberately does not have (AGENTS.md §3). Reasons in `docs/features/README.md` | — |
 
 Cross-cutting decisions:
 
