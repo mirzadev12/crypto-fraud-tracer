@@ -3,11 +3,12 @@
 /**
  * Alerts on the desk: has money we found at rest started to move?
  *
- * The desk is where an officer starts the day, so that is where the check runs —
- * when the desk opens, and again every five minutes while it stays open. That
- * is the honest shape of "automated" on a deployment with no database and no
- * process that stays awake: it runs without anyone asking, for as long as the
- * desk is open, and the screen says exactly that.
+ * The desk is where an officer starts the day, so that is where this check runs
+ * — when the desk opens, and again every five minutes while it stays open — and
+ * the screen says exactly that. For the hours it is closed, the officer can turn
+ * on alerts (`ClosedAlerts`): the server then asks the same question on its own
+ * schedule and notifies this browser. The switch sits at the foot of this panel
+ * because it extends this watch rather than being a second one.
  *
  * Loading state follows the pattern in `TraceLoader`: a report is tagged with
  * the watch list it was produced for, and "checking" is derived from a mismatch
@@ -20,6 +21,7 @@ import { formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
 import type { WatchItem, WatchResult } from "@/lib/watch";
 import { removeWatch, useWatchlist } from "@/lib/watchlist";
 import { Panel, buttonStyles } from "@/components/ui";
+import ClosedAlerts from "@/components/ClosedAlerts";
 
 const EVERY_MS = 5 * 60 * 1000;
 
@@ -161,6 +163,7 @@ export default function WatchAlerts() {
                 />
               ))}
           </ul>
+          <ClosedAlerts items={items} listKey={key} />
         </>
       )}
     </Panel>

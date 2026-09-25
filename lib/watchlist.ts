@@ -3,12 +3,12 @@
 /**
  * Where the watch list lives: this browser.
  *
- * Not a choice made for convenience. There is no database (AGENTS.md §3), and
- * the deployment sleeps when idle, so a list held on the server would be lost
- * and nothing there could check it on a schedule anyway. The desk that shows
- * the alerts is the thing that holds the list and asks — which means the list
- * belongs to one officer's browser, and the screen says so rather than implying
- * a shared, always-on service that does not exist.
+ * Not a choice made for convenience. There is no database (AGENTS.md §3), and a
+ * host that sleeps when idle can lose whatever it held, so the list belongs to
+ * one officer's browser and the screen says so. With alerts on, the server
+ * checks a copy on its own schedule (`lib/alert-loop.ts`); every change here is
+ * handed to it at once, from whichever screen made it, so a CRITICAL case traced
+ * on its own page is watched without the desk being opened first.
  *
  * Read through `useSyncExternalStore`, not an effect that copies storage into
  * state: the list is an external store, and synchronising it with setState in an
@@ -17,6 +17,7 @@
  */
 
 import { useSyncExternalStore } from "react";
+import { syncAlerts } from "./alerts-client";
 import type { WatchItem } from "./watch";
 
 const KEY = "finex.watch.v1";
@@ -70,6 +71,8 @@ function write(items: WatchItem[]) {
     /* Storage refused: the watch simply does not persist in this browser. */
   }
   listeners.forEach((l) => l());
+  // Handed to the server only when alerts are on in this browser; never prompts.
+  void syncAlerts(items);
 }
 
 function subscribe(listener: () => void) {

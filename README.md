@@ -49,7 +49,7 @@ whose addresses were never on the chain.
 | Route | What it is |
 | --- | --- |
 | `/` | The pitch: what the tool does and where its limits are. |
-| `/dashboard` | Today's complaint queue, ordered by triage rather than arrival — with the freeze requests sent from this browser and what each exchange did, counted by exchange. |
+| `/dashboard` | Today's complaint queue, ordered by triage rather than arrival — with the watch on money still at rest (and alerts when FineX is closed), and the freeze requests sent from this browser and what each exchange did, counted by exchange. |
 | `/investigate` | Address, amount and fraud date in; a full trace out. The address checksum is verified in the browser before anything is sent. |
 | `/trace/[address]` | The full result: destination, fund-flow canvas, wallet table, risk flags, movement timeline, chain of custody. |
 | `/fund-flow` | Canvas-first explorer with a case rail and a wallet inspector. |
@@ -107,6 +107,7 @@ server.
 | `GET` | `/api/screen/[address]` | Sanctions screening for an address on any chain the OFAC list covers: the chain, recognised from the format (checksum verified where the format has one), and the listing if there is one. Reads no chain. Not listed is not a clearance, and the response says so. |
 | `GET` | `/api/issuer/[address]` | Whether Tether has frozen the address, read from the USDT contract's own blacklist on TRON or Ethereum: `frozen`, `not-frozen`, or `unchecked` when the chain did not answer. The chain now, stamped with `checkedAt` and a SHA-256 of the request and response. |
 | `POST` | `/api/watch` — `{items: [{address, since}]}` | For each wallet: `moved` (with every outflow and where it went), `still`, or `unchecked` when the chain did not answer. Up to 25 wallets per call. |
+| `GET` · `POST` · `DELETE` | `/api/alerts` | Alerts when the desk is closed. `GET`: whether this server can keep a watch, the public key a browser subscribes with, and when it last checked. `POST {subscription, items}`: a browser hands over its whole watch list, again on every change. `DELETE {endpoint}`: that browser stops. The server checks every five minutes and sends a browser push notification when a wallet moves. |
 | `GET` | `/api/health` | `{ok, commit, demoMode, chainAccess, ethereumAccess}` — which commit is serving, whether demo mode is on, and whether TRON and Ethereum reads carry an API key (`keyed` or `public`; a key itself is never returned). Reads nothing from the chain. |
 | `GET` | `/api/cases` | Deliberately unimplemented. There is no case database, and serving illustrative records through it would claim chain-read data it is not. |
 
@@ -160,6 +161,17 @@ curl -X POST http://localhost:3000/api/watch -H "Content-Type: application/json"
 
 Three answers, never two: a wallet the chain did not answer for comes back
 `unchecked`, never `still`.
+
+The same question is asked by the server itself, every five minutes, for any
+browser that turns on **Alerts when closed** under the watch on `/dashboard`;
+it sends a browser push notification when a wallet moves, encrypted to that
+browser (RFC 8291) and signed by this server (RFC 8292), with nothing but
+`node:crypto`. A single always-on server needs no setup: it keeps the lists and
+its push key in `.finex/` (git-ignored). On a host whose disk does not survive
+restarts, set `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` and point
+`FINEX_STATE_DIR` at a persistent disk — otherwise the next desk to open hands
+both back. `docs/features/18-alerts-when-closed.md` has the details and the
+command that makes a key pair.
 
 Check how a deployment is set up without opening its hosting dashboard:
 
@@ -253,7 +265,8 @@ The tests cover what has a right answer independent of this repository:
 Keccak-256 against published vectors and against Node's own SHA3-256 at every
 input length up to 420 bytes, EIP-55 against the examples in the EIP, the QR
 encoder against a code made by a different encoder (`docs/pitch/qr-finex-light.svg`,
-reproduced module for module), and the complaint-sheet parser. `tests/register.mjs` lets Node load the app's
+reproduced module for module), push encryption against RFC 8291's worked
+example byte for byte, and the complaint-sheet parser. `tests/register.mjs` lets Node load the app's
 TypeScript directly; no test dependency is installed.
 
 ### Three ways to read one trace

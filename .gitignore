@@ -45,3 +45,6 @@ next-env.d.ts
 
 # generated share bundle
 /share/
+
+# the alert watch the server keeps, and its private push key (lib/alert-store.ts)
+/.finex/

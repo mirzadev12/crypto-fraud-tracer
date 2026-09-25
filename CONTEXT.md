@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 25 September 2026 — **Ethereum tracing (§10) and a round of India-first features (§11) on the branch `feat/ethereum`, for the grand finale; pushed to mirzadev12 only, never merged into `main` — the live site is untouched.** Before that: 24 September, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
+Last updated: 26 September 2026 — **Ethereum tracing (§10) and a round of India-first features (§11, most recently alerts when the desk is closed) on the branch `feat/ethereum`, for the grand finale; pushed to mirzadev12 only, never merged into `main` — the live site is untouched.** Before that: 24 September, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
 
 ---
 
@@ -1744,7 +1744,8 @@ changing a feature; this section only records what matters across them.
 | 15 | Recording outcomes — what each exchange did with a freeze request, counted by exchange on the Case queue; kept in the browser, exported and imported to combine desks | `15-recording-outcomes.md` |
 | 16 | By state — a complaint sheet's State column (36 states and UTs, common spellings) groups a batch: complaints, critical, at an exchange, closed, not read, USDT reachable, exchanges reached | `16-by-state.md` |
 | 17 | Hindi — the Help page only (`?lang=hi`), machine-drafted and marked for native-speaker review; documents stay English | `17-hindi-help.md` |
-| 18–21 | Server-side watch, case database and logins, bridge following, self-hosted nodes — **not built**: each needs a database, an always-on server or infrastructure this hackathon build deliberately does not have (AGENTS.md §3). Reasons in `docs/features/README.md` | — |
+| 18 | Alerts when the desk is closed — the server checks the watch every five minutes (`lib/alert-loop.ts`, started from `instrumentation.ts`) and sends a browser push notification when a wallet moves (`/api/alerts`, `lib/webpush.ts`: RFC 8291/8292 with `node:crypto`); the list and push key in `.finex/` | `18-alerts-when-closed.md` |
+| 19–21 | Case database and logins, bridge following, self-hosted nodes — **not built yet**: each needs a database or infrastructure this hackathon build deliberately does not have (AGENTS.md §3). Reasons in `docs/features/README.md` | — |
 
 Cross-cutting decisions:
 
@@ -1786,8 +1787,31 @@ Cross-cutting decisions:
   and the file is fetched only when Devanagari is on screen. `:lang(hi)` resets
   the labels' letter-spacing, which splits Devanagari. The four-faces rule
   above still holds for everything Latin.
+- **The watch now has a server half** (note 18), and the old sentence "nothing
+  server-side could hold a watchlist or run on a schedule" is retired. The
+  browser still owns the list; the server holds a copy in `.finex/alerts.json`
+  (a JSON file, as AGENTS.md §3 allows), handed over on every change and every
+  desk opening, so a restart that loses it — or loses the push key — is
+  repaired by the next desk to open (tested). The three answers are unchanged:
+  an unanswered wallet raises no alert. Rules for anyone touching it:
+  - **Server state lives on `globalThis`** (`lib/alert-store.ts`,
+    `lib/alert-loop.ts`). Next bundles `instrumentation.ts` and the route
+    handlers separately, so module-level state would exist twice and two
+    writers would each think they were alone.
+  - **One server per state directory**, or both send.
+  - **Push is written from the standards**, no dependency. The encryption is
+    tested against RFC 8291's worked example byte for byte; re-run it after any
+    change to `lib/webpush.ts`.
+  - **Testing push in Chrome:** a Playwright context from `browser.newContext()`
+    is incognito, and push refuses incognito ("Registration failed - permission
+    denied") — use `launchPersistentContext`. `getNotifications()` returns
+    nothing under automation even for a notification shown directly, so observe
+    delivery through CDP `BackgroundService` (`pushMessaging`, `notifications`),
+    the DevTools "Background services" record.
+  - **`path.join(/*turbopackIgnore: true*/ …)`** on the state file's path:
+    without it Turbopack traces the whole project into the server output.
 - **A fresh checkout needs `npx next typegen` before `npx tsc --noEmit`.** The
   route types are generated, not committed; CI runs typegen first.
-- **Tests: 24 in `tests/`**, run with
+- **Unit tests live in `tests/`**, run with
   `node --import ./tests/register.mjs --test "tests/*.test.mjs"`.
 

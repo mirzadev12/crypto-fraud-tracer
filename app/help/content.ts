@@ -62,7 +62,7 @@ const en: HelpContent = {
           href: "/dashboard",
           nav: "Queue",
           what: "Today's complaints, most urgent first — and alerts if money moves.",
-          use: "Start here. Any wallet still holding funds is watched, and you'll see an alert at the top if the money starts to move.",
+          use: "Start here. Any wallet still holding funds is watched, and you'll see an alert at the top if the money starts to move. Turn on alerts under the watch to be told even when FineX is closed.",
         },
         {
           href: "/queue",
@@ -212,7 +212,7 @@ const hi: HelpContent = {
           href: "/dashboard",
           nav: "Queue",
           what: "आज की शिकायतें, सबसे ज़रूरी सबसे ऊपर — और पैसा हिलने पर अलर्ट।",
-          use: "यहीं से शुरू करें। जिस वॉलेट में पैसा अभी भी पड़ा है, उस पर नज़र रखी जाती है, और पैसा हिलते ही सबसे ऊपर अलर्ट दिखता है।",
+          use: "यहीं से शुरू करें। जिस वॉलेट में पैसा अभी भी पड़ा है, उस पर नज़र रखी जाती है, और पैसा हिलते ही सबसे ऊपर अलर्ट दिखता है। FineX बंद होने पर भी सूचना पाने के लिए, नज़र वाली सूची के नीचे Turn on alerts दबाएँ।",
         },
         {
           href: "/queue",

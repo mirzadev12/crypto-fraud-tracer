@@ -9,11 +9,11 @@ import { entityPhrase } from "@/lib/voice";
 /**
  * POST /api/watch — has any of these wallets sent USDT since a given moment?
  *
- * Stateless on purpose. There is no database (AGENTS.md §3) and the deployment
- * sleeps when idle, so nothing server-side could hold a watchlist or run on a
- * schedule. The desk holds the list and asks; this answers one narrow question
- * per wallet with one request each, through the same chain client — and the
- * same pacing — every trace uses, so a check can never out-throttle a trace.
+ * Stateless on purpose: the desk holds the list and asks, and this answers one
+ * narrow question per wallet with one request each, through the same chain
+ * client — and the same pacing — every trace uses, so a check can never
+ * out-throttle a trace. The server's own schedule for a closed desk is separate
+ * (`/api/alerts`, `lib/alert-loop.ts`) and asks the same question the same way.
  *
  * Body: { items: [{ address, since }] } — `since` is an ISO timestamp.
  */
