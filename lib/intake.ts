@@ -8,7 +8,7 @@
  * whose first row names its columns. It is recognised by a column for the
  * wallet or transaction; the others are optional:
  *
- *   acknowledgement number · wallet or transaction · amount · date
+ *   acknowledgement number · wallet or transaction · amount · date · state
  *
  * Each row is one complaint, traced with its own amount and date instead of
  * the automatic defaults, and its acknowledgement number travels with it to
@@ -25,6 +25,7 @@
 
 import { checkAddress } from "./address";
 import { identifyChain } from "./chains";
+import { canonicalState } from "./states";
 import { isTxHash } from "./tron";
 
 export interface IntakeJob {
@@ -37,6 +38,12 @@ export interface IntakeJob {
   amount?: number;
   /** ISO timestamp. */
   fraudDate?: string;
+  /**
+   * The state or union territory the complaint belongs to, canonical where it
+   * names one (lib/states.ts), otherwise as written. Not `state`: batch triage
+   * uses that word for a row's progress.
+   */
+  stateUt?: string;
 }
 
 export interface IntakeRejected {
@@ -57,11 +64,13 @@ const IST_OFFSET_MS = 330 * 60_000;
 
 /* ------------------------------------------------------------------ columns */
 
-const COLUMN: Record<"subject" | "ack" | "amount" | "date", RegExp> = {
+const COLUMN: Record<"subject" | "ack" | "amount" | "date" | "state", RegExp> = {
   subject: /(wallet|address|transaction|txn|tx|hash)/i,
   ack: /(ack|acknowledg|ncrp|complaint\s*(no|number|id)|reference)/i,
   amount: /(amount|usdt|loss|value)/i,
   date: /(date|when|time)/i,
+  // "State", "State/UT", "Union territory" — but not "Statement".
+  state: /\b(state|union\s*territory)\b/i,
 };
 
 /** Split one CSV line, honouring double quotes ("a, b" and "" inside quotes). */
@@ -201,6 +210,7 @@ function parseSheet(lines: string[], delimiter: string, names: string[], subject
   const ackCol = col(COLUMN.ack);
   const amountCol = col(COLUMN.amount);
   const dateCol = col(COLUMN.date);
+  const stateCol = col(COLUMN.state);
   const jobs: IntakeJob[] = [];
   const rejected: IntakeRejected[] = [];
   const seen = new Set<string>();
@@ -230,6 +240,8 @@ function parseSheet(lines: string[], delimiter: string, names: string[], subject
       rejected.push({ line, reason: `"${dateText}" is not a date this sheet can read (use DD-MM-YYYY or YYYY-MM-DD).` });
       continue;
     }
+    const stateText = get(stateCol).replace(/\s+/g, " ").slice(0, 60);
+    const stateUt = stateText ? (canonicalState(stateText) ?? stateText) : "";
     const key = ack ? `ack:${ack}` : `in:${subject.input.toLowerCase()}`;
     if (seen.has(key)) {
       rejected.push({ line, reason: ack ? "The same acknowledgement number appears twice." : "This wallet is already listed." });
@@ -242,6 +254,7 @@ function parseSheet(lines: string[], delimiter: string, names: string[], subject
       ...(ack ? { ack } : {}),
       ...(amount !== null ? { amount } : {}),
       ...(fraudDate ? { fraudDate } : {}),
+      ...(stateUt ? { stateUt } : {}),
     });
   }
   return { jobs, rejected, sheet: true };

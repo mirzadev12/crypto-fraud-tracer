@@ -11,6 +11,7 @@ already has — as well as a plain list of addresses. Each row is one complaint:
 | Wallet or transaction (`Suspect wallet`, `Txn hash`, …) | **yes** | a TRON or Ethereum address, or a transaction hash |
 | Amount (`Amount (USDT)`, `Loss`, …) | no | the amount traced for that complaint |
 | Date (`Date of fraud`, …) | no | the window the trace opens at |
+| State (`State`, `State/UT`) | no | groups the batch by state or union territory — see 16 |
 
 Each complaint is traced with **its own** amount and date instead of the
 automatic defaults. A row that gives a transaction is resolved to the wallet it

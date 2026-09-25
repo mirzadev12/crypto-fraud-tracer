@@ -30,6 +30,7 @@ import {
 } from "@/lib/api";
 import { count, formatUsdt, shortAddress } from "@/lib/format";
 import { combinedHref, groupByExchange } from "@/lib/combined";
+import { byState } from "@/lib/by-state";
 import { findLinks } from "@/lib/links";
 import { watchTargetFor } from "@/lib/watch";
 import { addWatch } from "@/lib/watchlist";
@@ -126,6 +127,18 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
     [results],
   );
   const [view, setView] = useState<BatchView>("flow");
+  // The batch by state or union territory, when the sheet named them.
+  const byStateRows = useMemo(
+    () =>
+      byState(
+        entries.map((e) => ({
+          stateUt: e.stateUt,
+          ...(e.state === "done" ? { trace: e.trace } : {}),
+          failed: e.state === "failed",
+        })),
+      ),
+    [entries],
+  );
 
   const stats = useMemo(() => {
     let critical = 0;
@@ -165,7 +178,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
     setRunning(true);
     const queue: IntakeJob[] = entries
       .filter((e) => e.state === "queued")
-      .map(({ key, input, kind, ack, amount, fraudDate }) => ({ key, input, kind, ack, amount, fraudDate }));
+      .map(({ key, input, kind, ack, amount, fraudDate, stateUt }) => ({ key, input, kind, ack, amount, fraudDate, stateUt }));
     for (const job of queue) {
       if (stop.current) break;
       update(job.key, { ...job, state: "running" });
@@ -222,6 +235,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
     const rows = [
       [
         "ncrp_acknowledgement",
+        "state_ut",
         "given",
         "traced_wallet",
         "status",
@@ -233,6 +247,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
       ],
       ...results.map((e) => [
         e.ack ?? "",
+        e.stateUt ?? "",
         e.input,
         e.trace.inputAddress,
         TRIAGE_META[e.trace.triage].label,
@@ -243,7 +258,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
         e.trace.triageReason,
       ]),
       // Unread complaints stay on the worklist, marked, never dropped.
-      ...failed.map((e) => [e.ack ?? "", e.input, "", "NOT READ", "", "", "", "", e.reason]),
+      ...failed.map((e) => [e.ack ?? "", e.stateUt ?? "", e.input, "", "NOT READ", "", "", "", "", e.reason]),
     ];
     const csv = rows
       .map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","))
@@ -280,7 +295,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
             <p className="mt-4 text-xs leading-5 text-faint">
               One address or transaction per line — or a complaint sheet with a
               header row (acknowledgement number, wallet or transaction, amount,
-              date), and each complaint keeps its number to the freeze request.
+              date, state), and each complaint keeps its number to the freeze request.
               Everything is checksum-checked before any chain read.{" "}
               <a
                 href="/templates/complaint-sheet-example.csv"
@@ -448,6 +463,51 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
           </>
         ) : null}
 
+        {byStateRows.length && entries.some((e) => e.stateUt) ? (
+          <Panel
+            title="By state"
+            subtitle="The same complaints, counted by state or union territory from the sheet — which states' money can still be reached, and where it went."
+            framed={false}
+          >
+            <div className="fx-scroll min-w-0 overflow-x-auto">
+              <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-line font-label text-xs uppercase tracking-[0.16em] text-faint">
+                    <th className="py-2 pr-4 font-normal">State / UT</th>
+                    <th className="py-2 pr-4 text-right font-normal">Complaints</th>
+                    <th className="py-2 pr-4 text-right font-normal">Critical</th>
+                    <th className="py-2 pr-4 text-right font-normal">At an exchange</th>
+                    <th className="py-2 pr-4 text-right font-normal">Closed</th>
+                    <th className="py-2 pr-4 text-right font-normal">Not read</th>
+                    <th className="py-2 pr-4 text-right font-normal">USDT still reachable</th>
+                    <th className="py-2 font-normal">Exchanges reached</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {byStateRows.map((row) => (
+                    <tr key={row.stateUt} className="border-b border-line-soft">
+                      <td className="py-2 pr-4 text-ink">{row.stateUt}</td>
+                      <td className="py-2 pr-4 text-right font-mono tabular-nums text-ink">{row.complaints}</td>
+                      <td className="py-2 pr-4 text-right font-mono tabular-nums text-critical">{row.critical}</td>
+                      <td className="py-2 pr-4 text-right font-mono tabular-nums text-suspicious">{row.reachedExchange}</td>
+                      <td className="py-2 pr-4 text-right font-mono tabular-nums text-muted">{row.closed}</td>
+                      <td className="py-2 pr-4 text-right font-mono tabular-nums text-faint">{row.notRead}</td>
+                      <td className="py-2 pr-4 text-right font-mono tabular-nums text-ink">
+                        {formatUsdt(row.reachableUsdt, { symbol: false })}
+                      </td>
+                      <td className="py-2 text-xs text-muted">
+                        {row.exchanges.length
+                          ? row.exchanges.map((x) => `${x.entity} ${x.complaints}`).join(" · ")
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        ) : null}
+
         {combined.length ? (
           <Panel
             title="One request per exchange"
@@ -514,6 +574,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
                   trace={entry.trace}
                   source={entry.source}
                   ack={entry.ack}
+                  stateUt={entry.stateUt}
                   fromTx={entry.kind === "tx" ? entry.input : undefined}
                 />
               ))}
@@ -611,12 +672,15 @@ function ResultRow({
   trace,
   source,
   ack,
+  stateUt,
   fromTx,
 }: {
   trace: TraceResult;
   source: DataSource;
   /** The complaint's acknowledgement number, from a complaint sheet. */
   ack?: string;
+  /** Its state or union territory, from the sheet. */
+  stateUt?: string;
   /** The transaction the complaint gave, when it gave one instead of a wallet. */
   fromTx?: string;
 }) {
@@ -634,6 +698,7 @@ function ResultRow({
                 <span className="font-mono normal-case tracking-normal">NCRP {ack}</span>
               </Chip>
             ) : null}
+            {stateUt ? <Chip>{stateUt}</Chip> : null}
           </div>
           <p className="mt-4 break-all font-mono text-sm text-ink">{trace.inputAddress}</p>
           {fromTx ? (
