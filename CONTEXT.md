@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 25 September 2026 — **Ethereum tracing (§10) and a round of eight India-first features (§11) on the branch `feat/ethereum`, for the grand finale; pushed to mirzadev12 only, never merged into `main` — the live site is untouched.** Before that: 24 September, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
+Last updated: 25 September 2026 — **Ethereum tracing (§10) and a round of India-first features (§11) on the branch `feat/ethereum`, for the grand finale; pushed to mirzadev12 only, never merged into `main` — the live site is untouched.** Before that: 24 September, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
 
 ---
 
@@ -1655,6 +1655,8 @@ attribution data, and TRON stays first.
   (no key, 16.9 min): **193 deposit addresses across 8 exchanges, 52 at Indian
   exchanges** (CoinDCX 29, WazirX 23), 11 CoinDCX addresses on both signals,
   1 derived WazirX wallet (shared by 20). KuCoin 33 gave 0 of 30 — an honest zero.
+  **Since §11 (#12): 12 seeds, 221 across 9 exchanges, 80 at Indian exchanges**
+  — CoinSwitch's 28 added from its 2021 account at Binance.
 - **Sanctions:** the 124 EVM-format OFAC addresses (48 entities) are labels.
 - **Screens:** every case names its chain and asset; explorer links follow the
   address form; intake, batch triage, nav scoping and the wallet card accept
@@ -1734,6 +1736,9 @@ changing a feature; this section only records what matters across them.
 | 07 | Findings fingerprint, check link and QR code on the packet | `07-tamper-evident-packet.md` |
 | 08 | Ethereum attributions re-read and re-tested | `08-ethereum-confidence-measured.md` |
 | 09 | Checks on every push, demo-mode smoke check | `09-checks-on-every-push.md` |
+| 10 | BNB Chain USDT — **not built: blocked.** No keyless source: Blockscout has no BSC (404), Routescan "chain not supported", Etherscan's free tier refuses the chain, Ankr needs a key (403). Needs a paid key the user sets | — |
+| 11 | Polygon USDT — **not built yet, deferred.** Feasible (Blockscout serves Polygon keyless, USDT 6 decimals), but a `0x` address is valid on both chains, so every link, route, watch entry and recorded case would have to carry the chain; weighed against its value it waits | — |
+| 12 | More Indian exchanges — CoinSwitch (28 addresses, 2021); no other Indian VASP wallet is publicly tagged | `12-more-indian-exchanges.md` |
 
 Cross-cutting decisions:
 
@@ -1752,11 +1757,11 @@ Cross-cutting decisions:
   `.github/workflows/checks.yml`): 13 recorded cases from the file with
   identical fingerprints, and no other address answered from it.
 - **Ethereum attributions were checked two ways** (note 08). Re-tested with
-  their own rule, all 193 held, but the re-read came 11 hours after the
-  derivation, so only the 16 that swept again were really tested (all held).
+  their own rule, all 221 held, but each re-read came within a day of its
+  derivation, so only the 21 that swept again were really tested (all held).
   Re-run `scripts/calibrate-clustering-eth.mjs` weeks later for a real figure.
-  **Who paid the gas** is the independent check: of 141 sweep-route
-  addresses, 103 had their gas paid by the same exchange's tagged wallet, 37
+  **Who paid the gas** is the independent check: of 169 sweep-route
+  addresses, 105 had their gas paid by the same exchange's tagged wallet, 63
   had no tagged payer, and **1 conflicts**: `0xe66EA309…`, derived as Coinbase
   at confidence 0.95, had its gas paid by Cobo Custody. That row keeps its
   place, and its label evidence now carries a caution that the packet and the

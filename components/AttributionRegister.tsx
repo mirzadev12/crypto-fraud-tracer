@@ -44,6 +44,10 @@ export interface SeedRow {
   source_url: string;
   /** Ethereum: "deposit_funder" for an exchange's gas wallet. */
   role?: string;
+  /** This exchange's own account at another exchange, labelled as a deposit address there. */
+  heldAt?: string;
+  /** What the tag does and does not establish, recorded when the seed was admitted. */
+  note?: string;
 }
 
 type Sort = "confidence" | "sweeps" | "exchange";
@@ -136,6 +140,16 @@ export default function AttributionRegister({
                       <span className="font-label text-xs uppercase tracking-[0.16em] text-ink">
                         {seed.tag}
                       </span>
+                      {/* The caveat recorded when the seed was admitted, one
+                          click away rather than only in the data file. */}
+                      {seed.note ? (
+                        <details className="mt-2 max-w-sm">
+                          <summary className="fx-option-quiet cursor-pointer px-1 font-label text-[10px] uppercase tracking-[0.14em] text-faint">
+                            Note
+                          </summary>
+                          <p className="mt-2 text-xs leading-6 text-muted">{seed.note}</p>
+                        </details>
+                      ) : null}
                     </Td>
                     <Td>
                       <span className="text-sm text-muted">{seed.exchange}</span>
@@ -145,6 +159,11 @@ export default function AttributionRegister({
                           title={`${registered.legalName} — listed as registered with FIU-IND in the Lok Sabha answer of 4 December 2023`}
                         >
                           FIU-IND registered · 2023 list
+                        </span>
+                      ) : null}
+                      {seed.heldAt ? (
+                        <span className="mt-1 block font-label text-[10px] uppercase tracking-[0.14em] text-faint">
+                          Its account at {seed.heldAt}
                         </span>
                       ) : null}
                       {seed.role === "deposit_funder" ? (

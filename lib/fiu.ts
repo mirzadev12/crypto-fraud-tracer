@@ -54,3 +54,8 @@ export function fiuSentence(exchange: string, listing: FiuListing): string {
     `in the Ministry of Finance's answer to ${FIU_SOURCE.title}, ${FIU_SOURCE.date}.`
   );
 }
+
+/** The exchanges among `names` listed with FIU-IND, once each, in the order first seen. */
+export function fiuRegistered(names: Iterable<string>): string[] {
+  return [...new Set(names)].filter((name) => fiuListing(name) !== null);
+}

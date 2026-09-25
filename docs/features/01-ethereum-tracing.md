@@ -10,9 +10,10 @@ exchange — Indian exchanges first.
   one starting `T` on TRON. Every limit (3 hops, top 5 outflows, 1% dust,
   after the fraud date, stop at a label), both taint models, dwell, the six
   risk rules and the disposition are the same.
-- **Attribution.** 193 customer deposit addresses across 8 exchanges, 52 of
-  them at CoinDCX and WazirX, derived from 10 explorer-tagged wallets with
-  public data and no key (`data/eth/`). WazirX is reached through its
+- **Attribution.** 221 customer deposit addresses across 9 exchanges, 80 of
+  them at CoinDCX, WazirX and CoinSwitch, derived from 12 explorer-tagged
+  wallets with public data and no key (`data/eth/`). CoinSwitch's 28 describe
+  it as it was in 2021 (see 12). WazirX is reached through its
   explorer-tagged gas wallet ("Deposit Funder"), because the wallet its
   deposit addresses sweep into carries no public tag.
 - **Sanctions.** The 124 Ethereum-format addresses on the OFAC list are labels;

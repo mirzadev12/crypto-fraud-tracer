@@ -7,8 +7,8 @@
  * question: every row in `data/eth/deposit-addresses.json` carries a
  * confidence from `0.5 + sweeps × 0.03`, and a confidence figure is only worth
  * printing if it has been checked. So every row — the whole set, not a sample:
- * Blockscout answers 180 requests a minute without a key, which reads 193
- * addresses in a few minutes — is re-read from the chain today and re-tested
+ * Blockscout answers 180 requests a minute without a key, which reads the
+ * whole set (221 on 25 Sep) in about ten minutes — is re-read and re-tested
  * with the rule that found it:
  *
  *  - **sweep route** (found among the senders into a tagged exchange wallet):
@@ -208,6 +208,7 @@ const ALIAS = {
   Bitget: /bitget/i,
   CoinDCX: /coindcx/i,
   WazirX: /wazirx/i,
+  CoinSwitch: /coinswitch/i,
 };
 const MANAGER = /gas|fee provider|funder|custody/i;
 const tagsOf = (who) =>

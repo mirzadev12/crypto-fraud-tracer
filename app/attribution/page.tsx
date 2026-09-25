@@ -139,6 +139,14 @@ function EthereumMethod({ wallets }: { wallets: number }) {
             recorded here as derived{wallets ? ` (${wallets} wallet${wallets === 1 ? "" : "s"})` : ""}, not as fact.
           </p>
           <p>
+            CoinSwitch is named a third way. Its customer deposit addresses swept into
+            CoinSwitch&apos;s own account at Binance, which the explorer names, so the
+            sweep rule finds them there. That was in 2021: no CoinSwitch-tagged wallet
+            has moved USDT since, so those rows describe CoinSwitch as it was then. The
+            account itself is labelled as what it is — a Binance deposit address held
+            by CoinSwitch.
+          </p>
+          <p>
             Nothing under 1 USDT counts, anywhere. Look-alike addresses send dust and
             spoof zero-value transfers into exchange wallets; left in, one such
             look-alike was the only &ldquo;deposit address&rdquo; the unfiltered rule

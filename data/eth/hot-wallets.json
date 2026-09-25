@@ -158,5 +158,36 @@
     ],
     "verified": "2026-09-25",
     "note": "16 distinct USDT senders in 1,500 blocks (25 Sep 2026)."
+  },
+  {
+    "address": "0xd0808Da05cc71a9F308D330bC9c5C81Bbc26FC59",
+    "exchange": "CoinSwitch",
+    "tag": "CoinSwitch 1",
+    "role": "hot",
+    "source_url": "https://eth.blockscout.com/address/0xd0808Da05cc71a9F308D330bC9c5C81Bbc26FC59",
+    "tags_seen": [
+      "Coinswitch",
+      "Exchange",
+      "CoinSwitch 1"
+    ],
+    "verified": "2026-09-25",
+    "note": "Received USDT from Binance hot wallets and paid it out to customers; last moved USDT on 9 May 2021. What it and the seed below yield describes CoinSwitch as it was in 2021: no CoinSwitch-tagged wallet has moved USDT since, and its current deposit addresses are not publicly tagged."
+  },
+  {
+    "address": "0x986Ccf5234D9cfbB25246f1A5BfA51f4ccfcB308",
+    "exchange": "CoinSwitch",
+    "heldAt": "Binance",
+    "tag": "CoinSwitch Binance Deposit 1",
+    "role": "hot",
+    "source_url": "https://eth.blockscout.com/address/0x986Ccf5234D9cfbB25246f1A5BfA51f4ccfcB308",
+    "tags_seen": [
+      "Binance: Deposit Address",
+      "DEPOSIT ADDRESS",
+      "Exchange",
+      "Binance Dep",
+      "CoinSwitch Binance Deposit 1"
+    ],
+    "verified": "2026-09-25",
+    "note": "A Binance customer deposit address whose customer is CoinSwitch: its transfer rows are tagged Binance deposit address, and the explorer names it CoinSwitch Binance Deposit 1. CoinSwitch customer deposit addresses swept into it from April to June 2021 (its last USDT). Labelled as what it is, a Binance deposit address held by CoinSwitch; used as CoinSwitch's sweep target for the derivation."
   }
 ]

@@ -2,8 +2,8 @@
 
 ## What it does
 
-`scripts/calibrate-clustering-eth.mjs` puts two questions to every one of the
-193 derived Ethereum deposit addresses (the whole set, not a sample). The answers
+`scripts/calibrate-clustering-eth.mjs` puts two questions to every derived
+Ethereum deposit address (221 on 25 Sep: the whole set, not a sample). The answers
 are shown on `/attribution` under the Ethereum register, and a contradicted row
 carries a warning wherever its name is printed.
 
@@ -60,13 +60,14 @@ so an officer sees the doubt before sending a request.
 
 ## Measured, 25 Sep 2026
 
-**Re-test.** 193 of 193 readable, and all 193 still hold, in every band, route
-and exchange. **This is weak evidence, and the panel says why.** The re-read
-came 11 hours after the derivation, so 177 rows were re-tested on the transfers
-that found them. The real test is the 16 that swept again since, and all 16
-held.
+**Re-test.** 221 of 221 readable, and all 221 still hold, in every band, route
+and exchange. **This is weak evidence, and the panel says why.** Each re-read
+came within a day of its derivation: about 15 hours for the first 193 rows, and
+minutes for CoinSwitch's 28, which have been dormant since 2021. Almost every
+row was therefore re-tested on the transfers that found it. The real test is
+the 21 that swept again since, and all 21 held.
 
-**Gas payer**, 141 addresses found by the sweep rule alone:
+**Gas payer**, 169 addresses found by the sweep rule alone:
 
 | Exchange | Agrees | Conflicts | Tested |
 | --- | --- | --- | --- |
@@ -76,10 +77,13 @@ held.
 | Bitget | 24 | 0 | 25 |
 | Bitfinex | 17 | 0 | 25 |
 | Coinbase | 1 | 1 | 27 |
-| **All** | **103** | **1** | **141** |
+| CoinSwitch | 2 | 0 | 28 |
+| **All** | **105** | **1** | **169** |
 
-37 had no tagged payer either way. That includes 25 of Coinbase's 27, so the
-check says nothing about most Coinbase rows, in either direction.
+63 had no tagged payer either way, so the check says nothing about them in
+either direction. That includes 25 of Coinbase's 27 and 26 of CoinSwitch's 28:
+CoinSwitch's gas came from one untagged wallet, and from its own tagged wallet
+for the other two.
 
 **The one conflict** is `0xe66EA309d38bC71dE6D82924D5f11afa1B95ec35`. It was
 derived as a Coinbase deposit address from 52 sweeps with 100% forwarded, at
@@ -90,9 +94,12 @@ address. It is on the panel, and its label now carries the caution.
 
 ## Verified
 
-- The script ran twice against the live chain. Both runs gave the same
-  re-test result (193 of 193, 16 continued), and the second added the
-  gas-payer test.
+- The script ran three times against the live chain:
+  - twice over the first 193 rows, with the same re-test result both times
+    (193 of 193, 16 continued); the second run added the gas-payer test
+    (103 agree, 1 conflict, 37 no signal of 141);
+  - once over all 221 after CoinSwitch was added (see 12). Those are the
+    figures above, and the committed file.
 - The label for `0xe66EA309…` reads from the lookup with the caution appended
   (checked directly through `lib/labels.ts`). Other rows are unchanged.
 - The fingerprint doesn't cover evidence strings (see 07), and no recorded case

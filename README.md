@@ -17,9 +17,9 @@ pattern is there. Everyone else's tool stops at "the funds went to Binance."
 Naming the deposit address is what makes the result actionable.
 
 **241 customer deposit addresses across 10 exchanges on TRON, from 15
-explorer-tagged seed wallets — and 193 across 8 exchanges on Ethereum from 10,
-52 of them at Indian exchanges (CoinDCX and WazirX) — on zero commercial data
-licences.** The derivation is browsable at `/attribution` — every row with its
+explorer-tagged seed wallets — and 221 across 9 exchanges on Ethereum from 12,
+80 of them at Indian exchanges (CoinDCX, WazirX and CoinSwitch) — on zero
+commercial data licences.** The derivation is browsable at `/attribution` — every row with its
 evidence and a link to verify it.
 
 ---

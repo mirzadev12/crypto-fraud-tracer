@@ -1,19 +1,19 @@
 {
   "_method": "Every derived Ethereum deposit address, re-read from the public chain and re-tested with the rule that found it: sweep route, >=2 sweeps forwarding >=90% of USDT inflow to the exchange's tagged wallets; funder route, >=1 sweep forwarding >=90% to the wallet it was found sweeping to (its gas funding is a past transaction); both routes, either. Transfers under 1 USDT never count. Measures whether the pattern persists on transfers the derivation never saw. It does NOT establish ownership: only the exchange can confirm whose account an address is.",
   "_unreadable": "Addresses the chain would not answer for are recorded and excluded from every rate. A throttled read is not a failed address.",
-  "generatedAt": "2026-09-25T08:16:00.850Z",
+  "generatedAt": "2026-09-25T12:05:12.460Z",
   "derivedAt": "2026-09-24T21:17:05.000Z",
   "predicate": {
     "minSweeps": 2,
     "minRatio": 0.9,
     "minSweepsFunded": 1
   },
-  "population": 193,
-  "sampled": 193,
-  "readable": 193,
+  "population": 221,
+  "sampled": 221,
+  "readable": 221,
   "unreadable": 0,
-  "held": 193,
-  "continued": 16,
+  "held": 221,
+  "continued": 21,
   "overallRate": 1,
   "perBand": [
     {
@@ -27,7 +27,7 @@
       "band": "0.60–0.74",
       "measured": 35,
       "held": 35,
-      "continued": 1,
+      "continued": 2,
       "rate": 1
     },
     {
@@ -39,18 +39,18 @@
     },
     {
       "band": "0.90–0.95",
-      "measured": 78,
-      "held": 78,
-      "continued": 11,
+      "measured": 106,
+      "held": 106,
+      "continued": 15,
       "rate": 1
     }
   ],
   "perRoute": [
     {
       "route": "sweep",
-      "measured": 141,
-      "held": 141,
-      "continued": 15,
+      "measured": 169,
+      "held": 169,
+      "continued": 20,
       "rate": 1
     },
     {
@@ -87,7 +87,7 @@
       "exchange": "Binance",
       "measured": 24,
       "held": 24,
-      "continued": 3,
+      "continued": 4,
       "rate": 1
     },
     {
@@ -101,7 +101,7 @@
       "exchange": "Coinbase",
       "measured": 27,
       "held": 27,
-      "continued": 5,
+      "continued": 6,
       "rate": 1
     },
     {
@@ -115,7 +115,7 @@
       "exchange": "Gate.io",
       "measured": 23,
       "held": 23,
-      "continued": 3,
+      "continued": 6,
       "rate": 1
     },
     {
@@ -124,15 +124,22 @@
       "held": 25,
       "continued": 2,
       "rate": 1
+    },
+    {
+      "exchange": "CoinSwitch",
+      "measured": 28,
+      "held": 28,
+      "continued": 0,
+      "rate": 1
     }
   ],
   "gasPayer": {
     "_method": "For each address found by the sweep rule alone, the senders of ETH into it (first 100 incoming transactions), with the explorer's tags. agrees: a sender is tagged as the same exchange. conflicts: none is, but one is tagged as another entity's gas, fee, funder or custody wallet. no-signal: neither. Rows found through the exchange's gas wallet are excluded: that wallet found them.",
-    "tested": 141,
-    "readable": 141,
-    "agrees": 103,
+    "tested": 169,
+    "readable": 169,
+    "agrees": 105,
     "conflicts": 1,
-    "noSignal": 37,
+    "noSignal": 63,
     "perExchange": [
       {
         "exchange": "Binance",
@@ -168,6 +175,12 @@
         "exchange": "Bitfinex",
         "tested": 25,
         "agrees": 17,
+        "conflicts": 0
+      },
+      {
+        "exchange": "CoinSwitch",
+        "tested": 28,
+        "agrees": 2,
         "conflicts": 0
       }
     ],
@@ -1235,10 +1248,182 @@
         "exchange": "Bitfinex",
         "readable": true,
         "verdict": "no-signal"
+      },
+      {
+        "address": "0x8495dBf8c6B068892DbE93C8bc3833d46c0A72bD",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x57DbDbBFd6155376074640453408bABF7BC7bA2c",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x6187bED0f0Aeb18057892535Cd909ac4d41552A9",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x1a33115D942965cD0B391Ffe1A4Da7200c82c104",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x37366F79A249f1Db32d850997e2378A4F63C1028",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x7513c50b368a3acFC0858F32A8b792B6E4359798",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "agrees",
+        "payer": "0xd0808da05cc71a9f308d330bc9c5c81bbc26fc59",
+        "tags": "Coinswitch / Exchange"
+      },
+      {
+        "address": "0x58d4Da9C1B020005AB43C06B23697aEd74c56Cd6",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "agrees",
+        "payer": "0xd0808da05cc71a9f308d330bc9c5c81bbc26fc59",
+        "tags": "Coinswitch / Exchange"
+      },
+      {
+        "address": "0x847561aA4f2f46eAaD65e6931b1986bFbb0B429a",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xcEC0B794dc49C97530469e84eD9AfFBbe3Ee30a4",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x680Bd22686D4b01D568B5AB1C7212DB7a23B0778",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xcbf9fF946d35aa71fCEe6C7E8771e9458430FB5b",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x8829a3138716f4eDD1f943Af22cbFe7CdE2e1310",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x2fDC5db9B03CDAE59970C56054f339Cc9EAdE480",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xE9d1512648E4687c02A6B2C5876C6254fC77D19F",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xDC245415E55C616bccCc2E0866Ea33A7E6041376",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xd171BaA3Ab236841F0A786B302aB3a2Ec3Fd5c44",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xc290034249BD8eE2328E47059401055a9B44121f",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x052bad8abf013AC4C512e60C74BAccCC8377C4dE",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xf2068ea03EB7DF05aC8BAaC112380bF43BFEf0ab",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xe0a5E24619b4f6b6cCb8d54c64813537ff47aFa3",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xA071FFFd7AB63C1838F029B394454ff092781f40",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x8cbB4084b5A877cd3EF81420E418210e5594f245",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x1A86CdBc8a9c40C725a9753Fd7783D1c765CEE55",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x47eca4eAd12D76e005e60919bf563Ad68be9996F",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xf21405E240913bcC670B1D63181b3CfA3a3153c9",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xfd5daC3780f5AAcEE97a7267bce11c6357c9E5A1",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0x7f2250Bed2756443eE96b2003A715Cd74d5dAF3f",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
+      },
+      {
+        "address": "0xd37c104148F3d8489eB578Fe729838E1A55a8E4F",
+        "exchange": "CoinSwitch",
+        "readable": true,
+        "verdict": "no-signal"
       }
     ]
   },
-  "calls": 577,
+  "calls": 655,
   "results": [
     {
       "address": "0x85B5ED43f37B42ABfbcF11c17238Dc5D706Bb866",
@@ -1892,8 +2077,8 @@
       "band": "0.50–0.59",
       "readable": true,
       "stillHolds": true,
-      "sweepsNow": 4,
-      "ratioNow": 0.947,
+      "sweepsNow": 6,
+      "ratioNow": 1,
       "sweepsAtDerivation": 3,
       "continued": true,
       "windowTruncated": false
@@ -2004,8 +2189,8 @@
       "band": "0.90–0.95",
       "readable": true,
       "stillHolds": true,
-      "sweepsNow": 135,
-      "ratioNow": 1.004,
+      "sweepsNow": 134,
+      "ratioNow": 0.9961,
       "sweepsAtDerivation": 135,
       "continued": false,
       "windowTruncated": true
@@ -2046,7 +2231,7 @@
       "band": "0.90–0.95",
       "readable": true,
       "stillHolds": true,
-      "sweepsNow": 140,
+      "sweepsNow": 139,
       "ratioNow": 1,
       "sweepsAtDerivation": 140,
       "continued": false,
@@ -2172,10 +2357,10 @@
       "band": "0.90–0.95",
       "readable": true,
       "stillHolds": true,
-      "sweepsNow": 38,
+      "sweepsNow": 39,
       "ratioNow": 1,
       "sweepsAtDerivation": 38,
-      "continued": false,
+      "continued": true,
       "windowTruncated": false
     },
     {
@@ -2592,8 +2777,8 @@
       "band": "0.90–0.95",
       "readable": true,
       "stillHolds": true,
-      "sweepsNow": 112,
-      "ratioNow": 1.0031,
+      "sweepsNow": 110,
+      "ratioNow": 1.0556,
       "sweepsAtDerivation": 109,
       "continued": true,
       "windowTruncated": true
@@ -2606,8 +2791,8 @@
       "band": "0.90–0.95",
       "readable": true,
       "stillHolds": true,
-      "sweepsNow": 81,
-      "ratioNow": 0.9999,
+      "sweepsNow": 85,
+      "ratioNow": 0.9997,
       "sweepsAtDerivation": 80,
       "continued": true,
       "windowTruncated": true
@@ -2858,10 +3043,10 @@
       "band": "0.90–0.95",
       "readable": true,
       "stillHolds": true,
-      "sweepsNow": 16,
+      "sweepsNow": 17,
       "ratioNow": 1,
       "sweepsAtDerivation": 16,
-      "continued": false,
+      "continued": true,
       "windowTruncated": false
     },
     {
@@ -3027,7 +3212,7 @@
       "readable": true,
       "stillHolds": true,
       "sweepsNow": 45,
-      "ratioNow": 1,
+      "ratioNow": 0.9986,
       "sweepsAtDerivation": 45,
       "continued": false,
       "windowTruncated": false
@@ -3278,10 +3463,10 @@
       "band": "0.90–0.95",
       "readable": true,
       "stillHolds": true,
-      "sweepsNow": 49,
+      "sweepsNow": 50,
       "ratioNow": 1,
       "sweepsAtDerivation": 49,
-      "continued": false,
+      "continued": true,
       "windowTruncated": false
     },
     {
@@ -3292,10 +3477,10 @@
       "band": "0.60–0.74",
       "readable": true,
       "stillHolds": true,
-      "sweepsNow": 5,
+      "sweepsNow": 6,
       "ratioNow": 1,
       "sweepsAtDerivation": 5,
-      "continued": false,
+      "continued": true,
       "windowTruncated": false
     },
     {
@@ -3474,10 +3659,10 @@
       "band": "0.90–0.95",
       "readable": true,
       "stillHolds": true,
-      "sweepsNow": 25,
+      "sweepsNow": 26,
       "ratioNow": 1,
       "sweepsAtDerivation": 25,
-      "continued": false,
+      "continued": true,
       "windowTruncated": false
     },
     {
@@ -3741,7 +3926,7 @@
       "readable": true,
       "stillHolds": true,
       "sweepsNow": 150,
-      "ratioNow": 1.0041,
+      "ratioNow": 1.0047,
       "sweepsAtDerivation": 150,
       "continued": false,
       "windowTruncated": true
@@ -3811,7 +3996,7 @@
       "readable": true,
       "stillHolds": true,
       "sweepsNow": 141,
-      "ratioNow": 1.0031,
+      "ratioNow": 1,
       "sweepsAtDerivation": 140,
       "continued": true,
       "windowTruncated": true
@@ -3881,7 +4066,7 @@
       "readable": true,
       "stillHolds": true,
       "sweepsNow": 146,
-      "ratioNow": 1.009,
+      "ratioNow": 1.0066,
       "sweepsAtDerivation": 145,
       "continued": true,
       "windowTruncated": true
@@ -3939,6 +4124,398 @@
       "sweepsNow": 2,
       "ratioNow": 1,
       "sweepsAtDerivation": 2,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x8495dBf8c6B068892DbE93C8bc3833d46c0A72bD",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 31,
+      "ratioNow": 0.9979,
+      "sweepsAtDerivation": 31,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x57DbDbBFd6155376074640453408bABF7BC7bA2c",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 26,
+      "ratioNow": 1.0015,
+      "sweepsAtDerivation": 26,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x6187bED0f0Aeb18057892535Cd909ac4d41552A9",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 25,
+      "ratioNow": 1.0129,
+      "sweepsAtDerivation": 25,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x1a33115D942965cD0B391Ffe1A4Da7200c82c104",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 34,
+      "ratioNow": 0.9991,
+      "sweepsAtDerivation": 34,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x37366F79A249f1Db32d850997e2378A4F63C1028",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 31,
+      "ratioNow": 1.0041,
+      "sweepsAtDerivation": 31,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x7513c50b368a3acFC0858F32A8b792B6E4359798",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 29,
+      "ratioNow": 1.0444,
+      "sweepsAtDerivation": 29,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x58d4Da9C1B020005AB43C06B23697aEd74c56Cd6",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 29,
+      "ratioNow": 1.0281,
+      "sweepsAtDerivation": 29,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x847561aA4f2f46eAaD65e6931b1986bFbb0B429a",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 29,
+      "ratioNow": 1.0091,
+      "sweepsAtDerivation": 29,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xcEC0B794dc49C97530469e84eD9AfFBbe3Ee30a4",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 33,
+      "ratioNow": 0.9056,
+      "sweepsAtDerivation": 33,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x680Bd22686D4b01D568B5AB1C7212DB7a23B0778",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 26,
+      "ratioNow": 1.0194,
+      "sweepsAtDerivation": 26,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xcbf9fF946d35aa71fCEe6C7E8771e9458430FB5b",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 27,
+      "ratioNow": 1.0033,
+      "sweepsAtDerivation": 27,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x8829a3138716f4eDD1f943Af22cbFe7CdE2e1310",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 27,
+      "ratioNow": 0.9995,
+      "sweepsAtDerivation": 27,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x2fDC5db9B03CDAE59970C56054f339Cc9EAdE480",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 28,
+      "ratioNow": 0.9998,
+      "sweepsAtDerivation": 28,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xE9d1512648E4687c02A6B2C5876C6254fC77D19F",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 26,
+      "ratioNow": 1.0013,
+      "sweepsAtDerivation": 26,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xDC245415E55C616bccCc2E0866Ea33A7E6041376",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 28,
+      "ratioNow": 0.9968,
+      "sweepsAtDerivation": 28,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xd171BaA3Ab236841F0A786B302aB3a2Ec3Fd5c44",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 23,
+      "ratioNow": 1,
+      "sweepsAtDerivation": 23,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xc290034249BD8eE2328E47059401055a9B44121f",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 33,
+      "ratioNow": 1.4228,
+      "sweepsAtDerivation": 33,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x052bad8abf013AC4C512e60C74BAccCC8377C4dE",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 29,
+      "ratioNow": 1.0188,
+      "sweepsAtDerivation": 29,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xf2068ea03EB7DF05aC8BAaC112380bF43BFEf0ab",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 25,
+      "ratioNow": 0.998,
+      "sweepsAtDerivation": 25,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xe0a5E24619b4f6b6cCb8d54c64813537ff47aFa3",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 23,
+      "ratioNow": 0.9739,
+      "sweepsAtDerivation": 23,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xA071FFFd7AB63C1838F029B394454ff092781f40",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 30,
+      "ratioNow": 0.9496,
+      "sweepsAtDerivation": 30,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x8cbB4084b5A877cd3EF81420E418210e5594f245",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 34,
+      "ratioNow": 1.0865,
+      "sweepsAtDerivation": 34,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x1A86CdBc8a9c40C725a9753Fd7783D1c765CEE55",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 27,
+      "ratioNow": 0.9911,
+      "sweepsAtDerivation": 27,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x47eca4eAd12D76e005e60919bf563Ad68be9996F",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 31,
+      "ratioNow": 1.0875,
+      "sweepsAtDerivation": 31,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xf21405E240913bcC670B1D63181b3CfA3a3153c9",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 51,
+      "ratioNow": 0.9741,
+      "sweepsAtDerivation": 51,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xfd5daC3780f5AAcEE97a7267bce11c6357c9E5A1",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 27,
+      "ratioNow": 0.923,
+      "sweepsAtDerivation": 27,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0x7f2250Bed2756443eE96b2003A715Cd74d5dAF3f",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 21,
+      "ratioNow": 0.999,
+      "sweepsAtDerivation": 21,
+      "continued": false,
+      "windowTruncated": false
+    },
+    {
+      "address": "0xd37c104148F3d8489eB578Fe729838E1A55a8E4F",
+      "exchange": "CoinSwitch",
+      "route": "sweep",
+      "confidence": 0.95,
+      "band": "0.90–0.95",
+      "readable": true,
+      "stillHolds": true,
+      "sweepsNow": 20,
+      "ratioNow": 1.0019,
+      "sweepsAtDerivation": 20,
       "continued": false,
       "windowTruncated": false
     }

@@ -70,6 +70,12 @@ export function count(n: number, one: string, many = `${one}s`): string {
   return `${n.toLocaleString("en-US")} ${n === 1 ? one : many}`;
 }
 
+/** "A", "A and B", "A, B and C" — for a list counted from data rather than typed. */
+export function andList(items: string[]): string {
+  if (items.length < 2) return items.join("");
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
 /** "TS27ff…Giw2S" */
 export function shortAddress(address: string, head = 6, tail = 5): string {
   if (!address) return "—";

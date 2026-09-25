@@ -88,17 +88,13 @@ export default function CalibrationPanel({
   const gradient = gradientOf(data.perBand);
   const everyRow = data.sampled === data.population;
   // How long the pattern had to fail. Both moments come from the data, never
-  // the clock, so the sentence is the same on every render.
+  // the clock, so the sentence is the same on every render. Rows added later
+  // were derived later still, so no single gap is stated — only that the
+  // re-read came within a week, which holds for every row.
   const gapHours = data.derivedAt
     ? (new Date(data.generatedAt).getTime() - new Date(data.derivedAt).getTime()) / 3_600_000
     : null;
-  const gap =
-    gapHours === null || !Number.isFinite(gapHours)
-      ? null
-      : gapHours < 48
-        ? `${Math.max(1, Math.round(gapHours))} hours`
-        : `${Math.round(gapHours / 24)} days`;
-  const soon = gapHours !== null && gapHours < 24 * 7;
+  const soon = gapHours !== null && Number.isFinite(gapHours) && gapHours < 24 * 7;
 
   return (
     <Panel
@@ -122,7 +118,7 @@ export default function CalibrationPanel({
           </p>
           {soon ? (
             <p className="mt-4 max-w-sm text-sm leading-6 text-muted">
-              Re-read {gap} after the derivation, so most rows were re-tested on the very
+              Re-read within a week of the derivation, so most rows were re-tested on the very
               transfers that found them, which shows only that nothing reversed. The test is
               the rows that swept again since.
             </p>

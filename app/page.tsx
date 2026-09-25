@@ -15,6 +15,8 @@ import depositAddresses from "@/data/deposit-addresses.json";
 import ethDeposits from "@/data/eth/deposit-addresses.json";
 import riskLists from "@/data/risk-lists.json";
 import multichain from "@/data/sanctions-multichain.json";
+import { andList } from "@/lib/format";
+import { fiuRegistered } from "@/lib/fiu";
 
 /* Counted from the committed files, never typed: a figure typed into prose
    drifts from the file under it (the sanctions figure did, 202 → 334, when the
@@ -24,6 +26,9 @@ const ETH_DEPOSITS = ethDeposits.length;
 const DEPOSITS = TRON_DEPOSITS + ETH_DEPOSITS;
 const TRON_EXCHANGES = new Set(depositAddresses.map((d) => d.exchange)).size;
 const ETH_EXCHANGES = new Set(ethDeposits.map((d) => d.exchange)).size;
+// Named, not typed: the Indian exchanges among them are whichever the FIU-IND
+// list registers, so adding one to the data adds it to this sentence.
+const ETH_INDIAN = andList(fiuRegistered(ethDeposits.map((d) => d.exchange)));
 const EXCHANGES = new Set([...depositAddresses, ...ethDeposits].map((d) => d.exchange)).size;
 /* The OFAC-listed addresses a trace can hit: TRON's, and the Ethereum-format ones. */
 const EVM_SANCTIONED = (multichain.addresses as Array<{ address: string }>).filter((a) =>
@@ -167,7 +172,7 @@ export default function Home() {
         </dl>
         <p className="mt-10 max-w-2xl text-xs leading-6 text-faint">
           {TRON_DEPOSITS} on TRON across {TRON_EXCHANGES} exchanges and {ETH_DEPOSITS} on
-          Ethereum across {ETH_EXCHANGES}, CoinDCX and WazirX among them. Derived from
+          Ethereum across {ETH_EXCHANGES}, {ETH_INDIAN} among them. Derived from
           public chain data and the published OFAC sanctions list,
           which also screens an address from any of the {SCREENED_ASSETS} assets
           it covers. Explorer-tagged exchange wallets are treated as ground truth; the

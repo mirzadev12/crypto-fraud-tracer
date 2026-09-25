@@ -7,7 +7,8 @@ import tronDeposits from "@/data/deposit-addresses.json";
 import tronSeeds from "@/data/hot-wallets.json";
 import ethDeposits from "@/data/eth/deposit-addresses.json";
 import ethSeeds from "@/data/eth/hot-wallets.json";
-import { shortAddress } from "@/lib/format";
+import { andList, shortAddress } from "@/lib/format";
+import { fiuRegistered } from "@/lib/fiu";
 import {
   CASE_PROOF,
   Designation,
@@ -210,7 +211,7 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
     note: "Open any recorded case below and every one of these is on screen.",
     items: [
       ["Blockchain transaction graph analysis", "Breadth-first tracing with taint carried hop by hop, drawn three ways."],
-      ["Automated exchange and VASP identification", `Attribution is a deterministic lookup: ${tronDeposits.length} customer deposit addresses derived on TRON across ${new Set(tronDeposits.map((r) => r.exchange)).size} exchanges from ${tronSeeds.length} tagged seeds, and ${ethDeposits.length} on Ethereum across ${new Set(ethDeposits.map((r) => r.exchange)).size} exchanges from ${ethSeeds.length} — CoinDCX and WazirX among them — each label carrying its confidence and evidence tier.`],
+      ["Automated exchange and VASP identification", `Attribution is a deterministic lookup: ${tronDeposits.length} customer deposit addresses derived on TRON across ${new Set(tronDeposits.map((r) => r.exchange)).size} exchanges from ${tronSeeds.length} tagged seeds, and ${ethDeposits.length} on Ethereum across ${new Set(ethDeposits.map((r) => r.exchange)).size} exchanges from ${ethSeeds.length} — ${andList(fiuRegistered(ethDeposits.map((r) => r.exchange)))} among them — each label carrying its confidence and evidence tier.`],
       ["Detection of intermediary laundering wallets", "Six behavioural rules, each stating its reason in a sentence an officer can read out."],
       ["Risk categorisation of wallets", "Every wallet that matters is classed as an exit, a chokepoint, at rest, a sanctions stop or an unresolved tail."],
       ["Automated alert generation", "A wallet found holding funds is watched, and the desk re-asks the chain whether it has moved."],

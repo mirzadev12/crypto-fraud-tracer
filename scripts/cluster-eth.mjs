@@ -88,7 +88,11 @@ async function bs(path) {
     try {
       res = await fetch(BS + path, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(30_000) });
     } catch {
-      return { error: "timeout" };
+      // Retried like a throttle: one slow answer used to read as "no inflows"
+      // and send a seed to the node's recent window, which silently yielded
+      // zero rows for CoinSwitch's 2021 wallet on 25 Sep.
+      await sleep(4000 * (attempt + 1));
+      continue;
     }
     if (res.status === 429 || (res.status >= 500 && res.status !== 524)) {
       throttled++;
@@ -291,8 +295,12 @@ for (const [i, seed] of SEEDS.entries()) {
     via = "funded addresses";
   } else {
     const exchangeWallets = walletsOf.get(seed.exchange) ?? new Set([lc(seed.address)]);
-    let inflows = (await usdtHistory(seed.address, MAX_PAGES, "to")).rows.filter((t) => t.to === lc(seed.address));
+    const read = await usdtHistory(seed.address, MAX_PAGES, "to");
+    let inflows = read.rows.filter((t) => t.to === lc(seed.address));
     via = "senders (explorer)";
+    // A failed read is not an empty wallet: say so, rather than let the
+    // fallback below look like the answer.
+    if (read.error && inflows.length === 0) console.log(`  ${seed.tag}: explorer read failed (${read.error}) — trying the node's recent window`);
     if (inflows.length === 0) {
       inflows = await recentInflowsFromNode(seed.address);
       via = `senders (node, last ${WINDOW} blocks)`;

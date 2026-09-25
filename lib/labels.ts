@@ -54,6 +54,8 @@ type Community = { address: string; reports?: number; source?: string };
 type EthSeed = {
   address: string;
   exchange: string;
+  /** Set when the wallet is this exchange's own account at another exchange (a customer deposit address there). */
+  heldAt?: string;
   tag: string;
   /** "deposit_funder": the exchange's gas wallet for customer deposit addresses. */
   role?: string;
@@ -132,13 +134,26 @@ for (const row of ethConsolidation as EthDerived[]) {
 // 2 — exchange wallets carrying a public explorer tag, on either chain.
 for (const row of ethHotWallets as EthSeed[]) {
   if (!row?.address) continue;
-  LABELS.set(keyOf(row.address), {
-    entity: row.exchange,
-    kind: "exchange_hot",
-    confidence: 1,
-    source: "ground_truth",
-    evidence: `Explorer-tagged "${row.tag}"${row.role === "deposit_funder" ? " (gas wallet for customer deposit addresses)" : ""}`,
-  });
+  LABELS.set(
+    keyOf(row.address),
+    row.heldAt
+      ? // One exchange's own account at another: a customer deposit address at
+        // the exchange that holds it, labelled as that, with its holder named.
+        {
+          entity: row.heldAt,
+          kind: "exchange_deposit",
+          confidence: 1,
+          source: "ground_truth",
+          evidence: `Explorer-tagged "${row.tag}": ${row.exchange}'s own account at ${row.heldAt}`,
+        }
+      : {
+          entity: row.exchange,
+          kind: "exchange_hot",
+          confidence: 1,
+          source: "ground_truth",
+          evidence: `Explorer-tagged "${row.tag}"${row.role === "deposit_funder" ? " (gas wallet for customer deposit addresses)" : ""}`,
+        },
+  );
 }
 for (const row of hotWallets as HotWallet[]) {
   if (!row?.address) continue;
