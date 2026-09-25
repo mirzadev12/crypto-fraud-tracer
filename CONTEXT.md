@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 25 September 2026 — **Ethereum tracing on the local branch `feat/ethereum`, for the grand finale (§10); not merged, not pushed.** Before that: 24 September, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
+Last updated: 25 September 2026 — **Ethereum tracing (§10) and a round of eight India-first features (§11) on the branch `feat/ethereum`, for the grand finale; pushed to mirzadev12 only, never merged into `main` — the live site is untouched.** Before that: 24 September, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
 
 ---
 
@@ -1188,6 +1188,8 @@ node scripts/add-case.mjs <address> "why" # freeze one named wallet into the cas
 node scripts/calibrate-risk.mjs           # measure how often each rule fires on unreported wallets
 node scripts/hunt-indian-vasp.mjs         # re-check the explorer tags for an Indian exchange
 node scripts/calibrate-clustering.mjs     # re-measure whether derived deposit addresses still hold
+node scripts/calibrate-clustering-eth.mjs # the same for all Ethereum rows, plus who paid their gas
+node --import ./tests/register.mjs scripts/check-demo.mjs 3032   # demo mode answers every recorded case, exactly
 node scripts/verify-case.mjs              # re-read every recorded case's transactions from the chain
 node scripts/rescore-cases.mjs 3010 --only T…   # re-derive named cases as of capture (server without demo mode)
 node scripts/make-share-bundle.mjs        # bundle the source into share/frontend-source.md for a chat
@@ -1703,8 +1705,64 @@ attribution data, and TRON stays first.
 
 ### 10.4 Standing rules for this branch
 
-Local only: no push, no merge, no Render change, no deck change, until the user
-decides. Ethereum recorded cases are chosen by script and are never victim
-reports or "fraud proceeds". The FIU-IND line is a December 2023 fact and
-absence from it is never stated. Confidence is not accuracy, on both chains.
+**Push the branch to mirzadev12 only** (`mine`), and only when every check
+passes — the user's decision on 25 Sep. Never push or merge `main`, never push
+to reemrasheed2007 (`origin`), never change Render: **the live site is not to
+be touched**. No deck change. Ethereum recorded cases are chosen by script and
+are never victim reports or "fraud proceeds". The FIU-IND line is a December
+2023 fact and absence from it is never stated. Confidence is not accuracy, on
+both chains.
+
+---
+
+## 11. The feature round on `feat/ethereum`, 25 September 2026
+
+After Ethereum, the user asked for the features that would do most for India
+and for cyber-security, in priority order, built one at a time, pushed only
+when everything works, **each with its own note** — `docs/features/NN-*.md`
+says what it does, how to use it and how it was verified. Read the note before
+changing a feature; this section only records what matters across them.
+
+| # | Feature | Note |
+| --- | --- | --- |
+| 01 | Ethereum tracing (§10) | `01-ethereum-tracing.md` |
+| 02 | Tether freeze check — has the issuer frozen this address? `GET /api/issuer/[address]` | `02-tether-freeze-check.md` |
+| 03 | Complaint-sheet intake — NCRP export columns, amount and date per complaint, IST | `03-complaint-sheet-intake.md` |
+| 04 | One freeze request per exchange for a batch | `04-one-request-per-exchange.md` |
+| 05 | TRON ignores zero-value transfers (address-poisoning spoofs) | `05-zero-value-guard.md` |
+| 06 | Address-poisoning warning on the wallet card | `06-address-poisoning-warning.md` |
+| 07 | Findings fingerprint, check link and QR code on the packet | `07-tamper-evident-packet.md` |
+| 08 | Ethereum attributions re-read and re-tested | `08-ethereum-confidence-measured.md` |
+| 09 | Checks on every push, demo-mode smoke check | `09-checks-on-every-push.md` |
+
+Cross-cutting decisions:
+
+- **Item 1 of the priority list (merge and deploy) was dropped** by the user:
+  the live site is not touched. Everything here lives on the branch.
+- **The fingerprint covers findings, not wording** (`lib/fingerprint.ts`,
+  scheme `finex-findings-v1`). All 13 recorded cases re-derived from the chain
+  fingerprint as their recorded copies do. Rewording a sentence never breaks an
+  old packet; changing what is covered needs a new scheme name. A check link
+  carries the packet's own run: automatic amount and window stay automatic,
+  because the NEW_ADDRESS rule reads a stated window as a reported date.
+- **`lib/qr.ts` is written from the standard**, no dependency. It is tested
+  against the deck's QR (another encoder, reproduced module for module); the
+  1,080-code jsQR check is in note 07. If it is ever touched, re-run both.
+- **Demo mode is checked on every push** (`scripts/check-demo.mjs` in
+  `.github/workflows/checks.yml`): 13 recorded cases from the file with
+  identical fingerprints, and no other address answered from it.
+- **Ethereum attributions were checked two ways** (note 08). Re-tested with
+  their own rule, all 193 held, but the re-read came 11 hours after the
+  derivation, so only the 16 that swept again were really tested (all held).
+  Re-run `scripts/calibrate-clustering-eth.mjs` weeks later for a real figure.
+  **Who paid the gas** is the independent check: of 141 sweep-route
+  addresses, 103 had their gas paid by the same exchange's tagged wallet, 37
+  had no tagged payer, and **1 conflicts**: `0xe66EA309…`, derived as Coinbase
+  at confidence 0.95, had its gas paid by Cobo Custody. That row keeps its
+  place, and its label evidence now carries a caution that the packet and the
+  freeze requests print. Quote it as proof that confidence is not accuracy.
+- **A fresh checkout needs `npx next typegen` before `npx tsc --noEmit`.** The
+  route types are generated, not committed; CI runs typegen first.
+- **Tests: 24 in `tests/`**, run with
+  `node --import ./tests/register.mjs --test "tests/*.test.mjs"`.
 

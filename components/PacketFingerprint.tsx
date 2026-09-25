@@ -33,7 +33,7 @@ function useOrigin(): string {
 
 /**
  * The fingerprint as a document prints it. `href` is the check link from
- * `verifyHref`; an illustrative case passes none, because there is no chain
+ * `checkHref`; an illustrative case has none, because there is no chain
  * record to check it against, and the block says so.
  */
 export function FingerprintBlock({
