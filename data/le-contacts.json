@@ -1,0 +1,203 @@
+{
+  "_note": "Where each exchange FineX can name takes law-enforcement requests, copied from the exchange's own published page and read on the date given. Nothing here is inferred or taken from a third party. An exchange whose channel could not be read on its own site is listed with found: false and the reason, so a screen can say so rather than stay silent. Re-check before relying on a channel: exchanges change them.",
+  "_checked": "2026-09-25",
+  "exchanges": [
+    {
+      "exchange": "Binance",
+      "found": true,
+      "channels": [
+        { "kind": "portal", "label": "Law Enforcement Portal (Kodex)", "href": "https://app.kodexglobal.com/binance/signup" }
+      ],
+      "notes": [
+        "Mark an urgent case \"Exigent\" under the legal process type.",
+        "The portal works only in Google Chrome and Microsoft Edge, and agency verification over a VPN is not completed."
+      ],
+      "source": "https://www.binance.com/en/support/law-enforcement",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "Coinbase",
+      "found": true,
+      "channels": [
+        { "kind": "portal", "label": "Law enforcement portal (Kodex)", "href": "https://app.kodexglobal.com/gov/signup" },
+        { "kind": "email", "label": "Other questions from law enforcement", "href": "mailto:subpoenas@coinbase.com" }
+      ],
+      "notes": ["Criminal matters go through the portal; an account is created there first."],
+      "source": "https://help.coinbase.com/en/coinbase/other-topics/legal-policies/who-do-i-contact-for-a-subpoena-request-or-dispute-or-to-send-a-legal-document",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "OKX",
+      "found": true,
+      "channels": [
+        { "kind": "portal", "label": "Law enforcement portal (Kodex)", "href": "https://app.kodexglobal.com/okx/signin" },
+        { "kind": "email", "label": "Only in an emergency, or if the portal cannot be used", "href": "mailto:enforcement@okx.com" }
+      ],
+      "notes": [
+        "Address the request to \"OKX\", not to a particular legal entity.",
+        "In English, with a signed court order or an official letter on agency letterhead, and proof of the officer's authority.",
+        "A request by email must explain why the portal could not be used."
+      ],
+      "source": "https://www.okx.com/help/okx-law-enforcement-request-guide",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "KuCoin",
+      "found": true,
+      "channels": [
+        { "kind": "portal", "label": "KuCoin Information Request System", "href": "https://www.kucoin.com/legal/requests" }
+      ],
+      "notes": [
+        "Address it to KuCoin, from an email address on a government domain, with proof of authority.",
+        "An official request in English, signed or sealed: a digital signature or seal is not accepted.",
+        "Give wallet addresses and transaction hashes as copiable text (PDF, Word, Excel or in the email), with the flow of funds."
+      ],
+      "source": "https://www.kucoin.com/legal/law-enforcement-request-guidelines",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "MEXC",
+      "found": true,
+      "channels": [
+        { "kind": "portal", "label": "Law Enforcement Online Request System (Judicial Assistance)", "href": "https://www.mexc.com/support/ticket/submit/law-enforcement-requests" }
+      ],
+      "notes": [
+        "Access to the system must be approved first, generally within 15 to 20 business days.",
+        "A freezing order must state how long the restriction lasts. MEXC freezes for at most 30 days unless the order says otherwise, and lifts the restriction if no duration is given.",
+        "In English, or with a certified English translation. Records are preserved for 60 days from a formal request.",
+        "Unless a formal legal request says otherwise, MEXC may tell the user before disclosing their data."
+      ],
+      "source": "https://www.mexc.com/support/article/law-enforcement-guidelines-4403594593434",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "Bitget",
+      "found": true,
+      "channels": [
+        { "kind": "portal", "label": "Law Enforcement Request Portal (Kodex)", "href": "https://app.kodexglobal.com/bitget/signup" }
+      ],
+      "notes": [
+        "Select \"Emergency\" under the legal process type for an urgent case.",
+        "Only Google Chrome and Microsoft Edge are supported, and verification over a VPN is not processed."
+      ],
+      "source": "https://www.bitget.com/support/articles/12560603800342",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "Kraken",
+      "found": true,
+      "channels": [
+        { "kind": "form", "label": "Compliance and legal inquiry form", "href": "https://support.kraken.com/hc/forms/35862482750484" }
+      ],
+      "notes": ["Kraken publishes this form for compliance, legal and data-protection inquiries; no separate law-enforcement portal is published."],
+      "source": "https://support.kraken.com/articles/how-do-i-submit-a-legal-inquiry",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "Gate.io",
+      "found": true,
+      "channels": [
+        { "kind": "email", "label": "Law enforcement requests", "href": "mailto:regulatory@gate.com" }
+      ],
+      "notes": [
+        "In English, from a government email domain, with proof of the officer's authority.",
+        "State the actions requested and their extent, including the duration of a freeze.",
+        "Attach a stamped or signed order or official letter, and the flow of funds with every wallet address and transaction hash, in Word or spreadsheet form."
+      ],
+      "source": "https://www.gate.com/legal/law-enforcement",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "Bitfinex",
+      "found": true,
+      "channels": [
+        { "kind": "portal", "label": "Law Enforcement Portal (Kodex)", "href": "https://app.kodexglobal.com/bitfinex/signup" }
+      ],
+      "notes": ["A freezing or seizure request must follow the requesting jurisdiction's legal process and state the duration of the freeze."],
+      "source": "https://www.bitfinex.com/legal/general/law-enforcement-requests-policy/",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "Flipster",
+      "found": true,
+      "channels": [
+        { "kind": "email", "label": "Law enforcement requests", "href": "mailto:enforcement@flipster.io" }
+      ],
+      "notes": [
+        "From an official government or agency email domain, with a court order or a signed agency letter that cites the legal basis.",
+        "A request from another country must go through a mutual legal assistance treaty or another recognised channel where the law requires it; informal cross-border requests are not answered."
+      ],
+      "source": "https://support.flipster.io/hc/en-us/articles/15132482229263-Law-Enforcement-Request-Guide",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "Bybit",
+      "found": true,
+      "channels": [
+        { "kind": "form", "label": "Report Stolen Funds form", "href": "https://www.bybit.com/en/help-center/s/webform?state=4" }
+      ],
+      "notes": [
+        "Bybit publishes no separate law-enforcement portal. Its Report Stolen Funds process takes a police report and a freezing order, and answers within 12 hours.",
+        "Without a freezing order any hold is at Bybit's discretion and may be lifted without notice."
+      ],
+      "source": "https://www.bybit.com/en/help-center/article/How-to-Report-Stolen-Assets",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "CoinDCX",
+      "found": true,
+      "channels": [
+        { "kind": "email", "label": "Regulatory issues and enforcement authorities", "href": "mailto:legal@coindcx.com" }
+      ],
+      "notes": ["The address CoinDCX's help centre gives for regulatory issues and enforcement authorities."],
+      "source": "https://support.coindcx.com/articles/grievance/how-can-i-escalate-a-concern-or-grievance-with-coindcx/693676a085a01c64db615c78",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "WazirX",
+      "found": true,
+      "channels": [
+        { "kind": "email", "label": "Law enforcement and legal requests", "href": "mailto:legal@wazirx.com" }
+      ],
+      "notes": [
+        "From an official email address, with the legal basis, a summary of the facts and copies of the supporting documents; requests without them are not processed.",
+        "Disclosure needs a court order or a police order or warrant. A preservation request keeps records for 90 days.",
+        "Unless the order says otherwise, WazirX may tell the user before disclosing their data."
+      ],
+      "source": "https://support.wazirx.com/hc/en-us/articles/4417398247066-Guidelines-for-Law-Enforcement-Legal-Requests",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "CoinSwitch",
+      "found": true,
+      "channels": [
+        { "kind": "email", "label": "Nodal Desk", "href": "mailto:nodaldesk@coinswitch.co" }
+      ],
+      "notes": [
+        "Only from gov.in or nic.in email addresses. State the case reference and the provision the information is requested under.",
+        "Usually answered within about 48 working hours of a complete request.",
+        "By post: The Nodal Office, Bitkuber Investments Private Limited (CoinSwitch), c/o Redbrick IT Support Ltd, Electra Block, 1st Floor, Wing A, Exora Business Park, Prestige Tech Park II, Bellandur, Bengaluru 560037, Karnataka."
+      ],
+      "source": "https://coinswitch.co/law-enforcement-resource",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "FixedFloat",
+      "found": false,
+      "reason": "Its website returned no readable page to this tool, so no channel could be read from it.",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "Swapster",
+      "found": false,
+      "reason": "Its policies are published only as PDF files, which were not read, so no channel is recorded.",
+      "checked": "2026-09-25"
+    },
+    {
+      "exchange": "UEEx",
+      "found": false,
+      "reason": "No law-enforcement channel was found on its own site.",
+      "checked": "2026-09-25"
+    }
+  ]
+}

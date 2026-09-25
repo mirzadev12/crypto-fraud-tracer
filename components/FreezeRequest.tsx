@@ -26,6 +26,7 @@ import { chainMeta } from "@/lib/chain-meta";
 import { fiuListing, fiuSentence } from "@/lib/fiu";
 import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
 import { FingerprintBlock } from "./PacketFingerprint";
+import SendingGuide from "./SendingGuide";
 
 /**
  * The last mile of the product.
@@ -227,6 +228,9 @@ export default function FreezeRequest({
           </button>
         </div>
       </div>
+
+      {/* Where this exchange takes requests, and what it needs first. */}
+      <SendingGuide exchange={label.entity} />
 
       {/* -------------------------------------------------------------- sheet */}
       <article
@@ -489,6 +493,9 @@ export default function FreezeRequest({
             <Blank label="Contact for response" />
             <Blank label="Issued under" />
             <Blank label="Date" />
+            {/* Several exchanges lift a restriction that states no duration
+                (MEXC after at most 30 days); the officer sets it. */}
+            <Blank label="Duration of the restriction" />
           </div>
           <div className="mt-10 sm:w-1/2">
             <Blank label="Signature and seal" />

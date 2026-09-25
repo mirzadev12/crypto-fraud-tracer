@@ -55,7 +55,7 @@ whose addresses were never on the chain.
 | `/fund-flow` | Canvas-first explorer with a case rail and a wallet inspector. |
 | `/reports` | Every case as an evidence packet. |
 | `/report/[address]` | The packet itself — print-ready, and it states its own limitations. It ends with a fingerprint of its findings and a code; opened with `?fp=`, the packet re-derives the case and says whether a copy's fingerprint still matches (`docs/features/07-tamper-evident-packet.md`). |
-| `/freeze/[address]` | The restraint request an officer actually sends, naming the account to restrict. States in writing that it is a lead requiring an authorised signature. |
+| `/freeze/[address]` | The restraint request an officer actually sends, naming the account to restrict. States in writing that it is a lead requiring an authorised signature. Above it, where that exchange takes law-enforcement requests and what it requires first, from its own page (`data/le-contacts.json`). |
 | `/queue` | Bulk triage. Paste a morning of complaints; they are traced in turn and the register reorders itself as answers land, most recoverable first. |
 | `/attribution` | Where a name comes from: the 15 tagged seeds, all 241 derived deposit addresses, the sweep evidence for each, and where the method is wrong. |
 | `/wallet/[address]` | What one address is and who funded it — age, money in and out, and the counterparties on both sides; on request, its payers traced one hop back to the exchanges that funded them. |

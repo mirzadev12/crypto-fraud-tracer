@@ -22,6 +22,7 @@ import type { Label, TraceResult } from "@/lib/types";
 import { Blank, Field, SHEET, Section } from "./FreezeRequest";
 import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
 import { FingerprintLine } from "./PacketFingerprint";
+import SendingGuide from "./SendingGuide";
 import { Designation, Spinner, buttonStyles, entityPhrase } from "./ui";
 
 type Loaded = { c: CombinedCase; trace: TraceResult; source: DataSource };
@@ -188,6 +189,9 @@ export default function CombinedFreezeRequest({
           </ul>
         </div>
       ) : null}
+
+      {/* Where this exchange takes requests, and what it needs first. */}
+      <SendingGuide exchange={entity} />
 
       <article className={`fx-print-sheet mx-auto max-w-4xl bg-[#fafaf8] p-6 md:p-10 ${SHEET.ink}`}>
         <header className="fx-print-block">
@@ -421,6 +425,7 @@ export default function CombinedFreezeRequest({
             <Blank label="Contact for response" />
             <Blank label="Issued under" />
             <Blank label="Date" />
+            <Blank label="Duration of the restriction" />
           </div>
           <div className="mt-10 sm:w-1/2">
             <Blank label="Signature and seal" />
