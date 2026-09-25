@@ -88,6 +88,11 @@ async function transfers(address) {
     for (const row of body.data ?? []) {
       const raw = String(row.value ?? "");
       if (!/^\d+$/.test(raw)) continue;
+      // Zero-value transfers are address-poisoning spoofs that move nothing; a
+      // spoofed "sweep" must not count towards a deposit address. (Added 25 Sep
+      // 2026; the committed rows were derived before it — see
+      // docs/features/05-zero-value-guard.md.)
+      if (/^0+$/.test(raw)) continue;
       out.push({
         from: row.from,
         to: row.to,

@@ -100,6 +100,11 @@ async function pages(address) {
       if (!row || typeof row.from !== "string" || typeof row.to !== "string") continue;
       const raw = String(row.value ?? "");
       if (!/^\d+$/.test(raw)) continue;
+      // Zero-value transfers are address-poisoning spoofs that move nothing; a
+      // spoofed "sweep" must not count towards a deposit address. (Added 25 Sep
+      // 2026; the committed rows were derived before it — see
+      // docs/features/05-zero-value-guard.md.)
+      if (/^0+$/.test(raw)) continue;
       const decimals = row.token_info?.decimals ?? 6;
       out.push({
         from: row.from,

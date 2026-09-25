@@ -315,6 +315,13 @@ function parseTransfer(row: unknown): Trc20Transfer | null {
   // it is divided down through BigInt rather than parsed as a float.
   const raw = typeof row.value === "string" ? row.value : String(row.value ?? "");
   if (!/^\d+$/.test(raw)) return null;
+  // A zero-value Transfer moves nothing, and anyone can emit one from any
+  // address — the address-poisoning trick. Counted, it poses as an outflow the
+  // wallet never made: it inflates the fan-out and peel-chain rules, stops a
+  // wallet still holding the money from reading as at rest, and makes the watch
+  // report a move that did not happen. Measured on 25 Sep 2026: three such
+  // "outflows" on TJjc21br… and one on TTQd8Bo1…, both recorded wallets.
+  if (/^0+$/.test(raw)) return null;
 
   return {
     txHash,
