@@ -39,7 +39,9 @@ import {
   buttonStyles,
   entityPhrase,
 } from "@/components/ui";
+import AddressChip from "./AddressChip";
 import IssuerFreeze from "./IssuerFreeze";
+import { SPRAY_MIN_RECIPIENTS } from "@/lib/poisoning";
 
 const DAY_MS = 86_400_000;
 /** The window the NEW_ADDRESS rule uses. Kept in step with lib/risk.ts. */
@@ -230,6 +232,60 @@ export default function WalletOrigin({ address }: { address: string }) {
           tone={p.retainedUsdt > 0 ? "warm" : "default"}
         />
       </section>
+
+      {/* ------------------------------------------------------ poisoning */}
+      {p.poisoning.spray.recipients >= SPRAY_MIN_RECIPIENTS || p.poisoning.lookalikes.length ? (
+        <Panel
+          title="Address poisoning"
+          subtitle="Counted over the transfers read. A pattern to know about, not a verdict."
+          framed={false}
+        >
+          <div className="max-w-3xl space-y-6 pt-4 text-sm leading-7 text-muted">
+            {p.poisoning.spray.recipients >= SPRAY_MIN_RECIPIENTS ? (
+              <p>
+                <strong className="font-semibold text-suspicious">
+                  Sent under 1 USDT to {p.poisoning.spray.recipients} different wallets
+                </strong>{" "}
+                ({count(p.poisoning.spray.transfers, "transfer")}) — the spray an address-poisoning
+                sender uses to plant a look-alike of a real address in other people&rsquo;s
+                histories. Money a victim sent here was most likely copied from one of those
+                planted entries.
+              </p>
+            ) : null}
+            {p.poisoning.lookalikes.length ? (
+              <div>
+                <p>
+                  <strong className="font-semibold text-suspicious">
+                    {p.poisoning.lookalikes.length === 1
+                      ? "A look-alike address sent this wallet dust"
+                      : `${p.poisoning.lookalikes.length} look-alike addresses sent this wallet dust`}
+                  </strong>
+                  , each sharing the first and last four characters of an address it really
+                  moves money with. A payment copied from this wallet&rsquo;s history could have
+                  gone to one of them.
+                </p>
+                <ul className="mt-4 space-y-2">
+                  {p.poisoning.lookalikes.slice(0, 5).map((l) => (
+                    // In full: the ends are the same by design, and only the
+                    // middle shows the difference the attack relies on.
+                    <li key={l.lookalike} className="space-y-1 border-l border-line pl-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="w-16 text-xs text-faint">look-alike</span>
+                        <AddressChip address={l.lookalike} full />
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="w-16 text-xs text-faint">imitates</span>
+                        <AddressChip address={l.imitates} full />
+                        <span className="text-xs text-faint">· {count(l.transfers, "dust transfer")}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </Panel>
+      ) : null}
 
       {/* --------------------------------------------------------- funders */}
       <Panel

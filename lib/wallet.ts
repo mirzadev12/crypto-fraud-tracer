@@ -27,6 +27,7 @@ import { lookup } from "./labels";
 import { checkAddress } from "./address";
 import type { ChainClient, ChainName } from "./chain-client";
 import { EthClient } from "./ethclient";
+import { poisoningSignals, type PoisoningSignals } from "./poisoning";
 import { TronGrid } from "./trongrid";
 import type { Label } from "./types";
 
@@ -59,6 +60,8 @@ export interface WalletProfile {
   fundedBy: Counterparty[];
   /** Where it sent money, largest first. */
   paidOut: Counterparty[];
+  /** Address-poisoning signals over the transfers read; see lib/poisoning.ts. */
+  poisoning: PoisoningSignals;
   provenance: {
     apiCalls: number;
     responseHashes: string[];
@@ -117,6 +120,7 @@ export async function profileWallet(address: string): Promise<WalletProfile> {
       retainedUsdt: 0,
       fundedBy: [],
       paidOut: [],
+      poisoning: { spray: { transfers: 0, recipients: 0 }, lookalikes: [] },
     };
   }
 
@@ -188,5 +192,6 @@ export async function profileWallet(address: string): Promise<WalletProfile> {
     retainedUsdt: Math.max(0, receivedUsdt - sentUsdt),
     fundedBy: rank(incoming),
     paidOut: rank(outgoing),
+    poisoning: poisoningSignals(subject, transfers),
   };
 }
