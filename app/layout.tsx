@@ -4,6 +4,7 @@ import {
   Cormorant_Garamond,
   IBM_Plex_Mono,
   Inter,
+  Noto_Sans_Devanagari,
   Saira,
 } from "next/font/google";
 import "@xyflow/react/dist/style.css";
@@ -49,6 +50,17 @@ const cormorant = Cormorant_Garamond({
   style: ["normal", "italic"],
 });
 
+/* Devanagari, for the Hindi help page (and any Hindi a sheet carries). A
+   fallback in every stack, never a face of its own: Latin text keeps its face,
+   and the file is fetched only when Devanagari is on screen — it is limited to
+   that script's range and not preloaded. */
+const devanagari = Noto_Sans_Devanagari({
+  variable: "--font-devanagari",
+  subsets: ["devanagari"],
+  weight: ["400", "600"],
+  preload: false,
+});
+
 const DESCRIPTION =
   "Trace fraud-linked wallets, follow the money hop by hop, and attribute the exit to an exchange deposit cluster.";
 
@@ -83,7 +95,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${plexMono.variable} ${cinzel.variable} ${cormorant.variable} ${saira.variable} h-full antialiased`}
+      className={`${inter.variable} ${plexMono.variable} ${cinzel.variable} ${cormorant.variable} ${saira.variable} ${devanagari.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-bg text-ink">{children}</body>
     </html>

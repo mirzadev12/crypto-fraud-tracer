@@ -1743,6 +1743,7 @@ changing a feature; this section only records what matters across them.
 | 14 | Law-enforcement contacts — each exchange's own channel and conditions above every freeze request; 14 of 17 found, 3 recorded as not found; a "Duration of the restriction" blank | `14-law-enforcement-contacts.md` |
 | 15 | Recording outcomes — what each exchange did with a freeze request, counted by exchange on the Case queue; kept in the browser, exported and imported to combine desks | `15-recording-outcomes.md` |
 | 16 | By state — a complaint sheet's State column (36 states and UTs, common spellings) groups a batch: complaints, critical, at an exchange, closed, not read, USDT reachable, exchanges reached | `16-by-state.md` |
+| 17 | Hindi — the Help page only (`?lang=hi`), machine-drafted and marked for native-speaker review; documents stay English | `17-hindi-help.md` |
 
 Cross-cutting decisions:
 
@@ -1779,6 +1780,11 @@ Cross-cutting decisions:
   by the explorer's own tag (`lib/explorer-tags.ts`), shown verbatim and never
   turned into attribution; on TRON only the register names wallets. The screen
   calls payers payers, never victims.
+- **A fifth face, as a fallback only** (note 17). Noto Sans Devanagari sits
+  behind every font stack so Hindi renders properly; Latin text keeps its face,
+  and the file is fetched only when Devanagari is on screen. `:lang(hi)` resets
+  the labels' letter-spacing, which splits Devanagari. The four-faces rule
+  above still holds for everything Latin.
 - **A fresh checkout needs `npx next typegen` before `npx tsc --noEmit`.** The
   route types are generated, not committed; CI runs typegen first.
 - **Tests: 24 in `tests/`**, run with

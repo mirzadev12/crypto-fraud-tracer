@@ -45,13 +45,13 @@
   --color-confirmed-deep: #4a7856;
   --color-closed: #6b6660;
 
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-plex-mono);
-  --font-display: var(--font-cinzel);
+  --font-sans: var(--font-inter), var(--font-devanagari);
+  --font-mono: var(--font-plex-mono), var(--font-devanagari);
+  --font-display: var(--font-cinzel), var(--font-devanagari);
   /* Small uppercase interface labels. Stands in for Eurostile, which is
      licensed and cannot ship here. */
-  --font-label: var(--font-saira);
-  --font-document: var(--font-cormorant);
+  --font-label: var(--font-saira), var(--font-devanagari);
+  --font-document: var(--font-cormorant), var(--font-devanagari);
 
   /* Art Deco is geometry, not curvature. */
   --radius-panel: 0px;
@@ -64,7 +64,7 @@
 body {
   background: var(--color-bg);
   color: var(--color-ink);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-inter), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -481,4 +481,12 @@ dialog {
   .fx-option-quiet {
     display: inline-block;
   }
+}
+
+/* Devanagari joins its letters and vowel signs; the wide tracking the Latin
+   labels use pulls them apart ("स हा य ता"). Hindi text keeps normal spacing.
+   :lang() follows inheritance, so an English label inside Hindi text (marked
+   lang="en") keeps its tracking. Unlayered, so it outranks the utilities. */
+:lang(hi) {
+  letter-spacing: normal;
 }

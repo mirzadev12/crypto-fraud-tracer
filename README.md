@@ -60,7 +60,7 @@ whose addresses were never on the chain.
 | `/attribution` | Where a name comes from: the 15 tagged seeds, all 241 derived deposit addresses, the sweep evidence for each, and where the method is wrong. |
 | `/wallet/[address]` | What one address is and who funded it — age, money in and out, and the counterparties on both sides; on request, its payers traced one hop back to the exchanges that funded them. |
 | `/operations` | The jury-question surface: who runs it, what it costs, what breaks, and what is not built. |
-| `/help` | How to use it, in plain words: what each screen is for, and what the three dispositions mean. |
+| `/help` | How to use it, in plain words: what each screen is for, and what the three dispositions mean. In English and Hindi (`?lang=hi`, a machine-drafted translation marked for review). |
 
 ---
 
