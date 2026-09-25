@@ -9,11 +9,14 @@
  * before lunch". That is the claim the whole product is built on, and until now
  * nothing on screen actually performed it.
  *
- * So: paste the morning's addresses, one per line. Validation is local and
- * instant (base58check costs nothing), the traces run one at a time so we keep
- * the pacing the chain client expects, and the register rebuilds itself as each
- * answer lands — CRITICAL first, largest sum first, exactly the order the case
- * register uses. A wallet that fails says why and does not stop the run.
+ * So: paste the morning's addresses, one per line — or drop the complaint
+ * sheet itself (see lib/intake.ts), and each row is traced with its own amount
+ * and date and keeps its acknowledgement number all the way to the freeze
+ * request. Validation is local and instant (a checksum costs nothing), the
+ * traces run one at a time so we keep the pacing the chain client expects, and
+ * the register rebuilds itself as each answer lands — CRITICAL first, largest
+ * sum first, exactly the order the case register uses. A wallet that fails
+ * says why and does not stop the run.
  */
 
 import Link from "next/link";
@@ -31,8 +34,8 @@ import { watchTargetFor } from "@/lib/watch";
 import { addWatch } from "@/lib/watchlist";
 import LinkGraph from "@/components/LinkGraph";
 import BatchCanvas, { BatchViewToggle, type BatchView } from "@/components/BatchCanvas";
-import { checkAddress } from "@/lib/address";
-import { identifyChain } from "@/lib/chains";
+import { parseIntake, type IntakeJob, type IntakeRejected } from "@/lib/intake";
+import type { TxLookup } from "@/lib/txlookup";
 import type { TraceResult, TriageLevel } from "@/lib/types";
 import {
   Chip,
@@ -49,16 +52,14 @@ import {
 
 /* ------------------------------------------------------------------ model */
 
-type Entry =
-  | { address: string; state: "queued" }
-  | { address: string; state: "running" }
-  | { address: string; state: "done"; trace: TraceResult; source: DataSource }
-  | { address: string; state: "failed"; reason: string };
-
-interface Rejected {
-  line: string;
-  reason: string;
-}
+/** One complaint: what was given for it, and where its trace has got to. */
+type Entry = IntakeJob &
+  (
+    | { state: "queued" }
+    | { state: "running" }
+    | { state: "done"; trace: TraceResult; source: DataSource }
+    | { state: "failed"; reason: string }
+  );
 
 /** The register's order, and for the same reason: worth the next hour first. */
 const RANK: Record<TriageLevel, number> = { HOT: 0, WARM: 1, COLD: 2 };
@@ -73,37 +74,6 @@ function sortResults(entries: Entry[]): Traced[] {
     return b.trace.reportedAmountUsdt - a.trace.reportedAmountUsdt;
   });
   return done;
-}
-
-/** Split on anything a pasted column, a CSV or a typed list can put between addresses. */
-function parseAddresses(raw: string): { queued: string[]; rejected: Rejected[] } {
-  const seen = new Set<string>();
-  const queued: string[] = [];
-  const rejected: Rejected[] = [];
-  for (const token of raw.split(/[\s,;]+/)) {
-    const candidate = token.trim();
-    if (!candidate) continue;
-    const check = checkAddress(candidate);
-    // One entry per wallet: an Ethereum address typed in two cases is one wallet.
-    const key = check.valid ? check.address : candidate;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    if (check.valid) {
-      queued.push(check.address);
-      continue;
-    }
-    // Another chain's address is not a typo; say what it is and where it can go.
-    const other = identifyChain(candidate);
-    rejected.push({
-      line: candidate,
-      reason: other
-        ? other.chain.traceable
-          ? check.reason
-          : `${other.chain.name} address — FineX traces TRON and Ethereum. Screen it against OFAC from New case.`
-        : check.reason,
-    });
-  }
-  return { queued, rejected };
 }
 
 /** One line of real telemetry, worded for someone watching a list run. */
@@ -133,7 +103,7 @@ function describeProgress(event: TraceProgress): string {
 export default function BulkTriage({ sample }: { sample: string[] }) {
   const [raw, setRaw] = useState("");
   const [entries, setEntries] = useState<Entry[]>([]);
-  const [rejected, setRejected] = useState<Rejected[]>([]);
+  const [rejected, setRejected] = useState<IntakeRejected[]>([]);
   const [running, setRunning] = useState(false);
   const [live, setLive] = useState<{ address: string; note: string } | null>(null);
   const stop = useRef(false);
@@ -163,14 +133,14 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
     return { critical, reachable, entities: entities.size };
   }, [results]);
 
-  const update = useCallback((address: string, next: Entry) => {
-    setEntries((prev) => prev.map((e) => (e.address === address ? next : e)));
+  const update = useCallback((key: string, next: Entry) => {
+    setEntries((prev) => prev.map((e) => (e.key === key ? next : e)));
   }, []);
 
   function load() {
-    const parsed = parseAddresses(raw);
+    const parsed = parseIntake(raw);
     setRejected(parsed.rejected);
-    setEntries(parsed.queued.map((address) => ({ address, state: "queued" })));
+    setEntries(parsed.jobs.map((job) => ({ ...job, state: "queued" })));
     setLive(null);
   }
 
@@ -187,32 +157,51 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
   async function run() {
     stop.current = false;
     setRunning(true);
-    const queue = entries.filter((e) => e.state === "queued").map((e) => e.address);
-    for (const address of queue) {
+    const queue: IntakeJob[] = entries
+      .filter((e) => e.state === "queued")
+      .map(({ key, input, kind, ack, amount, fraudDate }) => ({ key, input, kind, ack, amount, fraudDate }));
+    for (const job of queue) {
       if (stop.current) break;
-      update(address, { address, state: "running" });
-      setLive({ address, note: "Queued for the chain" });
+      update(job.key, { ...job, state: "running" });
+      setLive({ address: job.input, note: "Queued for the chain" });
       try {
-        const lookup = await runTrace({ address }, (event) =>
-          setLive({ address, note: describeProgress(event) }),
+        let address = job.input;
+        let amount = job.amount;
+        let fraudDate = job.fraudDate;
+        // A complaint that holds a transaction: trace the wallet it paid, from
+        // the moment it paid, for what it paid - unless the row says otherwise.
+        if (job.kind === "tx") {
+          setLive({ address: job.input, note: "Reading the transaction" });
+          const res = await fetch(`/api/tx/${encodeURIComponent(job.input)}`);
+          const tx = (await res.json()) as TxLookup;
+          if (tx.status !== "resolved") {
+            update(job.key, { ...job, state: "failed", reason: tx.reason });
+            continue;
+          }
+          address = tx.transfer.to;
+          amount ??= tx.transfer.valueUsdt;
+          fraudDate ??= new Date(Date.parse(tx.transfer.timestamp) - 1000).toISOString();
+        }
+        const lookup = await runTrace(
+          {
+            address,
+            ...(amount !== undefined ? { amount } : {}),
+            ...(fraudDate ? { fraudDate } : {}),
+          },
+          (event) => setLive({ address, note: describeProgress(event) }),
         );
         if (lookup.status === "resolved") {
           const target = watchTargetFor(lookup.data);
           if (target) addWatch(target);
-          update(address, {
-            address,
-            state: "done",
-            trace: lookup.data,
-            source: lookup.source,
-          });
+          update(job.key, { ...job, state: "done", trace: lookup.data, source: lookup.source });
         } else if (lookup.status === "invalid") {
-          update(address, { address, state: "failed", reason: lookup.reason });
+          update(job.key, { ...job, state: "failed", reason: lookup.reason });
         } else {
-          update(address, { address, state: "failed", reason: lookup.detail });
+          update(job.key, { ...job, state: "failed", reason: lookup.detail });
         }
       } catch (err) {
-        update(address, {
-          address,
+        update(job.key, {
+          ...job,
           state: "failed",
           reason: err instanceof Error ? err.message : "The trace could not be completed.",
         });
@@ -225,15 +214,30 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
   /** The morning's worklist, as a file an officer can file or forward. */
   function exportCsv() {
     const rows = [
-      ["address", "status", "reported_usdt", "exit", "deposit_address", "reason"],
+      [
+        "ncrp_acknowledgement",
+        "given",
+        "traced_wallet",
+        "status",
+        "traced_usdt",
+        "fraud_date_utc",
+        "exit",
+        "deposit_address",
+        "reason",
+      ],
       ...results.map((e) => [
+        e.ack ?? "",
+        e.input,
         e.trace.inputAddress,
         TRIAGE_META[e.trace.triage].label,
         e.trace.reportedAmountUsdt.toFixed(2),
+        e.trace.fraudDate,
         e.trace.terminal ? entityPhrase(e.trace.terminal.label) : "",
         e.trace.terminal?.depositAddress ?? "",
         e.trace.triageReason,
       ]),
+      // Unread complaints stay on the worklist, marked, never dropped.
+      ...failed.map((e) => [e.ack ?? "", e.input, "", "NOT READ", "", "", "", "", e.reason]),
     ];
     const csv = rows
       .map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","))
@@ -256,7 +260,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
         <Panel title="The morning's addresses" framed={false}>
           <div className="pt-4">
             <label htmlFor="bulk" className="sr-only">
-              TRON or Ethereum wallet addresses, one per line
+              TRON or Ethereum wallet addresses, one per line, or a complaint sheet
             </label>
             <textarea
               id="bulk"
@@ -268,8 +272,17 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
               className="fx-option block w-full resize-y border border-line bg-surface-2 [--fx-face:var(--color-surface-2)] p-4 font-mono text-xs leading-6 text-ink placeholder:text-dim focus:outline-none"
             />
             <p className="mt-4 text-xs leading-5 text-faint">
-              One per line — commas and semicolons work too. Each address is
-              checksum-checked before any chain read; duplicates are dropped.
+              One address or transaction per line — or a complaint sheet with a
+              header row (acknowledgement number, wallet or transaction, amount,
+              date), and each complaint keeps its number to the freeze request.
+              Everything is checksum-checked before any chain read.{" "}
+              <a
+                href="/templates/complaint-sheet-example.csv"
+                download
+                className="fx-option-quiet px-1 align-baseline text-muted underline-offset-4 hover:text-brass"
+              >
+                Example sheet
+              </a>
             </p>
 
             {/* One column, one width: the primary, then the two ways to fill
@@ -454,7 +467,13 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
           {traced ? (
             <ul className="divide-y divide-line">
               {results.map((entry) => (
-                <ResultRow key={entry.address} trace={entry.trace} source={entry.source} />
+                <ResultRow
+                  key={entry.key}
+                  trace={entry.trace}
+                  source={entry.source}
+                  ack={entry.ack}
+                  fromTx={entry.kind === "tx" ? entry.input : undefined}
+                />
               ))}
             </ul>
           ) : (
@@ -505,12 +524,13 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
           <Panel title={`${pending.length} waiting`} framed={false}>
             <ul className="flex flex-wrap gap-2 pt-4">
               {pending.map((e) => (
-                <li key={e.address}>
+                <li key={e.key}>
                   <Chip tone={e.state === "running" ? "brand" : "neutral"}>
                     {/* Chips are uppercase; an address is not. Base58 is
                         case-sensitive and an upper-cased one is a wrong one. */}
                     <span className="font-mono normal-case tracking-normal">
-                      {shortAddress(e.address)}
+                      {e.ack ? `${e.ack} · ` : ""}
+                      {shortAddress(e.input)}
                     </span>
                   </Chip>
                 </li>
@@ -527,8 +547,11 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
           >
             <ul className="space-y-4 pt-4">
               {failed.map((e) => (
-                <li key={e.address} className="border-l border-line pl-4">
-                  <p className="break-all font-mono text-xs text-muted">{e.address}</p>
+                <li key={e.key} className="border-l border-line pl-4">
+                  <p className="break-all font-mono text-xs text-muted">
+                    {e.ack ? `${e.ack} · ` : ""}
+                    {e.input}
+                  </p>
                   <p className="mt-1 text-xs leading-5 text-faint">{e.reason}</p>
                 </li>
               ))}
@@ -542,7 +565,19 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
 
 /* -------------------------------------------------------------------- row */
 
-function ResultRow({ trace, source }: { trace: TraceResult; source: DataSource }) {
+function ResultRow({
+  trace,
+  source,
+  ack,
+  fromTx,
+}: {
+  trace: TraceResult;
+  source: DataSource;
+  /** The complaint's acknowledgement number, from a complaint sheet. */
+  ack?: string;
+  /** The transaction the complaint gave, when it gave one instead of a wallet. */
+  fromTx?: string;
+}) {
   const exit = trace.terminal;
   return (
     <li className="py-6">
@@ -552,8 +587,18 @@ function ResultRow({ trace, source }: { trace: TraceResult; source: DataSource }
             <TriageBadge level={trace.triage} />
             {source === "demo" ? <Chip tone="brand">Recorded</Chip> : null}
             {source === "illustrative" ? <Chip>Illustrative</Chip> : null}
+            {ack ? (
+              <Chip>
+                <span className="font-mono normal-case tracking-normal">NCRP {ack}</span>
+              </Chip>
+            ) : null}
           </div>
           <p className="mt-4 break-all font-mono text-sm text-ink">{trace.inputAddress}</p>
+          {fromTx ? (
+            <p className="mt-1 break-all font-mono text-xs text-faint">
+              paid by transaction {shortAddress(fromTx, 10, 8)}
+            </p>
+          ) : null}
           <p className="mt-2 max-w-xl text-xs leading-5 text-faint">{trace.triageReason}</p>
         </div>
         <div className="shrink-0 text-right">
@@ -577,12 +622,12 @@ function ResultRow({ trace, source }: { trace: TraceResult; source: DataSource }
       ) : null}
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Link href={traceHref("trace", trace)} className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass">
+        <Link href={traceHref("trace", trace, ack)} className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass">
           Open the trace
         </Link>
         {freezable(trace) ? (
           <Link
-            href={traceHref("freeze", trace)}
+            href={traceHref("freeze", trace, ack)}
             className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
           >
             Freeze request

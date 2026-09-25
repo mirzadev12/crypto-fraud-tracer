@@ -92,10 +92,21 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 /** A line the issuing officer completes by hand or in the PDF. */
-function Blank({ label, width = "w-full" }: { label: string; width?: string }) {
+function Blank({
+  label,
+  width = "w-full",
+  value,
+}: {
+  label: string;
+  width?: string;
+  /** Filled in when the tool genuinely knows it, e.g. from a complaint sheet. */
+  value?: string;
+}) {
   return (
     <div className={width}>
-      <div className={`h-8 border-b ${SHEET.rule}`} />
+      <div className={`flex h-8 items-end border-b pb-1 font-mono text-sm ${SHEET.rule} ${SHEET.ink}`}>
+        {value ?? ""}
+      </div>
       <p className={`mt-2 font-mono text-[10px] uppercase tracking-[0.16em] ${SHEET.faint}`}>
         {label}
       </p>
@@ -108,11 +119,14 @@ export default function FreezeRequest({
   amount,
   since,
   asOf,
+  ack,
 }: {
   address: string;
   amount?: number;
   since?: string;
   asOf?: string;
+  /** The complaint's acknowledgement number, from a complaint sheet. */
+  ack?: string;
 }) {
   const { current, retry, events } = useTrace(address, { amount, since, asOf });
 
@@ -153,7 +167,7 @@ export default function FreezeRequest({
             This trail has not reached one, so there is nothing to ask for yet.
           </p>
           <Link
-            href={traceHref("trace", trace)}
+            href={traceHref("trace", trace, ack)}
             className={`${buttonStyles.secondary} mt-6`}
           >
             Back to trace
@@ -195,10 +209,10 @@ export default function FreezeRequest({
           <TriageBadge level={trace.triage} withAction />
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href={traceHref("trace", trace)} className={buttonStyles.secondary}>
+          <Link href={traceHref("trace", trace, ack)} className={buttonStyles.secondary}>
             Back to trace
           </Link>
-          <Link href={traceHref("report", trace)} className={buttonStyles.secondary}>
+          <Link href={traceHref("report", trace, ack)} className={buttonStyles.secondary}>
             Evidence packet
           </Link>
           <button
@@ -457,7 +471,7 @@ export default function FreezeRequest({
               know either number, and still asserts no statute. */}
           <div className="mt-10 grid gap-10 sm:grid-cols-2">
             <Blank label="FIR number" />
-            <Blank label="NCRP acknowledgement number" />
+            <Blank label="NCRP acknowledgement number" value={ack} />
             <Blank label="Name of officer" />
             <Blank label="Designation" />
             <Blank label="Unit / police station" />

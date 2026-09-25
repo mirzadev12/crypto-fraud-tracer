@@ -220,12 +220,14 @@ npx eslint .
 ```
 
 ```bash
-node --test "tests/*.test.mjs"
+node --import ./tests/register.mjs --test "tests/*.test.mjs"
 ```
 
 The tests cover what has a right answer independent of this repository:
 Keccak-256 against published vectors and against Node's own SHA3-256 at every
-input length up to 420 bytes, and EIP-55 against the examples in the EIP.
+input length up to 420 bytes, EIP-55 against the examples in the EIP, and the
+complaint-sheet parser. `tests/register.mjs` lets Node load the app's
+TypeScript directly; no test dependency is installed.
 
 ### Three ways to read one trace
 

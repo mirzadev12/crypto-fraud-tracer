@@ -93,11 +93,14 @@ export function traceHref(
   trace: Pick<TraceResult, "inputAddress" | "reportedAmountUsdt" | "fraudDate"> & {
     provenance?: { generatedAt?: string };
   },
+  /** The complaint's acknowledgement number, when the case came from a complaint sheet. */
+  ack?: string,
 ): string {
   const query = new URLSearchParams();
   if (trace.reportedAmountUsdt > 0) query.set("amount", String(trace.reportedAmountUsdt));
   if (trace.fraudDate) query.set("since", trace.fraudDate);
   if (trace.provenance?.generatedAt) query.set("asof", trace.provenance.generatedAt);
+  if (ack) query.set("ack", ack);
   const qs = query.toString();
   return `/${kind}/${encodeURIComponent(trace.inputAddress)}${qs ? `?${qs}` : ""}`;
 }

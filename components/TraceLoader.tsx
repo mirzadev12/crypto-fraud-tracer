@@ -506,12 +506,15 @@ export default function TraceLoader({
   amount,
   since,
   asOf,
+  ack,
 }: {
   address: string;
   amount?: number;
   since?: string;
   /** The moment a pinned run was read; see `traceHref`. */
   asOf?: string;
+  /** The complaint's acknowledgement number, carried on to the packet and freeze request. */
+  ack?: string;
 }) {
   const { current, retry, events } = useTrace(address, { amount, since, asOf });
 
@@ -537,6 +540,7 @@ export default function TraceLoader({
       source={lookup.source}
       note={lookup.note}
       asOf={lookup.asOf}
+      ack={ack}
     />
   );
 }

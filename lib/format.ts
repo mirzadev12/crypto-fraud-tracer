@@ -127,7 +127,7 @@ export function explorerTxUrl(txHash: string): string {
  */
 export function readPinned(
   sp: Record<string, string | string[] | undefined>,
-): { amount?: number; since?: string; asOf?: string } {
+): { amount?: number; since?: string; asOf?: string; ack?: string } {
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
   const amount = Number(one(sp.amount));
   const moment = (raw: string | undefined) =>
@@ -136,9 +136,15 @@ export function readPinned(
   // The moment the run was read. Checked for shape only: whether it is in the
   // past is the route's to decide, since render must not read the clock.
   const asOf = moment(one(sp.asof));
+  // The complaint's acknowledgement number, carried from a complaint sheet so
+  // the packet and the freeze request name the complaint they belong to.
+  // Shape only; anything else is dropped rather than printed on a document.
+  const ackRaw = one(sp.ack)?.trim() ?? "";
+  const ack = /^[A-Za-z0-9][A-Za-z0-9/_.-]{0,39}$/.test(ackRaw) ? ackRaw : undefined;
   return {
     ...(Number.isFinite(amount) && amount > 0 ? { amount } : {}),
     ...(since ? { since } : {}),
     ...(asOf ? { asOf } : {}),
+    ...(ack ? { ack } : {}),
   };
 }

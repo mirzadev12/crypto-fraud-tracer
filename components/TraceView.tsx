@@ -557,12 +557,15 @@ export default function TraceView({
   source,
   note,
   asOf,
+  ack,
 }: {
   trace: TraceResult;
   source: DataSource;
   note?: string;
   /** Set when a live read was pinned to a past moment by its link. */
   asOf?: string;
+  /** The complaint's acknowledgement number, from a complaint sheet. */
+  ack?: string;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -627,11 +630,11 @@ export default function TraceView({
         <Link href={`/fund-flow?address=${encodeURIComponent(trace.inputAddress)}`} className={secondary}>
           Fund flow
         </Link>
-        <Link href={traceHref("report", trace)} className={freezable(trace) ? secondary : primary}>
+        <Link href={traceHref("report", trace, ack)} className={freezable(trace) ? secondary : primary}>
           Evidence packet
         </Link>
         {freezable(trace) ? (
-          <Link href={traceHref("freeze", trace)} className={primary}>
+          <Link href={traceHref("freeze", trace, ack)} className={primary}>
             Freeze request
           </Link>
         ) : null}

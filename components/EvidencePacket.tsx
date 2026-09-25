@@ -76,11 +76,14 @@ export default function EvidencePacket({
   amount,
   since,
   asOf,
+  ack,
 }: {
   address: string;
   amount?: number;
   since?: string;
   asOf?: string;
+  /** The complaint's acknowledgement number, from a complaint sheet. */
+  ack?: string;
 }) {
   const { current, retry, events } = useTrace(address, { amount, since, asOf });
 
@@ -183,6 +186,11 @@ export default function EvidencePacket({
               </span>
             </Field>
             <Field label="Date of fraud">{formatDateTime(trace.fraudDate)}</Field>
+            {ack ? (
+              <Field label="NCRP acknowledgement number">
+                <span className="font-mono tabular-nums">{ack}</span>
+              </Field>
+            ) : null}
             <Field label="Wallets examined">
               <span className="font-mono tabular-nums">
                 {trace.nodes.length} {trace.nodes.length === 1 ? "wallet" : "wallets"} across{" "}

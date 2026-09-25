@@ -45,8 +45,8 @@ const SECTIONS = [
       {
         href: "/queue",
         nav: "Batch triage",
-        what: "Paste many wallet addresses at once.",
-        use: "Use it for a whole morning of complaints. They are traced one by one and the list sorts itself as answers arrive.",
+        what: "Paste many wallet addresses at once, or load a complaint sheet.",
+        use: "Use it for a whole morning of complaints. A sheet (CSV with acknowledgement number, wallet or transaction, amount, date) traces each complaint with its own figures and puts its number on the freeze request. The list sorts itself as answers arrive.",
       },
       {
         href: "/investigate",
