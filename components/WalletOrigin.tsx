@@ -41,6 +41,7 @@ import {
 } from "@/components/ui";
 import AddressChip from "./AddressChip";
 import IssuerFreeze from "./IssuerFreeze";
+import PayersBack from "./PayersBack";
 import { SPRAY_MIN_RECIPIENTS } from "@/lib/poisoning";
 
 const DAY_MS = 86_400_000;
@@ -295,6 +296,9 @@ export default function WalletOrigin({ address }: { address: string }) {
       >
         <Parties parties={p.fundedBy} empty="Nothing was paid into this wallet in the history read." />
       </Panel>
+
+      {/* One hop further back, on request: where the payers' own USDT came from. */}
+      {p.fundedBy.length ? <PayersBack address={p.address} /> : null}
 
       <Panel
         title="Paid out to"

@@ -143,7 +143,7 @@ const BUTTONS = [
   },
   {
     title: "The small icon next to any address",
-    body: "Opens that wallet on its own: how old it is, who paid into it, and where it sent money.",
+    body: "Opens that wallet on its own: how old it is, who paid into it, and where it sent money. Press Trace the payers back to see which exchanges gave the payers their money.",
   },
 ];
 

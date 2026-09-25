@@ -121,8 +121,15 @@ export class TronGrid implements ChainClient {
    * activity leaking into it.
    */
   private readonly asOf: number | null;
+  private readonly maxPages: number;
 
-  constructor(opts: { asOf?: number | null } = {}) {
+  constructor(opts: { asOf?: number | null; maxPages?: number } = {}) {
+    // Fewer pages for a caller that needs only the newest transfers (a payer's
+    // funding, read as of its payment). Never more than the default.
+    this.maxPages =
+      typeof opts.maxPages === "number" && opts.maxPages >= 1
+        ? Math.min(Math.floor(opts.maxPages), MAX_PAGES)
+        : MAX_PAGES;
     this.asOf =
       typeof opts.asOf === "number" && Number.isFinite(opts.asOf)
         ? Math.floor(opts.asOf)
@@ -172,7 +179,7 @@ export class TronGrid implements ChainClient {
     // first, so anything that stops the loop early leaves the *oldest* part
     // unread — and the oldest part is where `firstSeen` comes from.
     let whole = true;
-    for (let page = 0; page < MAX_PAGES && url; page++) {
+    for (let page = 0; page < this.maxPages && url; page++) {
       const body = await this.getJson(url);
       // No body, an explicit failure, or a body with no data array at all: the
       // chain did not answer this page. Treating that as an empty page would
@@ -195,7 +202,7 @@ export class TronGrid implements ChainClient {
       if (!next || rows.length < PAGE_LIMIT) break;
       url = next;
       // More to fetch, but this was the last page we allow ourselves.
-      if (page === MAX_PAGES - 1) whole = false;
+      if (page === this.maxPages - 1) whole = false;
     }
 
     // Nothing read at all is an unread wallet. Some pages read and then a

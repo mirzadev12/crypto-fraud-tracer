@@ -20,6 +20,8 @@ export interface Transfer {
   value: number;
   timestamp: number;
   symbol: string;
+  /** Ethereum: the block it is in, so a later read can seek straight to it. */
+  block?: number;
 }
 
 /** What an explorer says about an address, gathered from rows already read. */

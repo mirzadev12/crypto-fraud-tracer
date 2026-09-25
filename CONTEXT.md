@@ -1739,6 +1739,7 @@ changing a feature; this section only records what matters across them.
 | 10 | BNB Chain USDT — **not built: blocked.** No keyless source: Blockscout has no BSC (404), Routescan "chain not supported", Etherscan's free tier refuses the chain, Ankr needs a key (403). Needs a paid key the user sets | — |
 | 11 | Polygon USDT — **not built yet, deferred.** Feasible (Blockscout serves Polygon keyless, USDT 6 decimals), but a `0x` address is valid on both chains, so every link, route, watch entry and recorded case would have to carry the chain; weighed against its value it waits | — |
 | 12 | More Indian exchanges — CoinSwitch (28 addresses, 2021); no other Indian VASP wallet is publicly tagged | `12-more-indian-exchanges.md` |
+| 13 | Tracing backwards — a wallet's payers, and the exchanges that funded them one hop back (`/api/payers`, wallet card) | `13-tracing-backwards.md` |
 
 Cross-cutting decisions:
 
@@ -1766,6 +1767,15 @@ Cross-cutting decisions:
   at confidence 0.95, had its gas paid by Cobo Custody. That row keeps its
   place, and its label evidence now carries a caution that the packet and the
   freeze requests print. Quote it as proof that confidence is not accuracy.
+- **Payers are read as of their payment** (note 13). A payer's funding is the
+  money it had when it paid, so its history is read up to that moment; on
+  Ethereum from the payment's own block (`Transfer.block`, `EthClient`
+  `asOfBlock`), because finding a pre-2022 block from the head costs up to two
+  dozen requests. Both clients take an optional `maxPages` (never above the
+  default), so a trace is unchanged. On Ethereum a funding source may be named
+  by the explorer's own tag (`lib/explorer-tags.ts`), shown verbatim and never
+  turned into attribution; on TRON only the register names wallets. The screen
+  calls payers payers, never victims.
 - **A fresh checkout needs `npx next typegen` before `npx tsc --noEmit`.** The
   route types are generated, not committed; CI runs typegen first.
 - **Tests: 24 in `tests/`**, run with

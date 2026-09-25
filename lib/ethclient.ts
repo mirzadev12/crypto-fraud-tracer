@@ -95,12 +95,25 @@ export class EthClient implements ChainClient {
   /** What the explorer said about each counterparty, from rows already read. */
   private seen = new Map<string, ContractInfo>();
   private readonly asOf: number | null;
+  private readonly maxPages: number;
   /** The last block at or before `asOf`: undefined until resolved, null if it could not be. */
   private asOfBlock: number | null | undefined = undefined;
 
-  constructor(opts: { asOf?: number | null } = {}) {
+  constructor(opts: { asOf?: number | null; asOfBlock?: number; maxPages?: number } = {}) {
+    // Fewer pages for a caller that needs only the newest transfers (a payer's
+    // funding, read as of its payment). Never more than the default.
+    this.maxPages =
+      typeof opts.maxPages === "number" && opts.maxPages >= 1
+        ? Math.min(Math.floor(opts.maxPages), MAX_PAGES)
+        : MAX_PAGES;
     this.asOf =
       typeof opts.asOf === "number" && Number.isFinite(opts.asOf) ? Math.floor(opts.asOf) : null;
+    // A caller that already knows the block of the moment (a transfer it has
+    // read) skips the search for it: finding a pre-2022 block from the head
+    // costs up to two dozen requests, because blocks were not 12 s apart then.
+    if (this.asOf !== null && typeof opts.asOfBlock === "number" && Number.isFinite(opts.asOfBlock)) {
+      this.asOfBlock = Math.floor(opts.asOfBlock);
+    }
   }
 
   get apiCalls(): number {
@@ -135,7 +148,7 @@ export class EthClient implements ChainClient {
     // Pages come newest first, so anything that stops the loop early leaves the
     // oldest part unread — the part `firstSeen` comes from.
     let whole = true;
-    for (let page = 0; page < MAX_PAGES; page++) {
+    for (let page = 0; page < this.maxPages; page++) {
       const qs = new URLSearchParams({
         type: "ERC-20",
         token: ETH_USDT_CONTRACT,
@@ -160,7 +173,7 @@ export class EthClient implements ChainClient {
       const next = cursorFrom(body.next_page_params);
       if (!next || body.items.length < PAGE_SIZE) break;
       cursor = next;
-      if (page === MAX_PAGES - 1) whole = false;
+      if (page === this.maxPages - 1) whole = false;
     }
 
     if (!readAnything) this.unread.add(subject);
@@ -291,6 +304,7 @@ export class EthClient implements ChainClient {
     const timestamp = Number.isFinite(stamped) ? stamped : fallbackTimestamp;
     if (!from || !to || !txHash || !Number.isFinite(timestamp)) return null;
 
+    const block = Number(row.block_number);
     return {
       txHash,
       from,
@@ -298,6 +312,7 @@ export class EthClient implements ChainClient {
       value: Number(BigInt(raw)) / 10 ** ETH_USDT_DECIMALS,
       timestamp,
       symbol: "USDT",
+      ...(Number.isFinite(block) ? { block } : {}),
     };
   }
 

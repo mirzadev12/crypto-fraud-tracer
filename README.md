@@ -58,7 +58,7 @@ whose addresses were never on the chain.
 | `/freeze/[address]` | The restraint request an officer actually sends, naming the account to restrict. States in writing that it is a lead requiring an authorised signature. |
 | `/queue` | Bulk triage. Paste a morning of complaints; they are traced in turn and the register reorders itself as answers land, most recoverable first. |
 | `/attribution` | Where a name comes from: the 15 tagged seeds, all 241 derived deposit addresses, the sweep evidence for each, and where the method is wrong. |
-| `/wallet/[address]` | What one address is and who funded it — age, money in and out, and the counterparties on both sides. |
+| `/wallet/[address]` | What one address is and who funded it — age, money in and out, and the counterparties on both sides; on request, its payers traced one hop back to the exchanges that funded them. |
 | `/operations` | The jury-question surface: who runs it, what it costs, what breaks, and what is not built. |
 | `/help` | How to use it, in plain words: what each screen is for, and what the three dispositions mean. |
 
@@ -103,6 +103,7 @@ server.
 | `GET` | `/api/trace/[address]` | `TraceResult` — the permalink. `?amount=&since=&asof=` replays one run exactly, on the chain as it stood when it was read; `?model=fifo` as above. |
 | `GET` | `/api/tx/[hash]` | The USDT transfer inside a transaction: `from`, `to`, amount, time. How a complaint that holds a transaction rather than a wallet becomes a trace. |
 | `GET` | `/api/wallet/[address]` | `WalletProfile` — age, money in and out, counterparties, what funded it. |
+| `GET` | `/api/payers/[address]` | `PayersTrace` — every wallet that paid it (1 USDT or more), and for the largest twenty, where their own USDT came from, read up to the moment each paid; the exchanges among those sources, named from the attribution register or (Ethereum) the explorer's tags. Up to about twenty chain reads, so it is asked for, not loaded. |
 | `GET` | `/api/screen/[address]` | Sanctions screening for an address on any chain the OFAC list covers: the chain, recognised from the format (checksum verified where the format has one), and the listing if there is one. Reads no chain. Not listed is not a clearance, and the response says so. |
 | `GET` | `/api/issuer/[address]` | Whether Tether has frozen the address, read from the USDT contract's own blacklist on TRON or Ethereum: `frozen`, `not-frozen`, or `unchecked` when the chain did not answer. The chain now, stamped with `checkedAt` and a SHA-256 of the request and response. |
 | `POST` | `/api/watch` — `{items: [{address, since}]}` | For each wallet: `moved` (with every outflow and where it went), `still`, or `unchecked` when the chain did not answer. Up to 25 wallets per call. |
@@ -137,6 +138,19 @@ Start from a transaction instead of a wallet:
 ```bash
 curl http://localhost:3000/api/tx/a93b9d5758b0f3dc6763c42e7680baa37838ac9f2646438a7da66a8dd2933f00
 ```
+
+Trace a wallet's payers one hop back — here a 2021 CoinSwitch customer deposit
+address on Ethereum:
+
+```bash
+curl http://localhost:3000/api/payers/0x57DbDbBFd6155376074640453408bABF7BC7bA2c
+```
+
+`exchanges` lists every exchange that funded a payer (Binance, HitBTC and
+CoinSwitch among them here), each with `via` — `"table"` from the attribution
+register, `"explorer"` from the explorer's tag — and each payer carries a
+`status`: `read`, `labelled`, `contract`, `unreadable` or `skipped`. It makes a
+chain read per payer, so expect up to a minute.
 
 Ask whether money found at rest has moved since the case was read:
 
