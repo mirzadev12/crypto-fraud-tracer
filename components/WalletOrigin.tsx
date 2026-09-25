@@ -39,6 +39,7 @@ import {
   buttonStyles,
   entityPhrase,
 } from "@/components/ui";
+import IssuerFreeze from "./IssuerFreeze";
 
 const DAY_MS = 86_400_000;
 /** The window the NEW_ADDRESS rule uses. Kept in step with lib/risk.ts. */
@@ -193,6 +194,9 @@ export default function WalletOrigin({ address }: { address: string }) {
         {p.label?.evidence ? (
           <p className="mt-6 max-w-2xl text-sm leading-6 text-faint">{p.label.evidence}</p>
         ) : null}
+        <div className="mt-6 max-w-2xl">
+          <IssuerFreeze address={p.address} />
+        </div>
       </section>
 
       {/* ---------------------------------------------------------- figures */}

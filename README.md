@@ -104,6 +104,7 @@ server.
 | `GET` | `/api/tx/[hash]` | The USDT transfer inside a transaction: `from`, `to`, amount, time. How a complaint that holds a transaction rather than a wallet becomes a trace. |
 | `GET` | `/api/wallet/[address]` | `WalletProfile` — age, money in and out, counterparties, what funded it. |
 | `GET` | `/api/screen/[address]` | Sanctions screening for an address on any chain the OFAC list covers: the chain, recognised from the format (checksum verified where the format has one), and the listing if there is one. Reads no chain. Not listed is not a clearance, and the response says so. |
+| `GET` | `/api/issuer/[address]` | Whether Tether has frozen the address, read from the USDT contract's own blacklist on TRON or Ethereum: `frozen`, `not-frozen`, or `unchecked` when the chain did not answer. The chain now, stamped with `checkedAt` and a SHA-256 of the request and response. |
 | `POST` | `/api/watch` — `{items: [{address, since}]}` | For each wallet: `moved` (with every outflow and where it went), `still`, or `unchecked` when the chain did not answer. Up to 25 wallets per call. |
 | `GET` | `/api/health` | `{ok, commit, demoMode, chainAccess, ethereumAccess}` — which commit is serving, whether demo mode is on, and whether TRON and Ethereum reads carry an API key (`keyed` or `public`; a key itself is never returned). Reads nothing from the chain. |
 | `GET` | `/api/cases` | Deliberately unimplemented. There is no case database, and serving illustrative records through it would claim chain-read data it is not. |

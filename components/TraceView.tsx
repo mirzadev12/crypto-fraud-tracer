@@ -39,6 +39,7 @@ import {
 import { chainMeta } from "@/lib/chain-meta";
 import { categoryOf } from "@/lib/contracts";
 import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
+import IssuerFreeze from "./IssuerFreeze";
 
 /* ------------------------------------------------------------- risk flags */
 
@@ -222,6 +223,9 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
                 {formatPercent(resting.taintFraction)} of the reported amount
               </span>
             </p>
+            {/* Money in a private wallet has no exchange to write to; the
+                issuer is the one party that can still stop it. */}
+            <IssuerFreeze address={resting.address} />
           </div>
         ) : null}
         <p className="mt-4 border-t border-line pt-4 text-sm leading-6 text-muted">
