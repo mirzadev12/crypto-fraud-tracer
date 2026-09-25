@@ -1,0 +1,46 @@
+name: Checks
+
+# The checks README.md lists, on every push and pull request, fastest first,
+# and then the one the pitch depends on: demo mode answering every recorded
+# case from its file, exactly (scripts/check-demo.mjs). No secret is needed:
+# the unit tests exercise pure functions with answers independent of this
+# repository (Keccak and EIP-55 vectors, a QR code made by another encoder,
+# the complaint-sheet parser), and the build reads only committed data.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Unit tests
+        run: node --import ./tests/register.mjs --test "tests/*.test.mjs"
+      # A fresh checkout has no route types (PageProps, RouteContext); next
+      # build writes them too, but generating them first lets tsc fail fast.
+      - name: Route types
+        run: npx next typegen
+      - name: Types
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npx eslint .
+      - name: Build
+        run: npm run build
+      - name: Demo mode serves every recorded case
+        run: |
+          DEMO_MODE=true npx next start -p 3100 &
+          node --import ./tests/register.mjs scripts/check-demo.mjs 3100

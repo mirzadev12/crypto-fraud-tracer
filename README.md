@@ -223,6 +223,18 @@ npx eslint .
 node --import ./tests/register.mjs --test "tests/*.test.mjs"
 ```
 
+With a server running in demo mode (`DEMO_MODE=true npx next start -p 3032`),
+the check the pitch depends on — every recorded case answered from its file,
+exactly, and no other address answered from it:
+
+```bash
+node --import ./tests/register.mjs scripts/check-demo.mjs 3032
+```
+
+All of these run on every push and pull request (`.github/workflows/checks.yml`).
+On a fresh checkout, run `npx next typegen` before `npx tsc --noEmit`: the route
+types it checks against are generated, not committed.
+
 The tests cover what has a right answer independent of this repository:
 Keccak-256 against published vectors and against Node's own SHA3-256 at every
 input length up to 420 bytes, EIP-55 against the examples in the EIP, the QR
