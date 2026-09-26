@@ -21,7 +21,10 @@ exchange — Indian exchanges first.
 - **Swaps and bridges.** Money that enters a DEX pool, router or bridge stops
   the trace there, named from the explorer's own tag, with a sentence saying
   USDT cannot be followed past it. Safe multisigs and EIP-7702 accounts are
-  followed as wallets.
+  followed as wallets. A bridge is recognised by "bridge" anywhere in its tags
+  (Allbridge's pool is "Allbridge: LP-USDT Token") and by the LayerZero adapter
+  USDT0 leaves through ("USDT0: OAdapterUpgradeable"); before 26 Sep 2026 both
+  were read as a DeFi pool or an unnamed contract (`tests/contracts.test.mjs`).
 - **FIU-IND line.** An exit at an exchange listed as registered with FIU-IND in
   the Lok Sabha answer of 4 December 2023 names the legal company operating it
   — on the case file, the evidence packet and the freeze request.

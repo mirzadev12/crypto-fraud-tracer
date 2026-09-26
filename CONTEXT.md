@@ -1756,7 +1756,7 @@ changing a feature; this section only records what matters across them.
 | 17 | Hindi — the Help page only (`?lang=hi`), machine-drafted and marked for native-speaker review; documents stay English | `17-hindi-help.md` |
 | 18 | Alerts when the desk is closed — the server checks the watch every five minutes (`lib/alert-loop.ts`, started from `instrumentation.ts`) and sends a browser push notification when a wallet moves (`/api/alerts`, `lib/webpush.ts`: RFC 8291/8292 with `node:crypto`); the list and push key in `.finex/` | `18-alerts-when-closed.md` |
 | 19 | Case file, sign-in and audit log — Save case puts a run in a case file every officer on the server sees, built from the server's own audit record (`/api/cases`); the officer ID from sign-in, stated or verified by a gateway (`lib/identity.ts`); every trace, save, removal and alert switch in a SHA-256 chain (`/audit`, `/api/audit`, `scripts/verify-audit.mjs`) | `19-case-file-and-audit-log.md` |
-| 20 | Bridge following — **not built yet**. Reasons in `docs/features/README.md` | — |
+| 20 | Bridge following — **not built, decided with evidence (26 Sep)**: Allbridge Core's Ethereum USDT pool last took a deposit on 19 Jul 2026, much of it MEV bots; USDT0 goes to chains FineX does not read. Found on the way and fixed: Allbridge and USDT0's adapter were not recognised as bridges (`lib/contracts.ts`, `tests/contracts.test.mjs`) | — |
 | 21 | Own nodes — `TRONGRID_URL`, `TRON_NODE_URL`, `BLOCKSCOUT_URL`, `ETH_RPC_URL` (`lib/endpoints.ts`) point each kind of chain read at the agency's own infrastructure, never falling back to public; `/api/health` `reads` shows where each goes | `21-own-nodes.md` |
 
 Cross-cutting decisions:

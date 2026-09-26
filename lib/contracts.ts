@@ -29,7 +29,13 @@ export function stopsTrace(info: ContractInfo | null | undefined): boolean {
 
 export function categorize(info: ContractInfo): ContractCategory {
   const tags = info.tags.join(" · ");
-  if (/\bbridge\b/i.test(tags)) return "bridge";
+  // "bridge" anywhere in a tag, not only as a word: Allbridge's pool is tagged
+  // "Allbridge: LP-USDT Token", and read as a whole word it was called a DeFi
+  // pool. A LayerZero OFT adapter is a bridge too — it is how USDT0, Tether's
+  // own cross-chain USDT, leaves Ethereum — though its tags ("USDT0:
+  // OAdapterUpgradeable", "USDT0 OFT Adapter") never say so. Checked against
+  // the explorer's tags on 26 Sep 2026.
+  if (/bridge|\boft\b|oadapter/i.test(tags)) return "bridge";
   if (/\b(dex|router|pool|swap|amm|aggregator|lending)\b/i.test(tags)) return "defi";
   return "other";
 }
