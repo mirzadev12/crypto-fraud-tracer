@@ -55,10 +55,13 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         Self-hosted by the deploying agency. No case data leaves it: the wallet
         address, the reported amount and the fraud date stay on the agency&rsquo;s
         own deployment, and nothing is sent to a third-party analytics service.
-        The only outbound calls are reads of public TRON and Ethereum endpoints, which are
+        The only outbound calls are reads of TRON and Ethereum endpoints, which are
         blockchain data, not case data — and, when an officer turns alerts on, a
         notification relayed by that officer&rsquo;s own browser push service,
-        encrypted so the service cannot read it. There is no database server: the
+        encrypted so the service cannot read it. Even a read of public data names
+        the wallet being investigated, so a deployment can point every chain read
+        at nodes it runs itself, and no third party then learns which wallets are
+        under investigation. There is no database server: the
         label tables are plain JSON files in the repository, and what a deployment
         keeps for itself — the shared case file, the audit log and the alert
         watch — are plain files in its own directory.

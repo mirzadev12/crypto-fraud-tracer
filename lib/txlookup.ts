@@ -19,11 +19,10 @@
  */
 
 import type { ChainName } from "./chain-client";
+import { tronHistory, tronKey } from "./endpoints";
 import { EthClient } from "./ethclient";
 import { hexToTronAddress, isTxHash } from "./tron";
 import { USDT_CONTRACT, USDT_DECIMALS } from "./trongrid";
-
-const BASE = "https://api.trongrid.io";
 
 export interface ResolvedTransfer {
   chain: ChainName;
@@ -109,10 +108,16 @@ async function resolveEthTx(txHash: string): Promise<TxLookup | "not-found"> {
 
 async function resolveTronTx(txHash: string): Promise<TxLookup> {
   let body: { data?: EventRow[] } | null = null;
+  // The agency's own endpoint when one is set, and only then (lib/endpoints.ts).
+  const endpoint = tronHistory();
+  if (!endpoint.base) {
+    return { status: "unreadable", txHash, reason: "TRONGRID_URL is set but is not an http(s) URL, so the transaction was not read." };
+  }
+  const key = tronKey(endpoint);
   try {
     const res = await fetch(
-      `${BASE}/v1/transactions/${encodeURIComponent(txHash)}/events`,
-      { headers: { Accept: "application/json" } },
+      `${endpoint.base}/v1/transactions/${encodeURIComponent(txHash)}/events`,
+      { headers: { Accept: "application/json", ...(key ? { "TRON-PRO-API-KEY": key } : {}) } },
     );
     if (!res.ok) {
       return {

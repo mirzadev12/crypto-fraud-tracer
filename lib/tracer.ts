@@ -23,6 +23,7 @@
 import { checkAddress } from "./address";
 import type { ChainClient, Transfer } from "./chain-client";
 import { categoryOf, contractLabel, stopsTrace } from "./contracts";
+import { unreadCause } from "./endpoints";
 import { EthClient } from "./ethclient";
 import { isTerminal, lookup } from "./labels";
 import { buildNarrative } from "./narrative";
@@ -558,7 +559,7 @@ export async function runTrace(
   // just happens at depth 0, where it is most damaging.
   if (grid.didFail(root)) {
     throw new Error(
-      "The chain could not be read for this address — the public endpoint is rate-limiting this deployment. No finding can be stated from an unread wallet.",
+      `The chain could not be read for this address — ${unreadCause(chain)}. No finding can be stated from an unread wallet.`,
     );
   }
 

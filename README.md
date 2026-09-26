@@ -110,7 +110,7 @@ server.
 | `GET` | `/api/issuer/[address]` | Whether Tether has frozen the address, read from the USDT contract's own blacklist on TRON or Ethereum: `frozen`, `not-frozen`, or `unchecked` when the chain did not answer. The chain now, stamped with `checkedAt` and a SHA-256 of the request and response. |
 | `POST` | `/api/watch` — `{items: [{address, since}]}` | For each wallet: `moved` (with every outflow and where it went), `still`, or `unchecked` when the chain did not answer. Up to 25 wallets per call. |
 | `GET` · `POST` · `DELETE` | `/api/alerts` | Alerts when the desk is closed. `GET`: whether this server can keep a watch, the public key a browser subscribes with, and when it last checked. `POST {subscription, items}`: a browser hands over its whole watch list, again on every change. `DELETE {endpoint}`: that browser stops. The server checks every five minutes and sends a browser push notification when a wallet moves. |
-| `GET` | `/api/health` | `{ok, commit, demoMode, chainAccess, ethereumAccess}` — which commit is serving, whether demo mode is on, and whether TRON and Ethereum reads carry an API key (`keyed` or `public`; a key itself is never returned). Reads nothing from the chain. |
+| `GET` | `/api/health` | `{ok, commit, demoMode, chainAccess, ethereumAccess, reads}` — which commit is serving, whether demo mode is on, whether TRON and Ethereum reads carry an API key (`keyed` or `public`; a key itself is never returned), and where each kind of chain read goes (`own`, `public`, `invalid` or `none`; never the address). Reads nothing from the chain. |
 | `GET` · `POST` · `DELETE` | `/api/cases` | The shared case file. `GET`: every case saved on this server, as `CaseSummary[]` plus who saved it and the link that replays it. `POST {address, fingerprint}`: save the run this server traced with that findings fingerprint — the case is built from the server's own audit record, so a run it did not trace is refused (404). `DELETE {id}`: take one out. |
 | `GET` | `/api/audit` | The audit log, newest first (`?limit=`, default 100), and whether its hash chain is intact, with the head. `?format=jsonl` returns the file exactly as written, to check with `scripts/verify-audit.mjs`. |
 
@@ -204,6 +204,14 @@ set `FINEX_IDENTITY_HEADER` to the header it adds (for example
 ignores what the browser says — so set it only when every request reaches
 FineX through the gateway. `docs/features/19-case-file-and-audit-log.md` has the
 details.
+
+Every chain read names a wallet under investigation, so a deployment can keep
+those reads in-house. `TRONGRID_URL` (a TronGrid-compatible API),
+`TRON_NODE_URL` (a TRON full node), `BLOCKSCOUT_URL` (a Blockscout instance's
+`/api/v2`) and `ETH_RPC_URL` (an Ethereum node) each replace one kind of public
+read; a read pointed at the agency's own endpoint never falls back to a public
+one, and `/api/health` shows where each kind goes. See
+`docs/features/21-own-nodes.md`.
 
 Check how a deployment is set up without opening its hosting dashboard:
 

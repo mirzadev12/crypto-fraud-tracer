@@ -26,13 +26,17 @@
 
 import { createHash } from "node:crypto";
 import type { ChainClient, ContractInfo, Transfer } from "./chain-client";
+import { blockscoutKey, ethHistory } from "./endpoints";
 import { toChecksumAddress } from "./evm";
 
-const KEY = (process.env.BLOCKSCOUT_API_KEY ?? "").trim();
 // Keyless traffic uses the public instance; a key uses the Pro API, which
 // refuses keyless requests (HTTP 402) and takes the key as a bearer token, so
-// it never appears in a URL.
-const BASE = KEY ? "https://api.blockscout.com/1/api/v2" : "https://eth.blockscout.com/api/v2";
+// it never appears in a URL. BLOCKSCOUT_URL replaces both with the agency's own
+// Blockscout, which is sent no key (lib/endpoints.ts).
+const KEY = blockscoutKey() ?? "";
+const OWN = ethHistory().source === "own";
+/** Null when BLOCKSCOUT_URL is set but is not a URL: every read then fails, and goes nowhere else. */
+const BASE = ethHistory().base;
 
 /** USDT (ERC-20) on Ethereum mainnet. Verified on live rows: decimals "6". */
 export const ETH_USDT_CONTRACT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
@@ -46,8 +50,9 @@ const TIMEOUT_MS = 15_000;
 /** Ethereum produces a block every 12 seconds since the Merge. */
 const SLOT_MS = 12_000;
 
-// 350 ms keeps a steady stream under 180 a minute; a key allows 10 a second.
-const MIN_GAP_MS = KEY ? 110 : 350;
+// 350 ms keeps a steady stream under 180 a minute; a key allows 10 a second;
+// the agency's own instance has no public limit to respect.
+const MIN_GAP_MS = OWN ? 20 : KEY ? 110 : 350;
 const MAX_GAP_MS = 4000;
 let gapMs = MIN_GAP_MS;
 /** The next moment a request may start, shared by every trace in this process. */
@@ -345,6 +350,7 @@ export class EthClient implements ChainClient {
 
   /** One request, hashed and counted. Never throws. */
   private async fetchJson(path: string): Promise<Fetched> {
+    if (!BASE) return { ok: false, status: null };
     let timeouts = 0;
     for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
       await paced();

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { DEMO_MODE } from "@/lib/demo";
+import { readSources } from "@/lib/endpoints";
 
 /**
  * GET /api/health — is this deployment set up the way the demo needs?
@@ -24,6 +25,10 @@ export function GET() {
       chainAccess: process.env.TRONGRID_API_KEY ? "keyed" : "public",
       // The same question for Ethereum reads. Never the key.
       ethereumAccess: process.env.BLOCKSCOUT_API_KEY ? "keyed" : "public",
+      // Where each kind of chain read goes: the agency's own endpoint ("own"),
+      // a public one, a setting that is not a URL, or not made at all. Never
+      // the address itself (lib/endpoints.ts).
+      reads: readSources(),
     },
     { headers: { "Cache-Control": "no-store" } },
   );

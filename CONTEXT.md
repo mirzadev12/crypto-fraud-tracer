@@ -1756,7 +1756,8 @@ changing a feature; this section only records what matters across them.
 | 17 | Hindi — the Help page only (`?lang=hi`), machine-drafted and marked for native-speaker review; documents stay English | `17-hindi-help.md` |
 | 18 | Alerts when the desk is closed — the server checks the watch every five minutes (`lib/alert-loop.ts`, started from `instrumentation.ts`) and sends a browser push notification when a wallet moves (`/api/alerts`, `lib/webpush.ts`: RFC 8291/8292 with `node:crypto`); the list and push key in `.finex/` | `18-alerts-when-closed.md` |
 | 19 | Case file, sign-in and audit log — Save case puts a run in a case file every officer on the server sees, built from the server's own audit record (`/api/cases`); the officer ID from sign-in, stated or verified by a gateway (`lib/identity.ts`); every trace, save, removal and alert switch in a SHA-256 chain (`/audit`, `/api/audit`, `scripts/verify-audit.mjs`) | `19-case-file-and-audit-log.md` |
-| 20–21 | Bridge following, self-hosted nodes — **not built yet**. Reasons in `docs/features/README.md` | — |
+| 20 | Bridge following — **not built yet**. Reasons in `docs/features/README.md` | — |
+| 21 | Own nodes — `TRONGRID_URL`, `TRON_NODE_URL`, `BLOCKSCOUT_URL`, `ETH_RPC_URL` (`lib/endpoints.ts`) point each kind of chain read at the agency's own infrastructure, never falling back to public; `/api/health` `reads` shows where each goes | `21-own-nodes.md` |
 
 Cross-cutting decisions:
 
@@ -1837,6 +1838,15 @@ Cross-cutting decisions:
     server components import `lib/api.ts`; the hook is `lib/officer-store.ts`.
   - **`FINEX_IDENTITY_HEADER` only behind a gateway** every request passes
     through, or anyone can send the header.
+- **Every public endpoint lives in `lib/endpoints.ts`** (note 21) — grep
+  `lib/` and `app/` for `api.trongrid.io`, `blockscout.com` or an RPC host and
+  nothing else should turn up. A read pointed at the agency's own endpoint
+  never falls back to a public one, keys go only to their own services, and a
+  chain read in-house stays in-house (the TRON node read follows TRON history;
+  Ethereum's freeze check is not made without `ETH_RPC_URL`). **TRON pages
+  follow the `fingerprint` cursor on the configured base, not `links.next`**:
+  the absolute link a mirror hands back can point at the public host. Verified
+  live that TronGrid's link and ours carry the same path and parameters.
 - **A fresh checkout needs `npx next typegen` before `npx tsc --noEmit`.** The
   route types are generated, not committed; CI runs typegen first.
 - **Unit tests live in `tests/`**, run with

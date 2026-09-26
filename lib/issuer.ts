@@ -28,17 +28,10 @@ import { checkAddress } from "./address";
 import type { ChainName } from "./chain-client";
 import { base58Decode } from "./tron";
 import { ETH_USDT_CONTRACT } from "./ethclient";
+import { ethNodes, tronKey, tronNode } from "./endpoints";
 import { USDT_CONTRACT } from "./trongrid";
 
 const IS_BLACKLISTED = "e47d6060";
-
-/** Public Ethereum nodes, in the order they are asked. Any one answer is enough. */
-const ETH_RPCS = [
-  "https://ethereum-rpc.publicnode.com",
-  "https://eth.drpc.org",
-  "https://cloudflare-eth.com",
-  "https://1rpc.io/eth",
-];
 
 export type IssuerStatus =
   | {
@@ -74,7 +67,9 @@ async function readEthereum(address: string): Promise<{ frozen: boolean; hash: s
     method: "eth_call",
     params: [{ to: ETH_USDT_CONTRACT, data }, "latest"],
   });
-  for (const url of ETH_RPCS) {
+  // The agency's own node when one is set; otherwise the public nodes in turn,
+  // any one answer being enough (lib/endpoints.ts).
+  for (const url of ethNodes().bases) {
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -104,12 +99,15 @@ async function readTron(address: string): Promise<{ frozen: boolean; hash: strin
     parameter: hex20.padStart(64, "0"),
     visible: true,
   });
+  const node = tronNode();
+  if (!node.base) return null;
+  const key = tronKey(node);
   try {
-    const res = await fetch("https://api.trongrid.io/wallet/triggerconstantcontract", {
+    const res = await fetch(`${node.base}/wallet/triggerconstantcontract`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        ...(process.env.TRONGRID_API_KEY ? { "TRON-PRO-API-KEY": process.env.TRONGRID_API_KEY } : {}),
+        ...(key ? { "TRON-PRO-API-KEY": key } : {}),
       },
       body: request,
       signal: AbortSignal.timeout(10_000),
@@ -136,11 +134,21 @@ export async function issuerFreezeStatus(raw: string): Promise<IssuerStatus> {
   const read =
     check.chain === "ethereum" ? await readEthereum(check.address) : await readTron(check.address);
   if (!read) {
+    // Why it was not read, when the deployment's own settings are the reason.
+    const source = check.chain === "ethereum" ? ethNodes().source : tronNode().source;
+    // The TRON node read falls back to TRONGRID_URL, so name whichever was used.
+    const setting =
+      check.chain === "ethereum" ? "ETH_RPC_URL" : process.env.TRON_NODE_URL?.trim() ? "TRON_NODE_URL" : "TRONGRID_URL";
     return {
       status: "unchecked",
       chain: check.chain,
       address: check.address,
-      reason: "The chain did not answer, so nothing is stated about whether the issuer has frozen this address.",
+      reason:
+        source === "none"
+          ? "This deployment reads Ethereum from its own explorer and names no Ethereum node of its own (ETH_RPC_URL), so the issuer's list was not read rather than asking a public node."
+          : source === "invalid"
+            ? `${setting} is set but is not an http(s) URL, so the issuer's list was not read.`
+            : "The chain did not answer, so nothing is stated about whether the issuer has frozen this address.",
     };
   }
   return {

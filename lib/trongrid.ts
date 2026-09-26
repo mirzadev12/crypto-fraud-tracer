@@ -22,8 +22,14 @@
 
 import { createHash } from "node:crypto";
 import type { ChainClient, Transfer } from "./chain-client";
+import { tronHistory, tronKey } from "./endpoints";
 
-const BASE = "https://api.trongrid.io";
+/**
+ * The public TronGrid, or the agency's own endpoint when TRONGRID_URL names
+ * one (`lib/endpoints.ts`). A setting that is not a URL leaves no base: the
+ * read fails rather than going anywhere else.
+ */
+const base = (): string => tronHistory().base ?? "invalid:";
 
 /** USDT (TRC-20). Verified on-chain: token_info.symbol "USDT", decimals 6. */
 export const USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
@@ -48,9 +54,14 @@ const RETRY_DELAYS_MS = [1000, 3000, 6000];
 // With an API key the endpoint allows a far higher rate, so the floor drops and
 // a trace runs in a fraction of the time; the adaptive gap below still backs
 // off the moment it is refused, so a lower floor can only cost a retry.
-const MIN_GAP_MS = process.env.TRONGRID_API_KEY ? 100 : 250;
+// An agency's own endpoint has no public rate limit to respect, so its floor is
+// near zero; a refusal still doubles the gap, whoever sends it.
+const minGap = (): number => {
+  const endpoint = tronHistory();
+  return endpoint.source === "own" ? 20 : tronKey(endpoint) ? 100 : 250;
+};
 const MAX_GAP_MS = 4000;
-let gapMs = MIN_GAP_MS;
+let gapMs = minGap();
 
 /**
  * The next moment a request may start, shared by every trace in this process.
@@ -77,7 +88,7 @@ function refused(): void {
 
 /** The endpoint answered: ease back towards the floor, a tenth at a time. */
 function answered(): void {
-  gapMs = Math.max(MIN_GAP_MS, Math.round(gapMs * 0.9));
+  gapMs = Math.max(minGap(), Math.round(gapMs * 0.9));
 }
 
 /** The shape every chain client returns; the TRON name is kept for its callers. */
@@ -168,11 +179,12 @@ export class TronGrid implements ChainClient {
     if (cached) return cached;
 
     const out: Trc20Transfer[] = [];
-    let url =
-      `${BASE}/v1/accounts/${encodeURIComponent(address)}/transactions/trc20` +
+    const first =
+      `${base()}/v1/accounts/${encodeURIComponent(address)}/transactions/trc20` +
       `?limit=${PAGE_LIMIT}&only_confirmed=true` +
       (contract ? `&contract_address=${contract}` : "") +
       (this.asOf !== null ? `&max_timestamp=${this.asOf}` : "");
+    let url = first;
 
     let readAnything = false;
     // Whether we reached the end of the wallet's history. Pages come newest
@@ -196,11 +208,20 @@ export class TronGrid implements ChainClient {
         if (parsed) out.push(parsed);
       }
 
+      // The next page is asked for by its cursor, on our own base. The response
+      // also carries a ready-made `links.next`, but that is an absolute URL: a
+      // mirror or proxy of TronGrid can hand back one on the public host, and
+      // following it would send the wallet to the very service an own endpoint
+      // exists to avoid.
+      if (rows.length < PAGE_LIMIT) break;
       const meta = isObject(body.meta) ? body.meta : null;
-      const links = meta && isObject(meta.links) ? meta.links : null;
-      const next = links && typeof links.next === "string" ? links.next : "";
-      if (!next || rows.length < PAGE_LIMIT) break;
-      url = next;
+      const cursor = meta && typeof meta.fingerprint === "string" ? meta.fingerprint : "";
+      if (!cursor) {
+        // A full page with no way to the next one: what we have is not the whole history.
+        whole = false;
+        break;
+      }
+      url = `${first}&fingerprint=${encodeURIComponent(cursor)}`;
       // More to fetch, but this was the last page we allow ourselves.
       if (page === this.maxPages - 1) whole = false;
     }
@@ -235,7 +256,7 @@ export class TronGrid implements ChainClient {
   ): Promise<{ transfers: Trc20Transfer[]; complete: boolean } | null> {
     const subject = address.trim();
     const url =
-      `${BASE}/v1/accounts/${encodeURIComponent(subject)}/transactions/trc20` +
+      `${base()}/v1/accounts/${encodeURIComponent(subject)}/transactions/trc20` +
       `?limit=${WATCH_LIMIT}&only_confirmed=true&only_from=true` +
       `&min_timestamp=${Math.max(0, Math.floor(sinceMs) + 1)}` +
       `&contract_address=${USDT_CONTRACT}`;
@@ -257,6 +278,11 @@ export class TronGrid implements ChainClient {
    * single failed page must not take a whole trace down with it.
    */
   private async getJson(url: string): Promise<Record<string, unknown> | null> {
+    // An own-endpoint setting that is not a URL: nothing to ask, and nowhere else to go.
+    if (!/^https?:\/\//.test(url)) return null;
+    // Optional, and only ever for TronGrid itself. Without a key the public
+    // endpoint throttles hard, which is fine on a laptop and not on a shared IP.
+    const key = tronKey(tronHistory());
     for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
       await paced();
       this.calls++;
@@ -264,11 +290,7 @@ export class TronGrid implements ChainClient {
         const res = await fetch(url, {
           headers: {
             accept: "application/json",
-            // Optional. Without a key the public endpoint throttles hard, which
-            // is fine on a laptop and not fine on a shared deployment IP.
-            ...(process.env.TRONGRID_API_KEY
-              ? { "TRON-PRO-API-KEY": process.env.TRONGRID_API_KEY }
-              : {}),
+            ...(key ? { "TRON-PRO-API-KEY": key } : {}),
           },
           signal: AbortSignal.timeout(20_000),
         });
