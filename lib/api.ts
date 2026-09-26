@@ -12,6 +12,7 @@
  */
 
 import { checkAddress } from "./address";
+import { officerHeaders } from "./officer";
 import type {
   CaseSummary,
   Label,
@@ -569,8 +570,12 @@ async function getJsonWithProvenance(
   url: string,
   init?: RequestInit,
 ): Promise<{ json: unknown; recorded: boolean }> {
+  // Who is asking, so the server's audit log can say (lib/officer.ts).
+  const headers = new Headers(init?.headers);
+  for (const [name, value] of Object.entries(officerHeaders())) headers.set(name, value);
   const res = await fetch(url, {
     ...init,
+    headers,
     cache: "no-store",
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
@@ -615,6 +620,7 @@ async function streamJson(
   try {
     const headers = new Headers(init?.headers);
     headers.set("accept", "application/x-ndjson");
+    for (const [name, value] of Object.entries(officerHeaders())) headers.set(name, value);
     const res = await fetch(url, {
       ...init,
       headers,

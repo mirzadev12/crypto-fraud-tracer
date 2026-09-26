@@ -165,6 +165,10 @@ const en: HelpContent = {
       body: "A link that reopens this exact result with the same figures. Safe to forward.",
     },
     {
+      title: "Save case",
+      body: "Keeps this result in the case file on the queue, where every officer using this server sees it. What is kept is the server's own record of the trace, so opening it shows the same figures again. Who saved it goes into the audit log.",
+    },
+    {
       title: "The small icon next to any address",
       body: "Opens that wallet on its own: how old it is, who paid into it, and where it sent money. Press Trace the payers back to see which exchanges gave the payers their money.",
     },
@@ -313,6 +317,10 @@ const hi: HelpContent = {
     {
       title: "Permalink",
       body: "एक लिंक जो यही नतीजा उन्हीं आँकड़ों के साथ फिर से खोलता है। आगे भेजना सुरक्षित है।",
+    },
+    {
+      title: "Save case",
+      body: "यह नतीजा Queue की case file में रखता है, जहाँ इस सर्वर का हर अधिकारी उसे देखता है। रखा जाता है सर्वर का अपना ट्रेस रिकॉर्ड, इसलिए खोलने पर वही आँकड़े फिर दिखते हैं। किसने सहेजा, यह ऑडिट लॉग में दर्ज होता है।",
     },
     {
       title: "किसी भी पते के पास का छोटा आइकन",

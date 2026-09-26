@@ -6,17 +6,23 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/AppShell";
 import { Chip, buttonStyles } from "@/components/ui";
+import { signIn, signOut } from "@/lib/officer";
+import { useOfficer } from "@/lib/officer-store";
 
 /**
  * Prototype sign-in.
  *
- * There is deliberately no password field: authentication would run through the
- * department's own SSO, and a prototype has no business collecting a real
- * credential. The screen records who is working the case — that is what the
- * evidence packet needs — and nothing is transmitted or stored.
+ * There is deliberately no password field: authentication belongs to the
+ * department's own sign-in, and a prototype has no business collecting a real
+ * credential. The screen records who is working — the Officer ID and unit are
+ * kept in this browser and sent with each request, so the audit log can say who
+ * traced or saved what, marked as stated and not verified (`lib/identity.ts`).
+ * Behind the department's sign-in gateway the server takes the identity from
+ * the gateway instead, and ignores what the browser says.
  */
 export default function LoginPage() {
   const router = useRouter();
+  const officer = useOfficer();
   const [officerId, setOfficerId] = useState("");
   const [unit, setUnit] = useState("");
 
@@ -79,10 +85,29 @@ export default function LoginPage() {
               <Chip tone="warm">Prototype</Chip>
             </div>
 
+            {officer ? (
+              <div className="mt-6 space-y-6">
+                <p className="text-sm leading-6 text-muted">
+                  Signed in on this browser as{" "}
+                  <span className="font-mono text-ink">{officer.officerId}</span>
+                  {officer.unit ? <>, {officer.unit}</> : null}. What you trace and save
+                  is recorded under this name, marked as stated and not verified.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Link href="/dashboard" className={`${buttonStyles.primary} grow`}>
+                    Continue to console
+                  </Link>
+                  <button type="button" onClick={() => signOut()} className={buttonStyles.ghost}>
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            ) : (
             <form
               className="mt-6 space-y-6"
               onSubmit={(e) => {
                 e.preventDefault();
+                if (officerId.trim()) signIn({ officerId, unit });
                 router.push("/dashboard");
               }}
             >
@@ -124,12 +149,14 @@ export default function LoginPage() {
                 Continue to console
               </button>
             </form>
+            )}
 
             <p className="mt-6 border border-line bg-surface-2/60 px-4 py-4 text-xs leading-6 text-faint">
-              This build does not authenticate. There is no password field on
-              purpose — sign-in would run through departmental SSO, and nothing you
-              type here is transmitted or stored. The details are used only to
-              attribute the case file.
+              This build does not authenticate, and there is no password field on
+              purpose. Your officer ID and unit are kept in this browser and sent
+              with what you do, so the audit log can say who did it — marked as
+              stated, not verified. Deployed behind the department&rsquo;s sign-in,
+              the name comes from that sign-in instead.
             </p>
 
             <p className="mt-4 text-center text-xs text-faint">

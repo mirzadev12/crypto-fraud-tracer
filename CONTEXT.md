@@ -55,7 +55,10 @@ valid address *not* in the file still goes to the chain and comes back stamped
 
 ### Still not done
 
-`/api/cases` (deliberately — see §3). The narrative from AGENTS.md §11 is built, but deterministically rather than by a hosted model — see §3.
+Nothing from AGENTS.md §5 any more: `/api/cases` was built on 26 Sep as the
+shared case file (§11, note 19), served only from runs the server itself traced.
+The narrative from AGENTS.md §11 is built, but deterministically rather than by
+a hosted model — see §3.
 
 ---
 
@@ -70,7 +73,7 @@ that fails is an explained "no trace" state, never another address's result.
 
 | Method | Route | Returns | Notes |
 | --- | --- | --- | --- |
-| `GET` | `/api/cases` | — | Deliberately unimplemented and no longer asked; the register is `/mock/cases.json`, badged COMMITTED REGISTER. |
+| `GET` | `/api/cases` | `CaseSummary[]` + provenance | Since 26 Sep: the shared case file (note 19). The committed register is still `/mock/cases.json`, badged COMMITTED REGISTER; saved cases are a separate panel. |
 | `POST` | `/api/trace` body `{address, amount?, fraudDate?, model?, asOf?}` | `TraceResult` | |
 | `GET` | `/api/trace/[address]?amount=&since=&asof=&model=` | `TraceResult` | The permalink; a pinned link replays one run exactly. |
 | `GET` | `/api/screen/[address]` | `Screening` (`lib/screen.ts`) | Any chain the OFAC list covers. Reads no chain; `note` says "not listed is not a clearance". |
@@ -944,6 +947,10 @@ Eight addresses in the register are illustrative (`isIllustrative` in
 - **`/api/cases` is deliberately unimplemented.** There is no case database.
   Serving illustrative complaint records through it would flip the register's
   badge to "Live trace" while claiming chain-read data it is not.
+  **Superseded 26 Sep** (§11, note 19), without dropping the reason: it now
+  serves the shared case file, and a case can only be made from a run the
+  server itself traced and recorded in its audit log — chain-read by
+  construction. The committed register is untouched and never comes from it.
 - **Containers must earn themselves.** `Panel` takes `framed={false}` for the
   common case — a label, a hairline, and the content. Only a canvas, a scrolling
   table or the document sheet gets a border. Do not card-ify a screen.
@@ -1025,7 +1032,9 @@ Eight addresses in the register are illustrative (`isIllustrative` in
   on the free tier; `globals.css` tones it down rather than hiding it.
 - **The login screen has no password field.** A prototype has no business
   collecting a credential; real sign-in would be departmental SSO. The screen says
-  so in writing.
+  so in writing. Since 26 Sep (note 19) the officer ID typed there is kept in the
+  browser and recorded against every trace and saved case, **stated, not
+  verified**; behind a gateway, `FINEX_IDENTITY_HEADER` makes it verified.
 - **No INR conversion anywhere.** It would need an FX rate we cannot source
   honestly. Everything is USDT.
 - **Timestamps are UTC and absolute.** No "3 hours ago" — it breaks hydration and
@@ -1191,6 +1200,7 @@ node scripts/calibrate-clustering.mjs     # re-measure whether derived deposit a
 node scripts/calibrate-clustering-eth.mjs # the same for all Ethereum rows, plus who paid their gas
 node --import ./tests/register.mjs scripts/check-demo.mjs 3032   # demo mode answers every recorded case, exactly
 node scripts/verify-case.mjs              # re-read every recorded case's transactions from the chain
+node scripts/verify-audit.mjs finex-audit.jsonl   # check a downloaded audit log, with nothing from the app
 node scripts/rescore-cases.mjs 3010 --only T…   # re-derive named cases as of capture (server without demo mode)
 node scripts/make-share-bundle.mjs        # bundle the source into share/frontend-source.md for a chat
 node scripts/refresh-sanctions.mjs        # re-derive both sanctions tables from treasury.gov sdn.xml (or pass a path/URL)
@@ -1745,7 +1755,8 @@ changing a feature; this section only records what matters across them.
 | 16 | By state — a complaint sheet's State column (36 states and UTs, common spellings) groups a batch: complaints, critical, at an exchange, closed, not read, USDT reachable, exchanges reached | `16-by-state.md` |
 | 17 | Hindi — the Help page only (`?lang=hi`), machine-drafted and marked for native-speaker review; documents stay English | `17-hindi-help.md` |
 | 18 | Alerts when the desk is closed — the server checks the watch every five minutes (`lib/alert-loop.ts`, started from `instrumentation.ts`) and sends a browser push notification when a wallet moves (`/api/alerts`, `lib/webpush.ts`: RFC 8291/8292 with `node:crypto`); the list and push key in `.finex/` | `18-alerts-when-closed.md` |
-| 19–21 | Case database and logins, bridge following, self-hosted nodes — **not built yet**: each needs a database or infrastructure this hackathon build deliberately does not have (AGENTS.md §3). Reasons in `docs/features/README.md` | — |
+| 19 | Case file, sign-in and audit log — Save case puts a run in a case file every officer on the server sees, built from the server's own audit record (`/api/cases`); the officer ID from sign-in, stated or verified by a gateway (`lib/identity.ts`); every trace, save, removal and alert switch in a SHA-256 chain (`/audit`, `/api/audit`, `scripts/verify-audit.mjs`) | `19-case-file-and-audit-log.md` |
+| 20–21 | Bridge following, self-hosted nodes — **not built yet**. Reasons in `docs/features/README.md` | — |
 
 Cross-cutting decisions:
 
@@ -1810,6 +1821,22 @@ Cross-cutting decisions:
     the DevTools "Background services" record.
   - **`path.join(/*turbopackIgnore: true*/ …)`** on the state file's path:
     without it Turbopack traces the whole project into the server output.
+- **The case file and the audit log** (note 19) share the alerts' directory
+  through `lib/state-file.ts` (per-file write queues on `globalThis`). Rules:
+  - **A saved case is built from the server's own audit record** of the trace,
+    found by its findings fingerprint — never from what the browser sends. A
+    run the server did not trace cannot be saved. Keep it that way; it is what
+    makes `/api/cases` honest (§3).
+  - **An audit entry is checked exactly as written.** `parseEntry` tidies
+    nothing, because tidying changes what the hash is checked against, and
+    `scripts/verify-audit.mjs` re-states the hash rule without importing the
+    app. Change the entry shape and both must change together.
+  - **Trace logging never withholds a trace**; a failed write goes to the
+    server log and shows as a missing entry.
+  - **`lib/officer.ts` is React-free** because `lib/api.ts` imports it and
+    server components import `lib/api.ts`; the hook is `lib/officer-store.ts`.
+  - **`FINEX_IDENTITY_HEADER` only behind a gateway** every request passes
+    through, or anyone can send the header.
 - **A fresh checkout needs `npx next typegen` before `npx tsc --noEmit`.** The
   route types are generated, not committed; CI runs typegen first.
 - **Unit tests live in `tests/`**, run with

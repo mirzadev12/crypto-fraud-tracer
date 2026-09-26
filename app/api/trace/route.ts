@@ -3,6 +3,8 @@ import { checkAddress } from "@/lib/address";
 import { runTrace, type TraceRequest } from "@/lib/tracer";
 import { streamTrace, wantsStream } from "@/lib/trace-stream";
 import { DEMO_MODE, answersFor, frozenTrace } from "@/lib/demo";
+import type { TraceRun } from "@/lib/audit";
+import { recordTrace } from "@/lib/audit-store";
 
 /**
  * POST /api/trace — run a live trace. AGENTS.md §5.
@@ -91,6 +93,9 @@ export async function POST(request: Request) {
     ...(asOfGiven ? { asOf: asOfAt.toISOString() } : {}),
   };
 
+  // What was asked, for the audit log: every answer below is recorded with it.
+  const run: TraceRun = { amount: job.amount, fraudDate: job.fraudDate, model: job.model ?? "haircut" };
+
   // Demo mode, AGENTS.md §10. Served only for an address we actually hold a
   // frozen case for, and only when the run asked for is the run it recorded —
   // anything else still goes to the chain, because serving one run's recorded
@@ -99,6 +104,7 @@ export async function POST(request: Request) {
   if (DEMO_MODE) {
     const held = frozenTrace(subject);
     if (held && answersFor(held.trace, job)) {
+      await recordTrace(request, held.trace, run, "recorded");
       if (wantsStream(request)) {
         return streamTrace(async (emit) => {
           emit({ type: "recorded", caseId: held.trace.caseId });
@@ -112,11 +118,16 @@ export async function POST(request: Request) {
   }
 
   if (wantsStream(request)) {
-    return streamTrace((emit) => runTrace(job, emit), "live");
+    return streamTrace(async (emit) => {
+      const result = await runTrace(job, emit);
+      await recordTrace(request, result, run, "live");
+      return result;
+    }, "live");
   }
 
   try {
     const result = await runTrace(job);
+    await recordTrace(request, result, run, "live");
     return NextResponse.json(result, {
       headers: { "x-finex-provenance": "live" },
     });

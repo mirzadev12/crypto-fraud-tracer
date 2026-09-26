@@ -40,6 +40,7 @@ import { chainMeta } from "@/lib/chain-meta";
 import { categoryOf } from "@/lib/contracts";
 import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
 import IssuerFreeze from "./IssuerFreeze";
+import SaveCase from "./SaveCase";
 
 /* ------------------------------------------------------------- risk flags */
 
@@ -638,6 +639,7 @@ export default function TraceView({
             Freeze request
           </Link>
         ) : null}
+        <SaveCase trace={trace} source={source} className={secondary} />
       </>
     );
   };

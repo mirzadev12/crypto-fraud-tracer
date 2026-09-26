@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
  */
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Investigator console sign-in. The prototype does not authenticate; departmental single sign-on would.",
+  description: "Investigator console sign-in. The officer ID is recorded against what you do, as stated and not verified; the prototype does not authenticate, and departmental sign-in would.",
 };
 
 export default function LoginLayout({ children }: { children: ReactNode }) {

@@ -15,7 +15,11 @@
  */
 
 import type { RunSummary } from "./alerts";
+import { officerHeaders } from "./officer";
 import type { WatchItem } from "./watch";
+
+/** JSON, and who is asking — turning alerts on or off goes into the audit log. */
+const jsonHeaders = () => ({ "Content-Type": "application/json", ...officerHeaders() });
 
 export type AlertStatus =
   | { kind: "unsupported" }
@@ -78,7 +82,7 @@ function sameKey(held: ArrayBuffer | null, publicKey: string): boolean {
 async function forget(endpoint: string): Promise<void> {
   await fetch("/api/alerts", {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify({ endpoint }),
   }).catch(() => undefined);
 }
@@ -112,7 +116,7 @@ async function hand(subscription: PushSubscription, items: WatchItem[]): Promise
   const { endpoint, keys } = subscription.toJSON();
   const res = await fetch("/api/alerts", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify({ subscription: { endpoint, keys }, items }),
   });
   if (!res.ok) {

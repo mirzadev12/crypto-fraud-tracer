@@ -3,6 +3,7 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import CaseQueue from "@/components/CaseQueue";
 import WatchAlerts from "@/components/WatchAlerts";
+import CaseFile from "@/components/CaseFile";
 import OutcomesDesk from "@/components/OutcomesDesk";
 import { PageHeader, buttonStyles } from "@/components/ui";
 
@@ -34,6 +35,11 @@ export default function DashboardPage() {
           most time-critical thing on this desk. */}
       <div className="mt-6">
         <WatchAlerts />
+      </div>
+      {/* Cases officers saved on this deployment, before the committed register
+          that is the same everywhere. */}
+      <div className="mt-10">
+        <CaseFile />
       </div>
       <div className="mt-10">
         <CaseQueue />

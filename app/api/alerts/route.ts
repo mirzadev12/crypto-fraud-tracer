@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { checkSoon, startAlertLoop } from "@/lib/alert-loop";
 import { loadState, mutate, vapidKeys } from "@/lib/alert-store";
 import { CHECK_EVERY_MINUTES, readSync, removeSubscription, upsert } from "@/lib/alerts";
+import { appendAudit } from "@/lib/audit-store";
+import { actorOf } from "@/lib/identity";
 
 /**
  * /api/alerts — alerts when the desk is closed.
@@ -68,6 +70,16 @@ export async function POST(request: Request) {
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: 503, headers: NO_STORE });
     }
+    // Turning alerts on is recorded; the list being handed over again is not.
+    if (result.created) {
+      await appendAudit({
+        action: "alerts.on",
+        actor: actorOf(request.headers),
+        chain: null,
+        address: null,
+        detail: { wallets: sync.items.length, service: new URL(sync.target.endpoint).host },
+      }).catch(() => undefined);
+    }
   } catch (err) {
     return cannot(err);
   }
@@ -89,6 +101,15 @@ export async function DELETE(request: Request) {
   }
   try {
     const removed = await mutate((state) => removeSubscription(state, endpoint));
+    if (removed) {
+      await appendAudit({
+        action: "alerts.off",
+        actor: actorOf(request.headers),
+        chain: null,
+        address: null,
+        detail: { service: URL.canParse(endpoint) ? new URL(endpoint).host : null },
+      }).catch(() => undefined);
+    }
     return NextResponse.json({ ok: true, removed }, { headers: NO_STORE });
   } catch (err) {
     return cannot(err);

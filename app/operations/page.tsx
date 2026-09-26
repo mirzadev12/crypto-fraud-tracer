@@ -36,9 +36,15 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
     a: (
       <>
         I4C and state cyber cells. Accounts are per officer through the
-        department&rsquo;s own single sign-on, which is why the prototype&rsquo;s
-        sign-in has no password field — a prototype has no business holding a
-        credential, and the screen says so rather than mocking a login.
+        department&rsquo;s own single sign-on: deployed behind its sign-in gateway,
+        FineX takes the verified name the gateway passes and records it against
+        every trace and saved case in its{" "}
+        <Link href="/audit" className="text-brass hover:underline">
+          audit log
+        </Link>
+        . The prototype&rsquo;s sign-in has no password field — a prototype has no
+        business holding a credential — so the officer ID typed there is recorded
+        as stated, not verified, and every record says which it is.
       </>
     ),
   },
@@ -50,8 +56,12 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         address, the reported amount and the fraud date stay on the agency&rsquo;s
         own deployment, and nothing is sent to a third-party analytics service.
         The only outbound calls are reads of public TRON and Ethereum endpoints, which are
-        blockchain data, not case data. There is no database — the label tables
-        are plain JSON files in the repository.
+        blockchain data, not case data — and, when an officer turns alerts on, a
+        notification relayed by that officer&rsquo;s own browser push service,
+        encrypted so the service cannot read it. There is no database server: the
+        label tables are plain JSON files in the repository, and what a deployment
+        keeps for itself — the shared case file, the audit log and the alert
+        watch — are plain files in its own directory.
       </>
     ),
   },

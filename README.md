@@ -49,7 +49,9 @@ whose addresses were never on the chain.
 | Route | What it is |
 | --- | --- |
 | `/` | The pitch: what the tool does and where its limits are. |
-| `/dashboard` | Today's complaint queue, ordered by triage rather than arrival — with the watch on money still at rest (and alerts when FineX is closed), and the freeze requests sent from this browser and what each exchange did, counted by exchange. |
+| `/dashboard` | Today's complaint queue, ordered by triage rather than arrival — with the watch on money still at rest (and alerts when FineX is closed), the case file officers saved on this server, and the freeze requests sent from this browser and what each exchange did, counted by exchange. |
+| `/login` | Sign-in: the officer ID and unit, recorded against what you trace and save as stated, not verified. No password; behind the department's sign-in gateway the server records the gateway's verified name instead. |
+| `/audit` | The audit log: every trace this server answered, every case saved or removed, every browser that turned alerts on or off, with who — in a hash chain the page checks, with its head to write down. |
 | `/investigate` | Address, amount and fraud date in; a full trace out. The address checksum is verified in the browser before anything is sent. |
 | `/trace/[address]` | The full result: destination, fund-flow canvas, wallet table, risk flags, movement timeline, chain of custody. |
 | `/fund-flow` | Canvas-first explorer with a case rail and a wallet inspector. |
@@ -109,7 +111,8 @@ server.
 | `POST` | `/api/watch` — `{items: [{address, since}]}` | For each wallet: `moved` (with every outflow and where it went), `still`, or `unchecked` when the chain did not answer. Up to 25 wallets per call. |
 | `GET` · `POST` · `DELETE` | `/api/alerts` | Alerts when the desk is closed. `GET`: whether this server can keep a watch, the public key a browser subscribes with, and when it last checked. `POST {subscription, items}`: a browser hands over its whole watch list, again on every change. `DELETE {endpoint}`: that browser stops. The server checks every five minutes and sends a browser push notification when a wallet moves. |
 | `GET` | `/api/health` | `{ok, commit, demoMode, chainAccess, ethereumAccess}` — which commit is serving, whether demo mode is on, and whether TRON and Ethereum reads carry an API key (`keyed` or `public`; a key itself is never returned). Reads nothing from the chain. |
-| `GET` | `/api/cases` | Deliberately unimplemented. There is no case database, and serving illustrative records through it would claim chain-read data it is not. |
+| `GET` · `POST` · `DELETE` | `/api/cases` | The shared case file. `GET`: every case saved on this server, as `CaseSummary[]` plus who saved it and the link that replays it. `POST {address, fingerprint}`: save the run this server traced with that findings fingerprint — the case is built from the server's own audit record, so a run it did not trace is refused (404). `DELETE {id}`: take one out. |
+| `GET` | `/api/audit` | The audit log, newest first (`?limit=`, default 100), and whether its hash chain is intact, with the head. `?format=jsonl` returns the file exactly as written, to check with `scripts/verify-audit.mjs`. |
 
 Trace a wallet, and replay an officer's exact run:
 
@@ -172,6 +175,35 @@ restarts, set `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` and point
 `FINEX_STATE_DIR` at a persistent disk — otherwise the next desk to open hands
 both back. `docs/features/18-alerts-when-closed.md` has the details and the
 command that makes a key pair.
+
+Every trace the server answers is written to its audit log, and a case is
+saved from that record — so what the case file shows is what the server
+traced. Once the recorded case above has been traced on this server (its sample
+link, or the permalink call), save it by its findings fingerprint — the one
+printed at the foot of its evidence packet:
+
+```bash
+curl -X POST http://localhost:3000/api/cases -H "Content-Type: application/json" -d "{\"address\":\"TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx\",\"fingerprint\":\"765753a3876b7bf446f8f01f421687c4e6ad904d8be9f65f7aa4ff3a57a86e3d\"}"
+```
+
+Then check the log anywhere, with a script that uses nothing from the app:
+
+```bash
+curl -o finex-audit.jsonl "http://localhost:3000/api/audit?format=jsonl"
+```
+
+```bash
+node scripts/verify-audit.mjs finex-audit.jsonl
+```
+
+It prints `INTACT` and the head, or the first entry that was changed, removed
+or moved. Requests say who is asking with the officer ID typed at sign-in,
+recorded as stated and not verified. Behind the department's sign-in gateway,
+set `FINEX_IDENTITY_HEADER` to the header it adds (for example
+`x-forwarded-email`): the server then records that name as verified and
+ignores what the browser says — so set it only when every request reaches
+FineX through the gateway. `docs/features/19-case-file-and-audit-log.md` has the
+details.
 
 Check how a deployment is set up without opening its hosting dashboard:
 

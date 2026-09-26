@@ -25,6 +25,7 @@ verified, and its limits. The numbers follow the priority list agreed on
 | 16 | By state | A batch counted by state or union territory | [16](16-by-state.md) |
 | 17 | Hindi help | The help page in Hindi, marked for native-speaker review | [17](17-hindi-help.md) |
 | 18 | Alerts when the desk is closed | The server checks the watch every five minutes and sends a browser notification when a wallet moves; no provider, no key, no dependency | [18](18-alerts-when-closed.md) |
+| 19 | Case file, sign-in and audit log | A case file shared by every officer on the server, built only from runs the server traced; who did what, stated or verified by a gateway; a hash-chained audit log anyone can check | [19](19-case-file-and-audit-log.md) |
 
 ## Not built yet, and why
 
@@ -33,13 +34,12 @@ verified, and its limits. The numbers follow the priority list agreed on
 | 1 | Merge into `main` and deploy | The submitted site stays as submitted: the deck and video describe it |
 | 10 | BNB Chain | No keyless data source (checked 25 Sep 2026): Blockscout has no BSC (404), Routescan does not support it, Etherscan's free tier refuses the chain, Ankr needs a key. It needs a paid key |
 | 11 | Polygon | Feasible (Blockscout serves Polygon keylessly), but little reach: of the Indian exchange wallets the explorer tags on Polygon, one CoinDCX wallet ever moved USDT, last in Oct 2025, and the WazirX and CoinSwitch ones none. A `0x` address is valid on both chains, so every link, route, watch entry and recorded case would have to carry the chain — too much risk for that reach |
-| 19 | Case database, logins, audit log | Contradicts AGENTS.md §3 for the hackathon. It is the step to an I4C deployment, not a prototype feature |
 | 20 | Following money across bridges | Each bridge needs its own decoder and a reader for the destination chain. Today a bridge is a named stop, and the trace says so |
 | 21 | Self-hosted nodes | An infrastructure and cost decision for I4C |
 
 ## Checks, as of the last push
 
-- 55 unit tests, and CI green on every push.
+- 69 unit tests, and CI green on every push.
 - All 13 recorded cases (10 TRON, 3 Ethereum), re-derived from the chain,
   give the same fingerprints.
 - End-to-end checks on production builds for each feature (see each note).
