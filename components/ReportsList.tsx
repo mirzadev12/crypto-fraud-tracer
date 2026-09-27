@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { getCases, isIllustrative, type Sourced } from "@/lib/api";
+import { caseHref, getCases, isIllustrative, type Sourced } from "@/lib/api";
 import type { CaseSummary } from "@/lib/types";
 import { formatDate, formatUsdt, shortAddress } from "@/lib/format";
 import {
@@ -109,7 +109,7 @@ export default function ReportsList() {
         {rows.map((c) => (
           <li key={c.caseId}>
             <Link
-              href={`/report/${encodeURIComponent(c.inputAddress)}`}
+              href={caseHref("report", c)}
               className="group grid grid-cols-1 gap-4 py-6 transition hover:bg-surface lg:grid-cols-[7rem_10rem_1fr_8rem_7rem_7rem] lg:items-center lg:gap-6"
             >
               <span className="font-mono text-xs uppercase tracking-[0.16em] text-faint transition group-hover:text-brass">

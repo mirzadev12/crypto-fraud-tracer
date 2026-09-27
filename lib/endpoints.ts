@@ -15,6 +15,7 @@
  *   BLOCKSCOUT_URL  every Ethereum history read: a Blockscout instance's API v2
  *                   base (ending /api/v2); Blockscout is open source
  *   ETH_RPC_URL     the Tether freeze check on Ethereum: any JSON-RPC node
+ *   POLYGON_BLOCKSCOUT_URL, POLYGON_RPC_URL   the same two, for Polygon PoS
  *
  * Three rules, all for the same reason — a silent fallback would send the very
  * wallet a setting exists to keep in-house:
@@ -54,6 +55,9 @@ export const PUBLIC = {
     "https://cloudflare-eth.com",
     "https://1rpc.io/eth",
   ],
+  /** Polygon PoS. Answered keyless, verified 27 Sep 2026. */
+  polygon: "https://polygon.blockscout.com/api/v2",
+  polygonRpcs: ["https://polygon-bor-rpc.publicnode.com", "https://1rpc.io/matic"],
 } as const;
 
 const given = (name: string): string | null => process.env[name]?.trim() || null;
@@ -95,6 +99,25 @@ export function ethNodes(): { bases: string[]; source: Source } {
   return { bases: [...PUBLIC.rpcs], source: "public" };
 }
 
+/**
+ * Polygon, on the same rules: POLYGON_BLOCKSCOUT_URL for every history read,
+ * POLYGON_RPC_URL for the Tether freeze check, and with the explorer in-house
+ * the freeze check never asks a public node. No key is sent to either: the
+ * public Polygon explorer is read keyless.
+ */
+export function polygonHistory(): Endpoint {
+  return given("POLYGON_BLOCKSCOUT_URL") ? own("POLYGON_BLOCKSCOUT_URL") : { base: PUBLIC.polygon, source: "public" };
+}
+
+export function polygonNodes(): { bases: string[]; source: Source } {
+  if (given("POLYGON_RPC_URL")) {
+    const e = own("POLYGON_RPC_URL");
+    return { bases: e.base ? [e.base] : [], source: e.source };
+  }
+  if (polygonHistory().source !== "public") return { bases: [], source: "none" };
+  return { bases: [...PUBLIC.polygonRpcs], source: "public" };
+}
+
 /** TronGrid's key, only for a read that goes to TronGrid itself. */
 export function tronKey(endpoint: Endpoint): string | null {
   return endpoint.source === "public" ? given("TRONGRID_API_KEY") : null;
@@ -109,20 +132,25 @@ export function blockscoutKey(): string | null {
  * Why a wallet's history could not be read, for the sentence an officer sees.
  * Blaming a public endpoint's rate limit is only true when the read went there.
  */
-export function unreadCause(chain: "tron" | "ethereum"): string {
-  const endpoint = chain === "ethereum" ? ethHistory() : tronHistory();
-  const setting = chain === "ethereum" ? "BLOCKSCOUT_URL" : "TRONGRID_URL";
+export function unreadCause(chain: "tron" | "ethereum" | "polygon"): string {
+  const endpoint = chain === "ethereum" ? ethHistory() : chain === "polygon" ? polygonHistory() : tronHistory();
+  const setting = chain === "ethereum" ? "BLOCKSCOUT_URL" : chain === "polygon" ? "POLYGON_BLOCKSCOUT_URL" : "TRONGRID_URL";
   if (endpoint.source === "invalid") return `${setting} is set but is not an http(s) URL`;
   if (endpoint.source === "own") return "this deployment's own endpoint did not answer";
   return "the public endpoint is rate-limiting this deployment";
 }
 
 /** What `/api/health` reports: where each kind of read goes, never the address. */
-export function readSources(): Record<"tronHistory" | "tronNode" | "ethHistory" | "ethNode", Source> {
+export function readSources(): Record<
+  "tronHistory" | "tronNode" | "ethHistory" | "ethNode" | "polygonHistory" | "polygonNode",
+  Source
+> {
   return {
     tronHistory: tronHistory().source,
     tronNode: tronNode().source,
     ethHistory: ethHistory().source,
     ethNode: ethNodes().source,
+    polygonHistory: polygonHistory().source,
+    polygonNode: polygonNodes().source,
   };
 }

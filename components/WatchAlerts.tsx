@@ -17,8 +17,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
-import type { WatchItem, WatchResult } from "@/lib/watch";
+import { formatDateTime, formatUsdt, shortAddress, walletHref } from "@/lib/format";
+import { watchKey, type WatchItem, type WatchResult } from "@/lib/watch";
 import { removeWatch, useWatchlist } from "@/lib/watchlist";
 import { Panel, buttonStyles } from "@/components/ui";
 import ClosedAlerts from "@/components/ClosedAlerts";
@@ -34,7 +34,7 @@ interface Report {
 }
 
 function keyOf(items: WatchItem[]): string {
-  return items.map((i) => `${i.address}@${i.since}`).join("|");
+  return items.map((i) => `${watchKey(i)}@${i.since}`).join("|");
 }
 
 export default function WatchAlerts() {
@@ -50,7 +50,9 @@ export default function WatchAlerts() {
       const res = await fetch("/api/watch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: list.map(({ address, since }) => ({ address, since })) }),
+        body: JSON.stringify({
+          items: list.map(({ address, since, chain }) => ({ address, since, ...(chain ? { chain } : {}) })),
+        }),
       });
       const json = (await res.json()) as {
         checkedAt?: string;
@@ -68,7 +70,7 @@ export default function WatchAlerts() {
       return {
         forKey,
         checkedAt: json.checkedAt,
-        results: new Map(json.results.map((r) => [r.address, r])),
+        results: new Map(json.results.map((r) => [watchKey(r), r])),
       };
     } catch (err) {
       return {
@@ -99,7 +101,7 @@ export default function WatchAlerts() {
   const current = report?.forKey === key ? report : null;
   const checking = items.length > 0 && !current;
   const moved = current
-    ? items.filter((i) => current.results.get(i.address)?.status === "moved")
+    ? items.filter((i) => current.results.get(watchKey(i))?.status === "moved")
     : [];
 
   /*
@@ -151,14 +153,14 @@ export default function WatchAlerts() {
               // Alerts first: the row that needs an officer should not need scrolling to.
               .sort((a, b) => {
                 const rank = (i: WatchItem) =>
-                  current?.results.get(i.address)?.status === "moved" ? 0 : 1;
+                  current?.results.get(watchKey(i))?.status === "moved" ? 0 : 1;
                 return rank(a) - rank(b);
               })
               .map((item) => (
                 <WatchRow
-                  key={item.address}
+                  key={watchKey(item)}
                   item={item}
-                  result={current?.results.get(item.address)}
+                  result={current?.results.get(watchKey(item))}
                   checking={checking}
                 />
               ))}
@@ -240,7 +242,10 @@ function WatchRow({
                   ? "Still at rest"
                   : "Not checked"}
           </p>
-          <p className="mt-2 break-all font-mono text-sm text-ink">{item.address}</p>
+          <p className="mt-2 break-all font-mono text-sm text-ink">
+            {item.address}
+            {item.chain === "polygon" ? <span className="ml-2 font-label text-xs uppercase tracking-[0.16em] text-faint">Polygon</span> : null}
+          </p>
           <p className="mt-1 text-xs leading-5 text-faint">
             {formatUsdt(item.heldUsdt, { symbol: false })} USDT at rest when case{" "}
             {item.caseId} was read, {formatDateTime(item.since)}
@@ -248,14 +253,14 @@ function WatchRow({
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           <Link
-            href={`/trace/${encodeURIComponent(item.caseAddress)}`}
+            href={`/trace/${encodeURIComponent(item.caseAddress)}${item.chain === "polygon" ? "?chain=polygon" : ""}`}
             className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint transition hover:text-brass"
           >
             {result?.status === "moved" ? "Re-trace" : "Open case"}
           </Link>
           <button
             type="button"
-            onClick={() => removeWatch(item.address)}
+            onClick={() => removeWatch(watchKey(item))}
             className="fx-option-quiet px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint transition hover:text-brass"
           >
             Stop watching
@@ -279,7 +284,7 @@ function WatchRow({
                 <span className="font-mono text-muted">{formatUsdt(d.total, { symbol: false })} USDT</span>{" "}
                 →{" "}
                 <Link
-                  href={`/wallet/${encodeURIComponent(d.to)}`}
+                  href={walletHref(d.to, item.chain)}
                   className="font-mono text-muted transition hover:text-brass"
                 >
                   {shortAddress(d.to)}

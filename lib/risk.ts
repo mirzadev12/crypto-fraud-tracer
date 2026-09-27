@@ -11,7 +11,7 @@
  * state the inference, and never overstate the inference.
  */
 
-import { lookup } from "./labels";
+import { lookupOn } from "./labels";
 import type { RiskFlag, TraceEdge, TraceNode } from "./types";
 
 /** Under ten minutes is not a person deciding; it is a script. */
@@ -82,6 +82,8 @@ export function scoreRisk(
      * reported fraud" is a sentence about a date nobody reported.
      */
     fraudDateReported?: boolean;
+    /** Which chain's attribution table a node without a label is checked against. */
+    chain?: string;
   } = {},
 ): RiskFlag[] {
   const flags: RiskFlag[] = [];
@@ -194,7 +196,7 @@ export function scoreRisk(
 
   /* 6 — SANCTIONED_CONTACT. The path touched something listed. */
   for (const n of nodes) {
-    const label = n.label ?? lookup(n.address);
+    const label = n.label ?? lookupOn(options.chain ?? "", n.address);
     if (!label) continue;
     if (label.kind === "sanctioned") {
       flags.push({

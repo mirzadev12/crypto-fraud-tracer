@@ -32,7 +32,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Body must be JSON." }, { status: 400 });
   }
 
-  const { address, amount, fraudDate, model, asOf } = (body ?? {}) as {
+  const { address, amount, fraudDate, model, asOf, chain } = (body ?? {}) as {
+    chain?: unknown;
     address?: unknown;
     amount?: unknown;
     fraudDate?: unknown;
@@ -53,6 +54,12 @@ export async function POST(request: Request) {
   // One spelling per wallet: an Ethereum address is case-insensitive on the
   // chain, and a recorded case is matched on the exact string.
   const subject = check.address;
+  // Polygon is said, never guessed: the same 0x address on Ethereum is a
+  // different wallet history. It is only for a 0x address.
+  const polygon = chain === "polygon";
+  if (polygon && check.chain !== "ethereum") {
+    return NextResponse.json({ error: "Polygon addresses start with 0x." }, { status: 400 });
+  }
 
   // Both optional. A blank amount traces everything that left the wallet; a
   // blank date opens the window at the wallet's own first transfer. Only a value
@@ -91,6 +98,7 @@ export async function POST(request: Request) {
     fraudDate: dateGiven ? when.toISOString() : "auto",
     ...(model === "fifo" ? { model: "fifo" as const } : {}),
     ...(asOfGiven ? { asOf: asOfAt.toISOString() } : {}),
+    ...(polygon ? { chain: "polygon" as const } : {}),
   };
 
   // What was asked, for the audit log: every answer below is recorded with it.
@@ -102,7 +110,7 @@ export async function POST(request: Request) {
   // trace for another is the one lie that would make every other number on the
   // screen worthless. The header is what stops the interface calling this live.
   if (DEMO_MODE) {
-    const held = frozenTrace(subject);
+    const held = frozenTrace(subject, job.chain);
     if (held && answersFor(held.trace, job)) {
       await recordTrace(request, held.trace, run, "recorded");
       if (wantsStream(request)) {

@@ -1747,7 +1747,7 @@ changing a feature; this section only records what matters across them.
 | 08 | Ethereum attributions re-read and re-tested | `08-ethereum-confidence-measured.md` |
 | 09 | Checks on every push, demo-mode smoke check | `09-checks-on-every-push.md` |
 | 10 | BNB Chain USDT — **not built: blocked.** No keyless source: Blockscout has no BSC (404), Routescan "chain not supported", Etherscan's free tier refuses the chain, Ankr needs a key (403). Needs a paid key the user sets | — |
-| 11 | Polygon USDT — **not built, decided with evidence.** Feasible (Blockscout serves Polygon keyless, USDT 6 decimals), but of the Indian exchange wallets tagged on Polygon only one CoinDCX wallet ever moved USDT (last Oct 2025); WazirX and CoinSwitch none. A `0x` address is valid on both chains, so every link, route, watch entry and recorded case would have to carry the chain — too much risk for that reach | — |
+| 11 | Polygon USDT — **built 27 Sep** after the user asked to continue past the earlier "decided against": opt-in `chain=polygon` end to end (a bare `0x` is still Ethereum everywhere), `PolygonClient` on the shared EVM client, Polygon's own label table (`lookupOn`), 10 seeds and 103 derived deposit addresses (CoinDCX none — quiet since 2025), USDT0 freeze check, one recorded case | `11-polygon-tracing.md` |
 | 12 | More Indian exchanges — CoinSwitch (28 addresses, 2021); no other Indian VASP wallet is publicly tagged | `12-more-indian-exchanges.md` |
 | 13 | Tracing backwards — a wallet's payers, and the exchanges that funded them one hop back (`/api/payers`, wallet card) | `13-tracing-backwards.md` |
 | 14 | Law-enforcement contacts — each exchange's own channel and conditions above every freeze request; 14 of 17 found, 3 recorded as not found; a "Duration of the restriction" blank | `14-law-enforcement-contacts.md` |
@@ -1847,6 +1847,16 @@ Cross-cutting decisions:
   follow the `fingerprint` cursor on the configured base, not `links.next`**:
   the absolute link a mirror hands back can point at the public host. Verified
   live that TronGrid's link and ours carry the same path and parameters.
+- **Polygon is said, never guessed** (note 11). A bare `0x` means Ethereum on
+  every route, link, recorded case and watch entry; Polygon travels as
+  `chain=polygon` (`traceHref`, `checkHref`, `runHref`, `caseHref`,
+  `walletHref`, `readPinned`), as `watchKey` `polygon:0x…`, and as a separate
+  demo key. Screens that show one trace wrap it in `ChainScope`, so address
+  chips open Polygon's pages, and announce the chain to the navigation
+  (`lib/scoped-chain.ts`), because the navigation reads only the pathname.
+  Labels on Polygon come only from `lookupOn("polygon", …)`: Polygon's own seeds
+  and derived rows, plus OFAC. **When adding a screen that links to a case,
+  carry the chain** — grep for `/trace/${` and `/wallet/${` to find the stragglers.
 - **A fresh checkout needs `npx next typegen` before `npx tsc --noEmit`.** The
   route types are generated, not committed; CI runs typegen first.
 - **Unit tests live in `tests/`**, run with

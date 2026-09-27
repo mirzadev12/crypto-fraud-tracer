@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { shortAddress, explorerAddressUrl } from "@/lib/format";
+import { shortAddress, explorerAddressUrl, walletHref } from "@/lib/format";
+import { useAddressChain } from "./ChainScope";
 import CopyButton from "./CopyButton";
 
 /**
@@ -33,6 +36,8 @@ export default function AddressChip({
   tone?: "default" | "brand" | "strong";
   className?: string;
 }) {
+  // A 0x address opens Polygon's pages only on a screen scoped to Polygon (ChainScope).
+  const chain = useAddressChain(address);
   const tones = {
     default: "text-muted",
     brand: "text-brass",
@@ -57,7 +62,7 @@ export default function AddressChip({
            trace answers where the money went; this answers where it came
            from, and an investigator asks both of a node on the graph. */
         <Link
-          href={`/wallet/${encodeURIComponent(address)}`}
+          href={walletHref(address, chain)}
           title="Where this wallet came from"
           aria-label={`Origin and counterparties for ${address}`}
           className="p-1 text-faint transition hover:bg-white/5 hover:text-brass"
@@ -81,7 +86,7 @@ export default function AddressChip({
       ) : null}
       {explorer ? (
         <a
-          href={explorerAddressUrl(address)}
+          href={explorerAddressUrl(address, chain)}
           target="_blank"
           rel="noreferrer noopener"
           title="Open in block explorer"

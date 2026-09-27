@@ -4,7 +4,7 @@ import AppShell from "@/components/AppShell";
 import { PageHeader, TRIAGE_META, buttonStyles } from "@/components/ui";
 import type { AuditEntry } from "@/lib/audit";
 import { readAudit } from "@/lib/audit-store";
-import { formatDateTime, shortAddress } from "@/lib/format";
+import { formatDateTime, shortAddress, walletHref } from "@/lib/format";
 import { actorBasis, actorName } from "@/lib/identity";
 import type { TriageLevel } from "@/lib/types";
 
@@ -144,7 +144,7 @@ export default async function AuditPage() {
                     </td>
                     <td className="px-4 py-4 font-mono text-muted">
                       {e.address ? (
-                        <Link href={`/wallet/${encodeURIComponent(e.address)}`} className="hover:text-brass">
+                        <Link href={walletHref(e.address, e.chain ?? undefined)} className="hover:text-brass">
                           {shortAddress(e.address)}
                         </Link>
                       ) : (

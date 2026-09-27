@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { shortAddress } from "@/lib/format";
 import { isTraceableAddress } from "@/lib/address";
+import { useScopedChain } from "@/lib/scoped-chain";
 
 /**
  * Two rows, because an officer asks two different questions of a navigation bar.
@@ -109,6 +110,8 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const caseAddress = caseAddressFrom(pathname);
+  // A Polygon case says so (lib/scoped-chain.ts); its scoped links must too.
+  const polygon = useScopedChain(caseAddress) === "polygon";
 
   /*
    * Inside a case, the two case-shaped destinations follow the case.
@@ -122,8 +125,8 @@ export default function Navbar() {
   const hrefFor = (leaf: NavLeaf) => {
     if (!caseAddress) return leaf.href;
     const encoded = encodeURIComponent(caseAddress);
-    if (leaf.href === "/fund-flow") return `/fund-flow?address=${encoded}`;
-    if (leaf.href === "/reports") return `/report/${encoded}`;
+    if (leaf.href === "/fund-flow") return `/fund-flow?address=${encoded}${polygon ? "&chain=polygon" : ""}`;
+    if (leaf.href === "/reports") return `/report/${encoded}${polygon ? "?chain=polygon" : ""}`;
     return leaf.href;
   };
 

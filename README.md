@@ -95,7 +95,10 @@ public/mock/     the committed register and illustrative cases — regenerate wi
 Every screen is built on these routes, so anything the interface does can be
 done from another system. Every trace, wallet and watch route takes a TRON
 address (`T…`) or an Ethereum address (`0x…`) and reads the chain it belongs
-to; a transaction hash is looked up on either. All inputs are checksum-validated
+to; a transaction hash is looked up on either. A `0x` address is read on
+**Polygon** instead when the request says so — `?chain=polygon` on the trace,
+wallet and issuer routes, `chain: "polygon"` in a `POST /api/trace` body — and
+never otherwise (`docs/features/11-polygon-tracing.md`). All inputs are checksum-validated
 server-side (base58check, EIP-55); a malformed address never reaches the chain. Examples use `curl` against a local
 server.
 

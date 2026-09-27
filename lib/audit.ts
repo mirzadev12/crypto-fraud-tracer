@@ -108,7 +108,7 @@ export function parseEntry(line: string): AuditEntry | null {
     typeof e.at === "string" &&
     typeof e.action === "string" &&
     ACTIONS.includes(e.action) &&
-    (e.chain === null || e.chain === "tron" || e.chain === "ethereum") &&
+    (e.chain === null || e.chain === "tron" || e.chain === "ethereum" || e.chain === "polygon") &&
     (e.address === null || typeof e.address === "string") &&
     !!e.detail &&
     typeof e.detail === "object" &&

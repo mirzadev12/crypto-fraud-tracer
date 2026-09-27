@@ -16,27 +16,30 @@ type Answer =
   | { status: "frozen" | "not-frozen"; checkedAt: string }
   | { status: "unchecked"; reason?: string };
 
-export default function IssuerFreeze({ address }: { address: string }) {
+export default function IssuerFreeze({ address, chain }: { address: string; chain?: string }) {
+  const polygon = chain === "polygon";
+  // Tagged with the chain as well: the same 0x string on Ethereum is another wallet.
+  const key = `${polygon ? "polygon:" : ""}${address}`;
   // Tagged with the address it answers for, so a result can never sit under a
   // different wallet, and "checking" is derived rather than set in the effect.
   const [result, setResult] = useState<{ for: string; answer: Answer } | null>(null);
 
   useEffect(() => {
     let live = true;
-    fetch(`/api/issuer/${encodeURIComponent(address)}`)
+    fetch(`/api/issuer/${encodeURIComponent(address)}${polygon ? "?chain=polygon" : ""}`)
       .then((res) => res.json())
       .then((answer: Answer) => {
-        if (live) setResult({ for: address, answer });
+        if (live) setResult({ for: key, answer });
       })
       .catch(() => {
-        if (live) setResult({ for: address, answer: { status: "unchecked" } });
+        if (live) setResult({ for: key, answer: { status: "unchecked" } });
       });
     return () => {
       live = false;
     };
-  }, [address]);
+  }, [address, polygon, key]);
 
-  const answer = result?.for === address ? result.answer : null;
+  const answer = result?.for === key ? result.answer : null;
 
   return (
     <p className="text-sm leading-6 text-muted" aria-live="polite">

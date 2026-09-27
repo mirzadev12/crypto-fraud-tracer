@@ -1,0 +1,134 @@
+[
+  {
+    "address": "0xf250EE103b8e4C5b9825a270e5c70Ea0C113c854",
+    "exchange": "CoinDCX",
+    "tag": "CoinDCX 41",
+    "role": "hot",
+    "source_url": "https://polygon.blockscout.com/address/0xf250EE103b8e4C5b9825a270e5c70Ea0C113c854",
+    "tags_seen": [
+      "CoinDCX 41",
+      "Exchange"
+    ],
+    "verified": "2026-09-27",
+    "note": "A real CoinDCX wallet on Polygon, but quiet: its last USDT moved on 11 Oct 2025 (read 27 Sep 2026)."
+  },
+  {
+    "address": "0x4D24EecEcb86041F47bca41265319e9f06aE2Fcb",
+    "exchange": "CoinDCX",
+    "tag": "CoinDCX 4",
+    "role": "hot",
+    "source_url": "https://polygon.blockscout.com/address/0x4D24EecEcb86041F47bca41265319e9f06aE2Fcb",
+    "tags_seen": [
+      "Exchange",
+      "CoinDCX 4"
+    ],
+    "verified": "2026-09-27",
+    "note": "The same address is tagged \"CoinDCX 5\" on Ethereum and \"CoinDCX 4\" on Polygon: one exchange, two chains. Last USDT on Polygon 6 Jun 2025."
+  },
+  {
+    "address": "0xe7804c37c13166fF0b37F5aE0BB07A3aEbb6e245",
+    "exchange": "Binance",
+    "tag": "Binance: Hot Wallet",
+    "role": "hot",
+    "source_url": "https://polygon.blockscout.com/address/0xe7804c37c13166fF0b37F5aE0BB07A3aEbb6e245",
+    "tags_seen": [
+      "Binance: Hot Wallet",
+      "Binance 48"
+    ],
+    "verified": "2026-09-27",
+    "note": "Too large for its own history to load on the explorer; its tags were read from the token-wide USDT feed, where it was the counterparty in 272 of 1,250 transfers sampled on 27 Sep 2026."
+  },
+  {
+    "address": "0x290275e3db66394C52272398959845170E4DCb88",
+    "exchange": "Binance",
+    "tag": "Binance 68",
+    "role": "hot",
+    "source_url": "https://polygon.blockscout.com/address/0x290275e3db66394C52272398959845170E4DCb88",
+    "tags_seen": [
+      "Binance 68",
+      "Exchange",
+      "Binance"
+    ],
+    "verified": "2026-09-27"
+  },
+  {
+    "address": "0x505e71695E9bc45943c58adEC1650577BcA68fD9",
+    "exchange": "Binance",
+    "tag": "Binance 69",
+    "role": "hot",
+    "source_url": "https://polygon.blockscout.com/address/0x505e71695E9bc45943c58adEC1650577BcA68fD9",
+    "tags_seen": [
+      "Exchange",
+      "Binance",
+      "Binance 69"
+    ],
+    "verified": "2026-09-27"
+  },
+  {
+    "address": "0x343d752bB710c5575E417edB3F9FA06241A4749A",
+    "exchange": "OKX",
+    "tag": "OKX 176",
+    "role": "hot",
+    "source_url": "https://polygon.blockscout.com/address/0x343d752bB710c5575E417edB3F9FA06241A4749A",
+    "tags_seen": [
+      "OKX 176",
+      "Exchange"
+    ],
+    "verified": "2026-09-27"
+  },
+  {
+    "address": "0xf89d7b9c864f589bbF53a82105107622B35EaA40",
+    "exchange": "Bybit",
+    "tag": "Bybit: Hot Wallet",
+    "role": "hot",
+    "source_url": "https://polygon.blockscout.com/address/0xf89d7b9c864f589bbF53a82105107622B35EaA40",
+    "tags_seen": [
+      "Bybit: Hot Wallet",
+      "HOT WALLET",
+      "Exchange",
+      "Bybit 5",
+      "Bybit"
+    ],
+    "verified": "2026-09-27"
+  },
+  {
+    "address": "0x1347378B1d0Eb69d3462e09b3dFa2Fe28ebE74eC",
+    "exchange": "Bybit",
+    "tag": "Bybit: Wallet 130",
+    "role": "hot",
+    "source_url": "https://polygon.blockscout.com/address/0x1347378B1d0Eb69d3462e09b3dFa2Fe28ebE74eC",
+    "tags_seen": [
+      "Bybit: Wallet 130",
+      "Exchange",
+      "Bybit"
+    ],
+    "verified": "2026-09-27",
+    "note": "Tagged \"Bybit: Wallet 130\", not \"Hot Wallet\": a wallet the explorer attributes to Bybit, whose role the tag does not state."
+  },
+  {
+    "address": "0x0D0707963952f2fBA59dD06f2b425ace40b492Fe",
+    "exchange": "Gate.io",
+    "tag": "Gate.io: Hot Wallet",
+    "role": "hot",
+    "source_url": "https://polygon.blockscout.com/address/0x0D0707963952f2fBA59dD06f2b425ace40b492Fe",
+    "tags_seen": [
+      "Gate.io: Hot Wallet",
+      "HOT WALLET",
+      "Exchange",
+      "Gate.io"
+    ],
+    "verified": "2026-09-27"
+  },
+  {
+    "address": "0x51E3D44172868Acc60D68ca99591Ce4230bc75E0",
+    "exchange": "MEXC",
+    "tag": "MEXC 8",
+    "role": "hot",
+    "source_url": "https://polygon.blockscout.com/address/0x51E3D44172868Acc60D68ca99591Ce4230bc75E0",
+    "tags_seen": [
+      "Exchange",
+      "MEXC 8"
+    ],
+    "verified": "2026-09-27"
+  }
+]

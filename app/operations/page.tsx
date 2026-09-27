@@ -55,7 +55,7 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         Self-hosted by the deploying agency. No case data leaves it: the wallet
         address, the reported amount and the fraud date stay on the agency&rsquo;s
         own deployment, and nothing is sent to a third-party analytics service.
-        The only outbound calls are reads of TRON and Ethereum endpoints, which are
+        The only outbound calls are reads of TRON, Ethereum and Polygon endpoints, which are
         blockchain data, not case data — and, when an officer turns alerts on, a
         notification relayed by that officer&rsquo;s own browser push service,
         encrypted so the service cannot read it. Even a read of public data names
@@ -160,9 +160,9 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
           to recognise a bridge honestly and could not find one — the officially
           documented TRON bridge addresses carry no USDT transfers at all. An
           address from any other chain the OFAC list covers is recognised and
-          screened. BNB Chain and Polygon use Ethereum&apos;s address format and
-          would run on the same engine; their attribution data is built per chain
-          and starts from zero.
+          screened. Polygon runs on the same engine, with attribution data of its
+          own built from Polygon&apos;s explorer tags; BNB Chain uses the same address
+          format and would too, but no keyless data source for it exists.
         </li>
         <li>
           <span className="text-ink">NCRP and SAHYOG integration.</span> Not
@@ -233,7 +233,7 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
       ["API integrations", "Every route the interface uses is documented with a working example; a permalink replays a past run exactly."],
       ["Real-time tracing", "A recorded case answers in milliseconds. A live wallet takes about half a minute on the public endpoint, and less with an API key."],
       ["Automated investigative recommendations", "Ranked leads naming the next wallet to open, ordered by what can still be done."],
-      ["Multiple blockchain ecosystems", "USDT is traced on TRON and on Ethereum mainnet — one engine, a chain adapter underneath. An address from any other chain the OFAC list covers is recognised by its format, checksum verified where the format has one, and screened against that list, not traced."],
+      ["Multiple blockchain ecosystems", "USDT is traced on TRON, on Ethereum mainnet and on Polygon — one engine, a chain adapter underneath; a 0x address is read on Polygon only when Polygon is chosen. An address from any other chain the OFAC list covers is recognised by its format, checksum verified where the format has one, and screened against that list, not traced."],
       ["Identification of cross-chain fund movement", "On Ethereum, money that enters a bridge stops the trace there, with the bridge named from the explorer's own tag and the case stating that the trail left the chain. Following it onto the other network is not built — see below."],
     ],
   },
@@ -282,6 +282,7 @@ const REAL_CASES = (demoCases.cases as Array<{
   return {
     caseId: c.trace.caseId,
     address: c.address,
+    chain: c.trace.chain,
     finding: c.trace.terminal
       ? `ends at ${c.trace.terminal.label.entity}`
       : contract?.label
@@ -393,7 +394,10 @@ export default function OperationsPage() {
             {REAL_CASES.map((c) => (
               <li key={c.caseId} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                 <span className="font-mono text-xs text-brass">{c.caseId}</span>
-                <span className="font-mono text-xs text-faint">{c.address}</span>
+                <span className="font-mono text-xs text-faint">
+                  {c.address}
+                  {c.chain === "polygon" ? " · Polygon" : ""}
+                </span>
                 <span className="text-xs text-muted">{c.finding}</span>
               </li>
             ))}

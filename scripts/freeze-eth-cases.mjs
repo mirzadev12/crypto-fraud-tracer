@@ -4,6 +4,7 @@
  *
  *   node scripts/freeze-eth-cases.mjs              # WARM, COLD and HOT
  *   node scripts/freeze-eth-cases.mjs WARM         # one level, the rest left alone
+ *   node scripts/freeze-eth-cases.mjs WARM --chain polygon   # the same on Polygon PoS
  *
  * Needs the app running WITHOUT demo mode (PORT, default 3000): a demo-mode
  * server would answer from the very file this writes.
@@ -30,9 +31,12 @@ import { join } from "node:path";
 
 const PORT = process.env.PORT ?? "3000";
 const APP = `http://localhost:${PORT}`;
-const BS = "https://eth.blockscout.com/api/v2";
-const RPC = "https://ethereum-rpc.publicnode.com";
-const USDT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+const CHAIN = process.argv.includes("--chain") ? process.argv[process.argv.indexOf("--chain") + 1] : "ethereum";
+if (CHAIN !== "ethereum" && CHAIN !== "polygon") throw new Error(`--chain must be ethereum or polygon, not ${CHAIN}`);
+const POLYGON = CHAIN === "polygon";
+const BS = POLYGON ? "https://polygon.blockscout.com/api/v2" : "https://eth.blockscout.com/api/v2";
+const RPC = POLYGON ? "https://polygon-bor-rpc.publicnode.com" : "https://ethereum-rpc.publicnode.com";
+const USDT = POLYGON ? "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" : "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const TRANSFER = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
 const FILE = new URL("../data/demo-cases.json", import.meta.url);
 const WANT = (process.argv.slice(2).filter((a) => /^(WARM|COLD|HOT)$/.test(a)).length
@@ -114,7 +118,9 @@ async function* payersInto(targets, label) {
 }
 
 async function* warmCandidates() {
-  const rows = JSON.parse(readFileSync(new URL("../data/eth/deposit-addresses.json", import.meta.url), "utf8"));
+  const rows = JSON.parse(
+    readFileSync(new URL(`../data/${POLYGON ? "polygon" : "eth"}/deposit-addresses.json`, import.meta.url), "utf8"),
+  );
   const indian = new Set(["CoinDCX", "WazirX"]);
   const ordered = [
     ...rows.filter((r) => indian.has(r.exchange) && !r.windowTruncated),
@@ -160,12 +166,12 @@ async function capture(candidate, level) {
   const res = await fetch(`${APP}/api/trace`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ address: candidate.address, ...candidate.request }),
+    body: JSON.stringify({ address: candidate.address, ...candidate.request, ...(POLYGON ? { chain: "polygon" } : {}) }),
   });
   if (!res.ok) return { ok: false, reason: `HTTP ${res.status}` };
   if (res.headers.get("x-finex-provenance") !== "live") return { ok: false, reason: "not a live trace" };
   const trace = await res.json();
-  if (trace.chain !== "ethereum") return { ok: false, reason: "not traced on Ethereum" };
+  if (trace.chain !== CHAIN) return { ok: false, reason: `not traced on ${CHAIN}` };
   if (trace.triage !== level) return { ok: false, reason: `came back ${trace.triage}` };
   // An unread wallet on the path would make the case rest on what we could not see.
   const unread = trace.nodes.filter((n) => n.depth > 0 && !n.label && n.firstSeen === null);
@@ -219,7 +225,8 @@ if (!captured.length) {
 const backup = join(tmpdir(), `demo-cases.backup-${Date.now()}.json`);
 copyFileSync(FILE, backup);
 const replacing = new Set(captured.map((c) => c.triage));
-// An earlier Ethereum capture at the same level is replaced; TRON cases are never touched.
-const kept = file.cases.filter((c) => !(/^0x/i.test(c.address) && replacing.has(c.triage)));
+// An earlier capture on this chain at the same level is replaced; every other chain's cases are never touched.
+const chainOfCase = (c) => c.trace?.chain ?? (/^0x/i.test(c.address) ? "ethereum" : "tron");
+const kept = file.cases.filter((c) => !(chainOfCase(c) === CHAIN && replacing.has(c.triage)));
 writeFileSync(FILE, `${JSON.stringify({ ...file, cases: [...kept, ...captured] }, null, 2)}\n`);
-console.log(`\nWrote ${captured.length} Ethereum case(s); ${kept.length} kept. Backup: ${backup}`);
+console.log(`\nWrote ${captured.length} ${POLYGON ? "Polygon" : "Ethereum"} case(s); ${kept.length} kept. Backup: ${backup}`);

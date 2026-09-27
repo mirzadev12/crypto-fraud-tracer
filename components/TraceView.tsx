@@ -41,6 +41,7 @@ import { categoryOf } from "@/lib/contracts";
 import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
 import IssuerFreeze from "./IssuerFreeze";
 import SaveCase from "./SaveCase";
+import { ChainScope } from "./ChainScope";
 
 /* ------------------------------------------------------------- risk flags */
 
@@ -192,7 +193,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
             ? "No exchange reached — funds still at rest"
             : pooled
               ? bridged
-                ? "No exchange reached — the trail left Ethereum"
+                ? `No exchange reached — the trail left ${chainMeta(trace.chain).name}`
                 : "No exchange reached — the USDT entered a contract"
               : "No exchange reached"}
         </p>
@@ -226,7 +227,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
             </p>
             {/* Money in a private wallet has no exchange to write to; the
                 issuer is the one party that can still stop it. */}
-            <IssuerFreeze address={resting.address} />
+            <IssuerFreeze address={resting.address} chain={trace.chain} />
           </div>
         ) : null}
         <p className="mt-4 border-t border-line pt-4 text-sm leading-6 text-muted">
@@ -484,7 +485,7 @@ function MovementTimeline({
               </span>
               {e.txHash ? (
                 <a
-                  href={explorerTxUrl(e.txHash)}
+                  href={explorerTxUrl(e.txHash, trace.chain)}
                   target="_blank"
                   rel="noreferrer noopener"
                   className="font-mono transition hover:text-brass"
@@ -628,7 +629,10 @@ export default function TraceView({
     const secondary = small ? buttonStyles.secondarySm : buttonStyles.secondary;
     return (
       <>
-        <Link href={`/fund-flow?address=${encodeURIComponent(trace.inputAddress)}`} className={secondary}>
+        <Link
+          href={`/fund-flow?address=${encodeURIComponent(trace.inputAddress)}${trace.chain === "polygon" ? "&chain=polygon" : ""}`}
+          className={secondary}
+        >
           Fund flow
         </Link>
         <Link href={traceHref("report", trace, ack)} className={freezable(trace) ? secondary : primary}>
@@ -645,6 +649,7 @@ export default function TraceView({
   };
 
   return (
+    <ChainScope chain={trace.chain} address={trace.inputAddress}>
     <div className="space-y-6">
       {/* Where you are, what else this case holds, and what to do with it.
           Sticky, so none of it scrolls away. The case reference, disposition,
@@ -826,5 +831,6 @@ export default function TraceView({
         </Panel>
       </div>
     </div>
+    </ChainScope>
   );
 }

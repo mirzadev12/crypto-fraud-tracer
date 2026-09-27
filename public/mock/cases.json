@@ -104,6 +104,15 @@
     "terminalEntity": null
   },
   {
+    "caseId": "FX-2026-4651",
+    "inputAddress": "0x577d132eF3cCE50B38D768670ACdaC26680902D4",
+    "reportedAmountUsdt": 31.297714,
+    "fraudDate": "2026-09-27T07:43:33.000Z",
+    "triage": "WARM",
+    "terminalEntity": "Binance",
+    "chain": "polygon"
+  },
+  {
     "caseId": "FX-2026-0421",
     "inputAddress": "TYz6M2Fn2egsb15oNZdACtABKotmheGQiD",
     "reportedAmountUsdt": 18500,

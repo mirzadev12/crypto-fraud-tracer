@@ -29,6 +29,7 @@
  */
 
 import { betweenness } from "./centrality";
+import { chainMeta } from "./chain-meta";
 import { categoryOf } from "./contracts";
 import { formatDwell, formatPercent, formatUsdt } from "./format";
 import type { TraceResult } from "./types";
@@ -256,7 +257,7 @@ export function deriveLeads(trace: TraceResult): Lead[] {
       code: "CONTRACT_STOP",
       title:
         category === "bridge"
-          ? "The trail left Ethereum here"
+          ? `The trail left ${chainMeta(trace.chain).name} here`
           : category === "defi"
             ? "The USDT was swapped or pooled here"
             : "The trail entered a contract",

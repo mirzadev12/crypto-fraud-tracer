@@ -45,13 +45,15 @@ const TRIAGE: readonly TriageLevel[] = ["HOT", "WARM", "COLD"];
 /** `/trace/…` for exactly this run. An automatic amount or window stays automatic. */
 export function runHref(
   address: string,
-  run: { amount: unknown; since: unknown; asOf: string; model: unknown },
+  run: { amount: unknown; since: unknown; asOf: string; model: unknown; chain?: unknown },
 ): string {
   const q = new URLSearchParams();
   if (typeof run.amount === "number" && run.amount > 0) q.set("amount", String(run.amount));
   if (typeof run.since === "string" && run.since !== "auto") q.set("since", run.since);
   q.set("asof", run.asOf);
   if (run.model === "fifo") q.set("model", "fifo");
+  // A 0x address on Polygon is said in the link, or it would replay on Ethereum.
+  if (run.chain === "polygon") q.set("chain", "polygon");
   return `/trace/${encodeURIComponent(address)}?${q}`;
 }
 
@@ -87,7 +89,7 @@ export function caseFromEntry(entry: AuditEntry, savedBy: Actor, savedAt: string
     provenance: d.provenance,
     savedAt,
     savedBy,
-    href: runHref(entry.address, { amount: d.amount, since: d.since, asOf: d.asOf, model: d.model }),
+    href: runHref(entry.address, { amount: d.amount, since: d.since, asOf: d.asOf, model: d.model, chain: entry.chain }),
   };
 }
 
@@ -128,7 +130,7 @@ export function readCases(value: unknown): SavedCase[] {
       typeof c.id !== "string" ||
       typeof c.caseId !== "string" ||
       typeof c.inputAddress !== "string" ||
-      (c.chain !== "tron" && c.chain !== "ethereum") ||
+      (c.chain !== "tron" && c.chain !== "ethereum" && c.chain !== "polygon") ||
       typeof c.reportedAmountUsdt !== "number" ||
       typeof c.fraudDate !== "string" ||
       typeof c.triage !== "string" ||

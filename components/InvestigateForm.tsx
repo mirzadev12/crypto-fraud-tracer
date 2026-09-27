@@ -45,7 +45,7 @@ const FIELD =
 
 /** The limits are fixed by the pipeline, so the docket states them as facts. */
 const PARAMETERS: Array<[string, string]> = [
-  ["Chains", "TRON · Ethereum mainnet · USDT"],
+  ["Chains", "TRON · Ethereum · Polygon · USDT"],
   ["Other chains", "Screened against OFAC, not traced"],
   ["Depth", "3 hops"],
   ["Outflows", "Top 5 per wallet, by value"],
@@ -136,6 +136,10 @@ export default function InvestigateForm() {
   const [screeningBusy, setScreeningBusy] = useState(false);
 
   const addressCheck = useMemo(() => checkAddress(address), [address]);
+  // A 0x address is valid on Ethereum and on Polygon; the officer says which.
+  const [evmChain, setEvmChain] = useState<"ethereum" | "polygon">("ethereum");
+  const isEvm = addressCheck.valid && addressCheck.chain === "ethereum" && !resolved;
+  const polygon = isEvm && evmChain === "polygon";
   const looksLikeTx = useMemo(() => isTxHash(address), [address]);
   /** A recognised address on a chain we screen but do not trace. */
   const otherChain = useMemo(() => {
@@ -225,6 +229,7 @@ export default function InvestigateForm() {
           ...(fraudDate
             ? { fraudDate: new Date(`${fraudDate}T00:00:00.000Z`).toISOString() }
             : {}),
+          ...(polygon ? { chain: "polygon" as const } : {}),
         },
         (event) =>
           setStatus((s) =>
@@ -271,12 +276,13 @@ export default function InvestigateForm() {
     const query = new URLSearchParams();
     if (amount.trim() && amountValid) query.set("amount", String(amountValue));
     if (fraudDate) query.set("since", new Date(`${fraudDate}T00:00:00.000Z`).toISOString());
+    if (polygon) query.set("chain", "polygon");
     const qs = query.toString();
     return {
       href: `/report/${encodeURIComponent(subject)}${qs ? `?${qs}` : ""}`,
       address: subject,
     };
-  }, [status, addressCheck.valid, resolved, amount, amountValid, amountValue, fraudDate, subject]);
+  }, [status, addressCheck.valid, resolved, amount, amountValid, amountValue, fraudDate, subject, polygon]);
 
   return (
     <div className="space-y-16">
@@ -330,16 +336,37 @@ export default function InvestigateForm() {
                   ? addressCheck.reason
                   : addressCheck.valid
                     ? addressCheck.chain === "ethereum"
-                      ? `${addressCheck.checksummed ? "Checksum valid" : "Well formed, typed without a checksum, so a mistyped character cannot be caught"}. ${chainMeta("ethereum").note}`
+                      ? `${addressCheck.checksummed ? "Checksum valid" : "Well formed, typed without a checksum, so a mistyped character cannot be caught"}. ${chainMeta(evmChain).note}`
                       : "Checksum valid — the address is well formed."
                     : looksLikeTx
                       ? resolving
                         ? "Reading the transaction…"
                         : "That is a transaction hash. We will read it and trace the wallet it paid."
                       : otherChain
-                        ? `${otherChain.chain.name} address${otherChain.verified ? ", checksum valid" : ""}. FineX traces USDT on TRON and Ethereum; an address on another chain is screened against the OFAC sanctions list instead.`
-                        : "A TRON address (T…), an Ethereum address (0x…), or the hash of the transaction that sent the money."}
+                        ? `${otherChain.chain.name} address${otherChain.verified ? ", checksum valid" : ""}. FineX traces USDT on TRON, Ethereum and Polygon; an address on another chain is screened against the OFAC sanctions list instead.`
+                        : "A TRON address (T…), an Ethereum or Polygon address (0x…), or the hash of the transaction that sent the money."}
               </p>
+
+              {/* The same 0x address is a different wallet on each network, so it
+                  is said, never guessed. Ethereum unless the officer picks Polygon. */}
+              {isEvm ? (
+                <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Network">
+                  <span className="mr-2 font-label text-xs uppercase tracking-[0.2em] text-faint">Network</span>
+                  {(["ethereum", "polygon"] as const).map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      aria-pressed={evmChain === c}
+                      onClick={() => setEvmChain(c)}
+                      className={`fx-option-quiet px-4 py-2 font-label text-xs uppercase tracking-[0.16em] transition ${
+                        evmChain === c ? "fx-option-on text-ink" : "text-faint hover:text-brass"
+                      }`}
+                    >
+                      {chainMeta(c).name}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
 
               {/* What the hash turned out to be, stated before anything is
                   traced. An officer has to be able to see that the wallet we

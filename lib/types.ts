@@ -6,7 +6,8 @@
 // docs/superpowers/specs/2026-09-25-ethereum-tracing-design.md §6): `chain`
 // gained "ethereum", and NodeKind gained "contract" — a smart contract the
 // trace stopped at because following it would follow other people's money.
-// Nothing was renamed or removed.
+// Nothing was renamed or removed. One more on 27 Sep 2026: `chain` gained
+// "polygon" (docs/features/11-polygon-tracing.md). Additive again.
 
 export type TriageLevel = "HOT" | "WARM" | "COLD";
 export type LabelSource = "ground_truth" | "heuristic" | "sanctions" | "community";
@@ -51,7 +52,7 @@ export interface RiskFlag {
 export interface TraceResult {
   caseId: string;
   inputAddress: string;
-  chain: "tron" | "ethereum";
+  chain: "tron" | "ethereum" | "polygon";
   reportedAmountUsdt: number;
   fraudDate: string;
   nodes: TraceNode[];

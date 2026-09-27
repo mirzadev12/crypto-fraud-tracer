@@ -13,6 +13,7 @@ import {
 import SectionDialog from "@/components/SectionDialog";
 import depositAddresses from "@/data/deposit-addresses.json";
 import ethDeposits from "@/data/eth/deposit-addresses.json";
+import polygonDeposits from "@/data/polygon/deposit-addresses.json";
 import riskLists from "@/data/risk-lists.json";
 import multichain from "@/data/sanctions-multichain.json";
 import { andList } from "@/lib/format";
@@ -23,13 +24,15 @@ import { fiuRegistered } from "@/lib/fiu";
    list was refreshed). */
 const TRON_DEPOSITS = depositAddresses.length;
 const ETH_DEPOSITS = ethDeposits.length;
-const DEPOSITS = TRON_DEPOSITS + ETH_DEPOSITS;
+const POLYGON_DEPOSITS = polygonDeposits.length;
+const DEPOSITS = TRON_DEPOSITS + ETH_DEPOSITS + POLYGON_DEPOSITS;
 const TRON_EXCHANGES = new Set(depositAddresses.map((d) => d.exchange)).size;
 const ETH_EXCHANGES = new Set(ethDeposits.map((d) => d.exchange)).size;
+const POLYGON_EXCHANGES = new Set(polygonDeposits.map((d) => d.exchange)).size;
 // Named, not typed: the Indian exchanges among them are whichever the FIU-IND
 // list registers, so adding one to the data adds it to this sentence.
 const ETH_INDIAN = andList(fiuRegistered(ethDeposits.map((d) => d.exchange)));
-const EXCHANGES = new Set([...depositAddresses, ...ethDeposits].map((d) => d.exchange)).size;
+const EXCHANGES = new Set([...depositAddresses, ...ethDeposits, ...polygonDeposits].map((d) => d.exchange)).size;
 /* The OFAC-listed addresses a trace can hit: TRON's, and the Ethereum-format ones. */
 const EVM_SANCTIONED = (multichain.addresses as Array<{ address: string }>).filter((a) =>
   /^0x[0-9a-fA-F]{40}$/.test(a.address),
@@ -127,7 +130,7 @@ export default function Home() {
                 Fund flow
               </span>
               <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-dim">
-                TRON · Ethereum · USDT
+                TRON · Ethereum · Polygon · USDT
               </span>
             </figcaption>
             <div className="px-4 py-6">
@@ -171,8 +174,9 @@ export default function Home() {
           ))}
         </dl>
         <p className="mt-10 max-w-2xl text-xs leading-6 text-faint">
-          {TRON_DEPOSITS} on TRON across {TRON_EXCHANGES} exchanges and {ETH_DEPOSITS} on
-          Ethereum across {ETH_EXCHANGES}, {ETH_INDIAN} among them. Derived from
+          {TRON_DEPOSITS} on TRON across {TRON_EXCHANGES} exchanges, {ETH_DEPOSITS} on
+          Ethereum across {ETH_EXCHANGES}, {ETH_INDIAN} among them, and {POLYGON_DEPOSITS} on
+          Polygon across {POLYGON_EXCHANGES}. Derived from
           public chain data and the published OFAC sanctions list,
           which also screens an address from any of the {SCREENED_ASSETS} assets
           it covers. Explorer-tagged exchange wallets are treated as ground truth; the
@@ -279,9 +283,10 @@ export default function Home() {
 
           <div className="mt-16 space-y-6 border-t border-line pt-10 text-sm leading-7 text-muted">
             <p>
-              <span className="text-ink">USDT on TRON and Ethereum.</span> TRON is where
-              the proceeds mostly move. Ethereum runs on the same engine through a
-              chain adapter — another chain is an adapter, not a new product.
+              <span className="text-ink">USDT on TRON, Ethereum and Polygon.</span> TRON is
+              where the proceeds mostly move. Ethereum and Polygon run on the same
+              engine through a chain adapter — another chain is an adapter, not a new
+              product.
             </p>
             <p>
               <span className="text-ink">Rules, not a model.</span> An
@@ -305,7 +310,7 @@ export default function Home() {
 
       {/* ---------------------------------------------------------- colophon */}
       <section className="mt-24 border-t border-line pt-6 pb-6">
-        <Designation>Bureau of blockchain intelligence · TRON · Ethereum · USDT</Designation>
+        <Designation>Bureau of blockchain intelligence · TRON · Ethereum · Polygon · USDT</Designation>
       </section>
 
     </AppShell>

@@ -1847,6 +1847,86 @@
         },
         "narrative": "No USDT left 0xda4E10D8B82ed53d950e2D4312A22331c515569c after 24 September 2026 in the transfers examined. The money has not reached an off-ramp and can still be acted on."
       }
+    },
+    {
+      "address": "0x577d132eF3cCE50B38D768670ACdaC26680902D4",
+      "capturedAt": "2026-09-27T08:07:43.162Z",
+      "triage": "WARM",
+      "selectedBecause": "paid 31.30 USDT to a derived Binance customer deposit address 0x108b6562a6D0DA2bDA30373f26dB26C9A3aC68ea on 2026-09-27; its whole USDT history (31 transfers) fits one page, so the trace reads all of it",
+      "request": {
+        "amount": 31.297714,
+        "fraudDate": "2026-09-27T07:43:33.000Z"
+      },
+      "trace": {
+        "caseId": "FX-2026-4651",
+        "inputAddress": "0x577d132eF3cCE50B38D768670ACdaC26680902D4",
+        "chain": "polygon",
+        "reportedAmountUsdt": 31.297714,
+        "fraudDate": "2026-09-27T07:43:33.000Z",
+        "nodes": [
+          {
+            "address": "0x577d132eF3cCE50B38D768670ACdaC26680902D4",
+            "depth": 0,
+            "label": {
+              "entity": "Victim-reported address",
+              "kind": "victim_reported",
+              "confidence": 1,
+              "source": "ground_truth"
+            },
+            "taintedValueUsdt": 31.297714,
+            "taintFraction": 1,
+            "firstSeen": "2026-08-23T11:01:21.000Z",
+            "outflowCount": 1
+          },
+          {
+            "address": "0x108b6562a6D0DA2bDA30373f26dB26C9A3aC68ea",
+            "depth": 1,
+            "label": {
+              "entity": "Binance",
+              "kind": "exchange_deposit",
+              "confidence": 0.65,
+              "source": "heuristic",
+              "evidence": "5 sweeps, 100% of inflow forwarded to Binance's tagged wallets (\"Binance: Hot Wallet\")"
+            },
+            "taintedValueUsdt": 31.297714,
+            "taintFraction": 1,
+            "firstSeen": null,
+            "outflowCount": 0
+          }
+        ],
+        "edges": [
+          {
+            "from": "0x577d132eF3cCE50B38D768670ACdaC26680902D4",
+            "to": "0x108b6562a6D0DA2bDA30373f26dB26C9A3aC68ea",
+            "valueUsdt": 31.297714,
+            "txHash": "0x3aa80825672baeebd9a3e6aa89b6218aba3a49c8c8cd7175c56de00f30675907",
+            "timestamp": "2026-09-27T07:44:33.000Z",
+            "dwellSeconds": 910
+          }
+        ],
+        "terminal": {
+          "address": "0x108b6562a6D0DA2bDA30373f26dB26C9A3aC68ea",
+          "label": {
+            "entity": "Binance",
+            "kind": "exchange_deposit",
+            "confidence": 0.65,
+            "source": "heuristic",
+            "evidence": "5 sweeps, 100% of inflow forwarded to Binance's tagged wallets (\"Binance: Hot Wallet\")"
+          },
+          "depositAddress": "0x108b6562a6D0DA2bDA30373f26dB26C9A3aC68ea"
+        },
+        "riskFlags": [],
+        "triage": "WARM",
+        "triageReason": "31 USDT reached a likely Binance customer deposit address; a freeze request naming that address is viable.",
+        "provenance": {
+          "apiCalls": 1,
+          "responseHashes": [
+            "27313b91536d5d20dcd60f78e3fe4fa0111f2fd56b72660edb13612af8eacc44"
+          ],
+          "generatedAt": "2026-09-27T08:07:43.153Z"
+        },
+        "narrative": "The reported 31.30 USDT was followed from the reported wallet after 27 September 2026, across one transfer and one hop. 31.30 USDT, 100.0% of the reported amount, reached a likely Binance deposit cluster, customer deposit address 0x108b6562a6D0DA2bDA30373f26dB26C9A3aC68ea. A restraint request naming that account is viable."
+      }
     }
   ]
 }

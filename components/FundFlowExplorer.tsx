@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getCases } from "@/lib/api";
+import { getCases, rowChain } from "@/lib/api";
 import type { CaseSummary } from "@/lib/types";
 import {
   formatDateTime,
@@ -16,6 +16,7 @@ import {
 import AddressChip from "./AddressChip";
 import TraceCanvas, { ViewToggle, type CanvasView } from "./TraceCanvas";
 import { InvalidAddressState, NoTraceState, useTrace } from "./TraceLoader";
+import { ChainScope } from "./ChainScope";
 import {
   Chip,
   DataSourceBadge,
@@ -33,12 +34,16 @@ const TRIAGE_ORDER = { HOT: 0, WARM: 1, COLD: 2 } as const;
 
 export default function FundFlowExplorer({
   initialAddress,
+  initialChain,
 }: {
   initialAddress?: string;
+  /** Polygon, when the case opened here is a Polygon one. The register's cases are not. */
+  initialChain?: "polygon";
 }) {
   const router = useRouter();
   const [cases, setCases] = useState<CaseSummary[]>([]);
   const [address, setAddress] = useState<string | null>(initialAddress ?? null);
+  const [chain, setChain] = useState<"polygon" | undefined>(initialChain);
   // Selection is tagged with the address it belongs to, so switching cases
   // clears the inspector without an effect having to reset it.
   const [selection, setSelection] = useState<{ address: string; node: string } | null>(
@@ -48,7 +53,7 @@ export default function FundFlowExplorer({
   // graph a chrome row of its own.
   const [view, setView] = useState<CanvasView>("flow");
 
-  const { current, retry } = useTrace(address);
+  const { current, retry } = useTrace(address, chain ? { chain } : undefined);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,10 +72,15 @@ export default function FundFlowExplorer({
     };
   }, []);
 
-  function open(next: string) {
+  function open(next: string, nextChain?: "polygon") {
     setAddress(next);
+    // A recorded Polygon case says so; every other row's address decides.
+    setChain(nextChain);
     // Keep the URL shareable without a full navigation.
-    router.replace(`/fund-flow?address=${encodeURIComponent(next)}`, { scroll: false });
+    router.replace(
+      `/fund-flow?address=${encodeURIComponent(next)}${nextChain ? "&chain=polygon" : ""}`,
+      { scroll: false },
+    );
   }
 
   const selectedNode =
@@ -83,6 +93,7 @@ export default function FundFlowExplorer({
       : null;
 
   return (
+    <ChainScope chain={trace?.data.chain ?? "tron"}>
     <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
       {/* ------------------------------------------------------------- rail */}
       <Panel
@@ -104,7 +115,7 @@ export default function FundFlowExplorer({
                   <li key={c.caseId}>
                     <button
                       type="button"
-                      onClick={() => open(c.inputAddress)}
+                      onClick={() => open(c.inputAddress, rowChain(c))}
                       aria-current={active ? "true" : undefined}
                       className={`w-full border-l-2 px-4 py-4 text-left transition ${
                         active
@@ -184,7 +195,7 @@ export default function FundFlowExplorer({
                   />
                   <TriageBadge level={current.lookup.data.triage} />
                   <Link
-                    href={`/trace/${encodeURIComponent(current.lookup.data.inputAddress)}`}
+                    href={`/trace/${encodeURIComponent(current.lookup.data.inputAddress)}${current.lookup.data.chain === "polygon" ? "?chain=polygon" : ""}`}
                     className="fx-option px-4 py-2 text-xs font-semibold text-muted transition hover:text-ink"
                   >
                     Full result
@@ -389,5 +400,6 @@ export default function FundFlowExplorer({
         )}
       </div>
     </div>
+    </ChainScope>
   );
 }

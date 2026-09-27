@@ -174,7 +174,7 @@ export default function AttributionRegister({
                     </Td>
                     <Td>
                       <a
-                        href={explorerAddressUrl(seed.address)}
+                        href={explorerAddressUrl(seed.address, chain.toLowerCase())}
                         target="_blank"
                         rel="noreferrer"
                         className="fx-option-quiet px-2 py-1 align-middle font-mono text-xs text-faint transition hover:text-brass"
@@ -293,7 +293,7 @@ export default function AttributionRegister({
                   <tr key={row.address} className="border-b border-line-soft align-top">
                     <Td>
                       <a
-                        href={explorerAddressUrl(row.address)}
+                        href={explorerAddressUrl(row.address, chain.toLowerCase())}
                         target="_blank"
                         rel="noreferrer"
                         className="fx-option-quiet block px-2 py-1 font-mono text-xs text-ink transition hover:text-brass"

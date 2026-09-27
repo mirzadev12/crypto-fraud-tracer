@@ -52,7 +52,7 @@ export const CHAINS: Record<ChainId, ChainInfo> = {
     id: "evm",
     name: "Ethereum / EVM",
     traceable: true,
-    note: "Traced on Ethereum mainnet. The same address format is used on BNB Smart Chain, Arbitrum, Polygon and other EVM chains, which are not read.",
+    note: "Traced on Ethereum mainnet, or on Polygon when Polygon is chosen. The same address format is used on BNB Smart Chain, Arbitrum and other EVM chains, which are not read.",
   },
   bitcoin: {
     id: "bitcoin",

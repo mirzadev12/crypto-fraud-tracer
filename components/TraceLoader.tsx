@@ -440,7 +440,8 @@ export function useTrace(address: string | null, params?: TraceParams): {
   const amount = params?.amount;
   const since = params?.since;
   const asOf = params?.asOf;
-  const key = `${address}|${amount ?? ""}|${since ?? ""}|${asOf ?? ""}`;
+  const chain = params?.chain;
+  const key = `${address}|${amount ?? ""}|${since ?? ""}|${asOf ?? ""}|${chain ?? ""}`;
   // Live progress from the trace stream, tagged with the load it belongs to so a
   // stale stream can never paint over a newer one.
   const [progress, setProgress] = useState<{
@@ -463,7 +464,7 @@ export function useTrace(address: string | null, params?: TraceParams): {
             : { key, attempt, events: [entry] },
         );
       },
-      { amount, since, asOf },
+      { amount, since, asOf, chain },
     )
       .then((lookup) => {
         if (!cancelled) setLoaded({ address, attempt, lookup, key });
@@ -485,7 +486,7 @@ export function useTrace(address: string | null, params?: TraceParams): {
     return () => {
       cancelled = true;
     };
-  }, [address, attempt, key, amount, since, asOf]);
+  }, [address, attempt, key, amount, since, asOf, chain]);
 
   const current = loaded && loaded.key === key && loaded.attempt === attempt ? loaded : null;
   const events =
@@ -507,6 +508,7 @@ export default function TraceLoader({
   since,
   asOf,
   ack,
+  chain,
 }: {
   address: string;
   amount?: number;
@@ -515,8 +517,10 @@ export default function TraceLoader({
   asOf?: string;
   /** The complaint's acknowledgement number, carried on to the packet and freeze request. */
   ack?: string;
+  /** Polygon, for a 0x address; otherwise the address's own form decides. */
+  chain?: "polygon";
 }) {
-  const { current, retry, events } = useTrace(address, { amount, since, asOf });
+  const { current, retry, events } = useTrace(address, { amount, since, asOf, chain });
 
   if (!current) return <TraceSkeleton address={address} events={events} />;
 

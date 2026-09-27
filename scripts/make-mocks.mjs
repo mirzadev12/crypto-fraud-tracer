@@ -204,6 +204,8 @@ const real = frozen.cases.map(({ trace: t }) => ({
   fraudDate: t.fraudDate,
   triage: t.triage,
   terminalEntity: t.terminal ? t.terminal.label.entity : null,
+  // A 0x address means Ethereum unless the row says otherwise (caseHref in lib/api.ts).
+  ...(t.chain === "polygon" ? { chain: "polygon" } : {}),
 }));
 
 const illustrative = [

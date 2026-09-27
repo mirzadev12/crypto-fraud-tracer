@@ -26,6 +26,7 @@ verified, and its limits. The numbers follow the priority list agreed on
 | 17 | Hindi help | The help page in Hindi, marked for native-speaker review | [17](17-hindi-help.md) |
 | 18 | Alerts when the desk is closed | The server checks the watch every five minutes and sends a browser notification when a wallet moves; no provider, no key, no dependency | [18](18-alerts-when-closed.md) |
 | 19 | Case file, sign-in and audit log | A case file shared by every officer on the server, built only from runs the server traced; who did what, stated or verified by a gateway; a hash-chained audit log anyone can check | [19](19-case-file-and-audit-log.md) |
+| 11 | Polygon tracing | USDT on Polygon traced on the same engine, opt-in per case so a `0x` address never changes chain by accident; 103 deposit addresses from Polygon's own tags; a recorded Polygon case | [11](11-polygon-tracing.md) |
 | 21 | Reading the chain from the agency's own nodes | Four settings keep every chain read in-house, so no third party learns which wallets are under investigation; never a silent fallback to public | [21](21-own-nodes.md) |
 
 ## Not built yet, and why
@@ -34,13 +35,12 @@ verified, and its limits. The numbers follow the priority list agreed on
 | --- | --- | --- |
 | 1 | Merge into `main` and deploy | The submitted site stays as submitted: the deck and video describe it |
 | 10 | BNB Chain | No keyless data source (checked 25 Sep 2026): Blockscout has no BSC (404), Routescan does not support it, Etherscan's free tier refuses the chain, Ankr needs a key. It needs a paid key |
-| 11 | Polygon | Feasible (Blockscout serves Polygon keylessly), but little reach: of the Indian exchange wallets the explorer tags on Polygon, one CoinDCX wallet ever moved USDT, last in Oct 2025, and the WazirX and CoinSwitch ones none. A `0x` address is valid on both chains, so every link, route, watch entry and recorded case would have to carry the chain — too much risk for that reach |
 | 20 | Following money across bridges | Checked 26 Sep 2026: Allbridge Core, the bridge carrying USDT between Ethereum and TRON, last took USDT into its Ethereum pool on 19 Jul 2026, and much of that came from MEV bots; USDT0, Tether's own cross-chain USDT, goes to chains FineX does not read. A follower is per-bridge decoding for traffic that barely exists. A bridge stays a named stop — and both are now recognised as bridges, which they were not before (note 01) |
 
 ## Checks, as of the last push
 
-- 77 unit tests, and CI green on every push.
-- All 13 recorded cases (10 TRON, 3 Ethereum), re-derived from the chain,
+- 83 unit tests, and CI green on every push.
+- All 14 recorded cases (10 TRON, 3 Ethereum, 1 Polygon), re-derived from the chain,
   give the same fingerprints.
 - End-to-end checks on production builds for each feature (see each note).
 - 8 routes × 4 widths with no sideways scroll, and no console errors.

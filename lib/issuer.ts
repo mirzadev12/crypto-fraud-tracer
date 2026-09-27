@@ -27,11 +27,17 @@ import { createHash } from "node:crypto";
 import { checkAddress } from "./address";
 import type { ChainName } from "./chain-client";
 import { base58Decode } from "./tron";
-import { ETH_USDT_CONTRACT } from "./ethclient";
-import { ethNodes, tronKey, tronNode } from "./endpoints";
+import { ETH_USDT_CONTRACT, POLYGON_USDT_CONTRACT } from "./ethclient";
+import { ethNodes, polygonNodes, tronKey, tronNode } from "./endpoints";
 import { USDT_CONTRACT } from "./trongrid";
 
 const IS_BLACKLISTED = "e47d6060";
+/**
+ * USDT on Polygon is Tether's USDT0, whose freeze list is `isBlocked(address)`
+ * (keccak selector fbac3951) — verified on the contract's verified source and
+ * against public Polygon nodes on 27 Sep 2026.
+ */
+const IS_BLOCKED = "fbac3951";
 
 export type IssuerStatus =
   | {
@@ -60,16 +66,29 @@ function bool(word: unknown): boolean | null {
 }
 
 async function readEthereum(address: string): Promise<{ frozen: boolean; hash: string } | null> {
-  const data = `0x${IS_BLACKLISTED}${address.slice(2).toLowerCase().padStart(64, "0")}`;
+  return readEvm(address, IS_BLACKLISTED, ETH_USDT_CONTRACT, ethNodes().bases);
+}
+
+async function readPolygon(address: string): Promise<{ frozen: boolean; hash: string } | null> {
+  return readEvm(address, IS_BLOCKED, POLYGON_USDT_CONTRACT, polygonNodes().bases);
+}
+
+async function readEvm(
+  address: string,
+  selector: string,
+  contract: string,
+  nodes: string[],
+): Promise<{ frozen: boolean; hash: string } | null> {
+  const data = `0x${selector}${address.slice(2).toLowerCase().padStart(64, "0")}`;
   const request = JSON.stringify({
     jsonrpc: "2.0",
     id: 1,
     method: "eth_call",
-    params: [{ to: ETH_USDT_CONTRACT, data }, "latest"],
+    params: [{ to: contract, data }, "latest"],
   });
   // The agency's own node when one is set; otherwise the public nodes in turn,
   // any one answer being enough (lib/endpoints.ts).
-  for (const url of ethNodes().bases) {
+  for (const url of nodes) {
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -126,26 +145,39 @@ async function readTron(address: string): Promise<{ frozen: boolean; hash: strin
   }
 }
 
-export async function issuerFreezeStatus(raw: string): Promise<IssuerStatus> {
+/** `chain: "polygon"` checks a 0x address on Polygon; otherwise the address's own form decides. */
+export async function issuerFreezeStatus(raw: string, onChain?: "polygon"): Promise<IssuerStatus> {
   const check = checkAddress(raw);
   if (!check.valid) {
     return { status: "unchecked", chain: check.chain, address: raw.trim(), reason: check.reason };
   }
+  const chain = check.chain === "ethereum" && onChain === "polygon" ? "polygon" : check.chain;
   const read =
-    check.chain === "ethereum" ? await readEthereum(check.address) : await readTron(check.address);
+    chain === "polygon"
+      ? await readPolygon(check.address)
+      : chain === "ethereum"
+        ? await readEthereum(check.address)
+        : await readTron(check.address);
   if (!read) {
     // Why it was not read, when the deployment's own settings are the reason.
-    const source = check.chain === "ethereum" ? ethNodes().source : tronNode().source;
+    const source =
+      chain === "polygon" ? polygonNodes().source : chain === "ethereum" ? ethNodes().source : tronNode().source;
     // The TRON node read falls back to TRONGRID_URL, so name whichever was used.
     const setting =
-      check.chain === "ethereum" ? "ETH_RPC_URL" : process.env.TRON_NODE_URL?.trim() ? "TRON_NODE_URL" : "TRONGRID_URL";
+      chain === "polygon"
+        ? "POLYGON_RPC_URL"
+        : chain === "ethereum"
+          ? "ETH_RPC_URL"
+          : process.env.TRON_NODE_URL?.trim()
+            ? "TRON_NODE_URL"
+            : "TRONGRID_URL";
     return {
       status: "unchecked",
-      chain: check.chain,
+      chain,
       address: check.address,
       reason:
         source === "none"
-          ? "This deployment reads Ethereum from its own explorer and names no Ethereum node of its own (ETH_RPC_URL), so the issuer's list was not read rather than asking a public node."
+          ? `This deployment reads ${chain === "polygon" ? "Polygon" : "Ethereum"} from its own explorer and names no node of its own (${setting}), so the issuer's list was not read rather than asking a public node.`
           : source === "invalid"
             ? `${setting} is set but is not an http(s) URL, so the issuer's list was not read.`
             : "The chain did not answer, so nothing is stated about whether the issuer has frozen this address.",
@@ -153,7 +185,7 @@ export async function issuerFreezeStatus(raw: string): Promise<IssuerStatus> {
   }
   return {
     status: read.frozen ? "frozen" : "not-frozen",
-    chain: check.chain,
+    chain,
     address: check.address,
     checkedAt: new Date().toISOString(),
     responseHash: read.hash,

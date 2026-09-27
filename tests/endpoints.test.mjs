@@ -6,13 +6,24 @@ import {
   blockscoutKey,
   ethHistory,
   ethNodes,
+  polygonHistory,
+  polygonNodes,
   readSources,
   tronHistory,
   tronKey,
   tronNode,
 } from "../lib/endpoints.ts";
 
-const NAMES = ["TRONGRID_URL", "TRON_NODE_URL", "BLOCKSCOUT_URL", "ETH_RPC_URL", "TRONGRID_API_KEY", "BLOCKSCOUT_API_KEY"];
+const NAMES = [
+  "TRONGRID_URL",
+  "TRON_NODE_URL",
+  "BLOCKSCOUT_URL",
+  "ETH_RPC_URL",
+  "POLYGON_BLOCKSCOUT_URL",
+  "POLYGON_RPC_URL",
+  "TRONGRID_API_KEY",
+  "BLOCKSCOUT_API_KEY",
+];
 
 /** Run with exactly these settings — until an async body has finished — then put the environment back. */
 async function withEnv(values, run) {
@@ -51,12 +62,41 @@ test("an own endpoint is used alone, and is never sent a public key", async () =
       assert.deepEqual(ethHistory(), { base: "https://blockscout.agency.local/api/v2", source: "own" });
       assert.equal(blockscoutKey(), null);
       assert.deepEqual(ethNodes(), { bases: [], source: "none" }, "no public Ethereum node once Ethereum is read in-house");
-      assert.deepEqual(readSources(), { tronHistory: "own", tronNode: "own", ethHistory: "own", ethNode: "none" });
+      assert.deepEqual(readSources(), {
+        tronHistory: "own",
+        tronNode: "own",
+        ethHistory: "own",
+        ethNode: "none",
+        polygonHistory: "public",
+        polygonNode: "public",
+      });
     },
   );
   await withEnv({ TRON_NODE_URL: "http://node:8090", ETH_RPC_URL: "http://geth:8545" }, () => {
-    assert.deepEqual(readSources(), { tronHistory: "public", tronNode: "own", ethHistory: "public", ethNode: "own" });
+    assert.deepEqual(readSources(), {
+      tronHistory: "public",
+      tronNode: "own",
+      ethHistory: "public",
+      ethNode: "own",
+      polygonHistory: "public",
+      polygonNode: "public",
+    });
     assert.deepEqual(ethNodes().bases, ["http://geth:8545"]);
+  });
+});
+
+test("Polygon follows the same rules, and its explorer in-house means no public Polygon node", async () => {
+  await withEnv({}, () => {
+    assert.deepEqual(polygonHistory(), { base: PUBLIC.polygon, source: "public" });
+    assert.deepEqual(polygonNodes(), { bases: [...PUBLIC.polygonRpcs], source: "public" });
+  });
+  await withEnv({ POLYGON_BLOCKSCOUT_URL: "http://polygon-explorer.agency.local/api/v2/" }, () => {
+    assert.deepEqual(polygonHistory(), { base: "http://polygon-explorer.agency.local/api/v2", source: "own" });
+    assert.deepEqual(polygonNodes(), { bases: [], source: "none" });
+  });
+  await withEnv({ POLYGON_RPC_URL: "http://bor:8545", POLYGON_BLOCKSCOUT_URL: "not a url" }, () => {
+    assert.deepEqual(polygonNodes(), { bases: ["http://bor:8545"], source: "own" });
+    assert.deepEqual(polygonHistory(), { base: null, source: "invalid" });
   });
 });
 

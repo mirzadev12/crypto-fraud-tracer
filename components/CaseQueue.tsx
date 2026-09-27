@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { getCases, isIllustrative, summarize, type Sourced } from "@/lib/api";
+import { caseHref, getCases, isIllustrative, rowChain, summarize, type Sourced } from "@/lib/api";
+import { ChainScope } from "./ChainScope";
 import type { CaseSummary, TriageLevel } from "@/lib/types";
 import { formatDate, formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
 import AddressChip from "./AddressChip";
@@ -68,11 +69,11 @@ export default function CaseQueue() {
   // when it holds both, each row says which, since a 0x address and a T address
   // are traced on different chains.
   const mixedChains = useMemo(
-    () => new Set(cases.map((c) => chainOf(c.inputAddress))).size > 1,
+    () => new Set(cases.map((c) => rowChain(c) ?? chainOf(c.inputAddress))).size > 1,
     [cases],
   );
   const registerScope = mixedChains
-    ? "TRON · Ethereum · USDT"
+    ? `${[...new Set(cases.map((c) => chainMeta(rowChain(c) ?? chainOf(c.inputAddress)).name))].join(" · ")} · USDT`
     : chainMeta(chainOf(cases[0]?.inputAddress ?? "T")).scope;
   const illustrativeCount = cases.length - realCases.length;
   const stats = useMemo(() => summarize(realCases), [realCases]);
@@ -255,10 +256,12 @@ export default function CaseQueue() {
                       ) : null}
                     </td>
                     <td className="px-6 py-2">
-                      <AddressChip address={c.inputAddress} explorer={false} quiet />
+                      <ChainScope chain={rowChain(c) ?? chainOf(c.inputAddress)}>
+                        <AddressChip address={c.inputAddress} explorer={false} quiet />
+                      </ChainScope>
                       {mixedChains ? (
                         <span className="ml-2 font-label text-[10px] uppercase tracking-[0.16em] text-faint">
-                          {chainMeta(chainOf(c.inputAddress)).name}
+                          {chainMeta(rowChain(c) ?? chainOf(c.inputAddress)).name}
                         </span>
                       ) : null}
                     </td>
@@ -280,7 +283,7 @@ export default function CaseQueue() {
                     </td>
                     <td className="px-6 py-2 text-right">
                       <Link
-                        href={`/trace/${encodeURIComponent(c.inputAddress)}`}
+                        href={caseHref("trace", c)}
                         className="inline-block fx-option-quiet px-4 py-2 font-label text-xs uppercase tracking-[0.16em] text-faint group-hover:text-brass hover:text-brass"
                         aria-label={`Open for case ${c.caseId}, address ${shortAddress(c.inputAddress)}`}
                       >

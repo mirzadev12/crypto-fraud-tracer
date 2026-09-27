@@ -25,8 +25,10 @@ import {
   formatUsdt,
   shortAddress,
   explorerAddressUrl,
+  walletHref,
 } from "@/lib/format";
 import { checkAddress } from "@/lib/address";
+import { ChainScope } from "./ChainScope";
 import type { WalletProfile, Counterparty } from "@/lib/wallet";
 import {
   Chip,
@@ -53,7 +55,7 @@ type State =
   | { status: "error"; reason: string }
   | { status: "ready"; profile: WalletProfile };
 
-export default function WalletOrigin({ address }: { address: string }) {
+export default function WalletOrigin({ address, chain }: { address: string; chain?: "polygon" }) {
   const [state, setState] = useState<State>({ status: "loading" });
   // Validation is pure and synchronous, so it belongs in render. Setting state
   // for it inside the effect is the cascading-render pattern React 19.2 fails
@@ -65,7 +67,7 @@ export default function WalletOrigin({ address }: { address: string }) {
     let live = true;
     (async () => {
       try {
-        const res = await fetch(`/api/wallet/${encodeURIComponent(address)}`);
+        const res = await fetch(`/api/wallet/${encodeURIComponent(address)}${chain === "polygon" ? "?chain=polygon" : ""}`);
         const json = await res.json();
         if (!live) return;
         if (!res.ok) {
@@ -85,7 +87,7 @@ export default function WalletOrigin({ address }: { address: string }) {
     return () => {
       live = false;
     };
-  }, [address, check.valid]);
+  }, [address, check.valid, chain]);
 
   if (!check.valid) {
     return (
@@ -140,7 +142,7 @@ export default function WalletOrigin({ address }: { address: string }) {
           description="Nothing is stated about it. An unreadable wallet is not an empty one, and reporting silence as 'no activity' is the one mistake this tool will not make. Try again in a moment."
           action={
             <a
-              href={explorerAddressUrl(p.address)}
+              href={explorerAddressUrl(p.address, p.chain)}
               target="_blank"
               rel="noreferrer"
               className={buttonStyles.secondary}
@@ -166,6 +168,7 @@ export default function WalletOrigin({ address }: { address: string }) {
   const fresh = datable && ageDays < FRESH_DAYS;
 
   return (
+    <ChainScope chain={p.chain} address={p.address}>
     <div className="mt-10 space-y-16">
       {/* --------------------------------------------------------- identity */}
       <section>
@@ -198,7 +201,7 @@ export default function WalletOrigin({ address }: { address: string }) {
           <p className="mt-6 max-w-2xl text-sm leading-6 text-faint">{p.label.evidence}</p>
         ) : null}
         <div className="mt-6 max-w-2xl">
-          <IssuerFreeze address={p.address} />
+          <IssuerFreeze address={p.address} chain={p.chain} />
         </div>
       </section>
 
@@ -294,18 +297,23 @@ export default function WalletOrigin({ address }: { address: string }) {
         subtitle="Who put money into this wallet, largest first. This is where it came from."
         framed={false}
       >
-        <Parties parties={p.fundedBy} empty="Nothing was paid into this wallet in the history read." />
+        <Parties chain={p.chain} parties={p.fundedBy} empty="Nothing was paid into this wallet in the history read." />
       </Panel>
 
       {/* One hop further back, on request: where the payers' own USDT came from. */}
-      {p.fundedBy.length ? <PayersBack address={p.address} /> : null}
+      {p.fundedBy.length && p.chain !== "polygon" ? <PayersBack address={p.address} /> : null}
+      {p.fundedBy.length && p.chain === "polygon" ? (
+        <p className="text-xs leading-5 text-faint">
+          Tracing the payers back one hop is built for TRON and Ethereum; on Polygon each payer can be opened on its own.
+        </p>
+      ) : null}
 
       <Panel
         title="Paid out to"
         subtitle="Where this wallet sent money, largest first."
         framed={false}
       >
-        <Parties parties={p.paidOut} empty="This wallet has never sent USDT in the history read." />
+        <Parties chain={p.chain} parties={p.paidOut} empty="This wallet has never sent USDT in the history read." />
       </Panel>
 
       {/* ------------------------------------------------------- provenance */}
@@ -323,12 +331,13 @@ export default function WalletOrigin({ address }: { address: string }) {
         </p>
       </section>
     </div>
+    </ChainScope>
   );
 }
 
 /* ------------------------------------------------------------------ pieces */
 
-function Parties({ parties, empty }: { parties: Counterparty[]; empty: string }) {
+function Parties({ parties, empty, chain }: { parties: Counterparty[]; empty: string; chain?: string }) {
   if (!parties.length) {
     return <p className="pt-6 text-sm leading-6 text-faint">{empty}</p>;
   }
@@ -338,7 +347,7 @@ function Parties({ parties, empty }: { parties: Counterparty[]; empty: string })
         <li key={party.address} className="flex flex-wrap items-start justify-between gap-4 py-4">
           <div className="min-w-0">
             <Link
-              href={`/wallet/${encodeURIComponent(party.address)}`}
+              href={walletHref(party.address, chain)}
               className="fx-option-quiet inline-block break-all px-2 py-1 font-mono text-sm text-ink transition hover:text-brass"
             >
               {party.address}

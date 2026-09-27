@@ -1,5 +1,6 @@
 "use client";
 
+import { ChainScope } from "./ChainScope";
 import Link from "next/link";
 import {
   formatDateTime,
@@ -80,17 +81,20 @@ export default function EvidencePacket({
   asOf,
   ack,
   fp,
+  chain: pinnedChain,
 }: {
   address: string;
   amount?: number;
   since?: string;
   asOf?: string;
+  /** Polygon, for a 0x address; otherwise the address's own form decides. */
+  chain?: "polygon";
   /** The complaint's acknowledgement number, from a complaint sheet. */
   ack?: string;
   /** A fingerprint to check this packet's findings against, from a copy's check link. */
   fp?: string;
 }) {
-  const { current, retry, events } = useTrace(address, { amount, since, asOf });
+  const { current, retry, events } = useTrace(address, { amount, since, asOf, chain: pinnedChain });
 
   if (!current) return <TraceSkeleton address={address} events={events} />;
   if (current.lookup.status === "invalid") {
@@ -130,6 +134,7 @@ export default function EvidencePacket({
   const custodyN = trace.narrative ? "6" : "5";
 
   return (
+    <ChainScope chain={trace.chain} address={trace.inputAddress}>
     <div className="space-y-6">
       {/* Console chrome — stays dark, never prints. */}
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
@@ -143,7 +148,7 @@ export default function EvidencePacket({
         </div>
         <div className="flex gap-2">
           <Link
-            href={`/trace/${encodeURIComponent(trace.inputAddress)}`}
+            href={`/trace/${encodeURIComponent(trace.inputAddress)}${trace.chain === "polygon" ? "?chain=polygon" : ""}`}
             className={buttonStyles.secondary}
           >
             Back to trace
@@ -457,5 +462,6 @@ export default function EvidencePacket({
         </footer>
       </article>
     </div>
+    </ChainScope>
   );
 }

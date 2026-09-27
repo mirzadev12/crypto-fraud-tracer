@@ -18,7 +18,7 @@ import { profileWallet } from "@/lib/wallet";
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   ctx: RouteContext<"/api/wallet/[address]">,
 ) {
   const { address: raw } = await ctx.params;
@@ -31,9 +31,14 @@ export async function GET(
     return NextResponse.json({ error: check.reason, address: typed }, { status: 400 });
   }
   const address = check.address;
+  // ?chain=polygon reads the 0x address on Polygon; the address alone says Ethereum.
+  const polygon = new URL(request.url).searchParams.get("chain") === "polygon";
+  if (polygon && check.chain !== "ethereum") {
+    return NextResponse.json({ error: "Polygon addresses start with 0x.", address }, { status: 400 });
+  }
 
   try {
-    const profile = await profileWallet(address);
+    const profile = await profileWallet(address, polygon ? "polygon" : undefined);
     return NextResponse.json(profile);
   } catch (err) {
     return NextResponse.json(

@@ -30,6 +30,8 @@ import ethDeposits from "../data/eth/deposit-addresses.json";
 import ethHotWallets from "../data/eth/hot-wallets.json";
 import hotWallets from "../data/hot-wallets.json";
 import riskLists from "../data/risk-lists.json";
+import polygonDeposits from "../data/polygon/deposit-addresses.json";
+import polygonHotWallets from "../data/polygon/hot-wallets.json";
 import multichain from "../data/sanctions-multichain.json";
 import type { Label } from "./types";
 
@@ -208,9 +210,56 @@ for (const row of (riskLists.sanctioned ?? []) as Sanctioned[]) {
   });
 }
 
-/** The only way to ask what an address is. */
+/**
+ * Polygon's own table. A 0x address is valid on Ethereum and on Polygon, and an
+ * exchange's Ethereum deposit address is not thereby its Polygon one — nothing
+ * says the exchange credits USDT sent there on Polygon. So Polygon is looked up
+ * only in what was read on Polygon: its explorer-tagged exchange wallets and the
+ * deposit addresses derived from them. OFAC listings carry over, because a
+ * sanctioned person controls the same key on every EVM chain.
+ */
+const POLYGON_LABELS = new Map<string, Label>();
+for (const row of polygonDeposits as EthDerived[]) {
+  if (!row?.address) continue;
+  POLYGON_LABELS.set(keyOf(row.address), {
+    entity: row.exchange,
+    kind: "exchange_deposit",
+    confidence: row.confidence,
+    source: "heuristic",
+    evidence: row.evidence,
+  });
+}
+for (const row of polygonHotWallets as EthSeed[]) {
+  if (!row?.address) continue;
+  POLYGON_LABELS.set(keyOf(row.address), {
+    entity: row.exchange,
+    kind: "exchange_hot",
+    confidence: 1,
+    source: "ground_truth",
+    evidence: `Explorer-tagged "${row.tag}" on Polygon`,
+  });
+}
+for (const row of ((multichain as { addresses?: MultichainRow[] }).addresses ?? [])) {
+  if (!row?.address || !EVM.test(row.address)) continue;
+  POLYGON_LABELS.set(keyOf(row.address), {
+    entity: row.entity ?? "Sanctioned entity",
+    kind: "sanctioned",
+    confidence: 1,
+    source: "sanctions",
+    evidence: ["OFAC SDN", row.program, row.assets?.length ? `filed under ${row.assets.join(", ")}` : null, "the same key on Polygon"]
+      .filter(Boolean)
+      .join(" · "),
+  });
+}
+
+/** The only way to ask what an address is. For Polygon, say so: `lookupOn`. */
 export function lookup(address: string): Label | null {
   return LABELS.get(keyOf(address)) ?? null;
+}
+
+/** What an address is on one chain. Only Polygon differs: it has its own table. */
+export function lookupOn(chain: string, address: string): Label | null {
+  return chain === "polygon" ? (POLYGON_LABELS.get(keyOf(address)) ?? null) : lookup(address);
 }
 
 /** True when a trace should stop expanding here — we have our answer. */
@@ -226,10 +275,13 @@ export function isTerminal(label: Label | null): boolean {
 }
 
 /** For the operations page and the slide: what the table actually holds. */
-export function labelStats(chain?: "tron" | "ethereum") {
-  const rows = [...LABELS.entries()]
-    .filter(([key]) => !chain || (chain === "ethereum") === key.startsWith("0x"))
-    .map(([, label]) => label);
+export function labelStats(chain?: "tron" | "ethereum" | "polygon") {
+  const rows =
+    chain === "polygon"
+      ? [...POLYGON_LABELS.values()]
+      : [...LABELS.entries()]
+          .filter(([key]) => !chain || (chain === "ethereum") === key.startsWith("0x"))
+          .map(([, label]) => label);
   let hot = 0;
   let deposit = 0;
   let sanctioned = 0;

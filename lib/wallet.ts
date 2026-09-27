@@ -23,10 +23,10 @@
  *    marks itself partial rather than letting a reader date the wallet from it.
  */
 
-import { lookup } from "./labels";
+import { lookupOn } from "./labels";
 import { checkAddress } from "./address";
 import type { ChainClient, ChainName } from "./chain-client";
-import { EthClient } from "./ethclient";
+import { EthClient, PolygonClient } from "./ethclient";
 import { poisoningSignals, type PoisoningSignals } from "./poisoning";
 import { TronGrid } from "./trongrid";
 import type { Label } from "./types";
@@ -73,11 +73,12 @@ const TOP_COUNTERPARTIES = 8;
 
 function rank(
   rows: Map<string, { value: number; count: number; first: number; last: number }>,
+  chain: string,
 ): Counterparty[] {
   return [...rows.entries()]
     .map(([address, row]) => ({
       address,
-      label: lookup(address),
+      label: lookupOn(chain, address),
       valueUsdt: row.value,
       transfers: row.count,
       firstAt: new Date(row.first).toISOString(),
@@ -87,17 +88,18 @@ function rank(
     .slice(0, TOP_COUNTERPARTIES);
 }
 
-export async function profileWallet(address: string): Promise<WalletProfile> {
+/** `chain: "polygon"` reads a 0x address on Polygon; otherwise the address's own form decides. */
+export async function profileWallet(address: string, chain?: "polygon"): Promise<WalletProfile> {
   const checked = checkAddress(address);
   const subject = checked.valid ? checked.address : address.trim();
-  const grid: ChainClient =
-    checked.valid && checked.chain === "ethereum" ? new EthClient() : new TronGrid();
+  const evm = checked.valid && checked.chain === "ethereum";
+  const grid: ChainClient = evm ? (chain === "polygon" ? new PolygonClient() : new EthClient()) : new TronGrid();
   const transfers = await grid.transfers(subject);
 
   const base = {
     address: subject,
     chain: grid.chain,
-    label: lookup(subject),
+    label: lookupOn(grid.chain, subject),
     provenance: {
       apiCalls: grid.apiCalls,
       responseHashes: grid.responseHashes,
@@ -190,8 +192,8 @@ export async function profileWallet(address: string): Promise<WalletProfile> {
     receivedUsdt,
     sentUsdt,
     retainedUsdt: Math.max(0, receivedUsdt - sentUsdt),
-    fundedBy: rank(incoming),
-    paidOut: rank(outgoing),
+    fundedBy: rank(incoming, grid.chain),
+    paidOut: rank(outgoing, grid.chain),
     poisoning: poisoningSignals(subject, transfers),
   };
 }

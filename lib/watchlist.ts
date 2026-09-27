@@ -18,7 +18,7 @@
 
 import { useSyncExternalStore } from "react";
 import { syncAlerts } from "./alerts-client";
-import type { WatchItem } from "./watch";
+import { watchKey, type WatchItem } from "./watch";
 
 const KEY = "finex.watch.v1";
 /** Enough for a morning's CRITICAL cases; the check endpoint caps at the same. */
@@ -46,7 +46,8 @@ function isItem(v: unknown): v is WatchItem {
     typeof r.caseAddress === "string" &&
     typeof r.caseId === "string" &&
     typeof r.heldUsdt === "number" &&
-    typeof r.since === "string"
+    typeof r.since === "string" &&
+    (r.chain === undefined || r.chain === "polygon")
   );
 }
 
@@ -97,10 +98,11 @@ export function useWatchlist(): WatchItem[] {
  */
 export function addWatch(item: WatchItem) {
   const current = snapshot();
-  if (current.some((w) => w.address === item.address)) return;
+  if (current.some((w) => watchKey(w) === watchKey(item))) return;
   write([item, ...current].slice(0, MAX_WATCHED));
 }
 
-export function removeWatch(address: string) {
-  write(snapshot().filter((w) => w.address !== address));
+/** By `watchKey`: the address, with Polygon said. */
+export function removeWatch(key: string) {
+  write(snapshot().filter((w) => watchKey(w) !== key));
 }

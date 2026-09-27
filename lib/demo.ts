@@ -44,6 +44,11 @@ import type { TraceResult } from "./types";
 export const DEMO_MODE =
   process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.DEMO_MODE === "true";
 
+/** Polygon's cases are kept apart from Ethereum's: the same 0x string, a different wallet. */
+function caseKey(address: string, chain?: string): string {
+  return `${chain === "polygon" ? "polygon:" : ""}${canonicalAddress(address)}`;
+}
+
 interface FrozenCase {
   address: string;
   capturedAt: string;
@@ -74,7 +79,7 @@ const CASES: Map<string, FrozenCase> = (() => {
     if (typeof row !== "object" || row === null) continue;
     const r = row as Record<string, unknown>;
     if (typeof r.address !== "string" || !isTraceLike(r.trace)) continue;
-    out.set(canonicalAddress(r.address), {
+    out.set(caseKey(r.address, r.trace.chain), {
       address: canonicalAddress(r.address),
       capturedAt: typeof r.capturedAt === "string" ? r.capturedAt : "",
       trace: r.trace,
@@ -127,11 +132,17 @@ export function answersFor(
   return true;
 }
 
-/** The exact-match lookup. Null means "we hold nothing for this address". */
-export function frozenTrace(address: string): FrozenCase | null {
+/**
+ * The exact-match lookup. Null means "we hold nothing for this address".
+ *
+ * On its chain, too: a 0x address is a different wallet history on Ethereum and
+ * on Polygon, so a recorded Ethereum case never answers a Polygon request for the
+ * same string, and the other way round.
+ */
+export function frozenTrace(address: string, chain?: string): FrozenCase | null {
   // Exact match on the one spelling of the address: case never makes an
   // Ethereum wallet a different wallet, and never makes a TRON one the same.
-  return CASES.get(canonicalAddress(address)) ?? null;
+  return CASES.get(caseKey(address, chain)) ?? null;
 }
 
 /** For the operations page and the freeze script's own reporting. */
@@ -139,6 +150,7 @@ export function frozenCaseCount(): number {
   return CASES.size;
 }
 
+/** The addresses batch triage can run: TRON and Ethereum. A Polygon case is opened on its own page. */
 export function frozenAddresses(): string[] {
-  return [...CASES.keys()];
+  return [...CASES.values()].filter((c) => c.trace.chain !== "polygon").map((c) => c.address);
 }

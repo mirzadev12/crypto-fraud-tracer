@@ -16,7 +16,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { getCases, isIllustrative } from "@/lib/api";
+import { caseHref, getCases, isIllustrative } from "@/lib/api";
 import { formatUsdt, shortAddress } from "@/lib/format";
 import type { CaseSummary } from "@/lib/types";
 import { Panel, Skeleton, TriageBadge } from "@/components/ui";
@@ -83,7 +83,7 @@ export default function CaseRail({
               return (
                 <li key={c.caseId} ref={isActive ? activeRef : undefined}>
                   <Link
-                    href={`/${kind}/${encodeURIComponent(c.inputAddress)}`}
+                    href={caseHref(kind, c)}
                     aria-current={isActive ? "page" : undefined}
                     className={`block border-l-2 px-4 py-4 transition ${
                       isActive

@@ -18,9 +18,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function WalletPage({
   params,
+  searchParams,
 }: PageProps<"/wallet/[address]">) {
   const { address: raw } = await params;
   const address = decodeURIComponent(raw);
+  const sp = await searchParams;
+  const chain = (Array.isArray(sp.chain) ? sp.chain[0] : sp.chain) === "polygon" ? ("polygon" as const) : undefined;
 
   return (
     <AppShell>
@@ -31,20 +34,23 @@ export default async function WalletPage({
         actions={
           <>
             <a
-              href={explorerAddressUrl(address)}
+              href={explorerAddressUrl(address, chain)}
               target="_blank"
               rel="noreferrer"
               className={buttonStyles.ghost}
             >
               Open in block explorer
             </a>
-            <Link href={`/trace/${encodeURIComponent(address)}`} className={buttonStyles.primary}>
+            <Link
+              href={`/trace/${encodeURIComponent(address)}${chain ? "?chain=polygon" : ""}`}
+              className={buttonStyles.primary}
+            >
               Trace this wallet
             </Link>
           </>
         }
       />
-      <WalletOrigin address={address} />
+      <WalletOrigin address={address} chain={chain} />
     </AppShell>
   );
 }

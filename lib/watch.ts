@@ -31,6 +31,17 @@ export interface WatchItem {
   heldUsdt: number;
   /** When the chain was read. Movement is checked from this moment on. */
   since: string;
+  /** Polygon, when the wallet is a Polygon one; otherwise the address's own form decides. */
+  chain?: "polygon";
+}
+
+/**
+ * The one key a watched wallet is known by: its address, with Polygon said. The
+ * same 0x string on Ethereum is a different wallet, and must never be taken for
+ * this one — reported as moved, or as told.
+ */
+export function watchKey(item: { address: string; chain?: string }): string {
+  return item.chain === "polygon" ? `polygon:${item.address}` : item.address;
 }
 
 export interface WatchMovement {
@@ -43,10 +54,10 @@ export interface WatchMovement {
 }
 
 export type WatchResult =
-  | { address: string; status: "moved"; movements: WatchMovement[]; complete: boolean }
-  | { address: string; status: "still" }
+  | { address: string; chain?: "polygon"; status: "moved"; movements: WatchMovement[]; complete: boolean }
+  | { address: string; chain?: "polygon"; status: "still" }
   /** The chain did not answer. Nothing is stated about the wallet. */
-  | { address: string; status: "unchecked"; reason: string };
+  | { address: string; chain?: "polygon"; status: "unchecked"; reason: string };
 
 /**
  * What to watch for a finished trace, or null when there is nothing honest to
@@ -78,5 +89,6 @@ export function watchTargetFor(trace: TraceResult): WatchItem | null {
     caseId: trace.caseId,
     heldUsdt: resting.taintedValueUsdt,
     since: trace.provenance.generatedAt,
+    ...(trace.chain === "polygon" ? { chain: "polygon" as const } : {}),
   };
 }

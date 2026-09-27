@@ -19,6 +19,7 @@
  * evidence printed six inches above it, and this cannot.
  */
 
+import { chainMeta } from "./chain-meta";
 import { categoryOf } from "./contracts";
 import { entityPhrase } from "./voice";
 import type { TraceResult } from "./types";
@@ -175,7 +176,7 @@ export function buildNarrative(
       const category = categoryOf(pooled.label);
       sentences.push(
         category === "bridge"
-          ? `${share} left Ethereum through ${pooled.label.entity}.`
+          ? `${share} left ${chainMeta(trace.chain).name} through ${pooled.label.entity}.`
           : category === "defi"
             ? `${share} entered ${pooled.label.entity}, a DeFi contract, where USDT stops being traceable as USDT.`
             : `${share} entered an unlabelled smart contract, where USDT stops being traceable as USDT.`,

@@ -18,7 +18,7 @@
 
 import { checkAddress } from "./address";
 import { formatDate, formatUsdt, shortAddress } from "./format";
-import type { WatchItem } from "./watch";
+import { watchKey, type WatchItem } from "./watch";
 import { isPushEndpoint, validPushKeys, type PushOutcome, type PushTarget } from "./webpush";
 
 /** One browser that asked to be told. */
@@ -108,6 +108,7 @@ export function readItem(value: unknown): WatchItem | null {
     caseId,
     heldUsdt: r.heldUsdt,
     since: new Date(since).toISOString(),
+    ...(r.chain === "polygon" && address.chain === "ethereum" ? { chain: "polygon" as const } : {}),
   };
 }
 
@@ -145,7 +146,7 @@ export function readSync(
     if (!item) {
       return { error: "Each wallet needs a valid address, caseAddress, caseId, heldUsdt and since." };
     }
-    if (!items.some((i) => i.address === item.address)) items.push(item);
+    if (!items.some((i) => watchKey(i) === watchKey(item))) items.push(item);
   }
   return { target, items };
 }
@@ -166,7 +167,7 @@ export function upsert(
     held.keys = target.keys;
     held.items = items;
     held.notified = Object.fromEntries(
-      Object.entries(held.notified).filter(([address]) => items.some((i) => i.address === address)),
+      Object.entries(held.notified).filter(([key]) => items.some((i) => watchKey(i) === key)),
     );
     held.updatedAt = now;
     return { ok: true, created: false };
@@ -193,10 +194,10 @@ export function pendingChecks(state: AlertState): Map<string, number> {
   const out = new Map<string, number>();
   for (const sub of state.subscriptions) {
     for (const item of sub.items) {
-      if (sub.notified[item.address]) continue;
+      if (sub.notified[watchKey(item)]) continue;
       const since = Date.parse(item.since);
-      const earliest = out.get(item.address);
-      if (earliest === undefined || since < earliest) out.set(item.address, since);
+      const earliest = out.get(watchKey(item));
+      if (earliest === undefined || since < earliest) out.set(watchKey(item), since);
     }
   }
   return out;
@@ -211,8 +212,8 @@ export function alertsDue(state: AlertState, reads: Map<string, OutflowRead>): D
   const due: Due[] = [];
   for (const sub of state.subscriptions) {
     for (const item of sub.items) {
-      if (sub.notified[item.address]) continue;
-      const read = reads.get(item.address);
+      if (sub.notified[watchKey(item)]) continue;
+      const read = reads.get(watchKey(item));
       if (!read) continue;
       const since = Date.parse(item.since);
       const after = read.transfers.filter((t) => t.timestamp > since);
@@ -243,7 +244,7 @@ export function alertMessage(due: Due): { title: string; body: string; url: stri
       `${formatDate(due.item.since)}. Open the desk to see where it went.`,
     url: "/dashboard",
     // One notification per wallet: a second alert about it replaces the first.
-    tag: `finex-watch-${due.item.address}`,
+    tag: `finex-watch-${watchKey(due.item)}`,
   };
 }
 
@@ -265,7 +266,7 @@ export function recordRun(
       removeSubscription(state, endpoint);
       continue;
     }
-    if (outcome.ok && sub.items.some((i) => i.address === address)) {
+    if (outcome.ok && sub.items.some((i) => watchKey(i) === address)) {
       sub.notified[address] = summary.at;
     }
   }
@@ -289,7 +290,7 @@ export function readState(value: unknown): AlertState {
       const notified: Record<string, string> = {};
       if (s.notified && typeof s.notified === "object") {
         for (const [address, at] of Object.entries(s.notified as Record<string, unknown>)) {
-          if (typeof at === "string" && sync.items.some((i) => i.address === address)) notified[address] = at;
+          if (typeof at === "string" && sync.items.some((i) => watchKey(i) === address)) notified[address] = at;
         }
       }
       const stamp = (v: unknown) => (typeof v === "string" && Number.isFinite(Date.parse(v)) ? v : new Date(0).toISOString());

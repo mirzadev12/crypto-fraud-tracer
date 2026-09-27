@@ -17,6 +17,8 @@ itself, with one setting each:
 | `TRON_NODE_URL` | The Tether freeze check on TRON | A TRON full node's HTTP API (`/wallet/triggerconstantcontract`), which java-tron serves as it stands |
 | `BLOCKSCOUT_URL` | Every Ethereum read | A Blockscout instance's API base, ending `/api/v2`. Blockscout is open source |
 | `ETH_RPC_URL` | The Tether freeze check on Ethereum | Any Ethereum JSON-RPC node, such as geth, Erigon or Nethermind |
+| `POLYGON_BLOCKSCOUT_URL` | Every Polygon read (added with note 11) | A Blockscout instance for Polygon PoS, ending `/api/v2` |
+| `POLYGON_RPC_URL` | The Tether freeze check on Polygon | Any Polygon PoS JSON-RPC node (bor) |
 
 Four rules, all for one reason: a silent fallback would send out the very
 wallet a setting exists to keep in-house.

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkAddress } from "@/lib/address";
-import { EthClient } from "@/lib/ethclient";
-import { lookup } from "@/lib/labels";
+import { EthClient, PolygonClient } from "@/lib/ethclient";
+import { lookupOn } from "@/lib/labels";
 import { TronGrid } from "@/lib/trongrid";
 import type { WatchResult } from "@/lib/watch";
 import { entityPhrase } from "@/lib/voice";
@@ -47,6 +47,7 @@ export async function POST(request: Request) {
   // One client per chain, each with its own pacing; a desk may watch both.
   const tron = new TronGrid();
   const eth = new EthClient();
+  const polygonClient = new PolygonClient();
   const results: WatchResult[] = [];
 
   for (const item of raw) {
@@ -59,6 +60,10 @@ export async function POST(request: Request) {
     );
 
     const check = checkAddress(address);
+    // Polygon is said per item; a 0x address alone is Ethereum.
+    const polygon =
+      check.valid && check.chain === "ethereum" && (item as { chain?: unknown })?.chain === "polygon";
+    const tag = polygon ? { chain: "polygon" as const } : {};
     if (!check.valid || !Number.isFinite(sinceMs)) {
       results.push({
         address,
@@ -68,11 +73,12 @@ export async function POST(request: Request) {
       continue;
     }
 
-    const client = check.chain === "ethereum" ? eth : tron;
+    const client = polygon ? polygonClient : check.chain === "ethereum" ? eth : tron;
     const read = await client.outflowsSince(check.address, sinceMs);
     if (!read) {
       results.push({
         address,
+        ...tag,
         status: "unchecked",
         reason: "The chain did not answer for this wallet. Nothing is stated about it.",
       });
@@ -80,18 +86,19 @@ export async function POST(request: Request) {
     }
 
     if (read.transfers.length === 0) {
-      results.push({ address, status: "still" });
+      results.push({ address, ...tag, status: "still" });
       continue;
     }
 
     results.push({
       address,
+      ...tag,
       status: "moved",
       complete: read.complete,
       movements: read.transfers
         .sort((a, b) => a.timestamp - b.timestamp)
         .map((t) => {
-          const label = lookup(t.to);
+          const label = lookupOn(polygon ? "polygon" : check.chain, t.to);
           return {
             txHash: t.txHash,
             to: t.to,
@@ -106,7 +113,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     checkedAt: new Date().toISOString(),
-    apiCalls: tron.apiCalls + eth.apiCalls,
+    apiCalls: tron.apiCalls + eth.apiCalls + polygonClient.apiCalls,
     results,
   });
 }

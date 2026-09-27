@@ -109,21 +109,30 @@ export function elapsedBetween(fromIso: string, toIso: string): string {
 
 /**
  * The public explorer page for an address or a transaction, on its own chain.
- * The form decides the chain: an Ethereum address or hash starts `0x`, a TRON
- * address starts `T`, and a TRON transaction hash is bare hex.
+ * The form decides TRON against EVM: an EVM address or hash starts `0x`, a
+ * TRON address starts `T`, and a TRON transaction hash is bare hex. Which EVM
+ * chain is never in the form — Polygon is said by the caller, or it is
+ * Ethereum.
  */
-export function explorerAddressUrl(address: string): string {
+export function explorerAddressUrl(address: string, chain?: string): string {
   const a = address.trim();
-  return /^0x/i.test(a)
-    ? `https://etherscan.io/address/${encodeURIComponent(a)}`
-    : `https://tronscan.org/#/address/${encodeURIComponent(a)}`;
+  if (!/^0x/i.test(a)) return `https://tronscan.org/#/address/${encodeURIComponent(a)}`;
+  return chain === "polygon"
+    ? `https://polygonscan.com/address/${encodeURIComponent(a)}`
+    : `https://etherscan.io/address/${encodeURIComponent(a)}`;
 }
 
-export function explorerTxUrl(txHash: string): string {
+export function explorerTxUrl(txHash: string, chain?: string): string {
   const h = txHash.trim();
-  return /^0x/i.test(h)
-    ? `https://etherscan.io/tx/${encodeURIComponent(h)}`
-    : `https://tronscan.org/#/transaction/${encodeURIComponent(h)}`;
+  if (!/^0x/i.test(h)) return `https://tronscan.org/#/transaction/${encodeURIComponent(h)}`;
+  return chain === "polygon"
+    ? `https://polygonscan.com/tx/${encodeURIComponent(h)}`
+    : `https://etherscan.io/tx/${encodeURIComponent(h)}`;
+}
+
+/** A wallet card, on the chain it belongs to. Polygon is said in the link; Ethereum and TRON need nothing. */
+export function walletHref(address: string, chain?: string): string {
+  return `/wallet/${encodeURIComponent(address.trim())}${chain === "polygon" ? "?chain=polygon" : ""}`;
 }
 
 /**
@@ -133,7 +142,7 @@ export function explorerTxUrl(txHash: string): string {
  */
 export function readPinned(
   sp: Record<string, string | string[] | undefined>,
-): { amount?: number; since?: string; asOf?: string; ack?: string } {
+): { amount?: number; since?: string; asOf?: string; ack?: string; chain?: "polygon" } {
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
   const amount = Number(one(sp.amount));
   const moment = (raw: string | undefined) =>
@@ -152,5 +161,7 @@ export function readPinned(
     ...(since ? { since } : {}),
     ...(asOf ? { asOf } : {}),
     ...(ack ? { ack } : {}),
+    // Only Polygon is ever said; anything else leaves the address's own form to decide.
+    ...(one(sp.chain) === "polygon" ? { chain: "polygon" as const } : {}),
   };
 }

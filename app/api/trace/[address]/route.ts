@@ -37,6 +37,12 @@ export async function GET(
      proportional haircut. Anything else, including nothing, is haircut — the
      model that shipped, so an existing link is unaffected. */
   const model = url.searchParams.get("model") === "fifo" ? ("fifo" as const) : undefined;
+  /* ?chain=polygon reads the 0x address on Polygon. Anything else keeps the
+     chain the address's own form gives, so every existing link is unchanged. */
+  const polygon = url.searchParams.get("chain") === "polygon";
+  if (polygon && check.chain !== "ethereum") {
+    return NextResponse.json({ error: "Polygon addresses start with 0x." }, { status: 400 });
+  }
 
   const amountParam = Number(url.searchParams.get("amount"));
   const sinceParam = url.searchParams.get("since");
@@ -62,6 +68,7 @@ export async function GET(
     fraudDate: Number.isNaN(since.getTime()) ? "auto" : since.toISOString(),
     ...(model ? { model } : {}),
     ...(asOf ? { asOf: asOf.toISOString() } : {}),
+    ...(polygon ? { chain: "polygon" as const } : {}),
   };
 
   // What was asked, for the audit log: every answer below is recorded with it.
@@ -75,7 +82,7 @@ export async function GET(
    * other and fails honestly if the network is gone.
    */
   if (DEMO_MODE) {
-    const held = frozenTrace(address);
+    const held = frozenTrace(address, job.chain);
     if (held && answersFor(held.trace, job)) {
       await recordTrace(request, held.trace, run, "recorded");
       if (wantsStream(request)) {

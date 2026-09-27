@@ -162,7 +162,7 @@ function subjectOf(raw: string): { input: string; kind: "address" | "tx" } | { r
   const other = identifyChain(s);
   if (other && !other.chain.traceable) {
     return {
-      reason: `${other.chain.name} address — FineX traces TRON and Ethereum. Screen it against OFAC from New case.`,
+      reason: `${other.chain.name} address — FineX traces TRON, Ethereum and Polygon. Screen it against OFAC from New case.`,
     };
   }
   return { reason: check.reason };

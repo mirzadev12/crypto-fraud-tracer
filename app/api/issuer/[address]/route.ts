@@ -15,7 +15,7 @@ import { issuerFreezeStatus } from "@/lib/issuer";
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   ctx: RouteContext<"/api/issuer/[address]">,
 ) {
   const { address: raw } = await ctx.params;
@@ -23,7 +23,12 @@ export async function GET(
   if (!check.valid) {
     return NextResponse.json({ error: check.reason }, { status: 400 });
   }
-  const status = await issuerFreezeStatus(check.address);
+  // ?chain=polygon checks the 0x address on Polygon, where USDT is Tether's USDT0.
+  const polygon = new URL(request.url).searchParams.get("chain") === "polygon";
+  if (polygon && check.chain !== "ethereum") {
+    return NextResponse.json({ error: "Polygon addresses start with 0x." }, { status: 400 });
+  }
+  const status = await issuerFreezeStatus(check.address, polygon ? "polygon" : undefined);
   return NextResponse.json(
     {
       ...status,

@@ -23,9 +23,10 @@
 import { checkAddress } from "./address";
 import type { ChainClient, Transfer } from "./chain-client";
 import { categoryOf, contractLabel, stopsTrace } from "./contracts";
+import { chainMeta } from "./chain-meta";
 import { unreadCause } from "./endpoints";
-import { EthClient } from "./ethclient";
-import { isTerminal, lookup } from "./labels";
+import { evmClient } from "./ethclient";
+import { isTerminal, lookupOn } from "./labels";
 import { buildNarrative } from "./narrative";
 import { scoreRisk, type Observed } from "./risk";
 import type { TraceProgress } from "./progress";
@@ -133,6 +134,12 @@ export interface TraceRequest {
   /** How taint survives mixing. Defaults to haircut, which is what shipped. */
   model?: TaintModel;
   /**
+   * Polygon, for a 0x address: the one EVM chain that has to be said, because
+   * the same 0x address on Ethereum is a different wallet history. Anything
+   * else, including nothing, leaves the chain to the address's own form.
+   */
+  chain?: "polygon";
+  /**
    * ISO timestamp. Read the chain as it stood at this moment rather than now.
    *
    * Confirmed transfers never change, so a trace run as of a past moment comes
@@ -212,7 +219,11 @@ export async function runTrace(
   // Ethereum address is case-insensitive on the chain and must not become two
   // nodes because it was typed two ways.
   const checked = checkAddress(req.address);
-  const chain = checked.valid ? checked.chain : "tron";
+  const chain = !checked.valid
+    ? "tron"
+    : checked.chain === "ethereum" && req.chain === "polygon"
+      ? "polygon"
+      : checked.chain;
   const root = checked.valid ? checked.address : req.address.trim();
   const emit = (event: TraceProgress) => {
     try {
@@ -234,7 +245,7 @@ export async function runTrace(
   let reported = typeof req.amount === "number" ? Math.max(0, req.amount) : 0;
 
   const model: TaintModel = req.model ?? "haircut";
-  const grid: ChainClient = chain === "ethereum" ? new EthClient({ asOf }) : new TronGrid({ asOf });
+  const grid: ChainClient = chain === "tron" ? new TronGrid({ asOf }) : evmClient(chain, { asOf });
   const nodes = new Map<string, TraceNode>();
   const edges: TraceEdge[] = [];
   /** Per wallet, what was read before this tracer's own limits pruned it. */
@@ -323,7 +334,7 @@ export async function runTrace(
       }
 
       const isRoot = item.address === root;
-      let label = isRoot ? rootLabel : lookup(item.address);
+      let label = isRoot ? rootLabel : lookupOn(chain, item.address);
       /*
        * Money that enters a DEX pool, a router or a bridge on Ethereum stops
        * being traceable as USDT: a pool pays out to unrelated swappers, and
@@ -569,6 +580,7 @@ export async function runTrace(
   const riskFlags = scoreRisk(nodeList, edges, fraudIso, {
     observed,
     fraudDateReported: req.fraudDate !== "auto",
+    chain,
   });
   const { triage, triageReason, terminal, restingAt } = decide(nodeList, {
     rootFollowed: edges.filter((e) => e.from === root).length,
@@ -577,6 +589,7 @@ export async function runTrace(
     rootReadFrom,
     windowStart: Number.isNaN(fraudAt) ? now() : fraudAt,
     fraudDateReported: req.fraudDate !== "auto",
+    chainName: chainMeta(chain).name,
   });
 
   const result: TraceResult = {
@@ -627,6 +640,8 @@ function decide(
     rootReadFrom: number | null;
     windowStart: number;
     fraudDateReported: boolean;
+    /** "Ethereum" or "Polygon": the network a bridge took the money off. */
+    chainName: string;
   },
 ): Pick<TraceResult, "triage" | "triageReason" | "terminal"> & {
   /** The wallet named as holding the money, when the finding names one. */
@@ -706,7 +721,7 @@ function decide(
       triage: "HOT" as TriageLevel,
       triageReason:
         category === "bridge"
-          ? `${amount} USDT left Ethereum through ${pooled.label.entity}; the trail continues on another network, which this trace does not read.`
+          ? `${amount} USDT left ${ctx.chainName} through ${pooled.label.entity}; the trail continues on another network, which this trace does not read.`
           : category === "defi"
             ? `${amount} USDT entered ${pooled.label.entity}, a smart contract; USDT tracing ends where a contract pools the money or converts it to another asset.`
             : `${amount} USDT entered an unlabelled smart contract; the trail cannot be followed as USDT past that point.`,

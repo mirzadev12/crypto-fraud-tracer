@@ -79,6 +79,8 @@ export interface TraceParams {
   since?: string;
   /** Read the chain as it stood at this moment — the moment the run was read. */
   asOf?: string;
+  /** Polygon, for a 0x address; otherwise the address's own form decides. */
+  chain?: "polygon";
 }
 
 /**
@@ -93,6 +95,7 @@ export function traceHref(
   kind: "trace" | "report" | "freeze",
   trace: Pick<TraceResult, "inputAddress" | "reportedAmountUsdt" | "fraudDate"> & {
     provenance?: { generatedAt?: string };
+    chain?: TraceResult["chain"];
   },
   /** The complaint's acknowledgement number, when the case came from a complaint sheet. */
   ack?: string,
@@ -102,6 +105,8 @@ export function traceHref(
   if (trace.fraudDate) query.set("since", trace.fraudDate);
   if (trace.provenance?.generatedAt) query.set("asof", trace.provenance.generatedAt);
   if (ack) query.set("ack", ack);
+  // A 0x address on Polygon is said in the link, or it would reopen on Ethereum.
+  if (trace.chain === "polygon") query.set("chain", "polygon");
   const qs = query.toString();
   return `/${kind}/${encodeURIComponent(trace.inputAddress)}${qs ? `?${qs}` : ""}`;
 }
@@ -128,6 +133,8 @@ export interface TraceRequest {
   amount?: number;
   /** Optional ISO timestamp. Omitted, the window opens at the wallet's first transfer. */
   fraudDate?: string;
+  /** Polygon, for a 0x address; otherwise the address's own form decides. */
+  chain?: "polygon";
 }
 
 export class TraceUnavailableError extends Error {
@@ -221,6 +228,23 @@ export function sampleHref(sample: (typeof DEMO_SAMPLES)[number]): string {
   query.set("since", sample.run.since);
   query.set("asof", sample.run.asOf);
   return `/trace/${encodeURIComponent(sample.address)}?${query.toString()}`;
+}
+
+/**
+ * A register row's chain, for the one kind of row that must say it: a recorded
+ * Polygon case. A 0x address alone means Ethereum, so every link to that row
+ * carries `?chain=polygon` (see `caseHref`).
+ */
+export function rowChain(row: object): "polygon" | undefined {
+  return (row as { chain?: unknown }).chain === "polygon" ? "polygon" : undefined;
+}
+
+/** The trace, packet or freeze request for a register row, on its own chain. */
+export function caseHref(
+  kind: "trace" | "report" | "freeze",
+  row: { inputAddress: string; chain?: unknown },
+): string {
+  return `/${kind}/${encodeURIComponent(row.inputAddress)}${rowChain(row) ? "?chain=polygon" : ""}`;
 }
 
 export function hasDemoTrace(address: string): boolean {
@@ -479,7 +503,7 @@ function normalizeTrace(raw: Record<string, unknown>): TraceResult {
         ? raw.inputAddress
         : nodes[0]?.address ?? "",
 
-    chain: raw.chain === "ethereum" ? "ethereum" : "tron",
+    chain: raw.chain === "ethereum" || raw.chain === "polygon" ? raw.chain : "tron",
 
     reportedAmountUsdt: reportedAmount,
 
@@ -789,6 +813,7 @@ export async function getTrace(
     if (params?.amount && params.amount > 0) query.set("amount", String(params.amount));
     if (params?.since) query.set("since", params.since);
     if (params?.asOf) query.set("asof", params.asOf);
+    if (params?.chain === "polygon") query.set("chain", "polygon");
     const qs = query.toString();
     const { json, recorded } = await streamJson(
       `/api/trace/${encodeURIComponent(clean)}${qs ? `?${qs}` : ""}`,

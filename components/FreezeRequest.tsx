@@ -1,5 +1,6 @@
 "use client";
 
+import { ChainScope } from "./ChainScope";
 import Link from "next/link";
 import {
   formatDateTime,
@@ -125,6 +126,7 @@ export default function FreezeRequest({
   since,
   asOf,
   ack,
+  chain: pinnedChain,
 }: {
   address: string;
   amount?: number;
@@ -132,8 +134,10 @@ export default function FreezeRequest({
   asOf?: string;
   /** The complaint's acknowledgement number, from a complaint sheet. */
   ack?: string;
+  /** Polygon, for a 0x address; otherwise the address's own form decides. */
+  chain?: "polygon";
 }) {
-  const { current, retry, events } = useTrace(address, { amount, since, asOf });
+  const { current, retry, events } = useTrace(address, { amount, since, asOf, chain: pinnedChain });
 
   if (!current) return <TraceSkeleton address={address} events={events} />;
   if (current.lookup.status === "invalid") {
@@ -202,6 +206,7 @@ export default function FreezeRequest({
   const caseRef = `${trace.caseId} · ${chain.scope} · GENERATED ${generated}`;
 
   return (
+    <ChainScope chain={trace.chain} address={trace.inputAddress}>
     <div className="space-y-6">
       {/* Console chrome — stays dark, never prints. */}
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
@@ -527,5 +532,6 @@ export default function FreezeRequest({
         ]}
       />
     </div>
+    </ChainScope>
   );
 }

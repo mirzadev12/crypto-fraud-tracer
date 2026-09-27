@@ -4,7 +4,10 @@
  *
  *   node scripts/cluster-eth.mjs [--senders 30] [--ratio 0.90] [--sweeps 2]
  *                                [--pages 6] [--window 8000] [--from 0]
- *                                [--wallets N] [--merge]
+ *                                [--wallets N] [--merge] [--chain polygon]
+ *
+ * `--chain polygon` runs the same rule on Polygon PoS, from data/polygon/ into
+ * data/polygon/, through Polygon's explorer and a public Polygon node.
  *
  * Runs offline, on a laptop, with no key. Output is committed; nothing here
  * runs in production.
@@ -54,17 +57,21 @@ const WINDOW = flag("window", 8000);
 const FROM = flag("from", 0);
 const WALLET_LIMIT = flag("wallets", Infinity);
 const MERGE = argv.includes("--merge");
+const CHAIN = argv.includes("--chain") ? argv[argv.indexOf("--chain") + 1] : "ethereum";
+if (CHAIN !== "ethereum" && CHAIN !== "polygon") throw new Error(`--chain must be ethereum or polygon, not ${CHAIN}`);
+const POLYGON = CHAIN === "polygon";
+const DIR = POLYGON ? "data/polygon" : "data/eth";
 const MIN_USDT = 1; // poisoning dust and zero-value spoofs never count
 const MIN_SHARED = 5; // funded deposit addresses sweeping to one wallet before it is recorded
 
-const SEEDS_ALL = JSON.parse(readFileSync("data/eth/hot-wallets.json", "utf8"));
+const SEEDS_ALL = JSON.parse(readFileSync(`${DIR}/hot-wallets.json`, "utf8"));
 const SEEDS = SEEDS_ALL.slice(FROM, FROM + WALLET_LIMIT);
-const OUT = "data/eth/deposit-addresses.json";
-const OUT_WALLETS = "data/eth/consolidation-wallets.json";
+const OUT = `${DIR}/deposit-addresses.json`;
+const OUT_WALLETS = `${DIR}/consolidation-wallets.json`;
 
-const BS = "https://eth.blockscout.com/api/v2";
-const RPC = "https://ethereum-rpc.publicnode.com";
-const USDT = "0xdac17f958d2ee523a2206206994597c13d831ec7";
+const BS = POLYGON ? "https://polygon.blockscout.com/api/v2" : "https://eth.blockscout.com/api/v2";
+const RPC = POLYGON ? "https://polygon-bor-rpc.publicnode.com" : "https://ethereum-rpc.publicnode.com";
+const USDT = POLYGON ? "0xc2132d05d31c914a87c6611c10748aeb04b58e8f" : "0xdac17f958d2ee523a2206206994597c13d831ec7";
 const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -246,7 +253,7 @@ const perSeed = [];
 const startedAt = Date.now();
 
 console.log(
-  `clustering ${SEEDS.length} Ethereum seeds · cap ${SENDER_CAP} · ratio ≥ ${MIN_RATIO} · sweeps ≥ ${MIN_SWEEPS} (sweep route) · ≥ ${MIN_USDT} USDT per transfer\n`,
+  `clustering ${SEEDS.length} ${POLYGON ? "Polygon" : "Ethereum"} seeds · cap ${SENDER_CAP} · ratio ≥ ${MIN_RATIO} · sweeps ≥ ${MIN_SWEEPS} (sweep route) · ≥ ${MIN_USDT} USDT per transfer\n`,
 );
 
 for (const [i, seed] of SEEDS.entries()) {

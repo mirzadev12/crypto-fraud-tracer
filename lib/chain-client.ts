@@ -10,7 +10,9 @@
  *  - Every response body is SHA-256 hashed and every request counted.
  */
 
-export type ChainName = "tron" | "ethereum";
+export type ChainName = "tron" | "ethereum" | "polygon";
+/** The EVM networks FineX reads. A 0x address is valid on both; the chain is said, never guessed. */
+export type EvmChain = "ethereum" | "polygon";
 
 export interface Transfer {
   txHash: string;

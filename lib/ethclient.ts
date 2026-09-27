@@ -25,58 +25,99 @@
  */
 
 import { createHash } from "node:crypto";
-import type { ChainClient, ContractInfo, Transfer } from "./chain-client";
-import { blockscoutKey, ethHistory } from "./endpoints";
+import type { ChainClient, ContractInfo, EvmChain, Transfer } from "./chain-client";
+import { blockscoutKey, ethHistory, polygonHistory, type Endpoint } from "./endpoints";
 import { toChecksumAddress } from "./evm";
-
-// Keyless traffic uses the public instance; a key uses the Pro API, which
-// refuses keyless requests (HTTP 402) and takes the key as a bearer token, so
-// it never appears in a URL. BLOCKSCOUT_URL replaces both with the agency's own
-// Blockscout, which is sent no key (lib/endpoints.ts).
-const KEY = blockscoutKey() ?? "";
-const OWN = ethHistory().source === "own";
-/** Null when BLOCKSCOUT_URL is set but is not a URL: every read then fails, and goes nowhere else. */
-const BASE = ethHistory().base;
 
 /** USDT (ERC-20) on Ethereum mainnet. Verified on live rows: decimals "6". */
 export const ETH_USDT_CONTRACT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 export const ETH_USDT_DECIMALS = 6;
+/**
+ * USDT on Polygon PoS. Tether moved it onto USDT0, its cross-chain USDT, so the
+ * explorer names it "USDT0"; same address, decimals "6" (verified 27 Sep 2026).
+ */
+export const POLYGON_USDT_CONTRACT = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
 
 const PAGE_SIZE = 50; // fixed by the endpoint
 /** 1,000 transfers — the depth the TRON client reads (5 pages of 200). */
 const MAX_PAGES = 20;
 const RETRY_DELAYS_MS = [1000, 3000, 6000];
 const TIMEOUT_MS = 15_000;
-/** Ethereum produces a block every 12 seconds since the Merge. */
-const SLOT_MS = 12_000;
-
-// 350 ms keeps a steady stream under 180 a minute; a key allows 10 a second;
-// the agency's own instance has no public limit to respect.
-const MIN_GAP_MS = OWN ? 20 : KEY ? 110 : 350;
 const MAX_GAP_MS = 4000;
-let gapMs = MIN_GAP_MS;
-/** The next moment a request may start, shared by every trace in this process. */
-let nextSlotAt = 0;
 
-async function paced(): Promise<void> {
+/** One network's pacing: shared by every trace in this process, and by nothing on another network. */
+interface Pace {
+  min: number;
+  gap: number;
+  /** The next moment a request may start. */
+  nextSlotAt: number;
+}
+
+/**
+ * One EVM network read through a Blockscout API. Ethereum is exactly what this
+ * client always read; Polygon is the same explorer software on another chain,
+ * with its own endpoint, token, block time and rate-limit budget.
+ */
+interface Network {
+  chain: EvmChain;
+  /** Null when the setting is not a URL: every read then fails, and goes nowhere else. */
+  base: string | null;
+  key: string;
+  usdt: string;
+  /** Average block interval, for the first guess at an as-of block. */
+  slotMs: number;
+  /**
+   * Ethereum's slot is a fixed 12 s, and its block search walks from that. A
+   * chain whose block time has changed over the years (Polygon: 2 s, now
+   * faster) is searched by bracketing instead, which converges whatever the
+   * interval was.
+   */
+  bracketed: boolean;
+  pace: Pace;
+}
+
+function network(chain: EvmChain, endpoint: Endpoint, key: string, usdt: string, slotMs: number): Network {
+  // 350 ms keeps a steady stream under 180 a minute; a key allows 10 a second;
+  // the agency's own instance has no public limit to respect.
+  const min = endpoint.source === "own" ? 20 : key ? 110 : 350;
+  return {
+    chain,
+    base: endpoint.base,
+    key,
+    usdt,
+    slotMs,
+    bracketed: chain !== "ethereum",
+    pace: { min, gap: min, nextSlotAt: 0 },
+  };
+}
+
+// Keyless traffic uses the public instance; a key uses the Pro API, which
+// refuses keyless requests (HTTP 402) and takes the key as a bearer token, so
+// it never appears in a URL. BLOCKSCOUT_URL replaces both with the agency's own
+// Blockscout, which is sent no key (lib/endpoints.ts). Polygon is read keyless,
+// or from POLYGON_BLOCKSCOUT_URL.
+const ETHEREUM = network("ethereum", ethHistory(), blockscoutKey() ?? "", ETH_USDT_CONTRACT, 12_000);
+const POLYGON = network("polygon", polygonHistory(), "", POLYGON_USDT_CONTRACT, 2_000);
+
+async function paced(pace: Pace): Promise<void> {
   const now = Date.now();
-  const at = Math.max(now, nextSlotAt);
-  nextSlotAt = at + gapMs;
+  const at = Math.max(now, pace.nextSlotAt);
+  pace.nextSlotAt = at + pace.gap;
   if (at > now) await sleep(at - now);
 }
 
-function refused(): void {
-  gapMs = Math.min(MAX_GAP_MS, gapMs * 2);
+function refused(pace: Pace): void {
+  pace.gap = Math.min(MAX_GAP_MS, pace.gap * 2);
 }
 
-function answered(res: Response): void {
-  gapMs = Math.max(MIN_GAP_MS, Math.round(gapMs * 0.9));
+function answered(pace: Pace, res: Response): void {
+  pace.gap = Math.max(pace.min, Math.round(pace.gap * 0.9));
   // The endpoint says how much of its window is left. When it is nearly spent,
   // wait for the window to reset rather than collect a refusal.
   const remaining = Number(res.headers.get("x-ratelimit-remaining"));
   const resetMs = Number(res.headers.get("x-ratelimit-reset"));
   if (Number.isFinite(remaining) && remaining <= 2 && Number.isFinite(resetMs) && resetMs > 0) {
-    nextSlotAt = Math.max(nextSlotAt, Date.now() + Math.min(resetMs, 61_000));
+    pace.nextSlotAt = Math.max(pace.nextSlotAt, Date.now() + Math.min(resetMs, 61_000));
   }
 }
 
@@ -90,8 +131,15 @@ type Fetched =
   | { ok: true; json: unknown }
   | { ok: false; status: number | null };
 
-export class EthClient implements ChainClient {
-  readonly chain = "ethereum" as const;
+export interface EvmClientOptions {
+  asOf?: number | null;
+  asOfBlock?: number;
+  maxPages?: number;
+}
+
+export class EvmClient implements ChainClient {
+  readonly chain: EvmChain;
+  private readonly net: Network;
   private cache = new Map<string, Transfer[]>();
   private hashes: string[] = [];
   private calls = 0;
@@ -104,7 +152,9 @@ export class EthClient implements ChainClient {
   /** The last block at or before `asOf`: undefined until resolved, null if it could not be. */
   private asOfBlock: number | null | undefined = undefined;
 
-  constructor(opts: { asOf?: number | null; asOfBlock?: number; maxPages?: number } = {}) {
+  protected constructor(net: Network, opts: EvmClientOptions = {}) {
+    this.net = net;
+    this.chain = net.chain;
     // Fewer pages for a caller that needs only the newest transfers (a payer's
     // funding, read as of its payment). Never more than the default.
     this.maxPages =
@@ -156,7 +206,7 @@ export class EthClient implements ChainClient {
     for (let page = 0; page < this.maxPages; page++) {
       const qs = new URLSearchParams({
         type: "ERC-20",
-        token: ETH_USDT_CONTRACT,
+        token: this.net.usdt,
         ...(cursor ?? {}),
       });
       const res = await this.fetchJson(`/addresses/${subject}/token-transfers?${qs}`);
@@ -197,7 +247,7 @@ export class EthClient implements ChainClient {
     sinceMs: number,
   ): Promise<{ transfers: Transfer[]; complete: boolean } | null> {
     const subject = canonical(address);
-    const qs = new URLSearchParams({ type: "ERC-20", token: ETH_USDT_CONTRACT, filter: "from" });
+    const qs = new URLSearchParams({ type: "ERC-20", token: this.net.usdt, filter: "from" });
     const res = await this.fetchJson(`/addresses/${subject}/token-transfers?${qs}`);
     const body = res.ok && isObject(res.json) ? res.json : null;
     if (!body || !Array.isArray(body.items)) return null;
@@ -262,6 +312,7 @@ export class EthClient implements ChainClient {
     const headT = Date.parse(String(top?.timestamp ?? ""));
     if (!Number.isFinite(headN) || !Number.isFinite(headT)) return null;
     if (ms >= headT) return headN;
+    if (this.net.bracketed) return this.bracketBlock(ms, headN, headT);
 
     const tsOf = async (n: number): Promise<number | null> => {
       const res = await this.fetchJson(`/blocks/${n}`);
@@ -269,20 +320,60 @@ export class EthClient implements ChainClient {
       return Number.isFinite(t) ? t : null;
     };
 
-    let n = Math.max(0, headN - Math.ceil((headT - ms) / SLOT_MS));
+    let n = Math.max(0, headN - Math.ceil((headT - ms) / this.net.slotMs));
     for (let step = 0; step < 12; step++) {
       const t = await tsOf(n);
       if (t === null) return null;
       if (t > ms) {
-        n = Math.max(0, n - Math.max(1, Math.ceil((t - ms) / SLOT_MS)));
+        n = Math.max(0, n - Math.max(1, Math.ceil((t - ms) / this.net.slotMs)));
         continue;
       }
       const t1 = await tsOf(n + 1);
       if (t1 === null) return null;
       if (t1 > ms) return n;
-      n += Math.max(1, Math.floor((ms - t1) / SLOT_MS) + 1);
+      n += Math.max(1, Math.floor((ms - t1) / this.net.slotMs) + 1);
     }
     return null;
+  }
+
+  /**
+   * The same boundary, found by bracketing, for a chain whose block time has
+   * not been constant. Every probe narrows [lo, hi], where t(lo) <= moment <
+   * t(hi); the next probe is interpolated between the two by their timestamps,
+   * and bisects instead whenever interpolation stops halving the bracket, so it
+   * converges however the interval varied. Null when it cannot be pinned down.
+   */
+  private async bracketBlock(ms: number, headN: number, headT: number): Promise<number | null> {
+    const tsOf = async (n: number): Promise<number | null> => {
+      const res = await this.fetchJson(`/blocks/${n}`);
+      const t = res.ok && isObject(res.json) ? Date.parse(String(res.json.timestamp ?? "")) : Number.NaN;
+      return Number.isFinite(t) ? t : null;
+    };
+    let lo = 0;
+    let loT = Number.NaN;
+    let hi = headN;
+    let hiT = headT;
+    let n = Math.max(0, headN - Math.ceil((headT - ms) / this.net.slotMs));
+    let width = hi - lo;
+    for (let step = 0; step < 60 && hi - lo > 1; step++) {
+      if (n <= lo || n >= hi) n = lo + Math.floor((hi - lo) / 2);
+      const t = await tsOf(n);
+      if (t === null) return null;
+      if (t <= ms) {
+        lo = n;
+        loT = t;
+      } else {
+        hi = n;
+        hiT = t;
+      }
+      const halved = hi - lo <= width / 2;
+      width = hi - lo;
+      n =
+        halved && Number.isFinite(loT) && hiT > loT
+          ? lo + Math.floor(((ms - loT) / (hiT - loT)) * (hi - lo))
+          : lo + Math.floor((hi - lo) / 2);
+    }
+    return hi - lo === 1 && Number.isFinite(loT) ? lo : null;
   }
 
   /* ------------------------------------------------------------ parsing */
@@ -291,7 +382,7 @@ export class EthClient implements ChainClient {
     if (!isObject(row)) return null;
     const token = isObject(row.token) ? row.token : null;
     const tokenAddress = String(token?.address_hash ?? token?.address ?? "").toLowerCase();
-    if (tokenAddress !== ETH_USDT_CONTRACT.toLowerCase()) return null;
+    if (tokenAddress !== this.net.usdt.toLowerCase()) return null;
 
     const total = isObject(row.total) ? row.total : null;
     const decimals = Number(total?.decimals ?? ETH_USDT_DECIMALS);
@@ -350,21 +441,22 @@ export class EthClient implements ChainClient {
 
   /** One request, hashed and counted. Never throws. */
   private async fetchJson(path: string): Promise<Fetched> {
-    if (!BASE) return { ok: false, status: null };
+    const { base, key, pace } = this.net;
+    if (!base) return { ok: false, status: null };
     let timeouts = 0;
     for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
-      await paced();
+      await paced(pace);
       this.calls++;
       try {
-        const res = await fetch(`${BASE}${path}`, {
+        const res = await fetch(`${base}${path}`, {
           headers: {
             accept: "application/json",
-            ...(KEY ? { authorization: `Bearer ${KEY}` } : {}),
+            ...(key ? { authorization: `Bearer ${key}` } : {}),
           },
           signal: AbortSignal.timeout(TIMEOUT_MS),
         });
         if (res.status === 429 || (res.status >= 500 && res.status !== 524)) {
-          if (res.status === 429) refused();
+          if (res.status === 429) refused(pace);
           const delay = RETRY_DELAYS_MS[attempt];
           if (delay === undefined) return { ok: false, status: res.status };
           await sleep(delay);
@@ -375,7 +467,7 @@ export class EthClient implements ChainClient {
         if (!res.ok) return { ok: false, status: res.status };
 
         const text = await res.text();
-        answered(res);
+        answered(pace, res);
         this.hashes.push(createHash("sha256").update(text).digest("hex"));
         try {
           return { ok: true, json: JSON.parse(text) };
@@ -391,6 +483,25 @@ export class EthClient implements ChainClient {
     }
     return { ok: false, status: null };
   }
+}
+
+/** USDT on Ethereum mainnet — exactly what this client always read. */
+export class EthClient extends EvmClient {
+  constructor(opts: EvmClientOptions = {}) {
+    super(ETHEREUM, opts);
+  }
+}
+
+/** USDT (USDT0) on Polygon PoS, through the same explorer software. */
+export class PolygonClient extends EvmClient {
+  constructor(opts: EvmClientOptions = {}) {
+    super(POLYGON, opts);
+  }
+}
+
+/** The client for an EVM chain FineX reads. A 0x address alone never decides which. */
+export function evmClient(chain: EvmChain, opts: EvmClientOptions = {}): EvmClient {
+  return chain === "polygon" ? new PolygonClient(opts) : new EthClient(opts);
 }
 
 function cursorFrom(params: unknown): Record<string, string> | null {

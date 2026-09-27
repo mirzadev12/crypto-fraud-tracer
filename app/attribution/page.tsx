@@ -13,6 +13,8 @@ import deposits from "@/data/deposit-addresses.json";
 import seeds from "@/data/hot-wallets.json";
 import ethDeposits from "@/data/eth/deposit-addresses.json";
 import ethSeeds from "@/data/eth/hot-wallets.json";
+import polygonDeposits from "@/data/polygon/deposit-addresses.json";
+import polygonSeeds from "@/data/polygon/hot-wallets.json";
 import ethWallets from "@/data/eth/consolidation-wallets.json";
 import multichain from "@/data/sanctions-multichain.json";
 import riskLists from "@/data/risk-lists.json";
@@ -23,7 +25,7 @@ import { fiuListing } from "@/lib/fiu";
 export const metadata: Metadata = {
   title: "Attribution register",
   description:
-    "Every exchange deposit address this tool can name, on TRON and Ethereum, the tagged wallet it was derived from, and the evidence behind it.",
+    "Every exchange deposit address this tool can name, on TRON, Ethereum and Polygon, the tagged wallet it was derived from, and the evidence behind it.",
 };
 
 /*
@@ -60,6 +62,20 @@ const ethRows: DerivedRow[] = (ethDeposits as EthDerived[]).map((r) => ({
   route: r.route,
 }));
 const ethSeedRows = ethSeeds as SeedRow[];
+// Polygon's register: the same rule, from Polygon's own explorer tags (scripts/cluster-eth.mjs --chain polygon).
+const polygonRows: DerivedRow[] = (polygonDeposits as EthDerived[]).map((r) => ({
+  address: r.address,
+  exchange: r.exchange,
+  sweepCount: r.sweepCount,
+  confidence: r.confidence,
+  evidence: r.evidence,
+  hotWallet: r.sweptTo,
+  windowTruncated: r.windowTruncated,
+  seed: r.seed,
+  route: r.route,
+}));
+const polygonSeedRows = polygonSeeds as SeedRow[];
+const polygonExchanges = new Set(polygonRows.map((r) => r.exchange));
 const ethExchanges = new Set(ethRows.map((r) => r.exchange));
 const indian = ethRows.filter((r) => fiuListing(r.exchange)).length;
 const evmSanctioned = (multichain.addresses as Array<{ address: string }>).filter((a) =>
@@ -72,7 +88,7 @@ export default function AttributionPage() {
       <PageHeader
         eyebrow="Attribution"
         title="Where a name comes from"
-        description={`On TRON, ${rows.length} customer deposit addresses across ${exchanges} exchanges, derived from ${seedRows.length} explorer-tagged wallets, plus ${sanctioned} TRON addresses from the published OFAC sanctions list covering ${sanctionedEntities} entities. On Ethereum, ${ethRows.length} across ${ethExchanges.size} exchanges from ${ethSeedRows.length} tagged wallets — ${indian} of them at Indian exchanges — plus ${evmSanctioned} OFAC-listed Ethereum-format addresses. ${multichain.count} addresses on other chains are screened, not traced. Nothing here was bought, and every row states the evidence it rests on.`}
+        description={`On TRON, ${rows.length} customer deposit addresses across ${exchanges} exchanges, derived from ${seedRows.length} explorer-tagged wallets, plus ${sanctioned} TRON addresses from the published OFAC sanctions list covering ${sanctionedEntities} entities. On Ethereum, ${ethRows.length} across ${ethExchanges.size} exchanges from ${ethSeedRows.length} tagged wallets — ${indian} of them at Indian exchanges — plus ${evmSanctioned} OFAC-listed Ethereum-format addresses. On Polygon, ${polygonRows.length} across ${polygonExchanges.size} exchanges from ${polygonSeedRows.length} tagged wallets. ${multichain.count} addresses on other chains are screened, not traced. Nothing here was bought, and every row states the evidence it rests on.`}
         actions={
           <Link href="/operations" className={buttonStyles.secondary}>
             How this runs
@@ -111,7 +127,44 @@ export default function AttributionPage() {
           </CalibrationPanel>
         </div>
       ) : null}
+      {polygonRows.length ? (
+        <div className="mt-24">
+          <AttributionRegister
+            rows={polygonRows}
+            seeds={polygonSeedRows}
+            chain="Polygon"
+            idPrefix="polygon"
+            searchHint="0x2ebA…  ·  OKX"
+            method={<PolygonMethod />}
+          />
+        </div>
+      ) : null}
     </AppShell>
+  );
+}
+
+function PolygonMethod() {
+  return (
+    <Panel title="Polygon · How a row gets here" framed={false}>
+      <div className="max-w-3xl space-y-6 pt-6 text-sm leading-7 text-muted">
+        <p>
+          The same sweep rule as Ethereum, read on Polygon: a sender that swept to an
+          exchange&apos;s wallets tagged <em>on Polygon&apos;s explorer</em>{" "}
+          <strong className="font-semibold text-ink">at least twice</strong>, forwarding{" "}
+          <strong className="font-semibold text-ink">90% or more</strong> of what it
+          received. Nothing is carried over from Ethereum: the same 0x address there is
+          another wallet history, and an exchange that credits one network need not
+          credit the other.
+        </p>
+        <p>
+          CoinDCX&apos;s Polygon wallets are tagged, but quiet since 2025, and none of
+          their few senders met the rule, so no CoinDCX deposit address is named here.
+          The gas-funder route does not apply: CoinDCX&apos;s deposit funders have sent
+          nothing on Polygon. Polygon&apos;s USDT is Tether&apos;s USDT0, whose freeze list
+          the freeze check reads there.
+        </p>
+      </div>
+    </Panel>
   );
 }
 

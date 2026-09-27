@@ -45,7 +45,7 @@ const en: HelpContent = {
   eyebrow: "Help",
   title: "How to use this",
   description:
-    "FineX follows stolen USDT on TRON and Ethereum and tells you whether the money can still be reached.",
+    "FineX follows stolen USDT on TRON, Ethereum and Polygon and tells you whether the money can still be reached.",
   action: "Trace a wallet",
   headings: [
     { title: "The screens", kicker: "What each one is for" },
@@ -183,8 +183,8 @@ const en: HelpContent = {
       body: "Nobody can. We mark where the trail ends and stop, rather than guess.",
     },
     {
-      title: "It covers USDT on TRON and Ethereum only",
-      body: "That is where this kind of fraud money mostly moves. On Ethereum it reads the main network only: the same 0x address on BNB Chain or Polygon is not read. When money goes into a swap or a bridge, the trace stops there and says so.",
+      title: "It covers USDT on TRON, Ethereum and Polygon only",
+      body: "That is where this kind of fraud money mostly moves. A 0x address is read on Ethereum unless you choose Polygon in New case; the same address on BNB Chain is not read. When money goes into a swap or a bridge, the trace stops there and says so.",
     },
     {
       title: "It never reports silence as an answer",
@@ -197,7 +197,7 @@ const hi: HelpContent = {
   eyebrow: "सहायता",
   title: "इसका उपयोग कैसे करें",
   description:
-    "FineX, TRON और Ethereum पर चोरी हुए USDT का पीछा करता है और बताता है कि पैसा अभी भी पकड़ में आ सकता है या नहीं।",
+    "FineX, TRON, Ethereum और Polygon पर चोरी हुए USDT का पीछा करता है और बताता है कि पैसा अभी भी पकड़ में आ सकता है या नहीं।",
   action: "वॉलेट ट्रेस करें",
   reviewNote:
     "यह पृष्ठ मशीन की सहायता से हिन्दी में अनुवादित है। इस पर भरोसा करने से पहले किसी हिन्दी भाषी अधिकारी से इसकी समीक्षा कराएँ। मेन्यू और बाकी सभी स्क्रीन अंग्रेज़ी में हैं, इसलिए स्क्रीनों और बटनों के नाम यहाँ भी अंग्रेज़ी में दिए गए हैं।",
@@ -337,8 +337,8 @@ const hi: HelpContent = {
       body: "कोई नहीं कर सकता। हम बताते हैं कि रास्ता कहाँ खत्म हुआ और वहीं रुक जाते हैं, अनुमान नहीं लगाते।",
     },
     {
-      title: "यह केवल TRON और Ethereum पर USDT देखता है",
-      body: "इस तरह की ठगी का पैसा ज़्यादातर यहीं चलता है। Ethereum पर यह केवल मुख्य नेटवर्क पढ़ता है: BNB Chain या Polygon पर वही 0x पता नहीं पढ़ा जाता। जब पैसा किसी स्वैप या ब्रिज में जाता है, तो ट्रेस वहीं रुकता है और यह बताता है।",
+      title: "यह केवल TRON, Ethereum और Polygon पर USDT देखता है",
+      body: "इस तरह की ठगी का पैसा ज़्यादातर यहीं चलता है। 0x पता Ethereum पर पढ़ा जाता है, जब तक आप New case में Polygon न चुनें; BNB Chain पर वही पता नहीं पढ़ा जाता। जब पैसा किसी स्वैप या ब्रिज में जाता है, तो ट्रेस वहीं रुकता है और यह बताता है।",
     },
     {
       title: "यह चुप्पी को उत्तर नहीं बताता",

@@ -27,7 +27,8 @@ import {
   type RunSummary,
 } from "./alerts";
 import { loadState, mutate, vapidKeys, vapidSubject } from "./alert-store";
-import { EthClient } from "./ethclient";
+import { EthClient, PolygonClient } from "./ethclient";
+import { watchKey } from "./watch";
 import { TronGrid } from "./trongrid";
 import { sendPush, type PushOutcome } from "./webpush";
 
@@ -93,21 +94,23 @@ async function round(): Promise<RunSummary | null> {
   const checks = pendingChecks(state);
   const tron = new TronGrid();
   const eth = new EthClient();
+  const polygon = new PolygonClient();
   const reads = new Map<string, OutflowRead>();
   let moved = 0;
   let unchecked = 0;
-  for (const [address, sinceMs] of checks) {
-    const check = checkAddress(address);
-    const read = check.valid
-      ? await (check.chain === "ethereum" ? eth : tron).outflowsSince(check.address, sinceMs)
-      : null;
+  for (const [key, sinceMs] of checks) {
+    // The key says Polygon; the address alone would say Ethereum (lib/watch.ts).
+    const onPolygon = key.startsWith("polygon:");
+    const check = checkAddress(onPolygon ? key.slice("polygon:".length) : key);
+    const client = !check.valid ? null : onPolygon ? polygon : check.chain === "ethereum" ? eth : tron;
+    const read = check.valid && client ? await client.outflowsSince(check.address, sinceMs) : null;
     if (!read) {
       unchecked += 1;
-      reads.set(address, null);
+      reads.set(key, null);
       continue;
     }
     if (read.transfers.length) moved += 1;
-    reads.set(address, {
+    reads.set(key, {
       transfers: read.transfers.map((t) => ({ timestamp: t.timestamp, value: t.value })),
       complete: read.complete,
     });
@@ -127,7 +130,7 @@ async function round(): Promise<RunSummary | null> {
           `[alerts] push to ${new URL(d.endpoint).host} refused: ${outcome.status} ${outcome.detail ?? ""}`.trim(),
         );
       }
-      sent.push({ endpoint: d.endpoint, address: d.item.address, outcome });
+      sent.push({ endpoint: d.endpoint, address: watchKey(d.item), outcome });
     }
   }
 

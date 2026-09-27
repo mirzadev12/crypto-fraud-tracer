@@ -96,7 +96,7 @@ export function readFingerprint(raw: string | string[] | undefined): string | un
  * that difference — and pins the moment the run was read.
  */
 export function verifyHref(
-  run: { address: string; amount?: number; since?: string; asOf: string; ack?: string },
+  run: { address: string; amount?: number; since?: string; asOf: string; ack?: string; chain?: string },
   fingerprint: string,
 ): string {
   const query = new URLSearchParams();
@@ -104,6 +104,8 @@ export function verifyHref(
   if (run.since) query.set("since", run.since);
   query.set("asof", run.asOf);
   if (run.ack) query.set("ack", run.ack);
+  // A 0x address on Polygon is said, or the check would re-derive it on Ethereum.
+  if (run.chain === "polygon") query.set("chain", "polygon");
   query.set("fp", fingerprint);
   return `/report/${encodeURIComponent(run.address)}?${query.toString()}`;
 }
@@ -126,5 +128,5 @@ export function checkHref(
     source === "demo"
       ? { amount: trace.reportedAmountUsdt, since: trace.fraudDate, asOf: trace.provenance.generatedAt }
       : { amount: given.amount, since: given.since, asOf: given.asOf ?? trace.provenance.generatedAt };
-  return verifyHref({ address: trace.inputAddress, ...run, ack: given.ack }, fingerprint);
+  return verifyHref({ address: trace.inputAddress, ...run, ack: given.ack, chain: trace.chain }, fingerprint);
 }
