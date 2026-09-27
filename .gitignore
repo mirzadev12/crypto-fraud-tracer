@@ -45,3 +45,6 @@ next-env.d.ts
 
 # generated share bundle
 /share/
+
+# Per-machine Claude Code settings (e.g. graphify hooks with an absolute path)
+.claude/settings.local.json
