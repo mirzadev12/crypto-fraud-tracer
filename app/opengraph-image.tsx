@@ -73,7 +73,7 @@ export default function OpengraphImage() {
           <div style={{ fontSize: 22, color: FAINT }}>
             {`Derived from ${seeds} tagged exchange wallets, using public data only`}
           </div>
-          <div style={{ fontSize: 22, color: FAINT }}>TRON · USDT (TRC-20) · SIH 2026 · PS 26183</div>
+          <div style={{ fontSize: 22, color: FAINT }}>TRON · USDT (TRC-20) · SIH 2026</div>
         </div>
       </div>
     ),
