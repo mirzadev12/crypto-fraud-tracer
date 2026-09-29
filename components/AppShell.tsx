@@ -41,7 +41,7 @@ export function Footer() {
         </div>
         <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-faint">
-            SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C
+            SIH 2026 · Ministry of Home Affairs / I4C
           </p>
           <div className="flex flex-wrap items-center gap-6">
             <Link
