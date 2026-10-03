@@ -1862,3 +1862,36 @@ Cross-cutting decisions:
 - **Unit tests live in `tests/`**, run with
   `node --import ./tests/register.mjs --test "tests/*.test.mjs"`.
 
+---
+
+## 12. Finale refinement — branch `finale/refine`, 4 October 2026
+
+The deadline moved to **5 Oct 2026**. Work is on `finale/refine` (mirzadev12
+only; nothing to reemrasheed2007 or Render until the user says). The plan, in
+two parts for two Claude accounts split by file ownership, is
+`docs/plans/2026-10-04-finale-refine.md`; Plan B's ready-to-paste prompt is
+`docs/plans/2026-10-04-plan-b-friend.md`.
+
+- **The register is live, not a file** (supersedes "`/api/cases` is
+  deliberately unimplemented" and the committed-register bullets in §3). An
+  evaluator's feedback said most of the data was hardcoded; it was. The
+  register is `GET /api/register` (`lib/register.ts`): saved cases, every trace
+  this server answered (from the audit log), and the 14 recorded wallets
+  re-read live by `lib/reference-loop.ts` on boot and every six hours, cheapest
+  first, logged under the named system actor `SYSTEM_ACTOR` (`lib/identity.ts`).
+  A wallet not yet re-read is listed as *recorded*, with its date; demo mode
+  serves the recorded set. `public/mock/cases.json` is only the offline
+  fallback and no longer carries the eight illustrative rows.
+  `FINEX_REFERENCE=off` disables the re-read.
+- **Live pulse** (`lib/status.ts`, `GET /api/status`, `components/LiveStatus.tsx`):
+  each chain's newest block through the configured endpoints, cached 30 s.
+- **Security headers and rate limits** (`next.config.ts`, `lib/rate-limit.ts`):
+  the bundled guide's no-nonce CSP; `upgrade-insecure-requests` is left out on
+  purpose because it breaks the http production build used for verification.
+- **Motion and graphics come from FineX's own vocabulary only.** Nothing is
+  taken from NOIR, the team's separate SIH26182 entry (no departure boards,
+  split-flap or odometer counters, wayfinding signs, yellow, or a VASP-first
+  desk). `components/SweepDiagram.tsx` uses theme tokens as utilities, not hex.
+- **Not to be used on any screen:** the State Emblem of India, or a map of India
+  with boundaries (see `docs/research/2026-10-04-india-context.md`).
+

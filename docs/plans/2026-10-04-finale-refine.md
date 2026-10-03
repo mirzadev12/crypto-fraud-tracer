@@ -32,6 +32,21 @@ Nothing goes to reemrasheed2007 or Render until the user says so.
    `docs/research/2026-10-04-india-context.md` for what is verified at primary
    sources and what the product may and may not show.
 
+## Status (4 Oct, end of the first session)
+
+| Item | State |
+| --- | --- |
+| A1 branch | **Done.** `finale/refine` = `feat/ethereum` + live `main`; tsc, eslint, build clean; 86 tests pass. |
+| A2 live register | **Done.** `GET /api/register`; scheduled re-read logged in the audit chain; illustrative rows removed; Queue shows origin and read time, refreshes, rows move (FLIP). Verified live: the re-read finished 5 wallets in its first minutes (MEXC ×3, ISIL KHORASAN, CoinDCX). Not yet adapted: `/reports`, `/fund-flow` and the case rail read the same rows but do not show the origin label. |
+| A3 live pulse | **Done.** On the Queue page; Plan B places it in the footer and landing. |
+| A5 security | **Done** (headers, rate limit). The "Security controls" copy for `/operations` is still to write. |
+| A8 graphic | **Done:** the clustering diagram on `/attribution`. Weekly data-refresh Action not started (needs `gh auth refresh -s workflow`). |
+| A4, A6, A7, A9, A10 | Not started. A6, A7 and B8 wait for the user's decision. |
+
+For Plan B: the audit page prints "stated, not verified" under every named actor;
+use `isSystemActor` / `actorBasis` from `lib/identity.ts` there so the scheduled
+re-read reads "run by the server on its own schedule".
+
 ## File ownership (no two people edit one file)
 
 | Owner | Files |
