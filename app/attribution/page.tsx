@@ -8,6 +8,7 @@ import AttributionRegister, {
 } from "@/components/AttributionRegister";
 import CalibrationPanel, { type Calibration } from "@/components/CalibrationPanel";
 import GasPayerCheck, { type GasPayer } from "@/components/GasPayerCheck";
+import SweepDiagram from "@/components/SweepDiagram";
 import { PageHeader, Panel, buttonStyles } from "@/components/ui";
 import deposits from "@/data/deposit-addresses.json";
 import seeds from "@/data/hot-wallets.json";
@@ -95,6 +96,7 @@ export default function AttributionPage() {
           </Link>
         }
       />
+      <SweepDiagram derived={rows.length} seeds={seedRows.length} exchanges={exchanges} />
       <AttributionRegister rows={rows} seeds={seedRows} />
       <CalibrationPanel data={calibration as Calibration} />
       {ethRows.length ? (
