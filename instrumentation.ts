@@ -11,5 +11,9 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const { startAlertLoop } = await import("./lib/alert-loop");
     startAlertLoop();
+    // The recorded wallets, re-read live so the register reflects the chain
+    // now rather than a committed file (lib/reference-loop.ts).
+    const { startReferenceLoop } = await import("./lib/reference-loop");
+    startReferenceLoop();
   }
 }

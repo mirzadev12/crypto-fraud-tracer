@@ -151,6 +151,11 @@ export function frozenCaseCount(): number {
 }
 
 /** The addresses batch triage can run: TRON and Ethereum. A Polygon case is opened on its own page. */
+/** Every recorded trace, as captured: the register's offline fallback. */
+export function frozenTraces(): TraceResult[] {
+  return [...CASES.values()].map((c) => c.trace);
+}
+
 export function frozenAddresses(): string[] {
   return [...CASES.values()].filter((c) => c.trace.chain !== "polygon").map((c) => c.address);
 }

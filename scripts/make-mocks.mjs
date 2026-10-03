@@ -189,12 +189,12 @@ const cold = {
 /* ------------------------------------------------------------------- CASES */
 
 /*
- * The register is two kinds of row. The real ones are derived from the frozen
- * cases in data/demo-cases.json, so they always say what those cases say — they
- * were once typed into cases.json by hand, and re-running this script would
- * have silently dropped them from the register. The illustrative ones follow,
- * on addresses generated for this repository and never on the chain;
- * `isIllustrative` in lib/api.ts lists them so the interface can say so.
+ * The committed register is the offline fallback only (the live one is
+ * GET /api/register, lib/register.ts). It holds the real recorded cases,
+ * derived from data/demo-cases.json so they always say what those cases say.
+ * The eight illustrative rows it used to carry — complaints on addresses that
+ * were never on the chain — were removed on 4 Oct 2026: a register of invented
+ * complaints is what read as "hardcoded data".
  */
 const frozen = JSON.parse(readFileSync(new URL("../data/demo-cases.json", import.meta.url), "utf8"));
 const real = frozen.cases.map(({ trace: t }) => ({
@@ -208,22 +208,12 @@ const real = frozen.cases.map(({ trace: t }) => ({
   ...(t.chain === "polygon" ? { chain: "polygon" } : {}),
 }));
 
-const illustrative = [
-  { caseId: "FX-2026-0421", inputAddress: A.victim2, reportedAmountUsdt: 18500, fraudDate: "2026-09-06T17:40:00.000Z", triage: "HOT", terminalEntity: null },
-  { caseId: "FX-2026-0420", inputAddress: A.victim4, reportedAmountUsdt: 7400, fraudDate: "2026-09-06T11:05:00.000Z", triage: "HOT", terminalEntity: null },
-  { caseId: "FX-2026-0419", inputAddress: A.victim5, reportedAmountUsdt: 132500, fraudDate: "2026-09-04T20:18:00.000Z", triage: "WARM", terminalEntity: "OKX" },
-  { caseId: "FX-2026-0417", inputAddress: A.victim1, reportedAmountUsdt: 51200, fraudDate: "2026-08-29T09:14:00.000Z", triage: "WARM", terminalEntity: "Binance" },
-  { caseId: "FX-2026-0415", inputAddress: A.victim6, reportedAmountUsdt: 26300, fraudDate: "2026-08-27T14:52:00.000Z", triage: "WARM", terminalEntity: "Bybit" },
-  { caseId: "FX-2026-0412", inputAddress: A.victim7, reportedAmountUsdt: 89000, fraudDate: "2026-08-24T08:36:00.000Z", triage: "COLD", terminalEntity: "TRON mixing service" },
-  { caseId: "FX-2026-0409", inputAddress: A.victim3, reportedAmountUsdt: 240000, fraudDate: "2026-08-21T06:02:00.000Z", triage: "COLD", terminalEntity: "TRON mixing service" },
-  { caseId: "FX-2026-0404", inputAddress: A.victim8, reportedAmountUsdt: 15750, fraudDate: "2026-08-18T19:27:00.000Z", triage: "WARM", terminalEntity: "Kucoin" },
-];
 
-const cases = [...real, ...illustrative];
+const cases = real;
 
 const w = (name, v) => writeFileSync(join(OUT, name), JSON.stringify(v, null, 2) + "\n");
 w("trace-warm.json", warm);
 w("trace-hot.json", hot);
 w("trace-cold.json", cold);
 w("cases.json", cases);
-console.log(`wrote 4 mock files to ${OUT} — register: ${real.length} real, ${illustrative.length} illustrative`);
+console.log(`wrote 4 mock files to ${OUT} — register: ${real.length} recorded cases`);

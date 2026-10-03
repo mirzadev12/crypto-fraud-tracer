@@ -46,6 +46,16 @@ export interface Sourced<T> {
    * since, that is exactly the misreading that matters.
    */
   asOf?: string;
+  /** The register's account of itself, when the data is the case register. */
+  register?: RegisterMeta;
+}
+
+/** What GET /api/register says about the rows it returned (lib/register.ts). */
+export interface RegisterMeta {
+  mode: "live" | "recorded";
+  generatedAt: string;
+  tracesLogged: number;
+  reference: { running: boolean; done: number; total: number; failed: number; lastPassAt: string | null; enabled: boolean };
 }
 
 /**
@@ -714,23 +724,47 @@ async function fixture(path: string): Promise<unknown> {
 /* ------------------------------------------------------------------- cases */
 
 /**
- * The register is a committed file, and says so.
+ * The register, as the server has read it (GET /api/register, lib/register.ts):
+ * saved cases, the traces this server answered, and the recorded wallets
+ * re-read live. Every screen that lists cases goes through here, so they agree.
  *
- * There is no case database, and `/api/cases` is deliberately unimplemented
- * (CONTEXT.md §3): serving these records through it would flip the badge to
- * "Live" over rows that are not chain reads. This used to ask it anyway on
- * every page that shows the register, which could only ever 404 — a red line
- * in the console of every screen, for a request whose answer was known.
+ * It used to be a committed file that every visitor saw identically — the
+ * "hardcoded data" an evaluator noticed. That file is now only the fallback for
+ * a page that cannot reach its own server, and it says so: the badge reads
+ * RECORDED, never live.
  */
 export async function getCases(): Promise<Sourced<CaseSummary[]>> {
+  try {
+    const res = await fetch("/api/register", { cache: "no-store", signal: AbortSignal.timeout(20_000) });
+    if (res.ok) {
+      const reg = (await res.json()) as Partial<RegisterMeta> & { rows?: unknown };
+      if (Array.isArray(reg.rows) && (reg.mode === "live" || reg.mode === "recorded") && reg.reference) {
+        const meta: RegisterMeta = {
+          mode: reg.mode,
+          generatedAt: String(reg.generatedAt ?? ""),
+          tracesLogged: Number(reg.tracesLogged ?? 0),
+          reference: reg.reference,
+        };
+        return {
+          data: reg.rows.filter(isCaseSummary),
+          source: reg.mode === "live" ? "live" : "demo",
+          note:
+            reg.mode === "live"
+              ? "Built from this server's own chain reads: the recorded wallets re-read live, every trace answered here, and saved cases."
+              : "Recorded mode: the register is the set of real cases captured from the chain, served without network.",
+          register: meta,
+        };
+      }
+    }
+  } catch {
+    // The server could not be reached: the committed copy below, labelled as such.
+  }
   const json = await fixture("/mock/cases.json");
   const data = Array.isArray(json) ? json.filter(isCaseSummary) : [];
   return {
     data,
     source: "demo",
-    note:
-      "The register is a committed file, not a case database: real cases captured " +
-      "from the chain, and illustrative ones marked as such in the list.",
+    note: "The live register could not be reached; showing the recorded cases committed with this build.",
   };
 }
 

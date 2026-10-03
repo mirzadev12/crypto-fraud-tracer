@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { caseHref, getCases, isIllustrative, rowChain, summarize, type Sourced } from "@/lib/api";
 import { ChainScope } from "./ChainScope";
 import type { CaseSummary, TriageLevel } from "@/lib/types";
@@ -27,6 +27,29 @@ const FILTERS: Filter[] = ["ALL", "HOT", "WARM", "COLD"];
 /** A stable empty array, so the memo dependencies below do not change every render. */
 const NO_CASES: CaseSummary[] = [];
 
+/**
+ * Where a register row came from (lib/register.ts). Shown on every row, because
+ * the register mixes reads of different ages and a reader must be able to tell
+ * a wallet re-read an hour ago from one recorded in September.
+ */
+const ORIGIN: Record<string, { label: string; title: string }> = {
+  reference: { label: "Re-read live", title: "A recorded wallet, traced again live by this server on its own schedule" },
+  traced: { label: "Traced here", title: "Traced on this server" },
+  saved: { label: "Saved", title: "Saved to the shared case file" },
+  recorded: {
+    label: "Recorded",
+    title: "Captured from the chain when the case was recorded; the live re-read has not reached it yet",
+  },
+};
+
+type RowExtras = { origin?: string; readAt?: string; by?: string | null; chain?: string };
+const extras = (c: CaseSummary) => c as CaseSummary & RowExtras;
+const rowKey = (c: CaseSummary) => `${extras(c).chain ?? chainOf(c.inputAddress)}:${c.inputAddress}`;
+
+/** Poll fast while the server is re-reading, slowly otherwise. */
+const POLL_ACTIVE_MS = 20_000;
+const POLL_IDLE_MS = 120_000;
+
 /** HOT first: the queue is ordered by what still has recoverable money. */
 const TRIAGE_ORDER: Record<TriageLevel, number> = { HOT: 0, WARM: 1, COLD: 2 };
 
@@ -41,17 +64,28 @@ export default function CaseQueue() {
 
   useEffect(() => {
     let cancelled = false;
-    getCases()
-      .then((result) => !cancelled && setState({ status: "ready", result }))
-      .catch((err: unknown) =>
-        !cancelled &&
-        setState({
-          status: "error",
-          message: err instanceof Error ? err.message : "Could not load the case queue.",
-        }),
-      );
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const load = () =>
+      getCases()
+        .then((result) => {
+          if (cancelled) return;
+          setState({ status: "ready", result });
+          const busy = result.register?.reference.running;
+          timer = setTimeout(load, busy ? POLL_ACTIVE_MS : POLL_IDLE_MS);
+        })
+        .catch((err: unknown) => {
+          if (cancelled) return;
+          setState((prev) =>
+            prev.status === "ready"
+              ? prev
+              : { status: "error", message: err instanceof Error ? err.message : "Could not load the case queue." },
+          );
+          timer = setTimeout(load, POLL_IDLE_MS);
+        });
+    void load();
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
     };
   }, []);
 
@@ -96,6 +130,32 @@ export default function CaseQueue() {
           new Date(b.fraudDate).getTime() - new Date(a.fraudDate).getTime(),
       );
   }, [cases, filter, query]);
+
+  /*
+   * When a live read lands and the order changes, each row moves from where it
+   * was to where it now belongs (FLIP), instead of the table jumping under the
+   * reader's eye. Measured after the DOM updates, before paint. Under reduced
+   * motion the rows simply take their new places.
+   */
+  const rowEls = useRef(new Map<string, HTMLTableRowElement>());
+  const lastTops = useRef(new Map<string, number>());
+  useLayoutEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const tops = new Map<string, number>();
+    for (const [k, el] of rowEls.current) tops.set(k, el.getBoundingClientRect().top);
+    if (!reduce) {
+      for (const [k, el] of rowEls.current) {
+        const before = lastTops.current.get(k);
+        const after = tops.get(k);
+        if (before === undefined || after === undefined || Math.abs(before - after) < 1) continue;
+        el.animate([{ transform: `translateY(${before - after}px)` }, { transform: "translateY(0)" }], {
+          duration: 320,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+        });
+      }
+    }
+    lastTops.current = tops;
+  }, [rows]);
 
   if (state.status === "loading") {
     return (
@@ -152,16 +212,11 @@ export default function CaseQueue() {
         <StatCard
           label="Still actionable"
           value={formatUsdt(stats.recoverableUsdt, { symbol: false })}
-          hint={`USDT across ${stats.hot + stats.warm} of ${stats.total} recorded cases`}
+          hint={`USDT across ${stats.hot + stats.warm} of ${stats.total} cases in the register`}
           tone="brand"
         />
       </div>
-      {illustrativeCount > 0 ? (
-        <p className="text-xs leading-5 text-faint">
-          These figures count the {stats.total} recorded cases. The {illustrativeCount}{" "}
-          illustrative rows in the register below are listed and marked, but not counted.
-        </p>
-      ) : null}
+      <RegisterCaption result={state.result} cases={cases} illustrativeCount={illustrativeCount} />
 
       {/* The order is stated once, in the page header above; the chain the
           whole register is on is stated here instead of in a column that read
@@ -172,7 +227,7 @@ export default function CaseQueue() {
           <DataSourceBadge
           source={state.result.source}
           note={state.result.note}
-          label="Committed register"
+          label={state.result.register?.mode === "live" ? "Live register" : "Recorded register"}
         />
         }
         code={registerScope}
@@ -236,23 +291,36 @@ export default function CaseQueue() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((c) => (
+                {rows.map((c) => {
+                  const k = rowKey(c);
+                  const origin = ORIGIN[extras(c).origin ?? ""];
+                  const readAt = extras(c).readAt;
+                  const by = extras(c).by;
+                  return (
                   /* One line per case. The date wrapped to three lines and set
                      every row's height; the icons and the Open control stay out
                      of the way until the row is pointed at. */
                   <tr
-                    key={c.caseId}
-                    className="group border-b border-line-soft transition last:border-0 hover:bg-surface-2"
+                    key={k}
+                    ref={(el) => {
+                      if (el) rowEls.current.set(k, el);
+                      else rowEls.current.delete(k);
+                    }}
+                    className="group border-b border-line-soft transition-colors last:border-0 hover:bg-surface-2"
                   >
                     <td className="px-6 py-2 font-mono text-xs whitespace-nowrap text-muted">
                       {c.caseId}
-                      {isIllustrative(c.inputAddress) ? (
+                      {origin ? (
                         <span
-                        className="ml-2 font-label text-[10px] uppercase tracking-[0.16em] text-faint"
-                        title="Illustrative — an address generated for this repository to show a shape, never on the TRON chain."
-                      >
-                        Illustrative
-                      </span>
+                          className={`ml-2 font-label text-[10px] uppercase tracking-[0.16em] ${
+                            extras(c).origin === "recorded" ? "text-faint" : "text-muted"
+                          }`}
+                          title={[origin.title, readAt ? `read ${formatDateTime(readAt)}` : null, by]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        >
+                          {origin.label}
+                        </span>
                       ) : null}
                     </td>
                     <td className="px-6 py-2">
@@ -291,12 +359,56 @@ export default function CaseQueue() {
                       </Link>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </Panel>
     </div>
+  );
+}
+
+/**
+ * One sentence under the figures saying what the register is built from, with
+ * the live re-read's progress while it runs. Counted from the rows themselves.
+ */
+function RegisterCaption({
+  result,
+  cases,
+  illustrativeCount,
+}: {
+  result: Sourced<CaseSummary[]>;
+  cases: CaseSummary[];
+  illustrativeCount: number;
+}) {
+  const meta = result.register;
+  const count = (origin: string) => cases.filter((c) => extras(c).origin === origin).length;
+  if (!meta || meta.mode !== "live") {
+    return (
+      <p className="text-xs leading-5 text-faint">
+        {meta
+          ? `Recorded mode: these are the ${cases.length} real cases captured from the chain, served without network.`
+          : "The live register could not be reached; these are the recorded cases committed with this build."}
+        {illustrativeCount > 0 ? ` ${illustrativeCount} illustrative rows are listed and marked, but not counted.` : ""}
+      </p>
+    );
+  }
+  const { reference } = meta;
+  const awaiting = count("recorded");
+  return (
+    <p className="text-xs leading-5 text-faint">
+      Built from this server&rsquo;s own chain reads, each logged in the audit chain: {count("traced")} traced
+      here, {count("saved")} saved, {count("reference")} recorded wallets re-read live
+      {awaiting ? `, ${awaiting} awaiting their re-read` : ""}.{" "}
+      {reference.running
+        ? `Re-reading now: ${reference.done} of ${reference.total}.`
+        : reference.lastPassAt
+          ? `Last re-read finished ${formatDateTime(reference.lastPassAt)}; the next is due within six hours.`
+          : reference.enabled
+            ? "The first re-read starts shortly after the server starts."
+            : "The scheduled re-read is off on this server."}
+    </p>
   );
 }

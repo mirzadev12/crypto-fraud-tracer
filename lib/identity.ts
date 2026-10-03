@@ -66,7 +66,19 @@ export function actorName(actor: Actor): string {
 }
 
 /** How far the name can be trusted, in the words a record prints beside it. */
+/**
+ * The server itself, for the traces it runs on its own schedule (the reference
+ * re-read in lib/reference-loop.ts). Named, so the audit log never describes an
+ * automatic read as an officer's or as an anonymous visitor's.
+ */
+export const SYSTEM_ACTOR: Actor = { id: "FineX scheduled re-read", unit: null, verified: false };
+
+export function isSystemActor(actor: Actor): boolean {
+  return actor.id === SYSTEM_ACTOR.id && actor.unit === null;
+}
+
 export function actorBasis(actor: Actor): string {
+  if (isSystemActor(actor)) return "run by the server on its own schedule";
   if (!actor.id) return "no identity given";
   return actor.verified ? "verified by the sign-in gateway" : "stated at sign-in, not verified";
 }
