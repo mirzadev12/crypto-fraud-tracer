@@ -169,6 +169,13 @@ existing look, not a redesign.
 file, the evidence packet, batch triage with the state tiles, `/developers`.
 Save them in `docs/screens-2026-10-05/` and push.
 
+**Also (small, from Plan A):** on `/operations`, the problem statement's
+"AI/ML-assisted risk detection" row moves from not built to **built, advisory**:
+an unsupervised isolation forest ranks unusual wallets in each trace
+(`components/AnomalyPanel.tsx`); it never names an exit or sets the status, and
+no accuracy figure is claimed. Mention the live USDT/INR rate (CoinDCX, WazirX
+fallback) wherever the page lists data sources.
+
 ## Rules that must hold
 
 - **Nothing from NOIR** (the team's separate entry for another problem

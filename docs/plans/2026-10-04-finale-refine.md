@@ -41,7 +41,10 @@ Nothing goes to reemrasheed2007 or Render until the user says so.
 | A3 live pulse | **Done.** On the Queue page; Plan B places it in the footer and landing. |
 | A5 security | **Done** (headers, rate limit). The "Security controls" copy for `/operations` is still to write. |
 | A8 graphic | **Done:** the clustering diagram on `/attribution`. Weekly data-refresh Action not started (needs `gh auth refresh -s workflow`). |
-| A4, A6, A7, A9, A10 | Not started. A6, A7 and B8 wait for the user's decision. |
+| A6 INR | **Done** (4–5 Oct): live USDT/INR from CoinDCX, WazirX fallback, on the key figures and the live line. |
+| A7 ML | **Done**: advisory isolation-forest ranking under "Why"; 93 tests pass. |
+| B1 India identity | **Done by Plan A**. |
+| A4, A9, A10 | Not started. |
 
 For Plan B: the audit page prints "stated, not verified" under every named actor;
 use `isSystemActor` / `actorBasis` from `lib/identity.ts` there so the scheduled

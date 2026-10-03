@@ -1900,4 +1900,15 @@ two parts for two Claude accounts split by file ownership, is
   desk). `components/SweepDiagram.tsx` uses theme tokens as utilities, not hex.
 - **Not to be used on any screen:** the State Emblem of India, or a map of India
   with boundaries (see `docs/research/2026-10-04-india-context.md`).
-
+- **Advisory ML ranking** (`lib/anomaly.ts`, `components/AnomalyPanel.tsx`;
+  supersedes §8.2's "AI/ML not built, on purpose", with the user's approval on
+  4 Oct). An isolation forest — unsupervised, so it needs no labelled outcomes —
+  over eight behaviours the trace already measures, trained on the unlabelled
+  wallets of the recorded cases (`data/anomaly-baseline.json`, numbers only,
+  29 wallets from 14 cases; regenerate with `scripts/make-anomaly-baseline.mjs`)
+  plus the trace's own. Seeded, so a trace always gets the same scores. It
+  ranks unlabelled wallets for attention under "Why", names the two features
+  that set each apart, and states that it is not a probability of fraud, never
+  names an exit, never sets the status, and has no accuracy figure. Keep it that
+  way: the rules and the attribution table decide; this only points.
+- **INR** (§3's "no INR" superseded): see the bullet there.

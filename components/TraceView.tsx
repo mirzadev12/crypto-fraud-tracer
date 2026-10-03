@@ -41,6 +41,7 @@ import { categoryOf } from "@/lib/contracts";
 import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
 import IssuerFreeze from "./IssuerFreeze";
 import Inr from "./Inr";
+import AnomalyPanel from "./AnomalyPanel";
 import SaveCase from "./SaveCase";
 import { ChainScope } from "./ChainScope";
 
@@ -800,6 +801,8 @@ export default function TraceView({
           <NodesTable trace={trace} selected={selected} onSelect={setSelected} />
         </Panel>
       </div>
+      {/* Advisory machine ranking, below the rules it never overrides. */}
+      <AnomalyPanel trace={trace} selected={selected} onSelect={setSelected} />
 
       {/* ------------------------------------------------------------ graph */}
       <div id="flow" className="fx-anchor">
