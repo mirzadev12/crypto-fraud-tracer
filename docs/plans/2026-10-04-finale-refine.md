@@ -1,0 +1,145 @@
+# FineX — finale refinement, 4–5 Oct 2026 (two accounts, two plans)
+
+Deadline on sih.gov.in: **5 October 2026** (read 4 Oct). SIH26183 has **247 of
+500** ideas submitted, up from 115 on 29 Sep. All work goes to **mirzadev12**
+only, on branch `finale/refine` (and Plan B's branch `finale/india`).
+Nothing goes to reemrasheed2007 or Render until the user says so.
+
+## Why these items
+
+1. **Feedback: "most of the data is hardcoded."** It is accurate. Four screens
+   (Queue `/dashboard`, Evidence `/reports`, Fund flow `/fund-flow`, the case
+   rail) render the same 18 rows from `public/mock/cases.json`: 10 recorded
+   cases frozen on 14 Sep and 8 illustrative cases on addresses that were never
+   on the chain. Every visitor sees identical figures. The traces themselves are
+   live, but nothing on screen proves it.
+2. **The competition grew and claims more.** Nine public SIH26183 repositories.
+   The newest claim five chains (Bitcoin through mempool.space), trained ML
+   (RandomForest "98.6%", XGBoost), "Section 107 BNSS" freeze orders, BSA
+   certificates, NCRP/SAHYOG intake, citizen and police portals, and live
+   deployments. Several say their ML and legal pieces are "simplified demo
+   implementations". FineX's edge stays real data, a named deposit account, and
+   evidence anyone can verify, but the live site shows TRON only.
+3. **Built but unpushed.** `feat/ethereum` (now merged into `finale/refine`)
+   carries Ethereum and Polygon tracing, the Tether freeze check, NCRP-style
+   complaint-sheet intake, one freeze request per exchange, address-poisoning
+   guards, the findings fingerprint and QR, CoinDCX/WazirX/CoinSwitch
+   attribution, the FIU-IND list, law-enforcement contacts, payers tracing,
+   outcome recording, by-state grouping, Hindi help, server-side alerts, the case
+   file, sign-in and the audit log, bridge recognition, and own-node support.
+   That is most of what the competitors claim, built for real.
+4. **"Make it look like it is for India and its cybersecurity."** See
+   `docs/research/2026-10-04-india-context.md` for what is verified at primary
+   sources and what the product may and may not show.
+
+## File ownership (no two people edit one file)
+
+| Owner | Files |
+| --- | --- |
+| **Plan A (this account)** | `lib/**` except `lib/format.ts` and the Hindi help content; `app/api/**`; `instrumentation.ts`; `next.config.ts`; `data/**`; `scripts/**`; `tests/**` for those; `public/mock/**`; `app/dashboard`, `app/reports`, `app/fund-flow`, `app/attribution`; `components/CaseQueue`, `ReportsList`, `FundFlowExplorer`, `CaseRail`, `CaseFile`, `TraceView`, `InvestigativeLeads`, `LiveStatus` (new); deck and portal text |
+| **Plan B (friend)** | `components/AppShell`, `Navbar`, `InvestigateForm`, `BulkTriage`, `EvidencePacket`, `FreezeRequest`, `CombinedFreezeRequest`; `app/page.tsx` (landing), `app/help`, `app/operations`, new pages `app/accessibility`, `app/policies`, `app/developers`; `lib/format.ts`; the Hindi content files; `public/openapi.json`; additive rules in `app/globals.css` |
+
+The only crossing point: Plan A ships `components/LiveStatus.tsx` early; Plan B
+places it in the footer and on the landing page.
+
+## Plan A — this account (data, backend, integration)
+
+Order matters: A1 and A3 first, so Plan B can start on top of them.
+
+- **A1. Branch.** `finale/refine` = `feat/ethereum` + live `main` (done: one
+  conflict, resolved). Verify: tsc, eslint, 83 tests, build. Push to mirzadev12.
+- **A2. A live register, not a file.** `GET /api/register` returns
+  `CaseSummary[]` built from (a) the shared case file, (b) the last 50 traces
+  this server answered (audit log), and (c) **reference wallets**: the 14 real
+  recorded wallets, re-traced live by a server loop (`lib/reference-loop.ts`,
+  started in `instrumentation.ts` like the alert loop), on boot and every 6 h,
+  sequentially, pausing while an officer's trace runs. Each row carries
+  "read at". `getCases()` asks the API first. The committed file becomes the
+  offline fallback, badged RECORDED and dated. The 8 illustrative rows leave the
+  register. In demo mode the register is the recorded set, as now.
+  Verify: fresh boot shows the register filling in live; a trace run on the
+  site appears in the Queue; demo mode unchanged (`check-demo` 15/15).
+- **A3. Live pulse.** `GET /api/status`: latest TRON, Ethereum and Polygon block
+  and its age, the OFAC list's publication date, label counts, traces answered
+  today, last trace time. Cached 60 s, read through the configured endpoints
+  (own-node rule). `components/LiveStatus.tsx` renders one quiet line, e.g.
+  "TRON block 79,412,118 · 3 s ago". Push early for Plan B.
+- **A4. Live explorer tags for the unresolved tail.** For unlabelled wallets
+  where the trail stops at the search limit, ask the explorer for its own tag
+  (TRON: Tronscan account tag; Ethereum: the tags Blockscout returns). Shown in
+  the case file as "Explorer tag, read live — not in our table". It is an
+  annotation, not a finding, so recorded cases still re-derive identically.
+- **A5. Security hardening you can show.** Headers in `next.config.ts` (CSP,
+  HSTS, nosniff, frame-ancestors none, Referrer-Policy, Permissions-Policy). A
+  per-IP rate limit on the trace, payers, wallet and watch routes (protects the
+  shared chain budget). A "Security controls" list for Plan B to put on
+  `/operations`.
+- **A6. INR at a live Indian rate** *(needs your yes: reverses "no INR")*.
+  `GET /api/rate` reads USDT/INR from an Indian exchange's public ticker and
+  returns it with its source and time. `<Inr usdt={…} />` shows
+  "≈ ₹3.7 lakh at CoinDCX USDT/INR, read 14:05 IST". Never a fixed rate.
+- **A7. Unsupervised anomaly ranking** *(needs your yes: reverses "no ML")*. An
+  isolation forest over per-wallet features already measured (dwell, fan-out,
+  amounts, age), trained on the wallets each trace reads, shown as an
+  *advisory* ranking with the features that drove it. It never names an exit,
+  never sets the disposition, and the screen says so. Answers "AI/ML-assisted
+  risk detection" honestly, where competitors show accuracy figures on
+  synthetic data.
+- **A8. Data that refreshes itself.** A weekly GitHub Action re-derives the OFAC
+  tables (`scripts/refresh-sanctions.mjs`) and commits them. Pushing it needs
+  `gh auth refresh -s workflow` on this machine. `/attribution` shows each
+  dataset's date and next refresh.
+- **A9. Integration.** Merge `finale/india`. Then run: fingerprint gate (all recorded
+  cases re-derive identically), `check-demo`, an end-to-end sweep of every route
+  at 375 / 784 / 1100 / 1600 px with no sideways scroll and no console errors,
+  and a production build. Push to mirzadev12 `finale/refine`. Wait for the
+  user before anything goes to reemrasheed2007 / Render.
+- **A10. Deck and portal text.** Update the SIH26183 deck (text in place, the
+  user's Canva layout) and the description with the new facts and screenshots
+  from Plan B.
+
+## Plan B — friend's account (India, cybersecurity, presentation)
+
+Start from `finale/refine` after A1 and A3 are pushed. Work on branch
+`finale/india`. If it runs in Claude Code on the web: it cannot reach chain
+APIs or build with Turbopack, so build with `npx next build --webpack` and
+verify with `DEMO_MODE=true`.
+
+- **B1. India identity, honestly.** A slim strip on every page: "A prototype
+  for the Indian Cyber Crime Coordination Centre (I4C), Ministry of Home Affairs
+  · Smart India Hackathon 2026 · Not an official Government of India website".
+  Footer: "Report cyber fraud: call **1930** or visit cybercrime.gov.in". **No
+  State Emblem** and no map with boundaries (see the research note). Place
+  `<LiveStatus />` in the footer and on the landing page.
+- **B2. IST.** Every timestamp shows IST beside UTC (`lib/format.ts`,
+  deterministic offset, no clock read in render).
+- **B3. Hindi across the main screens.** Navigation, landing, case-file
+  headings, the packet's section titles (the evidence text stays English).
+  Extend the Help page's Hindi mechanism; mark everything "machine-drafted,
+  for native review".
+- **B4. Scam typology.** A typology field on New case, the complaint sheet and
+  batch triage: digital arrest, task-based job fraud, investment/trading app,
+  sextortion, loan app, ransomware, phishing, darknet, other. Shown on the
+  packet and freeze request. Carried in the link (`?typology=`), never inferred.
+- **B5. States and UTs.** A tile grid of the 36 states and UTs (no map
+  boundaries) summarising a batch by state, built on the existing by-state
+  grouping.
+- **B6. GIGW pages.** Accessibility statement (WCAG 2.1 AA target, what is
+  tested), Website policies (privacy, terms, hyperlinking, copyright), text-size
+  control in the shell, "Last updated" date in the footer.
+- **B7. API for integrators.** `public/openapi.json` (OpenAPI 3.1) for every
+  route, and `/developers` that renders it with a `curl` per endpoint. This is
+  the "integration with LEA systems / API integrations" line in the PS.
+- **B8. Legal references** *(only if a law officer confirms)*: a "Legal basis"
+  selector on the freeze request listing the BNSS/BSA sections the research note
+  verifies, chosen by the officer, never printed by default; and an optional
+  BSA certificate block on the packet with blanks.
+- **B9. QA and screenshots.** Every route at 375 and 1440 px, both languages;
+  screenshots of landing, Queue, a case file, the packet and the batch state
+  grid for the deck.
+
+## Decisions to confirm before A6, A7, B8
+
+Each reverses a decision recorded in CONTEXT.md, so each needs a yes:
+INR at a live rate (A6); unsupervised anomaly ranking (A7); statute references,
+officer-selected (B8).
