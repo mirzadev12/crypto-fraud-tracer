@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkAddress } from "@/lib/address";
 import { profileWallet } from "@/lib/wallet";
+import { limited } from "@/lib/rate-limit";
 
 /**
  * GET /api/wallet/[address] — what a single wallet is, and who funded it.
@@ -21,6 +22,8 @@ export async function GET(
   request: Request,
   ctx: RouteContext<"/api/wallet/[address]">,
 ) {
+  const refused = limited(request, "read");
+  if (refused) return refused;
   const { address: raw } = await ctx.params;
   const typed = decodeURIComponent(raw).trim();
 

@@ -5,6 +5,7 @@ import { streamTrace, wantsStream } from "@/lib/trace-stream";
 import { DEMO_MODE, answersFor, frozenTrace } from "@/lib/demo";
 import type { TraceRun } from "@/lib/audit";
 import { recordTrace } from "@/lib/audit-store";
+import { limited } from "@/lib/rate-limit";
 
 /**
  * POST /api/trace — run a live trace. AGENTS.md §5.
@@ -25,6 +26,8 @@ import { recordTrace } from "@/lib/audit-store";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const refused = limited(request, "trace");
+  if (refused) return refused;
   let body: unknown;
   try {
     body = await request.json();

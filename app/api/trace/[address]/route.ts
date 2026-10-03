@@ -5,6 +5,7 @@ import { streamTrace, wantsStream } from "@/lib/trace-stream";
 import { DEMO_MODE, answersFor, frozenTrace } from "@/lib/demo";
 import type { TraceRun } from "@/lib/audit";
 import { recordTrace } from "@/lib/audit-store";
+import { limited } from "@/lib/rate-limit";
 
 /**
  * GET /api/trace/[address] — the shareable permalink for a trace. AGENTS.md §5.
@@ -23,6 +24,8 @@ export async function GET(
   request: Request,
   ctx: RouteContext<"/api/trace/[address]">,
 ) {
+  const refused = limited(request, "trace");
+  if (refused) return refused;
   const { address: raw } = await ctx.params;
   const check = checkAddress(decodeURIComponent(raw));
   if (!check.valid) {

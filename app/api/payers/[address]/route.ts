@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkAddress } from "@/lib/address";
 import { tracePayers } from "@/lib/payers";
+import { limited } from "@/lib/rate-limit";
 
 /**
  * GET /api/payers/[address] — who paid a wallet, and where each payer's USDT
@@ -14,9 +15,11 @@ import { tracePayers } from "@/lib/payers";
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   ctx: RouteContext<"/api/payers/[address]">,
 ) {
+  const refused = limited(request, "read");
+  if (refused) return refused;
   const { address: raw } = await ctx.params;
   const typed = decodeURIComponent(raw).trim();
   const check = checkAddress(typed);

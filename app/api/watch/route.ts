@@ -5,6 +5,7 @@ import { lookupOn } from "@/lib/labels";
 import { TronGrid } from "@/lib/trongrid";
 import type { WatchResult } from "@/lib/watch";
 import { entityPhrase } from "@/lib/voice";
+import { limited } from "@/lib/rate-limit";
 
 /**
  * POST /api/watch — has any of these wallets sent USDT since a given moment?
@@ -23,6 +24,8 @@ export const dynamic = "force-dynamic";
 const MAX_ITEMS = 25;
 
 export async function POST(request: Request) {
+  const refused = limited(request, "read");
+  if (refused) return refused;
   let body: unknown;
   try {
     body = await request.json();

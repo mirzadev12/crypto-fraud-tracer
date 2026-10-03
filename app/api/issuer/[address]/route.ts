@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkAddress } from "@/lib/address";
 import { issuerFreezeStatus } from "@/lib/issuer";
+import { limited } from "@/lib/rate-limit";
 
 /**
  * GET /api/issuer/[address] — has Tether, the issuer of USDT, frozen this
@@ -18,6 +19,8 @@ export async function GET(
   request: Request,
   ctx: RouteContext<"/api/issuer/[address]">,
 ) {
+  const refused = limited(request, "read");
+  if (refused) return refused;
   const { address: raw } = await ctx.params;
   const check = checkAddress(decodeURIComponent(raw));
   if (!check.valid) {

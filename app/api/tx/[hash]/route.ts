@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveTxHash } from "@/lib/txlookup";
+import { limited } from "@/lib/rate-limit";
 
 /**
  * GET /api/tx/[hash] — what wallet did this transaction send USDT to?
@@ -13,9 +14,11 @@ import { resolveTxHash } from "@/lib/txlookup";
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   ctx: RouteContext<"/api/tx/[hash]">,
 ) {
+  const refused = limited(request, "read");
+  if (refused) return refused;
   const { hash } = await ctx.params;
   const lookup = await resolveTxHash(decodeURIComponent(hash));
 
