@@ -63,7 +63,8 @@ Order matters: A1 and A3 first, so Plan B can start on top of them.
   and its age, the OFAC list's publication date, label counts, traces answered
   today, last trace time. Cached 60 s, read through the configured endpoints
   (own-node rule). `components/LiveStatus.tsx` renders one quiet line, e.g.
-  "TRON block 79,412,118 · 3 s ago". Push early for Plan B.
+  "TRON 86,795,088 · 5 s ago". A new block settles in with the house
+  `fx-settle` and the brass lozenge turns once per read. **Done, pushed.**
 - **A4. Live explorer tags for the unresolved tail.** For unlabelled wallets
   where the trail stops at the search limit, ask the explorer for its own tag
   (TRON: Tronscan account tag; Ethereum: the tags Blockscout returns). Shown in
@@ -137,6 +138,32 @@ verify with `DEMO_MODE=true`.
 - **B9. QA and screenshots.** Every route at 375 and 1440 px, both languages;
   screenshots of landing, Queue, a case file, the packet and the batch state
   grid for the deck.
+
+## Motion and graphics (FineX's own vocabulary only)
+
+Nothing is taken from NOIR, the team's separate SIH26182 entry. No departure
+boards, no split-flap or odometer counters, no wayfinding signs or arrows, no
+yellow. FineX's motion grammar is what it already has: brass lozenge ticks,
+`fx-settle`, SMIL packets travelling edges, the single border light.
+
+- **Landing (B):** the hero trace reads itself once. The lit path draws hop by
+  hop (stroke-dashoffset), the taint figures step down as the line reaches each
+  node (100% → 13% → 0.5%), and a brass lozenge seals the exit cluster. Then the
+  existing packets continue. Reduced motion: the finished drawing.
+- **Evidence packet (B):** the findings fingerprint settles character by
+  character, like a teleprinter, once, when the packet opens. It shows the
+  fingerprint being computed from the findings.
+- **Register (A):** rows move to their new place (FLIP, 300 ms) when a live read
+  reorders them, instead of jumping.
+- **Attribution (A):** an SVG of the clustering method: unrelated payers →
+  deposit addresses → one exchange hot wallet, with packets sweeping in. The
+  explanation behind "241 deposit addresses", drawn.
+- **Landing (B):** a coverage plate, three chains (TRON, Ethereum, Polygon) as
+  rails converging on a VASP, drawn in the hero's constellation language.
+- **Batch triage (B):** the 36 state and UT tiles fill as answers land.
+- **Audit (B):** the hash chain drawn as linked entries, the newest linking in.
+- Every effect has a reduced-motion path; no glow, no blobs, no particles, no
+  gradient besides the one border light; drawn SVG, never AI imagery.
 
 ## Decisions to confirm before A6, A7, B8
 
