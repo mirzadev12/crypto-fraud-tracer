@@ -78,11 +78,34 @@ why), push it, and carry on.
 - Security headers (strict CSP: nothing may be loaded or fetched from another
   origin — no external fonts, images, scripts or CDNs; draw SVG yourself).
 
-## Tasks, in order
+## The split for 5 October (deadline day)
+
+**Plan A (the other account) does:** B1 (done, see below), the live INR rate,
+the advisory ML ranking, then — after merging your branch — the full checks, the
+deck and portal text, and the screenshots for the deck. So **push early and
+often**: whatever is on `finale/india` by mid-afternoon on 5 Oct is what gets
+merged. Unfinished tasks are simply left out; nothing half-built may be pushed.
+
+**You do, in this priority order** (most important first; stop wherever the day
+ends):
+
+1. **B4** scam typology, with *digital arrest* first
+2. **B3** Hindi on the main screens
+3. **B2** IST beside UTC
+4. **B7** the OpenAPI spec and `/developers`
+5. **B6** the GIGW pages and text-size control
+6. **B5** the state and UT tiles
+7. **B9** motion and graphics (hero, fingerprint, coverage plate, audit chain)
+8. **B8** the legal-basis picker (needs the research note)
+
+B10 (screenshots) moves to Plan A, who takes them after the merge.
+
+## Tasks
 
 Each task: build it, check it at 375 / 784 / 1100 / 1600 px, commit, push.
 
-**B1. India identity, honestly.** A slim strip at the top of every page: "A
+**B1. India identity, honestly — DONE by Plan A on 4 Oct** (commit on
+`finale/refine`; do not redo it). For reference, what it is: a slim strip at the top of every page: "A
 prototype for the Indian Cyber Crime Coordination Centre (I4C), Ministry of Home
 Affairs · Smart India Hackathon 2026 · Not an official Government of India
 website". Footer: "Report cyber fraud: call **1930** or visit cybercrime.gov.in"

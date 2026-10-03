@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import LiveStatus from "./LiveStatus";
 import Navbar from "./Navbar";
 
 export default function AppShell({
@@ -11,6 +12,16 @@ export default function AppShell({
 }) {
   return (
     <div className="flex min-h-screen flex-col bg-bg text-ink">
+      {/* Who this is for, and what it is not. Stated on every page: a student
+          prototype must never be mistaken for a Government of India service,
+          and so it carries no State Emblem and no national insignia. */}
+      <div className="border-b border-line-soft bg-surface print:hidden">
+        <p className="mx-auto max-w-7xl px-6 py-1 text-xs leading-5 text-faint">
+          A prototype for the Indian Cyber Crime Coordination Centre (I4C), Ministry of Home Affairs ·
+          Smart India Hackathon 2026 ·{" "}
+          <span className="text-muted">Not an official Government of India website</span>
+        </p>
+      </div>
       <Navbar />
       <main
         id="content"
@@ -26,8 +37,24 @@ export default function AppShell({
 
 export function Footer() {
   return (
-    <footer className="border-t border-line">
+    <footer className="border-t border-line print:hidden">
       <div className="mx-auto max-w-7xl px-6 py-16">
+        {/* The chain, read now: the proof that what is on screen is current. */}
+        <LiveStatus className="mb-10" />
+        {/* For a victim who lands here: the national helpline comes first. */}
+        <p className="mb-10 text-sm leading-6 text-muted">
+          Report cyber fraud: call{" "}
+          <span className="font-mono text-base text-ink">1930</span> or visit{" "}
+          <a
+            href="https://cybercrime.gov.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-brass underline-offset-4 hover:underline"
+          >
+            cybercrime.gov.in
+          </a>
+          , the National Cyber Crime Reporting Portal.
+        </p>
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div>
             <p className="font-display text-sm uppercase tracking-[0.32em] text-ink">
