@@ -456,7 +456,7 @@ export default function EvidencePacket({
           <p className={`font-document text-sm italic leading-6 ${SHEET.body}`}>
             Prepared by FineX from {chain.source}. This packet
             records an investigative finding and does not constitute a legal
-            determination. SIH 2026 · PS 26183 · Ministry of Home Affairs / I4C ·
+            determination. SIH 2026 · Ministry of Home Affairs / I4C ·
             Team FineX.
           </p>
         </footer>
