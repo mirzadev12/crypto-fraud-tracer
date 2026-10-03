@@ -180,8 +180,15 @@ yellow. FineX's motion grammar is what it already has: brass lozenge ticks,
 - Every effect has a reduced-motion path; no glow, no blobs, no particles, no
   gradient besides the one border light; drawn SVG, never AI imagery.
 
-## Decisions to confirm before A6, A7, B8
+## Decisions — approved by the user on 4 Oct 2026
 
-Each reverses a decision recorded in CONTEXT.md, so each needs a yes:
-INR at a live rate (A6); unsupervised anomaly ranking (A7); statute references,
-officer-selected (B8).
+All three were approved, each reversing a rule recorded in CONTEXT.md:
+
+- **A6, INR at a live rate:** always with its source and the time read; never a
+  fixed rate; amounts in Indian grouping (lakh, crore).
+- **A7, advisory anomaly ranking:** unsupervised, with the features that drove
+  it; never names an exit and never sets the disposition; the screen says so.
+- **B8, officer-chosen legal sections:** only sections verified on India Code
+  in `docs/research/2026-10-04-india-context.md`; chosen by the officer, never
+  printed by default; the BSA certificate block has blanks. A law officer's
+  confirmation is still advised before the finale.
