@@ -14,6 +14,7 @@ import risk from "../data/risk-lists.json";
 import { readAudit } from "./audit-store";
 import { DEMO_MODE } from "./demo";
 import { ethNodes, polygonNodes, tronKey, tronNode, type Source } from "./endpoints";
+import { readInrRate, type InrRate } from "./inr";
 import { labelStats } from "./labels";
 
 export interface ChainHead {
@@ -35,6 +36,8 @@ export interface Status {
   ofac: { published: string; retrieved: string };
   labels: { tron: number; ethereum: number; polygon: number };
   traces: { today: number; last: string | null };
+  /** USDT/INR from an Indian exchange, or null when none answered (lib/inr.ts). */
+  inr: InrRate | null;
 }
 
 const TTL_MS = 30_000;
@@ -57,11 +60,12 @@ export function readStatus(): Promise<Status> {
 }
 
 async function build(now: number): Promise<Status> {
-  const [tron, ethereum, polygon, traces] = await Promise.all([
+  const [tron, ethereum, polygon, traces, inr] = await Promise.all([
     tronHead(now),
     evmHead("ethereum", "Ethereum", ethNodes(), now),
     evmHead("polygon", "Polygon", polygonNodes(), now),
     tracesToday(now),
+    readInrRate(),
   ]);
   return {
     generatedAt: new Date(now).toISOString(),
@@ -74,6 +78,7 @@ async function build(now: number): Promise<Status> {
       polygon: labelStats("polygon").total,
     },
     traces,
+    inr,
   };
 }
 

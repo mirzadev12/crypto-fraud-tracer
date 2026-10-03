@@ -7,6 +7,7 @@ import { ChainScope } from "./ChainScope";
 import type { CaseSummary, TriageLevel } from "@/lib/types";
 import { formatDate, formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
 import AddressChip from "./AddressChip";
+import Inr from "./Inr";
 import {
   DataSourceBadge,
   EmptyState,
@@ -213,6 +214,7 @@ export default function CaseQueue() {
           label="Still actionable"
           value={formatUsdt(stats.recoverableUsdt, { symbol: false })}
           hint={`USDT across ${stats.hot + stats.warm} of ${stats.total} cases in the register`}
+          aside={<Inr usdt={stats.recoverableUsdt} />}
           tone="brand"
         />
       </div>

@@ -1036,7 +1036,13 @@ Eight addresses in the register are illustrative (`isIllustrative` in
   browser and recorded against every trace and saved case, **stated, not
   verified**; behind a gateway, `FINEX_IDENTITY_HEADER` makes it verified.
 - **No INR conversion anywhere.** It would need an FX rate we cannot source
-  honestly. Everything is USDT.
+  honestly. Everything is USDT. **Superseded 4 Oct 2026 (user's approval):** a
+  rupee figure now sits beside the key USDT amounts, at the USDT/INR price
+  CoinDCX (falling back to WazirX) quotes now — both FIU-IND-registered — read
+  live by `lib/inr.ts` (`GET /api/rate`), kept 5 min, always shown with its
+  source and read time, never a typed rate; nothing shown when neither
+  answers. `FINEX_INR=off` disables it. Lakh/crore formatting in
+  `lib/inr-format.ts`, written by hand so server and browser agree.
 - **Timestamps are UTC and absolute.** No "3 hours ago" — it breaks hydration and
   two officers reading one packet must see the same time.
 

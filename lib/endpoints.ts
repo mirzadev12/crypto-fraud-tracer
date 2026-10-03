@@ -58,6 +58,15 @@ export const PUBLIC = {
   /** Polygon PoS. Answered keyless, verified 27 Sep 2026. */
   polygon: "https://polygon.blockscout.com/api/v2",
   polygonRpcs: ["https://polygon-bor-rpc.publicnode.com", "https://1rpc.io/matic"],
+  /**
+   * USDT/INR from two FIU-IND-registered Indian exchanges' public tickers,
+   * keyless, verified 4 Oct 2026 (lib/inr.ts). Not a chain read: only the
+   * rupee figure shown beside an amount depends on it.
+   */
+  inr: {
+    coindcx: "https://api.coindcx.com/exchange/ticker",
+    wazirx: "https://api.wazirx.com/sapi/v1/ticker/24hr?symbol=usdtinr",
+  },
 } as const;
 
 const given = (name: string): string | null => process.env[name]?.trim() || null;

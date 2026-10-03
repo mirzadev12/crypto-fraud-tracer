@@ -218,12 +218,15 @@ export function StatCard({
   hint,
   tone = "default",
   compact = false,
+  aside,
 }: {
   label: string;
   value: string;
   hint?: string;
   tone?: "default" | "hot" | "warm" | "cold" | "brand";
   compact?: boolean;
+  /** A second reading of the figure, under the hint — the rupee value. */
+  aside?: ReactNode;
 }) {
   const toneText: Record<string, string> = {
     default: "text-ink",
@@ -250,6 +253,7 @@ export function StatCard({
         <Split value={value} />
       </p>
       {hint ? <p className={`${compact ? "mt-1" : "mt-2"} text-xs leading-5 text-faint`}>{hint}</p> : null}
+      {aside ? <div className="mt-1 text-xs leading-5">{aside}</div> : null}
     </div>
   );
 }

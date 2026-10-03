@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatDate } from "@/lib/format";
+import { formatRate } from "@/lib/inr-format";
 import type { ChainHead, Status } from "@/lib/status";
 import { Diamond } from "./ui";
 
@@ -86,6 +87,12 @@ export default function LiveStatus({ className = "" }: { className?: string }) {
       {status.heads.map((h) => (
         <Head key={h.chain} head={h} elapsed={elapsed} />
       ))}
+      {status.inr ? (
+        <span title={`Last traded price on ${status.inr.source}, read ${status.inr.readAt}`}>
+          <span className="text-muted">USDT/INR</span>{" "}
+          <span className="tabular-nums text-ink">{formatRate(status.inr.rate)}</span> · {status.inr.source}
+        </span>
+      ) : null}
       <span>OFAC list of {formatDate(status.ofac.published)}</span>
       <span>
         {status.traces.today

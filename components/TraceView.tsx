@@ -40,6 +40,7 @@ import { chainMeta } from "@/lib/chain-meta";
 import { categoryOf } from "@/lib/contracts";
 import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
 import IssuerFreeze from "./IssuerFreeze";
+import Inr from "./Inr";
 import SaveCase from "./SaveCase";
 import { ChainScope } from "./ChainScope";
 
@@ -211,6 +212,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
                 {formatPercent(pooled.taintFraction)} of the reported amount
               </span>
             </p>
+            <Inr usdt={pooled.taintedValueUsdt} className="block text-xs" />
           </div>
         ) : null}
         {resting ? (
@@ -225,6 +227,7 @@ function TerminalCard({ trace }: { trace: TraceResult }) {
                 {formatPercent(resting.taintFraction)} of the reported amount
               </span>
             </p>
+            <Inr usdt={resting.taintedValueUsdt} className="block text-xs" />
             {/* Money in a private wallet has no exchange to write to; the
                 issuer is the one party that can still stop it. */}
             <IssuerFreeze address={resting.address} chain={trace.chain} />
@@ -689,6 +692,7 @@ export default function TraceView({
             label="Reported amount"
             value={formatUsdt(trace.reportedAmountUsdt, { symbol: false })}
             hint={`Fraud reported ${formatDateTime(trace.fraudDate)}`}
+            aside={<Inr usdt={trace.reportedAmountUsdt} />}
           />
           {/* Past the reported wallet only — the reported wallet is the subject
               of the case, never its finding. When nothing has left it, the
@@ -698,6 +702,7 @@ export default function TraceView({
             compact
             label={trace.terminal ? "Reached destination" : "Moved on"}
             value={formatUsdt(movedOn, { symbol: false })}
+            aside={<Inr usdt={movedOn} />}
             hint={
               reachedTerminal
                 ? `${formatPercent(reachedTerminal.taintFraction)} of the victim's funds`
