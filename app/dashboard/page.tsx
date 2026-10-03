@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import CaseQueue from "@/components/CaseQueue";
+import LiveStatus from "@/components/LiveStatus";
 import WatchAlerts from "@/components/WatchAlerts";
 import CaseFile from "@/components/CaseFile";
 import OutcomesDesk from "@/components/OutcomesDesk";
@@ -31,6 +32,9 @@ export default function DashboardPage() {
           </>
         }
       />
+      {/* Each chain's newest block, read now: the register below is built from
+          live reads, and this line is the proof that the screen is current. */}
+      <LiveStatus className="mt-4" />
       {/* The watch sits above the register: an alert that money moved is the
           most time-critical thing on this desk. */}
       <div className="mt-6">
