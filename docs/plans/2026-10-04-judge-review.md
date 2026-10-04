@@ -35,7 +35,7 @@ site and the finale deck. The target is 9.5/10; the gap list is in priority orde
 | --- | --- | --- | --- | --- |
 | 1 | Make `reemrasheed2007/crypto-fraud-tracer` public, or point both decks' GitHub link at the public mirror `mirzadev12/crypto-fraud-tracer` (its `main` is identical, `602ec80`) | repository owner / user | 2 min | Credibility 7 → 9 |
 | 2 | Paste `docs/pitch/05-portal-text-finale.md` into the portal (valid now: the site is live) and upload the Finale PDF | user | 10 min | Clarity, Impact |
-| 3 | Deck figure row: replace one tile with "80 — deposit addresses at Indian exchanges (Ethereum)" and one with "3 chains traced live" | Plan A | 30 min | Clarity 7.5 → 8.5 |
+| 3 | **Done 4 Oct:** the Finale deck's figure row reads 565 deposit accounts across 3 chains · 16 exchanges from 37 seeds · 334 OFAC · 80 at Indian exchanges · 33/0 · 0 licences; slides 2–5 updated for three chains, live data, advisory ML and security | Plan A | done | Clarity 7.5 → 8.5 |
 | 4 | Legal-basis picker on the freeze request and an optional BSA s.63(4) certificate block, offering only `docs/research/2026-10-04-india-context.md`'s verified sections, with the old/new-law choice | Plan A | 2 h | Evidence 8 → 9 |
 | 5 | Hindi on the navigation, landing, case-file headings and packet section titles (`?lang=hi`), marked machine-drafted | Plan A | 3 h | UX 7.5 → 8.5 |
 | 6 | Re-record the 60-second demo (`docs/pitch/record-demo.js`) on the live build | Plan A | 1 h | Credibility |
