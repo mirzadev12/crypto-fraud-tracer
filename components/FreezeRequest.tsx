@@ -27,6 +27,7 @@ import { chainMeta } from "@/lib/chain-meta";
 import { fiuListing, fiuSentence } from "@/lib/fiu";
 import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
 import { FingerprintBlock } from "./PacketFingerprint";
+import LegalBasisPicker from "./LegalBasisPicker";
 import SendingGuide from "./SendingGuide";
 import OutcomeRecorder from "./OutcomeRecorder";
 import { typologyLabel, type TypologyId } from "@/lib/typology";
@@ -487,7 +488,8 @@ export default function FreezeRequest({
           <p className={`text-sm leading-7 ${SHEET.body}`}>
             To be completed by the authorised officer. This tool does not assert a
             legal basis; the provision under which the request is issued is a
-            matter for the issuing authority.
+            matter for the issuing authority, who may choose one below or write
+            it in.
           </p>
           {/* The case references an Indian officer files against. Without them
               this reads as a template rather than a document belonging to a
@@ -502,7 +504,7 @@ export default function FreezeRequest({
             <Blank label="Designation" />
             <Blank label="Unit / police station" />
             <Blank label="Contact for response" />
-            <Blank label="Issued under" />
+            <LegalBasisPicker fraudDate={trace.fraudDate} />
             <Blank label="Date" />
             {/* Several exchanges lift a restriction that states no duration
                 (MEXC after at most 30 days); the officer sets it. */}
