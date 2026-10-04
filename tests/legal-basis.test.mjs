@@ -1,0 +1,23 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { LEGAL_BASES, legalBasis, regimeOf } from "../lib/legal-basis.ts";
+
+test("only the sections the research note verified are offered", () => {
+  const ids = LEGAL_BASES.map((b) => b.id).sort();
+  assert.deepEqual(ids, ["bnss-105", "bnss-106", "bnss-107", "bnss-94", "bsa-63"]);
+  for (const b of LEGAL_BASES) {
+    assert.ok(b.cite.length > 0 && b.purpose.length > 0);
+    assert.equal(b.regime, "new");
+  }
+});
+
+test("nothing claims a section freezes a wallet", () => {
+  for (const b of LEGAL_BASES) assert.doesNotMatch(`${b.cite} ${b.purpose}`, /freez/i);
+});
+
+test("an unknown id is refused; matters before 1 July 2024 fall to the old laws", () => {
+  assert.equal(legalBasis("bnss-94").cite, "BNSS 2023, s.94");
+  assert.equal(legalBasis("made-up"), undefined);
+  assert.equal(regimeOf("2024-06-30T23:59:00.000Z"), "old");
+  assert.equal(regimeOf("2024-07-01T00:00:00.000+05:30"), "new");
+});
