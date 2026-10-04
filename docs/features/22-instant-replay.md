@@ -100,3 +100,10 @@ from the original entry. The hash chain is written as for any entry.
   wallet looks like now.
 - **Nothing here tests the routes.** The cache and the permalink's file answer are
   covered by the live check above, not by a unit test.
+
+## Check links are never replayed
+
+A packet opened from its check link or QR (`?fp=`) asks the route for `fresh=1`, which
+skips this cache and, outside demo mode, the recorded file: the check exists to
+re-derive the findings from the chain, and a copy of the server's own run would match
+by construction.

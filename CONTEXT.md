@@ -1960,3 +1960,16 @@ two parts for two Claude accounts split by file ownership, is
 - **Deploy approved.** The user approved deploying `finale/refine` to the live site on
   4 Oct 2026, so this section's opening "nothing to reemrasheed2007 or Render until the
   user says" is historical.
+- **Loading is a drawing of the read, not a spinner** (`components/ChainReading.tsx`,
+  `components/CaseLoading.tsx`, `app/{trace,report,freeze,wallet}/[address]/loading.tsx`).
+  The live log lights the hop the stream reports; a route's `loading.tsx` shows it the
+  moment the page is asked for; the finished case fades in (`fx-fade`, opacity only, so
+  the sticky case bar never moves). Off under reduced motion like every other motion.
+- **A check link always re-reads the chain** (`?fresh=1`, sent by the packet when it is
+  opened with `fp`). Without it the replay cache would answer a check from the server's
+  own memory and a match would prove nothing. Demo mode still answers from the file,
+  and the check screen already says "from the recorded case file" then.
+- **No link to the source repository anywhere on the site or in the portal text** — the
+  user asked for it removed on 5 Oct. Feedback lines say "tell the team that runs this
+  deployment". The VAPID subject in `lib/alert-store.ts` is a push-protocol field, not a
+  link, and stays.
