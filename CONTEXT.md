@@ -3,7 +3,7 @@
 Companion to `AGENTS.md`. `AGENTS.md` is the plan; this file is the state of the
 repo and the decisions already made, so a new session does not re-derive them.
 
-Last updated: 26 September 2026 — **Ethereum tracing (§10) and a round of India-first features (§11, most recently alerts when the desk is closed) on the branch `feat/ethereum`, for the grand finale; pushed to mirzadev12 only, never merged into `main` — the live site is untouched.** Before that: 24 September, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
+Last updated: 5 October 2026 — **the critics' fixes and four new features on `finale/refine` (§12; notes 22–28 in §11): a pinned link replays a run already read, a reported deposit address is its own exit, a court-preparation sheet, exchange-channel readiness, a request to Tether, account share, and a copy truth pass; the user approved deploying this branch to the live site on 4 Oct.** Before that, 26 September 2026 — Ethereum tracing (§10) and a round of India-first features (§11, most recently alerts when the desk is closed) on the branch `feat/ethereum`, for the grand finale; at the time pushed to mirzadev12 only and never merged into `main`, the live site untouched. Before that: 24 September, evening — the deck is finished and the screens decluttered (**§9**); the multi-chain screening and OFAC refresh round before it is **§8, the 24 September session**, which is the full record of that day (problem statement verbatim, research, decisions, deck, push order, what is still pending). The polish round of 19 Sep is the last §3 entry; the engine audit before it starts at "Dwell is measured from a transfer that happened".
 
 ---
 
@@ -293,7 +293,12 @@ Eight addresses in the register are illustrative (`isIllustrative` in
   because we could not see is the one lie this tool must never tell.
 - **The reported address is the subject of a case, never its finding.** Only
   wallets the money reached can be an exit, or tracing a known deposit address
-  reports that the money "reached" the address it started at.
+  reports that the money "reached" the address it started at. **Superseded 4 Oct
+  2026 (note 23):** a reported address that is itself an exchange deposit
+  address or an exchange hot wallet is now the exit (`ownExit`), named as itself
+  ("is itself attributed", never "reached") and read but not followed. An
+  OFAC-listed reported address is still followed onward, and the summary says it
+  is listed; any other reported address is still only the subject.
 - **Dwell is measured from a transfer that happened, never from the fraud
   date** (`lib/tracer.ts`). The reported wallet's dwell used to be measured from
   the fraud date, and `scripts/freeze-cases.mjs` sets that date 60 seconds
@@ -1764,6 +1769,13 @@ changing a feature; this section only records what matters across them.
 | 19 | Case file, sign-in and audit log — Save case puts a run in a case file every officer on the server sees, built from the server's own audit record (`/api/cases`); the officer ID from sign-in, stated or verified by a gateway (`lib/identity.ts`); every trace, save, removal and alert switch in a SHA-256 chain (`/audit`, `/api/audit`, `scripts/verify-audit.mjs`) | `19-case-file-and-audit-log.md` |
 | 20 | Bridge following — **not built, decided with evidence (26 Sep)**: Allbridge Core's Ethereum USDT pool last took a deposit on 19 Jul 2026, much of it MEV bots; USDT0 goes to chains FineX does not read. Found on the way and fixed: Allbridge and USDT0's adapter were not recognised as bridges (`lib/contracts.ts`, `tests/contracts.test.mjs`) | — |
 | 21 | Own nodes — `TRONGRID_URL`, `TRON_NODE_URL`, `BLOCKSCOUT_URL`, `ETH_RPC_URL` (`lib/endpoints.ts`) point each kind of chain read at the agency's own infrastructure, never falling back to public; `/api/health` `reads` shows where each goes | `21-own-nodes.md` |
+| 22 | Instant replay — a pinned link to a run this server already read is answered from memory (`lib/run-cache.ts`: 300 runs, per process) and logged `replayed`; register rows carry `pin`, the query that replays their run; `provenance.asked` (additive) lets a link replay an automatic amount or window as automatic; outside demo mode the permalink (not POST) also answers a recorded case's own pinned link from the file | `22-instant-replay.md` |
+| 23 | A reported address that is itself an exchange deposit address, hot wallet or OFAC-listed address is the exit, named as itself and read but not followed (`decide()` and `runTrace` in `lib/tracer.ts`); supersedes the §3 rule that the reported address is never the finding | `23-reported-deposit-address.md` |
+| 24 | Prepare for court — nine questions counsel will ask, answered from the case's own record with each answer's limit (`lib/witness.ts`, `components/WitnessSheet.tsx`); outside the filed packet, printed only when ticked | `24-prepare-for-court.md` |
+| 25 | Channel readiness — `needs`, `leadTime` and `domain` in `data/le-contacts.json`; the desk's portal access (not recorded / applied / active) kept in the browser (`lib/desk-access.ts`); a readiness line and a "Before you send" checklist in `SendingGuide`; `ChannelReadiness` on the batch's one-request-per-exchange panel | `25-channel-readiness.md` |
+| 26 | Request to Tether — money at rest with no exchange on the trail drafts a freeze request to the issuer of USDT (`components/IssuerRequest.tsx`); Tether's channel is recorded as **not found** in `data/le-contacts.json` | `26-request-to-tether.md` |
+| 27 | Account share — how much of the named deposit account's inflow this case is (`lib/proportion.ts`, `components/AccountShare.tsx`; `payers` added to `lib/wallet.ts`); an upper bound on a partial read, nothing on a failed one; screen only, deposit addresses only | `27-account-share.md` |
+| 28 | The critics' fixes — case reference `FX-XXXX-XXXX` per wallet per chain, "traced (none reported)" labels, the pending-on-1-July-2024 question (`regimeFor`), rule base rates (`lib/rule-base-rates.ts`), the copy truth pass, the reviews kept in `docs/review/` | `28-critics-fixes.md` |
 
 Cross-cutting decisions:
 
@@ -1912,3 +1924,39 @@ two parts for two Claude accounts split by file ownership, is
   names an exit, never sets the status, and has no accuracy figure. Keep it that
   way: the rules and the attribution table decide; this only points.
 - **INR** (§3's "no INR" superseded): see the bullet there.
+- **Instant replay and pinned register links** (note 22). A pinned link to a run this
+  server already read is answered from `lib/run-cache.ts` (300 runs, in memory, a
+  restart forgets them), logged in the audit chain as `replayed`, and kept out of the
+  traces-today count and of case saving (a case is saved from the original entry).
+  Register rows carry `pin`, the query that replays their run, and `caseHref` uses
+  it, so the queue opens at once. `provenance.asked` (additive, optional) lets a link
+  replay an automatic amount or window as automatic. Outside demo mode the permalink
+  also answers a link pinned to a recorded run from the file; POST still re-derives,
+  because `scripts/rescore-cases.mjs` depends on it.
+- **Case references are `FX-XXXX-XXXX`** (note 28; `caseIdFor(chain, address)` in
+  `lib/tracer.ts`): 40 bits of SHA-256 over `chain:address`, in Crockford base32, one
+  per wallet per chain. It was a year and four digits, the year taken from the
+  window, so one wallet could carry two. The 14 recorded cases were relabelled (the
+  fingerprint does not cover the reference); older audit entries and saved cases keep
+  the one they were written with.
+- **Tether's law-enforcement channel is recorded as not found** (`data/le-contacts.json`,
+  read 4 Oct 2026). Its legal-terms page refers to a Law Enforcement Requests Policy
+  without its text, and the one law-enforcement address it publishes is on Tether
+  Hadron's policy page, which covers Hadron's customer data and does not say it covers
+  USDT. So the request to Tether (note 26) prints no addressee channel; do not fill it
+  in from a third party. The recorded CRITICAL case that shows it, `TDii6…`, was
+  selected by a script: never describe its later movement as fraud proceeds.
+- **Desk access to exchange portals is kept in the browser** (`lib/desk-access.ts`,
+  note 25), like the recorded outcomes: `localStorage` key `finex.desk-access.v1`, per
+  exchange, not recorded / applied (with the date) / active. Nothing is server-side or
+  verified: it is what the desk says.
+- **Two recorded roots are themselves OFAC-listed** (found 5 Oct 2026, writing note 23):
+  `TRWDtgCf…` and `TBfVDwNS…`, both COLD and ISIL KHORASAN in `data/risk-lists.json`,
+  each closing at the next listed wallet. The first version of note 23 made any listed
+  root its own exit, which would have erased that route on a re-derivation; before it
+  shipped the rule was narrowed to exchange addresses (`ownExit`), so both are followed
+  onward exactly as recorded and the summary adds that the root is listed. Keep it that
+  way: a sanctions label on the reported address is a fact to state, not an exit.
+- **Deploy approved.** The user approved deploying `finale/refine` to the live site on
+  4 Oct 2026, so this section's opening "nothing to reemrasheed2007 or Render until the
+  user says" is historical.

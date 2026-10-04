@@ -28,6 +28,16 @@ verified, and its limits. The numbers follow the priority list agreed on
 | 19 | Case file, sign-in and audit log | A case file shared by every officer on the server, built only from runs the server traced; who did what, stated or verified by a gateway; a hash-chained audit log anyone can check | [19](19-case-file-and-audit-log.md) |
 | 11 | Polygon tracing | USDT on Polygon traced on the same engine, opt-in per case so a `0x` address never changes chain by accident; 103 deposit addresses from Polygon's own tags; a recorded Polygon case | [11](11-polygon-tracing.md) |
 | 21 | Reading the chain from the agency's own nodes | Four settings keep every chain read in-house, so no third party learns which wallets are under investigation; never a silent fallback to public | [21](21-own-nodes.md) |
+| 22 | Instant replay | A link pinned to a run this server already read is answered from memory, not a second chain read; queue rows carry their run; a recorded case's own pinned link answers from the file outside demo mode too | [22](22-instant-replay.md) |
+| 23 | A reported address that is itself the answer | A victim who paid straight into an exchange deposit address or hot wallet gets that address as the exit, named as itself and not followed; a listed address is still followed onward | [23](23-reported-deposit-address.md) |
+| 24 | Prepare for court | Nine questions counsel will ask, each answered from the case's own record with what the answer does not establish; outside the filed packet | [24](24-prepare-for-court.md) |
+| 25 | Channel readiness | Each exchange's stated conditions as a checklist, this desk's portal access kept in the browser, and a batch line naming exchanges it cannot yet reach | [25](25-channel-readiness.md) |
+| 26 | Request to Tether | Money at rest with no exchange on the trail drafts a freeze request to the issuer of USDT; Tether's channel is recorded as not found | [26](26-request-to-tether.md) |
+| 27 | Account share | How much of a named deposit account's inflow this case is: a share, an upper bound, or nothing | [27](27-account-share.md) |
+| 28 | The critics' fixes | Stable case references, "traced (none reported)" labels, the pending-on-1-July-2024 question, rule base rates beside the rules, a copy truth pass, and the three review reports | [28](28-critics-fixes.md) |
+
+Notes 22 to 28 were built on `finale/refine`, after the critics' reviews of 4 Oct
+2026 (`docs/review/`); the others on `feat/ethereum`.
 
 ## Not built yet, and why
 

@@ -93,6 +93,11 @@ export interface NarrativeContext {
    * whenever it is available instead of being re-derived here.
    */
   restingAt?: string | null;
+  /**
+   * The reported address's own label when it is on a sanctions list or is a
+   * mixing service. The trace still follows it; the summary says what it is.
+   */
+  reportedListed?: { entity: string; kind: string } | null;
 }
 
 /**
@@ -111,6 +116,14 @@ export function buildNarrative(
   // The reported address is itself the exit (lib/tracer.ts `decide`): there is
   // no route to describe, only what the address is.
   const ownExit = trace.terminal && trace.terminal.address === trace.inputAddress ? trace.terminal : null;
+  const listed = context.reportedListed;
+  if (listed) {
+    sentences.push(
+      listed.kind === "sanctioned"
+        ? `The reported address is itself on the OFAC sanctions list, under ${listed.entity}.`
+        : `The reported address is itself attributed to ${listed.entity}, a mixing service.`,
+    );
+  }
   if (ownExit) {
     sentences.push(
       `The reported address ${trace.inputAddress} is itself attributed to ${midSentence(entityPhrase(ownExit.label))}${

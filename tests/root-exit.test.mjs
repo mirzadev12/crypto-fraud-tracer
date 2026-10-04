@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { decide } from "../lib/tracer.ts";
+import { decide, ownExit } from "../lib/tracer.ts";
 import { buildNarrative } from "../lib/narrative.ts";
 
 // The simplest real case: the victim paid straight into an exchange deposit
@@ -34,10 +34,13 @@ test("a reported deposit address is the exit, named as itself", () => {
   assert.doesNotMatch(d.triageReason, /reached/);
 });
 
-test("a reported sanctioned address closes the case", () => {
-  const d = decide([subject], { ...ctx, rootOwn: { entity: "ISIL KHORASAN", kind: "sanctioned", confidence: 1, source: "sanctions" } });
-  assert.equal(d.triage, "COLD");
-  assert.equal(d.terminal.depositAddress, null);
+test("only an exchange's address is its own exit; a listed one is followed onward", () => {
+  assert.equal(ownExit(deposit), deposit);
+  assert.equal(ownExit({ entity: "Binance", kind: "exchange_hot", confidence: 1, source: "ground_truth" }).kind, "exchange_hot");
+  // Two recorded cases start at OFAC-listed addresses and close at the next
+  // listed wallet: making the root the exit would erase that finding.
+  assert.equal(ownExit({ entity: "ISIL KHORASAN", kind: "sanctioned", confidence: 1, source: "sanctions" }), null);
+  assert.equal(ownExit(null), null);
 });
 
 test("an unattributed reported address is decided as before", () => {

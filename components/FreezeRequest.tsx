@@ -153,6 +153,9 @@ export default function FreezeRequest({
   const named = depositAddress ?? terminalAddress;
   const isDeposit = label.kind === "exchange_deposit" && Boolean(depositAddress);
   const terminalNode = trace.nodes.find((n) => n.address === terminalAddress);
+  // The reported address is itself the account (lib/tracer.ts `decide`): no
+  // intermediary transfer exists, and the one to look up is the victim's own.
+  const own = terminalAddress === trace.inputAddress;
 
   // The transfers the exchange has to look up: everything that landed on the
   // named account inside the traced window.
@@ -202,8 +205,17 @@ export default function FreezeRequest({
 
       {/* A customer deposit address is one account: how much of its inflow is
           this case's. Not for an omnibus hot wallet, which is everyone's. */}
-      {isDeposit && terminalNode ? (
+      {isDeposit && terminalNode && (!own || amount) ? (
         <AccountShare account={named} tracedUsdt={terminalNode.taintedValueUsdt} chain={trace.chain} />
+      ) : null}
+      {isDeposit && own && !amount ? (
+        // With no amount reported, the "traced" figure for an account the case
+        // starts at is everything it sent on: a share computed from it would
+        // read as most of the account being this case's.
+        <p className="border-l-2 border-line pl-4 text-sm leading-7 text-muted print:hidden">
+          How much of this account is this case&rsquo;s cannot be said: no amount was reported, and the reported
+          address is the account itself. State the amount paid to see its share.
+        </p>
       ) : null}
 
       {/* -------------------------------------------------------------- sheet */}
@@ -271,10 +283,12 @@ export default function FreezeRequest({
               </>
             ) : (
               <>
-                Funds traced from the reported address arrived at this{" "}
-                {label.entity}-controlled wallet. We request that {label.entity}{" "}
-                identify the customer account credited by the transfers listed in
-                section 04 and restrict it pending legal process.
+                {own
+                  ? `The reported address is itself this ${label.entity}-controlled wallet.`
+                  : `Funds traced from the reported address arrived at this ${label.entity}-controlled wallet.`}{" "}
+                We request that {label.entity} identify the customer account credited by the{" "}
+                {own ? "victim's payment described in" : "transfers listed in"} section 04 and restrict it
+                pending legal process.
               </>
             )}
           </p>
@@ -347,16 +361,20 @@ export default function FreezeRequest({
             </Field>
           </dl>
           <p className={`mt-6 text-sm leading-7 ${SHEET.body}`}>
-            The funds were followed across {trace.nodes.length}{" "}
-            {trace.nodes.length === 1 ? "wallet" : "wallets"} and {trace.edges.length}{" "}
-            {trace.edges.length === 1 ? "transfer" : "transfers"} on the {chain.name} network, in {chain.asset},
-            from the reported address to the account named in section 01.
+            {own
+              ? `The reported address is itself the account named in section 01: the victim's payment, in ${chain.asset} on the ${chain.name} network, went straight into it, with no intermediary wallet between them.`
+              : `The funds were followed across ${trace.nodes.length} ${trace.nodes.length === 1 ? "wallet" : "wallets"} and ${trace.edges.length} ${trace.edges.length === 1 ? "transfer" : "transfers"} on the ${chain.name} network, in ${chain.asset}, from the reported address to the account named in section 01.`}
           </p>
         </Section>
 
         {/* ------------------------------------------------------------- 04 */}
         <Section n="04" title="Transfers into the named account">
-          {arrivals.length === 0 ? (
+          {own ? (
+            <p className={`text-sm leading-7 ${SHEET.body}`}>
+              The transfer to look up is the victim&rsquo;s own payment into this address. Its transaction hash and
+              time are on the complaint or the victim&rsquo;s own exchange or wallet record; attach them.
+            </p>
+          ) : arrivals.length === 0 ? (
             <p className={`text-sm leading-7 ${SHEET.body}`}>
               No transfer into this account fell inside the traced window.
             </p>

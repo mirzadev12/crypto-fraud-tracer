@@ -213,6 +213,11 @@ const CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
  * thousand values two wallets sharing a reference was near certain within a
  * year of complaints. Forty bits makes that negligible at any desk's volume.
  */
+/** The reported address's own label, when it makes the address its own exit: an exchange's. */
+export function ownExit(label: Label | null): Label | null {
+  return label && (label.kind === "exchange_deposit" || label.kind === "exchange_hot") ? label : null;
+}
+
 export function caseIdFor(chain: string, address: string): string {
   const key = `${chain}:${address.startsWith("0x") ? address.toLowerCase() : address}`;
   const digest = createHash("sha256").update(key).digest();
@@ -313,9 +318,14 @@ export async function runTrace(
    * an exchange does with a deposit afterwards is its own bookkeeping, and
    * scoring its sweeps would read an exchange's routine as laundering. It stays
    * the subject on the canvas; `decide` names it as the exit.
+   *
+   * Exchange addresses only. A reported address on the sanctions list is still
+   * followed: where a listed entity sent the money is worth knowing, and two
+   * recorded cases are exactly that (their roots are OFAC-listed, and they
+   * close at the next listed wallet). The summary says the root is listed.
    */
   const rootOwnLabel = lookupOn(chain, root);
-  const rootOwn = isTerminal(rootOwnLabel) ? rootOwnLabel : null;
+  const rootOwn = ownExit(rootOwnLabel);
 
   let queue: Array<{ address: string; depth: number; taint: number }> = [
     { address: root, depth: 0, taint: 1 },
@@ -667,6 +677,8 @@ export async function runTrace(
   const narrative = buildNarrative(result, {
     amountReported: req.amount !== "auto",
     restingAt,
+    reportedListed:
+      rootOwnLabel && (rootOwnLabel.kind === "sanctioned" || rootOwnLabel.kind === "mixer") ? rootOwnLabel : null,
   });
   return narrative ? { ...result, narrative } : result;
 }
@@ -707,14 +719,6 @@ export function decide(
   const reportedNode = nodes.find((n) => n.depth === 0);
   if (ctx.rootOwn && reportedNode) {
     const own = ctx.rootOwn;
-    if (own.kind === "mixer" || own.kind === "sanctioned") {
-      return {
-        triage: "COLD" as TriageLevel,
-        triageReason: `The reported address is itself attributed to ${own.entity}; there is no exchange account behind it to freeze, so the case should be documented and closed.`,
-        terminal: { address: reportedNode.address, label: own, depositAddress: null },
-        restingAt: null,
-      };
-    }
     const isDeposit = own.kind === "exchange_deposit";
     return {
       triage: "WARM" as TriageLevel,

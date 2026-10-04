@@ -131,7 +131,7 @@
     "/api/cases": {
       "get": { "tags": ["Desk"], "summary": "List the shared case file", "responses": { "200": { "description": "Saved cases." } } },
       "post": { "tags": ["Desk"], "summary": "Save a run to the case file", "description": "Built from the server's own audit record of the trace, found by its findings fingerprint; a run the server did not trace cannot be saved.", "responses": { "200": { "description": "Saved." }, "404": { "description": "No such run on this server." } } },
-      "delete": { "tags": ["Desk"], "summary": "Remove a case from the case file", "responses": { "200": { "description": "Removed." } } }
+      "delete": { "tags": ["Desk"], "summary": "Remove a case from the case file", "description": "Only the officer ID that saved the case can remove it (the x-finex-officer header, or the gateway's identity header where one is configured). Every removal is recorded in the audit log.", "responses": { "200": { "description": "Removed." }, "400": { "description": "No valid case id." }, "403": { "description": "The case was saved by another officer ID." } } }
     },
     "/api/watch": {
       "post": {

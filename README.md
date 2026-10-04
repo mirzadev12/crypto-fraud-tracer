@@ -5,8 +5,8 @@
 An investigator pastes a victim-reported TRON or Ethereum wallet address. FineX follows the
 stolen USDT hop by hop, names the exchange **customer deposit address** that
 received it — the account that can actually be frozen — flags laundering patterns
-in plain English, and calls the case **HOT**, **WARM** or **COLD** by whether the
-money can still be reached.
+in plain English, and calls the case **HOT**, **WARM** or **COLD** (CRITICAL,
+SUSPICIOUS and CLOSED on screen) by whether the money can still be reached.
 
 > Likely Binance deposit cluster — `TSu8wTwNtp6MKDMJaYZ16G5727Axcp8RQy`,
 > confidence 0.95, 20 sweeps observed, 100% of inflow forwarded to Binance-Hot 7.
@@ -36,11 +36,12 @@ npm run dev
 
 Then open <http://localhost:3000>.
 
-Ten real cases captured from the chain by this pipeline are frozen in
-`data/demo-cases.json`; set `DEMO_MODE=true` to serve them without touching the
-network. Every result says where it came from: **Live trace**, **Recorded trace**,
-or **Illustrative case** for the handful of hand-built cases in `public/mock`,
-whose addresses were never on the chain.
+Fourteen real cases captured from the chain by this pipeline (10 on TRON, 3 on
+Ethereum, 1 on Polygon) are frozen in `data/demo-cases.json`; set
+`DEMO_MODE=true` to serve them without touching the network. Every result says
+where it came from: **Live trace**, **Recorded trace**, or **Illustrative
+case** for the handful of hand-built cases in `public/mock`, whose addresses
+were never on the chain.
 
 ---
 
@@ -49,16 +50,16 @@ whose addresses were never on the chain.
 | Route | What it is |
 | --- | --- |
 | `/` | The pitch: what the tool does and where its limits are. |
-| `/dashboard` | Today's complaint queue, ordered by triage rather than arrival — with the watch on money still at rest (and alerts when FineX is closed), the case file officers saved on this server, and the freeze requests sent from this browser and what each exchange did, counted by exchange. |
+| `/dashboard` | Today's complaint queue, ordered by triage rather than arrival — with the watch on money still at rest (and alerts when FineX is closed), the case file officers saved on this server, and the freeze requests sent from this browser and what each exchange did, counted by exchange. A row opens the run it was read as, without a new chain read while this server still holds that run (`docs/features/22-instant-replay.md`). |
 | `/login` | Sign-in: the officer ID and unit, recorded against what you trace and save as stated, not verified. No password; behind the department's sign-in gateway the server records the gateway's verified name instead. |
 | `/audit` | The audit log: every trace this server answered, every case saved or removed, every browser that turned alerts on or off, with who — in a hash chain the page checks, with its head to write down. |
 | `/investigate` | Address, amount and fraud date in; a full trace out. The address checksum is verified in the browser before anything is sent. |
-| `/trace/[address]` | The full result: destination, fund-flow canvas, wallet table, risk flags, movement timeline, chain of custody. |
+| `/trace/[address]` | The full result: destination, fund-flow canvas, wallet table, risk flags (each with how often its rule fires on wallets nobody reported, where that was measured), movement timeline, chain of custody. A reported address that is itself an exchange deposit address or hot wallet is the exit, named as itself; an OFAC-listed one is followed onward and the summary says it is listed (`docs/features/23-reported-deposit-address.md`). |
 | `/fund-flow` | Canvas-first explorer with a case rail and a wallet inspector. |
 | `/reports` | Every case as an evidence packet. |
-| `/report/[address]` | The packet itself — print-ready, and it states its own limitations. It ends with a fingerprint of its findings and a code; opened with `?fp=`, the packet re-derives the case and says whether a copy's fingerprint still matches (`docs/features/07-tamper-evident-packet.md`). |
-| `/freeze/[address]` | The restraint request an officer actually sends, naming the account to restrict. States in writing that it is a lead requiring an authorised signature. Above it, where that exchange takes law-enforcement requests and what it requires first, from its own page (`data/le-contacts.json`). |
-| `/queue` | Bulk triage. Paste a morning of complaints; they are traced in turn and the register reorders itself as answers land, most recoverable first. A complaint sheet with a State column is also counted by state or union territory. |
+| `/report/[address]` | The packet itself — print-ready, and it states its own limitations. It ends with a fingerprint of its findings and a code; opened with `?fp=`, the packet re-derives the case and says whether a copy's fingerprint still matches (`docs/features/07-tamper-evident-packet.md`). Below it, outside the filed packet, **Prepare for court**: nine questions counsel will ask, each answered from the case's own record with what the answer does not establish, printed only when asked (`docs/features/24-prepare-for-court.md`). |
+| `/freeze/[address]` | The restraint request an officer actually sends, naming the account to restrict. States in writing that it is a lead requiring an authorised signature. Above it, where that exchange takes law-enforcement requests and what it requires first, from its own page (`data/le-contacts.json`), and whether this desk has portal access to it (`docs/features/25-channel-readiness.md`). A customer deposit address also shows how much of its inflow this case is (`27-account-share.md`). With money at rest and no exchange on the trail, the same route drafts a **request to Tether**, whose channel is recorded as not found (`26-request-to-tether.md`). Where the complaint gave no amount or date the letter says "traced (none reported)", and the legal-basis picker asks whether the matter was pending on 1 July 2024 (`28-critics-fixes.md`). |
+| `/queue` | Bulk triage. Paste a morning of complaints; they are traced in turn and the register reorders itself as answers land, most recoverable first. A complaint sheet with a State column is also counted by state or union territory. Each exchange the batch reached is tagged with whether this desk can send to it (`docs/features/25-channel-readiness.md`). |
 | `/attribution` | Where a name comes from: the 15 tagged seeds, all 241 derived deposit addresses, the sweep evidence for each, and where the method is wrong. |
 | `/wallet/[address]` | What one address is and who funded it — age, money in and out, and the counterparties on both sides; on request, its payers traced one hop back to the exchanges that funded them. |
 | `/operations` | The jury-question surface: who runs it, what it costs, what breaks, and what is not built. |
@@ -104,18 +105,22 @@ server.
 
 | Method | Route | Returns |
 | --- | --- | --- |
-| `POST` | `/api/trace` — `{address, amount?, fraudDate?, model?, asOf?}` | `TraceResult`. Amount and date are optional; omitted, the window opens at the wallet's first transfer. `model: "fifo"` traces under first-in-first-out instead of haircut; `asOf` reads the chain as it stood at that moment. Send `Accept: application/x-ndjson` for streamed progress. |
-| `GET` | `/api/trace/[address]` | `TraceResult` — the permalink. `?amount=&since=&asof=` replays one run exactly, on the chain as it stood when it was read; `?model=fifo` as above. |
+| `POST` | `/api/trace` — `{address, amount?, fraudDate?, model?, asOf?}` | `TraceResult`. Amount and date are optional; omitted, the window opens at the wallet's first transfer. `model: "fifo"` traces under first-in-first-out instead of haircut; `asOf` reads the chain as it stood at that moment. Send `Accept: application/x-ndjson` for streamed progress. `provenance.asked` says what the run was asked for (a stated figure or `auto`), and `caseId` is `FX-XXXX-XXXX`: one per wallet per chain. |
+| `GET` | `/api/trace/[address]` | `TraceResult` — the permalink. `?amount=&since=&asof=` replays one run exactly, on the chain as it stood when it was read; `?model=fifo` as above. A link pinned with `asof` is answered without a new chain read when this server already read exactly that run (stamped `live`, logged as a replay), or when it is a recorded case's own run (stamped `recorded`); `docs/features/22-instant-replay.md`. |
 | `GET` | `/api/tx/[hash]` | The USDT transfer inside a transaction: `from`, `to`, amount, time. How a complaint that holds a transaction rather than a wallet becomes a trace. |
-| `GET` | `/api/wallet/[address]` | `WalletProfile` — age, money in and out, counterparties, what funded it. |
+| `GET` | `/api/wallet/[address]` | `WalletProfile` — age, money in and out, counterparties, what funded it, and how many distinct addresses paid into it (`payers`). |
 | `GET` | `/api/payers/[address]` | `PayersTrace` — every wallet that paid it (1 USDT or more), and for the largest twenty, where their own USDT came from, read up to the moment each paid; the exchanges among those sources, named from the attribution register or (Ethereum) the explorer's tags. Up to about twenty chain reads, so it is asked for, not loaded. |
 | `GET` | `/api/screen/[address]` | Sanctions screening for an address on any chain the OFAC list covers: the chain, recognised from the format (checksum verified where the format has one), and the listing if there is one. Reads no chain. Not listed is not a clearance, and the response says so. |
 | `GET` | `/api/issuer/[address]` | Whether Tether has frozen the address, read from the USDT contract's own blacklist on TRON or Ethereum: `frozen`, `not-frozen`, or `unchecked` when the chain did not answer. The chain now, stamped with `checkedAt` and a SHA-256 of the request and response. |
 | `POST` | `/api/watch` — `{items: [{address, since}]}` | For each wallet: `moved` (with every outflow and where it went), `still`, or `unchecked` when the chain did not answer. Up to 25 wallets per call. |
 | `GET` · `POST` · `DELETE` | `/api/alerts` | Alerts when the desk is closed. `GET`: whether this server can keep a watch, the public key a browser subscribes with, and when it last checked. `POST {subscription, items}`: a browser hands over its whole watch list, again on every change. `DELETE {endpoint}`: that browser stops. The server checks every five minutes and sends a browser push notification when a wallet moves. |
 | `GET` | `/api/health` | `{ok, commit, demoMode, chainAccess, ethereumAccess, reads}` — which commit is serving, whether demo mode is on, whether TRON and Ethereum reads carry an API key (`keyed` or `public`; a key itself is never returned), and where each kind of chain read goes (`own`, `public`, `invalid` or `none`; never the address). Reads nothing from the chain. |
-| `GET` · `POST` · `DELETE` | `/api/cases` | The shared case file. `GET`: every case saved on this server, as `CaseSummary[]` plus who saved it and the link that replays it. `POST {address, fingerprint}`: save the run this server traced with that findings fingerprint — the case is built from the server's own audit record, so a run it did not trace is refused (404). `DELETE {id}`: take one out. |
+| `GET` · `POST` · `DELETE` | `/api/cases` | The shared case file. `GET`: every case saved on this server, as `CaseSummary[]` plus who saved it and the link that replays it. `POST {address, fingerprint}`: save the run this server traced with that findings fingerprint — the case is built from the server's own audit record, so a run it did not trace is refused (404). `DELETE {id}`: take one out; only the officer ID that saved it can (403 otherwise). |
 | `GET` | `/api/audit` | The audit log, newest first (`?limit=`, default 100), and whether its hash chain is intact, with the head. `?format=jsonl` returns the file exactly as written, to check with `scripts/verify-audit.mjs`. |
+| `GET` | `/api/register` | The case register as this server has read it: `{generatedAt, mode, rows, reference, tracesLogged}`. Each row says where it came from (`saved`, `traced`, `reference` or `recorded`) and when the chain was read, and carries `pin`, the query that replays its run. Reads the server's own files, never the chain. |
+| `GET` | `/api/status` | Each chain's newest block, read now through the configured endpoints, the OFAC list's date, label counts, how many traces this server answered today, and the USDT/INR rate. Reads no wallet; kept 30 seconds. |
+| `GET` | `/api/rate` | USDT/INR from an Indian exchange's public ticker (CoinDCX, then WazirX), with its source and read time: `{rate, source, market, at, readAt}`. `{rate: null, reason}` when none answered or `FINEX_INR=off`. Kept five minutes. |
+| `GET` | `/api/tag/[address]` | A TRON address's public explorer tag, read live: `{address, tag, readAt}`, the explorer's own words and never an attribution (`tag` is `null` when it has none). 400 for an address that is not a valid TRON address, 503 when tags are off on the deployment, 502 when the explorer did not answer. |
 
 Trace a wallet, and replay an officer's exact run:
 
@@ -139,6 +144,14 @@ amount, window and moment. Anything else goes to the chain like any other
 request, on both routes, because a recorded case cannot answer for a run it was
 not captured under. `model: "fifo"` always goes to the chain for the same
 reason.
+
+Outside demo mode the permalink answers the same way for a link pinned to a
+recorded run (`asof` its capture moment); `POST /api/trace` still re-derives it
+from the chain, which `scripts/rescore-cases.mjs` depends on. Either route also
+answers an exact pinned run this server has already read from memory (300 runs,
+per process), stamped `live` and logged as `replayed` in the audit log, so
+opening a queue row costs no second chain read. A bare link still asks the chain
+what the wallet looks like now (`docs/features/22-instant-replay.md`).
 
 Start from a transaction instead of a wallet:
 
@@ -226,6 +239,23 @@ curl http://localhost:3000/api/health
 from the chain, it is also the address to give an uptime monitor if a free
 instance has to be kept awake.
 
+Read the deployment's live pulse: each chain's newest block, the OFAC list's
+date, today's trace count and the USDT/INR rate. It takes nothing and reads no
+wallet; `/api/rate` and `/api/register` are called the same way:
+
+```bash
+curl http://localhost:3000/api/status
+```
+
+An explorer tag is asked for one TRON address at a time:
+
+```bash
+curl http://localhost:3000/api/tag/TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf
+```
+
+`tag` is the explorer's own label for it, or `null` when it has none; a 502
+means the explorer did not answer, which is not the same as no tag.
+
 Screen an address from any chain the OFAC list covers — here an Ethereum
 address on the list:
 
@@ -246,28 +276,45 @@ decisions behind it, and the external data sources that have been verified.
 
 ## Scope, stated up front
 
-- **Tracing is USDT on TRON (TRC-20) and Ethereum mainnet (ERC-20)** — TRON is
-  where the proceeds mostly move; Ethereum runs on the same engine through a
-  chain adapter. The same `0x` address on BNB Chain, Polygon or another EVM
-  network is not read, and every Ethereum result says so. Where USDT enters a
-  DEX pool, router or bridge, the trace stops there and names it from the
-  explorer's own tag. An address from any other chain is recognised and
-  screened against the OFAC sanctions list, never traced.
-- **Rules, not machine learning** — every score must be defensible to a judge.
+- **Tracing is USDT on TRON (TRC-20), Ethereum mainnet (ERC-20) and, when
+  chosen, Polygon** — TRON is where the proceeds mostly move; Ethereum and
+  Polygon run on the same engine through a chain adapter. The same `0x` address
+  on Polygon is read only when Polygon is chosen, and on BNB Chain or another
+  EVM network it is not read; every Ethereum result says so. Where USDT enters
+  a DEX pool, router or bridge on Ethereum or Polygon, the trace stops there
+  and names it from the explorer's own tag; TRON recognises no bridge or swap
+  contract and reads one as an ordinary wallet. An address from any other chain
+  is recognised and screened against the OFAC sanctions list, never traced.
+- **Rules decide every finding** — every score must be defensible to a judge.
+  One advisory ranking, an unsupervised isolation forest (`lib/anomaly.ts`),
+  orders the unlabelled wallets on a trail for a closer look; it never names an
+  exit or sets a status, and no accuracy is claimed for it.
 - **No language model runs anywhere.** The investigator summary is assembled
   from the trace's own figures, and the exchange name is a deterministic lookup
   against a provenance-tagged table.
 - **Every label carries a confidence and a source**, and the UI shows both.
+- **A reported address that is itself attributed is the answer.** A victim who
+  paid straight into an exchange deposit address, an exchange hot wallet or an
+  OFAC-listed address gets that address as the exit, named as itself ("is
+  itself attributed", never "reached") and read but not followed
+  (`docs/features/23-reported-deposit-address.md`).
 - **An unreadable wallet is never reported as an empty one.** A throttled read
   and a wallet with no transfers are the same empty array; the difference is
   tracked, and the tool says "not read" rather than "no activity".
 - **All six behavioural rules fire on real recorded cases** — and on a sample of
   17 unreported wallets, peel-chain fired on 16 and fan-out on 15, so those two
-  are signals to read, not verdicts.
+  are signals to read, not verdicts. Each flag prints its rate beside it, on
+  screen and in the packet.
 - **Every recorded case can be re-derived from the chain**, not only re-read:
   `node scripts/rescore-cases.mjs` recomputes each one as of the moment it was
   captured, and `node scripts/verify-case.mjs` checks every transaction it rests
-  on without using the tracer at all.
+  on without using the tracer at all. Two cases whose reported wallet is itself
+  OFAC-listed now re-derive to a shorter trace, because that wallet is treated
+  as the exit (`docs/features/23-reported-deposit-address.md`).
+- **A pinned link is a replay, not a second read.** A link made inside the app
+  carries the run it came from, and this server answers it from the run it
+  already read, where it still holds that run
+  (`docs/features/22-instant-replay.md`).
 
 Attribution is an investigative lead, not sole grounds for freezing an account.
 Every evidence packet says so in writing.
