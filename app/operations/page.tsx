@@ -126,7 +126,35 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         always produces the same sentences. AGENTS.md &sect;11 offers a hosted
         model for that paragraph; it was not taken, because the answer to &ldquo;what
         if it hallucinates the exchange name&rdquo; is stronger when it covers the
-        whole product rather than everything except the prose.
+        whole product rather than everything except the prose. One
+        machine-learning model does run, and it is advisory: an isolation forest
+        (unsupervised, so it needs no labelled outcomes) ranks the unlabelled
+        wallets on a trail by how unusual their behaviour is, shown under
+        &ldquo;Why&rdquo; with the two features that set each apart. It never
+        names an exit, never sets a case&apos;s status, and claims no accuracy,
+        because without confirmed outcomes there is none to measure.
+      </>
+    ),
+  },
+  {
+    q: "How is it secured?",
+    a: (
+      <>
+        <span className="text-ink">The browser talks only to this server.</span>{" "}
+        A strict Content-Security-Policy forbids loading or fetching anything from
+        another origin, and the site refuses to be framed; HSTS, nosniff, a
+        referrer policy and a permissions policy are sent on every response.{" "}
+        <span className="text-ink">Chain reads are rate-limited</span> per client,
+        so no one can spend the shared budget, and every chain response is kept as
+        a SHA-256 digest in the case it supports.{" "}
+        <span className="text-ink">Every action is logged</span> in a
+        hash-chained audit log a script outside the app can verify, and every
+        evidence packet carries a findings fingerprint and a QR check link, so an
+        altered copy is detectable. <span className="text-ink">No credential is
+        collected</span>: sign-in records an officer ID, verified only behind a
+        departmental gateway. The chain endpoints can point at the agency&apos;s own
+        nodes, so no outside service learns which wallets are under investigation.
+        Not done yet, and said so: no external security audit or penetration test.
       </>
     ),
   },
@@ -174,11 +202,11 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
           access is granted.
         </li>
         <li>
-          <span className="text-ink">Machine-learning risk scores.</span> Not
-          built, on purpose. Rules decide every finding, because an attribution
-          an officer acts on has to be explained line by line. A model&apos;s
-          place is ordering the queue, trained on cases I4C has confirmed — it
-          would never name an exchange or set a disposition.
+          <span className="text-ink">A supervised risk model.</span> The advisory
+          isolation forest is built; a model trained on outcomes is not, because
+          there are none to train on yet. Its place is ordering the queue, trained
+          on cases I4C has confirmed — it would never name an exchange or set a
+          disposition. Rules decide every finding.
         </li>
         <li>
           <span className="text-ink">Indexing at scale.</span> Every trace reads
@@ -230,10 +258,11 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
       ["Automated alert generation", "A wallet found holding funds is watched: the desk re-asks the chain whether it has moved, and with alerts on the server asks every five minutes and notifies the officer's browser even when FineX is closed."],
       ["Fund-flow visualisation and dashboards", "Flow, cluster and timeline views, a case queue ordered by what can still be recovered."],
       ["Standardised investigation reports", "An evidence packet carrying the SHA-256 of every chain response, and a restraint request drafted from it."],
-      ["API integrations", "Every route the interface uses is documented with a working example; a permalink replays a past run exactly."],
+      ["API integrations", "Every route is described in an OpenAPI 3.1 specification (/openapi.json) and on /developers with a working example each; a permalink replays a past run exactly."],
       ["Real-time tracing", "A recorded case answers in milliseconds. A live wallet takes about half a minute on the public endpoint, and less with an API key."],
       ["Automated investigative recommendations", "Ranked leads naming the next wallet to open, ordered by what can still be done."],
       ["Multiple blockchain ecosystems", "USDT is traced on TRON, on Ethereum mainnet and on Polygon — one engine, a chain adapter underneath; a 0x address is read on Polygon only when Polygon is chosen. An address from any other chain the OFAC list covers is recognised by its format, checksum verified where the format has one, and screened against that list, not traced."],
+      ["AI/ML-assisted risk detection", "An unsupervised isolation forest ranks the unlabelled wallets on a trail by how unusual their behaviour is, with the features that set each apart. Advisory: it never names an exit or sets a status, and no accuracy is claimed."],
       ["Identification of cross-chain fund movement", "On Ethereum, money that enters a bridge stops the trace there, with the bridge named from the explorer's own tag and the case stating that the trail left the chain. Following it onto the other network is not built — see below."],
     ],
   },
@@ -241,16 +270,15 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
     group: "Decided against, and why",
     note: "These are choices, not gaps. Each one buys something a judge can check.",
     items: [
-      ["AI/ML-assisted risk detection", "Rules only. An attribution an officer acts on has to be defensible line by line; a model's place is ordering the queue, never naming an exchange."],
       ["A mixer and community abuse list", "Left empty rather than filled from an uncitable source, since a wrong entry here closes a case that should stay open."],
     ],
   },
   {
     group: "Not built, with a plan",
     items: [
-      ["Cross-chain tracing", "Each chain is traced on its own. Where money crosses a bridge the trail ends at the bridge; following it onto the destination network, and the other EVM networks (BNB Chain, Polygon) that share Ethereum's address format, are next."],
+      ["Cross-chain tracing", "Each chain is traced on its own. Where money crosses a bridge the trail ends at the bridge; following it onto the destination network, and BNB Chain, which shares Ethereum's address format but has no keyless data source, are next."],
       ["NCRP and SAHYOG integration", "Both need access only I4C can grant. Intake already accepts what a complaint contains — a wallet or a transaction hash, singly or in batches."],
-      ["Scalable blockchain indexing", "Every trace reads a public endpoint on demand. At scale, a departmental TRON or Ethereum node indexes transfers locally, with no outside service seeing which wallets are under investigation."],
+      ["Scalable blockchain indexing", "Every trace reads a public endpoint on demand. Each kind of read can already be pointed at the agency's own TRON or Ethereum node; indexing transfers locally at scale, with no outside service seeing which wallets are under investigation, is next."],
     ],
     note: "",
   },
