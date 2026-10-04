@@ -143,7 +143,7 @@ in `app/api/**` (read the handlers; do not change them), and a `/developers` pag
 that renders it with one `curl` example per endpoint. This answers the problem
 statement's "integration with LEA systems / API integrations".
 
-**B8. Officer-chosen legal sections — approved by the team on 4 Oct.** A "Legal
+**B8. Officer-chosen legal sections — approved by the team on 4 Oct.** The research note is in (`docs/research/2026-10-04-india-context.md`): offer **only** the sections in its "What FineX may show" table, add the old-or-new-law choice it describes (matters pending on 1 July 2024 stay under CrPC/IEA), never pre-fill or sign the certificate, and never say s.106 or s.107 freezes a wallet. A "Legal
 basis" picker on the freeze request listing only the BNSS / BSA sections that the
 research note verifies on India Code, chosen by the officer, never printed by
 default; and an optional electronic-record certificate block on the evidence
