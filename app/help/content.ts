@@ -184,7 +184,7 @@ const en: HelpContent = {
     },
     {
       title: "It covers USDT on TRON, Ethereum and Polygon only",
-      body: "That is where this kind of fraud money mostly moves. A 0x address is read on Ethereum unless you choose Polygon in New case; the same address on BNB Chain is not read. On Ethereum and Polygon, when money goes into a swap or a bridge, the trace stops there and says so. On TRON a swap contract is not detected yet: the trace reads it as an ordinary wallet.",
+      body: "That is where this kind of fraud money mostly moves. A 0x address is read on Ethereum unless you choose Polygon in New case; the same address on BNB Chain is not read. On Ethereum and Polygon, when money goes into a swap or a bridge, the trace stops there and says so. On TRON the same happens at SunSwap, the main TRON exchange contract; another TRON contract is read as an ordinary wallet.",
     },
     {
       title: "It never reports silence as an answer",
@@ -338,7 +338,7 @@ const hi: HelpContent = {
     },
     {
       title: "यह केवल TRON, Ethereum और Polygon पर USDT देखता है",
-      body: "इस तरह की ठगी का पैसा ज़्यादातर यहीं चलता है। 0x पता Ethereum पर पढ़ा जाता है, जब तक आप New case में Polygon न चुनें; BNB Chain पर वही पता नहीं पढ़ा जाता। Ethereum और Polygon पर, जब पैसा किसी स्वैप या ब्रिज में जाता है, तो ट्रेस वहीं रुकता है और यह बताता है। TRON पर स्वैप कॉन्ट्रैक्ट अभी पहचाना नहीं जाता: ट्रेस उसे एक साधारण वॉलेट की तरह पढ़ता है।",
+      body: "इस तरह की ठगी का पैसा ज़्यादातर यहीं चलता है। 0x पता Ethereum पर पढ़ा जाता है, जब तक आप New case में Polygon न चुनें; BNB Chain पर वही पता नहीं पढ़ा जाता। Ethereum और Polygon पर, जब पैसा किसी स्वैप या ब्रिज में जाता है, तो ट्रेस वहीं रुकता है और यह बताता है। TRON पर SunSwap में, जो TRON का मुख्य एक्सचेंज कॉन्ट्रैक्ट है, यही होता है; कोई दूसरा TRON कॉन्ट्रैक्ट एक साधारण वॉलेट की तरह पढ़ा जाता है।",
     },
     {
       title: "यह चुप्पी को उत्तर नहीं बताता",

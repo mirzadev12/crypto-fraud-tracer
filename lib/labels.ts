@@ -30,6 +30,7 @@ import ethDeposits from "../data/eth/deposit-addresses.json";
 import ethHotWallets from "../data/eth/hot-wallets.json";
 import hotWallets from "../data/hot-wallets.json";
 import riskLists from "../data/risk-lists.json";
+import tronContracts from "../data/tron-contracts.json";
 import polygonDeposits from "../data/polygon/deposit-addresses.json";
 import polygonHotWallets from "../data/polygon/hot-wallets.json";
 import multichain from "../data/sanctions-multichain.json";
@@ -103,6 +104,20 @@ const GAS_CONFLICT = new Map(
       .gasPayer?.conflicting ?? []
   ).map((c) => [keyOf(c.address), c.tags ?? "another entity's wallet"] as const),
 );
+
+// 3c — TRON swap contracts (data/tron-contracts.json): SUN.io's routers and the
+// pools that hold USDT. A trace stops at one, as it does at a recognised DEX on
+// Ethereum, because past it USDT stops being traceable as USDT. Every exchange
+// or sanctions tier above overwrites this one.
+for (const row of tronContracts.contracts as Array<{ address: string; entity: string; source: string }>) {
+  LABELS.set(keyOf(row.address), {
+    entity: row.entity,
+    kind: "contract",
+    confidence: 1,
+    source: "ground_truth",
+    evidence: `${row.source.startsWith("http") ? "Listed by SUN.io" : "Read from SunSwap's factory on chain"} · DeFi contract`,
+  });
+}
 
 // 3 — deposit addresses we derived ourselves. Heuristic, and labelled as such.
 for (const row of [...(depositAddresses as DepositRow[]), ...(ethDeposits as EthDerived[])]) {

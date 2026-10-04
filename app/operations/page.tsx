@@ -119,9 +119,10 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         rest. <span className="text-ink">Cross-chain hops</span> — the trace follows
         USDT on TRON, Ethereum and Polygon, each on its own, so where money leaves
         a chain the trail ends at the last wallet it reached — on Ethereum and
-        Polygon at the bridge itself, named from the explorer&rsquo;s tag. TRON
-        recognises no bridge or swap contract yet, and reads one as an ordinary
-        wallet. An address on another chain can be screened against the
+        Polygon at the bridge itself, named from the explorer&rsquo;s tag. On TRON a
+        swap through SUN.io&rsquo;s routers or USDT pools stops the trace the same
+        way (data/tron-contracts.json); any other TRON contract, a bridge
+        included, is read as an ordinary wallet. An address on another chain can be screened against the
         sanctions list here, but not traced.{" "}
         <span className="text-ink">Mixers</span> — nobody can follow a mixer
         deterministically, so a case closes where its trail reaches a labelled
@@ -213,8 +214,9 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
           where it left; following it onto the destination network is not built.
           On TRON we looked for a way to recognise a bridge honestly and could not
           find one — the officially documented TRON bridge addresses carry no USDT
-          transfers at all — so a TRON bridge or swap contract is read as an
-          ordinary wallet. An address from any other chain the OFAC list covers is
+          transfers at all — so a TRON bridge is read as an ordinary wallet. A swap
+          on TRON is recognised where it goes through SUN.io&rsquo;s routers or the
+          pools that hold USDT, and stops the trace there. An address from any other chain the OFAC list covers is
           recognised and screened. Polygon carries attribution data of its own,
           built from Polygon&apos;s explorer tags; BNB Chain uses the same address
           format and would run on the same engine too, but no keyless data source
@@ -308,7 +310,7 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
   {
     group: "Not built, with a plan",
     items: [
-      ["Identification of cross-chain fund movement", "Partly in place, so listed here rather than as built. On Ethereum and Polygon, money that enters a recognised bridge stops the trace there, named from the explorer's own tag, and the case says the trail left the chain. TRON recognises no bridge or swap contract, and no recorded case ends at a bridge. Next on TRON: recognising a contract from the chain's own account record, so a swap or a bridge stops the trace there too."],
+      ["Identification of cross-chain fund movement", "Partly in place, so listed here rather than as built. On Ethereum and Polygon, money that enters a recognised bridge stops the trace there, named from the explorer's own tag, and the case says the trail left the chain. On TRON a swap through SUN.io's routers or USDT pools stops the trace; a TRON bridge is not recognised, and no recorded case ends at a bridge. Next on TRON: recognising any contract from the chain's own account record, so every swap or bridge stops the trace there."],
       ["Cross-chain tracing", "Each chain is traced on its own. Where money crosses a recognised bridge on Ethereum or Polygon the trail ends at the bridge; following it onto the destination network, and BNB Chain, which shares Ethereum's address format but has no keyless data source, are next."],
       ["NCRP and SAHYOG integration", "Both need access only I4C can grant. Intake already accepts what a complaint contains — a wallet or a transaction hash, singly or in batches."],
       ["Scalable blockchain indexing", "Every trace reads a public endpoint on demand. Each kind of read can already be pointed at the agency's own TRON, Ethereum or Polygon node; indexing transfers locally at scale, with no outside service seeing which wallets are under investigation, is next."],

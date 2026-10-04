@@ -282,8 +282,10 @@ decisions behind it, and the external data sources that have been verified.
   on Polygon is read only when Polygon is chosen, and on BNB Chain or another
   EVM network it is not read; every Ethereum result says so. Where USDT enters
   a DEX pool, router or bridge on Ethereum or Polygon, the trace stops there
-  and names it from the explorer's own tag; TRON recognises no bridge or swap
-  contract and reads one as an ordinary wallet. An address from any other chain
+  and names it from the explorer's own tag. On TRON a swap through SUN.io's
+  routers or the pools that hold USDT stops the trace (`data/tron-contracts.json`,
+  sourced from SUN.io and read from SunSwap's factories); any other TRON
+  contract, a bridge included, is read as an ordinary wallet. An address from any other chain
   is recognised and screened against the OFAC sanctions list, never traced.
 - **Rules decide every finding** — every score must be defensible to a judge.
   One advisory ranking, an unsupervised isolation forest (`lib/anomaly.ts`),

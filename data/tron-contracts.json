@@ -1,0 +1,131 @@
+{
+  "_note": "TRON swap contracts where USDT stops being traceable as USDT: SUN.io's routers and the pools that hold USDT. Routers and stable pools are copied from SUN.io's own published list (sun-protocol on GitHub, linked from docs.sun.io) and its Universal Router page; the USDT/TRX pools were read on chain from SunSwap's own factories. Factories, the V3 position manager and the example token in that list are left out: they do not receive a swap's USDT. A trace stops at any of these, as it does at a recognised DEX on Ethereum. Not a complete list of TRON DeFi: a contract not here is read as an ordinary wallet.",
+  "checked": "2026-10-05",
+  "contracts": [
+    {
+      "address": "TXF1xDbVGdxFGbovmmmXvBGu8ZiE3Lq4mR",
+      "entity": "SunSwap V2 Router",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TKzxdSv2FZKQrEqkKVgp5DcwEXBEKMg2Ax",
+      "entity": "SunSwap V2 Router (deprecated)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TQAvWQpT9H916GckwWDJNhYZvQMkuRL7PN",
+      "entity": "SunSwap V3 Router",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TCFNp179Lg46D16zKoumd4Poa2WFFdtqYj",
+      "entity": "SunSwap Smart Router",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TJ4NNy8xZEqsowCBhLvZ45LCqPdGjkET5j",
+      "entity": "SunSwap Smart Router (deprecated)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TFVisXFaijZfeyeSjCEVkHfex7HGdTxzF9",
+      "entity": "SunSwap Smart Router (deprecated)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TQqgNg13s2DjvXhW1ky4v6TsR8wZGvb7Y4",
+      "entity": "SUN.io Universal Router",
+      "source": "https://docs.sun.io/protocols/universal-router/reference/contract/"
+    },
+    {
+      "address": "TFGDbUyP8xez44C76fin3bn3Ss6jugoUwJ",
+      "entity": "SunSwap V2 USDT/TRX pool",
+      "source": "Read on chain on 5 Oct 2026 from SunSwap's own factory (getPair/getPool for USDT and WTRX, WTRX from the V2 router's WETH())"
+    },
+    {
+      "address": "TSUUVjysXV8YqHytSNjfkNXnnB49QDvZpx",
+      "entity": "SunSwap V3 USDT/TRX pool (0.05%)",
+      "source": "Read on chain on 5 Oct 2026 from SunSwap's own factory (getPair/getPool for USDT and WTRX, WTRX from the V2 router's WETH())"
+    },
+    {
+      "address": "TC9QmgR8MUwRCYe3kCLwH8MW2WtxiLd6AV",
+      "entity": "SunSwap V3 USDT/TRX pool (0.3%)",
+      "source": "Read on chain on 5 Oct 2026 from SunSwap's own factory (getPair/getPool for USDT and WTRX, WTRX from the V2 router's WETH())"
+    },
+    {
+      "address": "TP9AvK2kECpfaLYXB7qFEJJv5h9cHeUo13",
+      "entity": "SunSwap V3 USDT/TRX pool (1%)",
+      "source": "Read on chain on 5 Oct 2026 from SunSwap's own factory (getPair/getPool for USDT and WTRX, WTRX from the V2 router's WETH())"
+    },
+    {
+      "address": "TAUGwRhmCP518Bm4VBqv7hDun9fg8kYjC4",
+      "entity": "SUN.io stable pool, old 2pool (USDD+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TS8d3ZrSxiGZkqhJqMzFKHEC1pjaowFMBJ",
+      "entity": "SUN.io stable pool, 2pool (TUSD+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TE7SB1v9vRbYRe5aJMWQWp9yfE2k9hnn3s",
+      "entity": "SUN.io stable pool, USDC pool (USDC+TUSD+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TKBqNLyGJRQbpuMhaT49qG7adcxxmFaVxd",
+      "entity": "SUN.io stable pool, USDJ pool (USDJ+TUSD+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TLssvTsY4YZeDPwemQvUzLdoqhFCbVxDGo",
+      "entity": "SUN.io stable pool, USDD pool (USDD+TUSD+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TExeaZuD5YPi747PN5yEwk3Ro9eT2jJfB6",
+      "entity": "SUN.io stable pool, USDC 2pool (USDC+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TGG5AWMNjssDtLgsHg2QSN8CTwVTCHQMF6",
+      "entity": "SUN.io stable pool, old BUSD pool (BUSD+USDC+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TNU9LfegfzLcJo2ZxTQXDYE2uh7JuxZfnP",
+      "entity": "SUN.io stable pool, old USDD pool (USDD+USDC+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TSbahrnT5sJwjCzN6LPa1pE5d9pdVwRQ1E",
+      "entity": "SUN.io stable pool, old USDJ pool (USDJ+USDC+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TLZacPrPKfrfbsimu5dDdrgMT16m9cnpL9",
+      "entity": "SUN.io stable pool, old TUSD pool (TUSD+USDC+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TKcEU8ekq2ZoFzLSGFYCUY6aocJBX9X31b",
+      "entity": "SUN.io stable pool, old 3pool (USDJ+TUSD+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TKVsYedAY23WFchBniU7kcx1ybJnmRSbGt",
+      "entity": "SUN.io stable pool, 3pool (USDD+TUSD+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TNTfaTpkdd4AQDeqr8SGG7tgdkdjdhbP5c",
+      "entity": "SUN.io stable pool, USDD 2pool (USDD+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    },
+    {
+      "address": "TQx6CdLHqjwVmJ45ecRzodKfVumAsdoRXH",
+      "entity": "SUN.io stable pool, old USDC pool (USDC+USDJ+TUSD+USDT)",
+      "source": "https://github.com/sun-protocol/transactionAnalysis/blob/master/Events_For_Liquidity_And_Exchange.md"
+    }
+  ]
+}
