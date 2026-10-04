@@ -270,7 +270,7 @@ export const TRIAGE_META: Record<
 > = {
   HOT: {
     label: "CRITICAL",
-    action: "Funds still at rest — act now",
+    action: "No exit yet — act now",
     chip: "border-critical/50 text-critical",
     dot: "bg-critical",
     text: "text-critical",

@@ -167,7 +167,7 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
     a: (
       <>
         <span className="text-ink">The browser talks only to this server.</span>{" "}
-        A strict Content-Security-Policy forbids loading or fetching anything from
+        A restrictive Content-Security-Policy forbids loading or fetching anything from
         another origin, and the site refuses to be framed; HSTS, nosniff, a
         referrer policy and a permissions policy are sent on every response.{" "}
         <span className="text-ink">Chain reads are rate-limited</span> per client,
@@ -291,7 +291,7 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
       ["Automated alert generation", "A wallet found holding funds is watched: the desk re-asks the chain whether it has moved, and with alerts on the server asks every five minutes and notifies the officer's browser even when FineX is closed."],
       ["Fund-flow visualisation and dashboards", "Flow, cluster and timeline views, a case queue ordered by what can still be recovered."],
       ["Standardised investigation reports", "An evidence packet carrying the SHA-256 of every chain response, and a restraint request drafted from it."],
-      ["API integrations", "Every route is described in an OpenAPI 3.1 specification (/openapi.json) and on /developers with a working example each; a permalink replays a past run exactly."],
+      ["API integrations", "Every route is described in an OpenAPI 3.1 specification (/openapi.json) and on /developers, with a curl example for each read route; a permalink replays a past run exactly."],
       ["Near-real-time tracing", `A live trace streams each wallet as it is read. On the public endpoint ${LIVE_TIMING}. A recorded case opens from its file in milliseconds — a file read, not a trace — and a case this server has already read replays at once from the queue.`],
       ["Automated investigative recommendations", "Ranked leads naming the next wallet to open, ordered by what can still be done."],
       ["Multiple blockchain ecosystems", "USDT is traced on TRON, on Ethereum mainnet and on Polygon — one engine, a chain adapter underneath; a 0x address is read on Polygon only when Polygon is chosen. An address from any other chain the OFAC list covers is recognised by its format, checksum verified where the format has one, and screened against that list, not traced."],

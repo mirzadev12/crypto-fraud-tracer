@@ -250,6 +250,20 @@ dialog {
   }
 }
 
+/* A finished case replacing its loading drawing: opacity only, so nothing on
+   the page moves and no sticky bar is lifted while it settles. */
+@keyframes fx-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fx-fade {
+  animation: fx-fade 0.35s ease-out both;
+}
+
 /* Content settles in on route change. One short movement, no bounce. */
 @keyframes fx-rise {
   from {
@@ -415,6 +429,7 @@ dialog {
   .fx-settle,
   .fx-sonar,
   .fx-rise,
+  .fx-fade,
   .react-flow__edge-path {
     animation: none !important;
   }

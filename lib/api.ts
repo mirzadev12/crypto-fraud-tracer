@@ -91,6 +91,12 @@ export interface TraceParams {
   asOf?: string;
   /** Polygon, for a 0x address; otherwise the address's own form decides. */
   chain?: "polygon";
+  /**
+   * Read the chain again even when the server already holds this run. A
+   * packet opened from its check link asks for this: a check answered from the
+   * server's memory would only prove the server remembers its own run.
+   */
+  fresh?: boolean;
 }
 
 /**
@@ -230,7 +236,7 @@ export const DEMO_SAMPLES: ReadonlyArray<{
   {
     address: "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
     triage: "HOT",
-    headline: "Funds still at rest — no off-ramp reached",
+    headline: "Funds at rest when recorded — no off-ramp reached",
     run: { since: "2026-09-09T13:09:36.000Z", asOf: "2026-09-14T08:51:02.929Z" },
   },
   {
@@ -876,6 +882,7 @@ export async function getTrace(
     if (params?.since) query.set("since", params.since);
     if (params?.asOf) query.set("asof", params.asOf);
     if (params?.chain === "polygon") query.set("chain", "polygon");
+    if (params?.fresh) query.set("fresh", "1");
     const qs = query.toString();
     const { json, recorded } = await streamJson(
       `/api/trace/${encodeURIComponent(clean)}${qs ? `?${qs}` : ""}`,

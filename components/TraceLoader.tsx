@@ -12,6 +12,7 @@ import {
 } from "@/lib/api";
 import { count, formatDateTime, shortAddress } from "@/lib/format";
 import TraceView from "./TraceView";
+import ChainReading from "./ChainReading";
 import {
   CASE_PROOF,
   Designation,
@@ -153,6 +154,11 @@ function LiveTrace({ events }: { events: TimedEvent[] }) {
             {(elapsed / 1000).toFixed(1)}s
           </span>
         </div>
+        <div className="border-b border-line px-6 py-4">
+          <div className="max-w-3xl">
+            <ChainReading hop={answeredFromFile ? 3 : Math.max(1, hop)} />
+          </div>
+        </div>
         <dl className="grid grid-cols-2 gap-px bg-line sm:grid-cols-4">
           {counters.map(([label, value]) => (
             <div key={label} className="bg-surface px-6 py-4">
@@ -214,6 +220,9 @@ function TimedSkeleton({ address }: { address?: string }) {
     <div className="space-y-6" aria-busy="true">
       <div className="border border-line bg-surface p-6">
         <Designation>[ tracing ]</Designation>
+        <div className="mt-6 max-w-3xl">
+          <ChainReading hop={Math.min(3, Math.max(1, done - 1))} />
+        </div>
         <ul className="mt-4 space-y-2 font-mono text-xs">
           {LOADER_STEPS.map((step, i) => {
             const complete = i < done;
@@ -466,7 +475,8 @@ export function useTrace(address: string | null, params?: TraceParams): {
   const since = params?.since;
   const asOf = params?.asOf;
   const chain = params?.chain;
-  const key = `${address}|${amount ?? ""}|${since ?? ""}|${asOf ?? ""}|${chain ?? ""}`;
+  const fresh = params?.fresh;
+  const key = `${address}|${amount ?? ""}|${since ?? ""}|${asOf ?? ""}|${chain ?? ""}|${fresh ? "fresh" : ""}`;
   // Live progress from the trace stream, tagged with the load it belongs to so a
   // stale stream can never paint over a newer one.
   const [progress, setProgress] = useState<{
@@ -489,7 +499,7 @@ export function useTrace(address: string | null, params?: TraceParams): {
             : { key, attempt, events: [entry] },
         );
       },
-      { amount, since, asOf, chain },
+      { amount, since, asOf, chain, fresh },
     )
       .then((lookup) => {
         if (!cancelled) setLoaded({ address, attempt, lookup, key });
@@ -511,7 +521,7 @@ export function useTrace(address: string | null, params?: TraceParams): {
     return () => {
       cancelled = true;
     };
-  }, [address, attempt, key, amount, since, asOf, chain]);
+  }, [address, attempt, key, amount, since, asOf, chain, fresh]);
 
   const current = loaded && loaded.key === key && loaded.attempt === attempt ? loaded : null;
   const events =
@@ -567,13 +577,15 @@ export default function TraceLoader({
     );
   }
   return (
-    <TraceView
-      trace={lookup.data}
-      source={lookup.source}
-      note={lookup.note}
-      asOf={lookup.asOf}
-      ack={ack}
-      typology={typology}
-    />
+    <div className="fx-fade">
+      <TraceView
+        trace={lookup.data}
+        source={lookup.source}
+        note={lookup.note}
+        asOf={lookup.asOf}
+        ack={ack}
+        typology={typology}
+      />
+    </div>
   );
 }

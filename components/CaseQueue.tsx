@@ -179,7 +179,7 @@ export default function CaseQueue() {
         <StatCard
           label="Critical"
           value={String(stats.hot)}
-          hint="Funds still at rest — no exit reached"
+          hint="No exit reached yet"
           tone="hot"
         />
         <StatCard
@@ -208,7 +208,7 @@ export default function CaseQueue() {
           whole register is on is stated here instead of in a column that read
           TRON on every row. */}
       <Panel
-        title="Complaint queue"
+        title="Case queue"
         actions={
           <DataSourceBadge
           source={state.result.source}
@@ -266,7 +266,7 @@ export default function CaseQueue() {
                   <th className="px-6 py-4 font-normal">Wallet</th>
                   <th className="px-6 py-4 text-right font-normal">Amount</th>
                   <th className="px-6 py-4 font-normal">Status</th>
-                  <th className="px-6 py-4 font-normal">Reported</th>
+                  <th className="px-6 py-4 font-normal">Window opens</th>
                   <th className="px-6 py-4 font-normal">Destination</th>
                   {/* relative: sr-only text is absolutely positioned, and without a
                       positioned cell to hold it, it escapes the table's scroll
@@ -332,7 +332,7 @@ export default function CaseQueue() {
                       {c.terminalEntity ? (
                         <span className="text-ink">{c.terminalEntity}</span>
                       ) : (
-                        <span className="text-faint">Funds at rest</span>
+                        <span className="text-faint">{c.triage === "HOT" ? "No exit yet" : "No exit"}</span>
                       )}
                     </td>
                     <td className="px-6 py-2 text-right">

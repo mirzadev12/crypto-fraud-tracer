@@ -172,7 +172,7 @@ export default function FreezeRequest({
 
   return (
     <ChainScope chain={trace.chain} address={trace.inputAddress}>
-    <div className="space-y-6">
+    <div className="fx-fade space-y-6">
       {/* Console chrome — stays dark, never prints. */}
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div className="flex flex-wrap items-center gap-2">
@@ -348,17 +348,25 @@ export default function FreezeRequest({
             <Field label="Case reference">
               <span className="font-mono">{trace.caseId}</span>
             </Field>
-            <Field label={since ? "Date of fraud" : "Window opened (no date reported)"}>
-              {formatDateTime(trace.fraudDate)}
+            <Field label={since ? "Date of fraud" : own ? "Date of fraud" : "Window opened (no date reported)"}>
+              {since || !own ? formatDateTime(trace.fraudDate) : "None reported"}
             </Field>
             <Field label="Victim-reported address">
               <code className="break-all font-mono text-xs">{trace.inputAddress}</code>
             </Field>
-            <Field label={amount ? "Amount reported" : "Amount traced (none reported)"}>
-              <span className="font-mono tabular-nums">
-                {formatUsdt(trace.reportedAmountUsdt)}
-              </span>
+            <Field label={amount ? "Amount reported" : own ? "Amount reported" : "Amount traced (none reported)"}>
+              {amount || !own ? (
+                <span className="font-mono tabular-nums">{formatUsdt(trace.reportedAmountUsdt)}</span>
+              ) : (
+                "None reported"
+              )}
             </Field>
+            {current.lookup.source === "demo" ? (
+              <Field label="Recorded case">
+                Its wallet was chosen by a script from public data and its amount and date were set by that capture;
+                it is not a victim&rsquo;s report.
+              </Field>
+            ) : null}
           </dl>
           <p className={`mt-6 text-sm leading-7 ${SHEET.body}`}>
             {own

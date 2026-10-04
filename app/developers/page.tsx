@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AppShell, { REPOSITORY } from "@/components/AppShell";
+import AppShell from "@/components/AppShell";
 import CopyButton from "@/components/CopyButton";
 import { PageHeader, Panel, SectionHeader } from "@/components/ui";
 import spec from "@/public/openapi.json";
@@ -7,7 +7,7 @@ import spec from "@/public/openapi.json";
 export const metadata: Metadata = {
   title: "API for integrators",
   description:
-    "Every FineX endpoint, from the OpenAPI 3.1 specification at /openapi.json, with a working curl example for each.",
+    "Every FineX endpoint, from the OpenAPI 3.1 specification at /openapi.json, with a curl example for each read route.",
 };
 
 /*
@@ -58,19 +58,9 @@ export default function DevelopersPage() {
         title="API for integrators"
         description={`${ops.length} operations across ${Object.keys(spec.paths).length} routes, described in OpenAPI 3.1. No key is needed; chain-reading routes are rate-limited per client. ${spec.info.description.split(". ").slice(-1)[0]}`}
         actions={
-          <div className="flex flex-wrap gap-2">
-            <a href="/openapi.json" className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass">
-              openapi.json
-            </a>
-            <a
-              href={REPOSITORY}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass"
-            >
-              Source code
-            </a>
-          </div>
+          <a href="/openapi.json" className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint hover:text-brass">
+            openapi.json
+          </a>
         }
       />
       {spec.tags.map((tag, i) => {

@@ -141,7 +141,7 @@ export default function FundFlowExplorer({
                         {shortAddress(c.inputAddress, 8, 6)}
                       </p>
                       <p className="mt-1 flex items-center justify-between gap-2 text-xs text-faint">
-                        <span>{c.terminalEntity ?? "Funds at rest"}</span>
+                        <span>{c.terminalEntity ?? (c.triage === "HOT" ? "No exit yet" : "No exit")}</span>
                         <span className="font-mono">
                           {formatUsdtCompact(c.reportedAmountUsdt)}
                         </span>

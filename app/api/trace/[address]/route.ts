@@ -56,6 +56,8 @@ export async function GET(
     Number.isFinite(amountParam) && amountParam > 0 ? amountParam : "auto";
   const since = sinceParam ? new Date(sinceParam) : new Date(Number.NaN);
 
+  // A check link asks for the chain itself, never this server's copy of a run.
+  const fresh = url.searchParams.get("fresh") === "1";
   const asofParam = url.searchParams.get("asof");
   const asOf = asofParam ? new Date(asofParam) : null;
   if (asOf && (Number.isNaN(asOf.getTime()) || asOf.getTime() > Date.now())) {
@@ -95,7 +97,7 @@ export async function GET(
    */
   {
     const held = frozenTrace(address, job.chain);
-    if (held && (DEMO_MODE || job.asOf) && answersFor(held.trace, job)) {
+    if (held && (DEMO_MODE || (job.asOf && !fresh)) && answersFor(held.trace, job)) {
       await recordTrace(request, held.trace, run, "recorded");
       if (wantsStream(request)) {
         return streamTrace(async (emit) => {
@@ -111,7 +113,7 @@ export async function GET(
 
   // A pinned link to a run this server has already read is answered from that
   // run (lib/run-cache.ts): one answer, read once.
-  const kept = replayRun(job);
+  const kept = fresh ? null : replayRun(job);
   if (kept) {
     await recordTrace(request, kept, run, "replayed");
     if (wantsStream(request)) {

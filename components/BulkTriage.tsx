@@ -451,7 +451,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
             <StatCard
               label="Act now"
               value={String(stats.critical)}
-              hint="Funds still at rest"
+              hint="No exit reached yet"
               tone={stats.critical ? "hot" : "default"}
             />
             <StatCard

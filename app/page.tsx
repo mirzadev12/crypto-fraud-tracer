@@ -109,7 +109,7 @@ export default function Home() {
 
             <p className="mt-10 max-w-xl text-base leading-8 text-ink">
               A victim reports a crypto wallet. Within minutes, FineX follows the
-              stolen USDT across TRON, Ethereum and Polygon and names the exchange
+              stolen USDT on TRON, Ethereum and Polygon and names the exchange
               account an officer can ask to freeze.
             </p>
             <p className="mt-4 max-w-xl text-base leading-8 text-muted">
@@ -127,17 +127,6 @@ export default function Home() {
                 Case queue
               </Link>
             </div>
-            <p className="mt-6 text-xs text-faint">
-              Source code:{" "}
-              <a
-                href="https://github.com/mirzadev12/crypto-fraud-tracer"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brass underline-offset-4 hover:underline"
-              >
-                github.com/mirzadev12/crypto-fraud-tracer
-              </a>
-            </p>
           </div>
 
           <figure className="min-w-0 border border-line bg-surface">

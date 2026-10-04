@@ -175,7 +175,7 @@ export function groupByExit(traces: TraceResult[]): ExitGroup[] {
     const title = terminal
       ? (terminal.label.entity ?? "Unnamed service")
       : key === AT_REST
-        ? "Funds still at rest"
+        ? "No exit yet"
         : "No exit within three hops";
 
     // The money this complaint actually put here, not the sum reported: the

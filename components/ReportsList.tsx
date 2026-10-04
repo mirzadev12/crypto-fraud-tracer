@@ -133,7 +133,7 @@ export default function ReportsList() {
 
               <span className="text-sm text-ink">
                 {c.terminalEntity ?? (
-                  <span className="text-faint">No exit reached — funds at rest</span>
+                  <span className="text-faint">{c.triage === "HOT" ? "No exit reached yet" : "No exit"}</span>
                 )}
               </span>
 

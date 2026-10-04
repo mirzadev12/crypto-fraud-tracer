@@ -233,7 +233,9 @@ export function buildNarrative(
         ? categoryOf(pooled.label) === "bridge"
           ? "The money has not reached an identified off-ramp; the next step is the bridge transaction, which names where it was delivered on the other network."
           : "The money has not reached an identified off-ramp; the next step is the transaction that sent it into the contract, which shows what came out and to whom."
-        : ACTION[trace.triage],
+        : trace.triage === "WARM" && trace.terminal?.label.kind === "exchange_hot"
+          ? "The exchange can be asked to identify the customer account credited, from the transaction hash and time."
+          : ACTION[trace.triage],
   );
 
   const text = sentences.join(" ").replace(/\s+/g, " ").trim();

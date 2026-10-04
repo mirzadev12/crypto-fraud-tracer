@@ -11,7 +11,7 @@ to paste. Figures counted from `data/` on 4 Oct 2026; re-count before pasting.
 FineX — tracing stolen crypto to the exact exchange account that can be frozen, built for Indian cyber cells
 ```
 
-## Idea description (1,981 characters; limit 2,000)
+## Idea description (1,921 characters; limit 2,000)
 
 ```
 ₹22,845 crore was reported lost to cyber fraud in India in 2024 (MHA). Most open tools stop at "the funds reached Binance". An exchange cannot freeze an exchange; it can freeze a customer's account.
@@ -24,7 +24,7 @@ The register and every figure are computed from the server's own chain reads and
 
 Each case produces a tamper-evident evidence packet (a fingerprint and QR anyone can re-check against the chain), a court-preparation sheet answering counsel's likely questions from the case's own record, and a freeze request showing the exchange's own law-enforcement channel, its conditions and whether this desk has access. A watch alerts the officer when money at rest moves.
 
-Prototype: https://crypto-fraud-tracer.onrender.com · Source: https://github.com/mirzadev12/crypto-fraud-tracer
+Prototype: https://crypto-fraud-tracer.onrender.com
 ```
 
 ## Before pasting, check

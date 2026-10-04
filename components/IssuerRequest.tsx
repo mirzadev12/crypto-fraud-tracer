@@ -50,7 +50,7 @@ export default function IssuerRequest({
   const fingerprint = findingsFingerprint(trace);
 
   return (
-    <div className="space-y-6">
+    <div className="fx-fade space-y-6">
       {/* Console chrome — stays dark, never prints. */}
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <p className="text-sm text-faint">No exchange on this trail: the request goes to the issuer of USDT.</p>

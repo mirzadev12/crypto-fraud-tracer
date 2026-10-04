@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AppShell, { REPOSITORY_ISSUES } from "@/components/AppShell";
+import AppShell from "@/components/AppShell";
 import { PageHeader, SectionHeader } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -108,16 +108,8 @@ export default function PoliciesPage() {
 
       <Policy index="05" title="Contact and reporting a problem">
         <p>
-          To report a defect or a wrong attribution,{" "}
-          <a
-            href={REPOSITORY_ISSUES}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-brass underline-offset-4 hover:underline"
-          >
-            open an issue on the project&rsquo;s repository
-          </a>
-          . If you are a victim of cyber fraud, do not use this site: call{" "}
+          To report a defect or a wrong attribution, tell the team that runs this deployment, naming the page and
+          the case. If you are a victim of cyber fraud, do not use this site: call{" "}
           <span className="font-mono text-ink">1930</span> or report at cybercrime.gov.in.
         </p>
       </Policy>

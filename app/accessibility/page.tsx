@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AppShell, { REPOSITORY_ISSUES } from "@/components/AppShell";
+import AppShell from "@/components/AppShell";
 import { PageHeader, SectionHeader } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -81,16 +81,8 @@ export default function AccessibilityPage() {
       <section className="mt-16">
         <SectionHeader index="03" title="Reporting a barrier" />
         <p className="mt-6 max-w-3xl text-sm leading-7 text-muted">
-          If something here cannot be used with your assistive technology,{" "}
-          <a
-            href={REPOSITORY_ISSUES}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-brass underline-offset-4 hover:underline"
-          >
-            open an issue on the project&rsquo;s repository
-          </a>{" "}
-          describing the page and the tool you use, and it will be treated as a defect.
+          If something here cannot be used with your assistive technology, tell the team that runs this deployment,
+          naming the page and the tool you use, and it will be treated as a defect.
         </p>
       </section>
     </AppShell>

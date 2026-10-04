@@ -101,7 +101,9 @@ export default function EvidencePacket({
   /** The reported scam typology, as the complaint states it. */
   typology?: TypologyId;
 }) {
-  const { current, retry, events } = useTrace(address, { amount, since, asOf, chain: pinnedChain });
+  // Opened from a check link (`fp`), the packet re-reads the chain rather than
+  // taking the server's own copy of the run: that is what the check claims.
+  const { current, retry, events } = useTrace(address, { amount, since, asOf, chain: pinnedChain, fresh: Boolean(fp) });
 
   if (!current) return <TraceSkeleton address={address} events={events} />;
   if (current.lookup.status === "invalid") {
@@ -122,6 +124,8 @@ export default function EvidencePacket({
 
   const trace = current.lookup.data;
   const meta = TRIAGE_META[trace.triage];
+  // The reported address is itself the exit: nothing was traced into it.
+  const own = trace.terminal?.address === trace.inputAddress;
   const terminalNode = trace.terminal
     ? trace.nodes.find((n) => n.address === trace.terminal!.address)
     : null;
@@ -142,7 +146,7 @@ export default function EvidencePacket({
 
   return (
     <ChainScope chain={trace.chain} address={trace.inputAddress}>
-    <div className="space-y-6">
+    <div className="fx-fade space-y-6">
       {/* Console chrome — stays dark, never prints. */}
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div className="flex flex-wrap items-center gap-2">
@@ -211,14 +215,22 @@ export default function EvidencePacket({
             <Field label="Victim-reported address">
               <code className="break-all font-mono text-sm">{trace.inputAddress}</code>
             </Field>
-            <Field label={amount ? "Reported amount" : "Amount traced (none reported)"}>
-              <span className="font-mono tabular-nums">
-                {formatUsdt(trace.reportedAmountUsdt)}
-              </span>
+            <Field label={amount || own ? "Reported amount" : "Amount traced (none reported)"}>
+              {amount || !own ? (
+                <span className="font-mono tabular-nums">{formatUsdt(trace.reportedAmountUsdt)}</span>
+              ) : (
+                "None reported"
+              )}
             </Field>
-            <Field label={since ? "Date of fraud" : "Window opened (no date reported)"}>
-              {formatDateTime(trace.fraudDate)}
+            <Field label={since || own ? "Date of fraud" : "Window opened (no date reported)"}>
+              {since || !own ? formatDateTime(trace.fraudDate) : "None reported"}
             </Field>
+            {current.lookup.source === "demo" ? (
+              <Field label="Recorded case">
+                Its wallet was chosen by a script from public data and its amount and date were set by that capture;
+                it is not a victim&rsquo;s report.
+              </Field>
+            ) : null}
             {ack ? (
               <Field label="NCRP acknowledgement number">
                 <span className="font-mono tabular-nums">{ack}</span>

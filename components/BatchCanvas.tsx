@@ -525,7 +525,7 @@ function BatchWeight({
                   <span className="font-mono text-xs tabular-nums text-ink">
                     {formatUsdtCompact(row.amountUsdt)}
                     <span className="ml-2 text-faint">
-                      {row.exit ?? (row.triage === "HOT" ? "at rest" : "no exit")}
+                      {row.exit ?? (row.triage === "HOT" ? "no exit yet" : "no exit")}
                     </span>
                   </span>
                 </div>
