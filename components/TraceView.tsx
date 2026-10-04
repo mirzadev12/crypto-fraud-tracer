@@ -42,6 +42,7 @@ import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
 import IssuerFreeze from "./IssuerFreeze";
 import Inr from "./Inr";
 import AnomalyPanel from "./AnomalyPanel";
+import TailTags from "./TailTags";
 import SaveCase from "./SaveCase";
 import { ChainScope } from "./ChainScope";
 
@@ -803,6 +804,7 @@ export default function TraceView({
       </div>
       {/* Advisory machine ranking, below the rules it never overrides. */}
       <AnomalyPanel trace={trace} selected={selected} onSelect={setSelected} />
+      <TailTags trace={trace} />
 
       {/* ------------------------------------------------------------ graph */}
       <div id="flow" className="fx-anchor">

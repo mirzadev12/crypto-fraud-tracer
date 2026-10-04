@@ -110,6 +110,19 @@ export interface FlowMetrics {
   maxDepth: number;
 }
 
+/**
+ * The unresolved tail: wallets past the reported one, at the hop the trace
+ * stopped at, unlabelled, and still sending when it stopped — where the money
+ * left the search. One definition, so the "Left the horizon" figure and the
+ * explorer-tag panel always describe the same wallets.
+ */
+export function tailWallets(trace: TraceResult) {
+  const maxDepth = trace.nodes.reduce((max, n) => Math.max(max, n.depth), 0);
+  return trace.nodes.filter(
+    (n) => n.depth > 0 && maxDepth > 0 && n.depth >= maxDepth && !n.label && n.outflowCount > 0,
+  );
+}
+
 export function flowMetrics(trace: TraceResult): FlowMetrics {
   const reached = trace.nodes.filter((n) => n.depth > 0);
   const maxDepth = trace.nodes.reduce((max, n) => Math.max(max, n.depth), 0);
@@ -123,9 +136,7 @@ export function flowMetrics(trace: TraceResult): FlowMetrics {
    * money as both resting and escaping. Attributed wallets are excluded for the
    * same reason: the trace stopped there deliberately, that is the answer.
    */
-  const tail = reached.filter(
-    (n) => maxDepth > 0 && n.depth >= maxDepth && !n.label && n.outflowCount > 0,
-  );
+  const tail = tailWallets(trace);
 
   return {
     concentration: heaviest?.taintFraction ?? 0,
@@ -339,9 +350,7 @@ export function deriveLeads(trace: TraceResult): Lead[] {
   // One implementation, shared with the figures on screen — a lead and a stat
   // tile disagreeing about the same number is worse than neither existing.
   const metrics = flowMetrics(trace);
-  const tail = reached.filter(
-    (n) => maxDepth > 0 && n.depth >= maxDepth && !n.label && n.outflowCount > 0,
-  );
+  const tail = tailWallets(trace);
   const tailValue = metrics.unresolvedUsdt;
   const tailShare = metrics.unresolvedShare;
   if (tail.length && tailShare >= 0.01) {

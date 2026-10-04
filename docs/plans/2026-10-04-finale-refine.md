@@ -44,7 +44,9 @@ Nothing goes to reemrasheed2007 or Render until the user says so.
 | A6 INR | **Done** (4–5 Oct): live USDT/INR from CoinDCX, WazirX fallback, on the key figures and the live line. |
 | A7 ML | **Done**: advisory isolation-forest ranking under "Why"; 93 tests pass. |
 | B1 India identity | **Done by Plan A**. |
-| A4, A9, A10 | Not started. |
+| A4 explorer tags | **Done**: live explorer tags for the wallets where a TRON trail left the search (`/api/tag`, `TailTags`); annotation only. |
+| Production check | 72 route × width checks on a production build (CSP on): 0 problems; check-demo 15/15. |
+| A9, A10 | Waiting for Plan B's branch and the deploy decision. |
 
 For Plan B: the audit page prints "stated, not verified" under every named actor;
 use `isSystemActor` / `actorBasis` from `lib/identity.ts` there so the scheduled

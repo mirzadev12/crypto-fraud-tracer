@@ -63,6 +63,8 @@ export const PUBLIC = {
    * keyless, verified 4 Oct 2026 (lib/inr.ts). Not a chain read: only the
    * rupee figure shown beside an amount depends on it.
    */
+  /** Tronscan's keyless account endpoint: an address's public explorer tag. */
+  tronTags: "https://apilist.tronscan.org/api",
   inr: {
     coindcx: "https://api.coindcx.com/exchange/ticker",
     wazirx: "https://api.wazirx.com/sapi/v1/ticker/24hr?symbol=usdtinr",
@@ -125,6 +127,19 @@ export function polygonNodes(): { bases: string[]; source: Source } {
   }
   if (polygonHistory().source !== "public") return { bases: [], source: "none" };
   return { bases: [...PUBLIC.polygonRpcs], source: "public" };
+}
+
+/**
+ * Explorer tags for TRON addresses (lib/explorer-tag-live.ts). TRONSCAN_URL
+ * points it at the agency's own mirror; with TRON history read in-house and no
+ * mirror given, it is off — a deployment reading the chain in-house does not
+ * ask a public explorer about the wallets of a case.
+ */
+export function tronTags(): Endpoint {
+  if (given("TRONSCAN_URL")) return own("TRONSCAN_URL");
+  return tronHistory().source === "public"
+    ? { base: PUBLIC.tronTags, source: "public" }
+    : { base: null, source: "none" };
 }
 
 /** TronGrid's key, only for a read that goes to TronGrid itself. */
