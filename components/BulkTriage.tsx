@@ -51,6 +51,7 @@ import {
   buttonStyles,
   entityPhrase,
 } from "@/components/ui";
+import type { TypologyId } from "@/lib/typology";
 
 /* ------------------------------------------------------------------ model */
 
@@ -178,7 +179,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
     setRunning(true);
     const queue: IntakeJob[] = entries
       .filter((e) => e.state === "queued")
-      .map(({ key, input, kind, ack, amount, fraudDate, stateUt }) => ({ key, input, kind, ack, amount, fraudDate, stateUt }));
+      .map(({ key, input, kind, ack, amount, fraudDate, stateUt, typology }) => ({ key, input, kind, ack, amount, fraudDate, stateUt, typology }));
     for (const job of queue) {
       if (stop.current) break;
       update(job.key, { ...job, state: "running" });
@@ -574,6 +575,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
                   trace={entry.trace}
                   source={entry.source}
                   ack={entry.ack}
+                  typology={entry.typology}
                   stateUt={entry.stateUt}
                   fromTx={entry.kind === "tx" ? entry.input : undefined}
                 />
@@ -672,6 +674,7 @@ function ResultRow({
   trace,
   source,
   ack,
+  typology,
   stateUt,
   fromTx,
 }: {
@@ -679,6 +682,8 @@ function ResultRow({
   source: DataSource;
   /** The complaint's acknowledgement number, from a complaint sheet. */
   ack?: string;
+  /** The reported scam typology, from the sheet. */
+  typology?: TypologyId;
   /** Its state or union territory, from the sheet. */
   stateUt?: string;
   /** The transaction the complaint gave, when it gave one instead of a wallet. */
@@ -729,12 +734,12 @@ function ResultRow({
       ) : null}
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Link href={traceHref("trace", trace, ack)} className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass">
+        <Link href={traceHref("trace", trace, ack, typology)} className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass">
           Open the trace
         </Link>
         {freezable(trace) ? (
           <Link
-            href={traceHref("freeze", trace, ack)}
+            href={traceHref("freeze", trace, ack, typology)}
             className="fx-option px-4 py-2 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
           >
             Freeze request

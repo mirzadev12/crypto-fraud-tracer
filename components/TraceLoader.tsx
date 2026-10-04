@@ -24,6 +24,7 @@ import {
   kindTag,
 } from "./ui";
 import { chainOf } from "@/lib/chain-meta";
+import type { TypologyId } from "@/lib/typology";
 
 /**
  * Fallback loading state, written as a console log, for loads that do not
@@ -508,6 +509,7 @@ export default function TraceLoader({
   since,
   asOf,
   ack,
+  typology,
   chain,
 }: {
   address: string;
@@ -517,6 +519,8 @@ export default function TraceLoader({
   asOf?: string;
   /** The complaint's acknowledgement number, carried on to the packet and freeze request. */
   ack?: string;
+  /** The reported scam typology, carried the same way. */
+  typology?: TypologyId;
   /** Polygon, for a 0x address; otherwise the address's own form decides. */
   chain?: "polygon";
 }) {
@@ -545,6 +549,7 @@ export default function TraceLoader({
       note={lookup.note}
       asOf={lookup.asOf}
       ack={ack}
+      typology={typology}
     />
   );
 }

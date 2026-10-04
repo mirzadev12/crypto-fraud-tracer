@@ -45,6 +45,7 @@ import AnomalyPanel from "./AnomalyPanel";
 import TailTags from "./TailTags";
 import SaveCase from "./SaveCase";
 import { ChainScope } from "./ChainScope";
+import { typologyLabel, type TypologyId } from "@/lib/typology";
 
 /* ------------------------------------------------------------- risk flags */
 
@@ -565,6 +566,7 @@ export default function TraceView({
   note,
   asOf,
   ack,
+  typology,
 }: {
   trace: TraceResult;
   source: DataSource;
@@ -573,6 +575,8 @@ export default function TraceView({
   asOf?: string;
   /** The complaint's acknowledgement number, from a complaint sheet. */
   ack?: string;
+  /** The reported scam typology, as the complaint states it. */
+  typology?: TypologyId;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -640,11 +644,11 @@ export default function TraceView({
         >
           Fund flow
         </Link>
-        <Link href={traceHref("report", trace, ack)} className={freezable(trace) ? secondary : primary}>
+        <Link href={traceHref("report", trace, ack, typology)} className={freezable(trace) ? secondary : primary}>
           Evidence packet
         </Link>
         {freezable(trace) ? (
-          <Link href={traceHref("freeze", trace, ack)} className={primary}>
+          <Link href={traceHref("freeze", trace, ack, typology)} className={primary}>
             Freeze request
           </Link>
         ) : null}
@@ -668,6 +672,14 @@ export default function TraceView({
       <div id="finding" className="fx-anchor">
         <SectionHeader index="01" title="Finding" />
       </div>
+      {/* What the complaint says happened, in its own words. Never inferred:
+          the same trail can follow any of these. */}
+      {typology ? (
+        <p className="-mt-2 text-sm text-muted">
+          <span className="font-label text-xs uppercase tracking-[0.18em] text-faint">Reported as </span>
+          <span className="text-ink">{typologyLabel(typology)}</span>
+        </p>
+      ) : null}
       {/* min-w-0 on both children: a grid child defaults to min-width:auto and
           refuses to shrink below its content, and the figure column now carries
           a longer hint than it used to. CONTEXT.md §3 records this failure mode. */}

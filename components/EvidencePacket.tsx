@@ -19,6 +19,7 @@ import { chainMeta } from "@/lib/chain-meta";
 import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
 import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
 import { FingerprintBlock, FingerprintCheck } from "./PacketFingerprint";
+import { typologyLabel, type TypologyId } from "@/lib/typology";
 
 /**
  * The evidence packet is the one place in the product that is a document rather
@@ -80,6 +81,7 @@ export default function EvidencePacket({
   since,
   asOf,
   ack,
+  typology,
   fp,
   chain: pinnedChain,
 }: {
@@ -93,6 +95,8 @@ export default function EvidencePacket({
   ack?: string;
   /** A fingerprint to check this packet's findings against, from a copy's check link. */
   fp?: string;
+  /** The reported scam typology, as the complaint states it. */
+  typology?: TypologyId;
 }) {
   const { current, retry, events } = useTrace(address, { amount, since, asOf, chain: pinnedChain });
 
@@ -214,6 +218,9 @@ export default function EvidencePacket({
               <Field label="NCRP acknowledgement number">
                 <span className="font-mono tabular-nums">{ack}</span>
               </Field>
+            ) : null}
+            {typology ? (
+              <Field label="Scam typology (as reported)">{typologyLabel(typology)}</Field>
             ) : null}
             <Field label="Wallets examined">
               <span className="font-mono tabular-nums">

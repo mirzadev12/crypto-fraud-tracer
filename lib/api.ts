@@ -109,12 +109,15 @@ export function traceHref(
   },
   /** The complaint's acknowledgement number, when the case came from a complaint sheet. */
   ack?: string,
+  /** The reported scam typology (lib/typology.ts), carried like the acknowledgement number. */
+  typology?: string,
 ): string {
   const query = new URLSearchParams();
   if (trace.reportedAmountUsdt > 0) query.set("amount", String(trace.reportedAmountUsdt));
   if (trace.fraudDate) query.set("since", trace.fraudDate);
   if (trace.provenance?.generatedAt) query.set("asof", trace.provenance.generatedAt);
   if (ack) query.set("ack", ack);
+  if (typology) query.set("typology", typology);
   // A 0x address on Polygon is said in the link, or it would reopen on Ethereum.
   if (trace.chain === "polygon") query.set("chain", "polygon");
   const qs = query.toString();

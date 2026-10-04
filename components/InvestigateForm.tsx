@@ -27,6 +27,7 @@ import {
   TriageBadge,
   buttonStyles,
 } from "./ui";
+import { TYPOLOGIES, parseTypology, type TypologyId } from "@/lib/typology";
 
 type Status =
   | { kind: "idle" }
@@ -110,6 +111,8 @@ export default function InvestigateForm() {
   // used to default to today, and nothing before the fraud date is followed,
   // so most wallets came back with no data at all.
   const [fraudDate, setFraudDate] = useState("");
+  // The scam the complaint reports, as the officer records it. Never inferred.
+  const [typology, setTypology] = useState<TypologyId | "">("");
   const [touched, setTouched] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   /*
@@ -268,7 +271,7 @@ export default function InvestigateForm() {
   const evidence = useMemo((): { href: string; address: string } | null => {
     if (status.kind === "done" && status.lookup.status === "resolved") {
       return {
-        href: traceHref("report", status.lookup.data),
+        href: traceHref("report", status.lookup.data, undefined, typology || undefined),
         address: status.lookup.data.inputAddress,
       };
     }
@@ -277,12 +280,13 @@ export default function InvestigateForm() {
     if (amount.trim() && amountValid) query.set("amount", String(amountValue));
     if (fraudDate) query.set("since", new Date(`${fraudDate}T00:00:00.000Z`).toISOString());
     if (polygon) query.set("chain", "polygon");
+    if (typology) query.set("typology", typology);
     const qs = query.toString();
     return {
       href: `/report/${encodeURIComponent(subject)}${qs ? `?${qs}` : ""}`,
       address: subject,
     };
-  }, [status, addressCheck.valid, resolved, amount, amountValid, amountValue, fraudDate, subject, polygon]);
+  }, [status, addressCheck.valid, resolved, amount, amountValid, amountValue, fraudDate, subject, polygon, typology]);
 
   return (
     <div className="space-y-16">
@@ -457,6 +461,28 @@ export default function InvestigateForm() {
                     Leave blank to follow the wallet from its first transfer.
                   </p>
                 </div>
+
+                <div>
+                  <label htmlFor="typology">
+                    <Designation>Type of scam · as reported · optional</Designation>
+                  </label>
+                  <select
+                    id="typology"
+                    value={typology}
+                    onChange={(e) => setTypology(parseTypology(e.target.value) ?? "")}
+                    className={`${FIELD} mt-4 border-line text-lg focus:border-brass`}
+                  >
+                    <option value="">Not stated</option>
+                    {TYPOLOGIES.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-4 text-xs leading-5 text-faint">
+                    Printed on the evidence packet and the freeze request. It does not change the trace.
+                  </p>
+                </div>
               </div>
 
               <div className="mt-16 flex flex-wrap items-center gap-6 border-t border-line pt-6">
@@ -475,7 +501,7 @@ export default function InvestigateForm() {
                 </button>
                 {status.kind === "done" && status.lookup.status === "resolved" ? (
                   <Link
-                    href={traceHref("trace", status.lookup.data)}
+                    href={traceHref("trace", status.lookup.data, undefined, typology || undefined)}
                     className={buttonStyles.secondary}
                   >
                     Permalink

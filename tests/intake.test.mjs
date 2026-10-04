@@ -57,3 +57,15 @@ test("amounts and dates, read the Indian way", () => {
   assert.equal(parseDate("31-02-2026"), null);
   assert.equal(parseDate("yesterday"), null);
 });
+
+test("a complaint sheet's typology column is read when it names a listed scam, ignored otherwise", () => {
+  const sheet = [
+    "Acknowledgement No,Wallet,Amount,Scam type",
+    `31505240012345,${TRON},5000,Digital arrest`,
+    `31505240012346,${ETH},1200,some new trick`,
+  ].join("\n");
+  const r = parseIntake(sheet);
+  assert.equal(r.jobs.length, 2);
+  assert.equal(r.jobs[0].typology, "digital-arrest");
+  assert.equal(r.jobs[1].typology, undefined);
+});

@@ -1,3 +1,4 @@
+import { parseTypology, type TypologyId } from "./typology";
 /**
  * Presentation helpers.
  *
@@ -142,7 +143,7 @@ export function walletHref(address: string, chain?: string): string {
  */
 export function readPinned(
   sp: Record<string, string | string[] | undefined>,
-): { amount?: number; since?: string; asOf?: string; ack?: string; chain?: "polygon" } {
+): { amount?: number; since?: string; asOf?: string; ack?: string; chain?: "polygon"; typology?: TypologyId } {
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
   const amount = Number(one(sp.amount));
   const moment = (raw: string | undefined) =>
@@ -163,5 +164,7 @@ export function readPinned(
     ...(ack ? { ack } : {}),
     // Only Polygon is ever said; anything else leaves the address's own form to decide.
     ...(one(sp.chain) === "polygon" ? { chain: "polygon" as const } : {}),
+    // The reported scam typology: only a listed one (lib/typology.ts).
+    ...(parseTypology(one(sp.typology)) ? { typology: parseTypology(one(sp.typology)) } : {}),
   };
 }

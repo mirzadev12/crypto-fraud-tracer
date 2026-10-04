@@ -27,6 +27,7 @@ import { checkAddress } from "./address";
 import { identifyChain } from "./chains";
 import { canonicalState } from "./states";
 import { isTxHash } from "./tron";
+import { parseTypology, type TypologyId } from "./typology";
 
 export interface IntakeJob {
   /** One per complaint: its acknowledgement number, or the wallet it names. */
@@ -44,6 +45,8 @@ export interface IntakeJob {
    * uses that word for a row's progress.
    */
   stateUt?: string;
+  /** The reported scam typology, when the sheet has a column for it and names a listed one. */
+  typology?: TypologyId;
 }
 
 export interface IntakeRejected {
@@ -64,13 +67,14 @@ const IST_OFFSET_MS = 330 * 60_000;
 
 /* ------------------------------------------------------------------ columns */
 
-const COLUMN: Record<"subject" | "ack" | "amount" | "date" | "state", RegExp> = {
+const COLUMN: Record<"subject" | "ack" | "amount" | "date" | "state" | "typology", RegExp> = {
   subject: /(wallet|address|transaction|txn|tx|hash)/i,
   ack: /(ack|acknowledg|ncrp|complaint\s*(no|number|id)|reference)/i,
   amount: /(amount|usdt|loss|value)/i,
   date: /(date|when|time)/i,
   // "State", "State/UT", "Union territory" — but not "Statement".
   state: /\b(state|union\s*territory)\b/i,
+  typology: /(typology|scam\s*type|fraud\s*type|type\s*of\s*(scam|fraud)|category|modus)/i,
 };
 
 /** Split one CSV line, honouring double quotes ("a, b" and "" inside quotes). */
@@ -211,6 +215,7 @@ function parseSheet(lines: string[], delimiter: string, names: string[], subject
   const amountCol = col(COLUMN.amount);
   const dateCol = col(COLUMN.date);
   const stateCol = col(COLUMN.state);
+  const typologyCol = col(COLUMN.typology);
   const jobs: IntakeJob[] = [];
   const rejected: IntakeRejected[] = [];
   const seen = new Set<string>();
@@ -242,6 +247,9 @@ function parseSheet(lines: string[], delimiter: string, names: string[], subject
     }
     const stateText = get(stateCol).replace(/\s+/g, " ").slice(0, 60);
     const stateUt = stateText ? (canonicalState(stateText) ?? stateText) : "";
+    // An unlisted typology is left out rather than refused: it is the
+    // complaint's description, not something the trace depends on.
+    const typology = parseTypology(get(typologyCol));
     const key = ack ? `ack:${ack}` : `in:${subject.input.toLowerCase()}`;
     if (seen.has(key)) {
       rejected.push({ line, reason: ack ? "The same acknowledgement number appears twice." : "This wallet is already listed." });
@@ -255,6 +263,7 @@ function parseSheet(lines: string[], delimiter: string, names: string[], subject
       ...(amount !== null ? { amount } : {}),
       ...(fraudDate ? { fraudDate } : {}),
       ...(stateUt ? { stateUt } : {}),
+      ...(typology ? { typology } : {}),
     });
   }
   return { jobs, rejected, sheet: true };

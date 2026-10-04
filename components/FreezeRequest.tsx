@@ -29,6 +29,7 @@ import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
 import { FingerprintBlock } from "./PacketFingerprint";
 import SendingGuide from "./SendingGuide";
 import OutcomeRecorder from "./OutcomeRecorder";
+import { typologyLabel, type TypologyId } from "@/lib/typology";
 
 /**
  * The last mile of the product.
@@ -126,6 +127,7 @@ export default function FreezeRequest({
   since,
   asOf,
   ack,
+  typology,
   chain: pinnedChain,
 }: {
   address: string;
@@ -134,6 +136,8 @@ export default function FreezeRequest({
   asOf?: string;
   /** The complaint's acknowledgement number, from a complaint sheet. */
   ack?: string;
+  /** The reported scam typology, as the complaint states it. */
+  typology?: TypologyId;
   /** Polygon, for a 0x address; otherwise the address's own form decides. */
   chain?: "polygon";
 }) {
@@ -176,7 +180,7 @@ export default function FreezeRequest({
             This trail has not reached one, so there is nothing to ask for yet.
           </p>
           <Link
-            href={traceHref("trace", trace, ack)}
+            href={traceHref("trace", trace, ack, typology)}
             className={`${buttonStyles.secondary} mt-6`}
           >
             Back to trace
@@ -219,10 +223,10 @@ export default function FreezeRequest({
           <TriageBadge level={trace.triage} withAction />
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href={traceHref("trace", trace, ack)} className={buttonStyles.secondary}>
+          <Link href={traceHref("trace", trace, ack, typology)} className={buttonStyles.secondary}>
             Back to trace
           </Link>
-          <Link href={traceHref("report", trace, ack)} className={buttonStyles.secondary}>
+          <Link href={traceHref("report", trace, ack, typology)} className={buttonStyles.secondary}>
             Evidence packet
           </Link>
           <button
@@ -493,6 +497,7 @@ export default function FreezeRequest({
           <div className="mt-10 grid gap-10 sm:grid-cols-2">
             <Blank label="FIR number" />
             <Blank label="NCRP acknowledgement number" value={ack} />
+            <Blank label="Scam typology (as reported)" value={typology ? typologyLabel(typology) : undefined} />
             <Blank label="Name of officer" />
             <Blank label="Designation" />
             <Blank label="Unit / police station" />
@@ -527,7 +532,7 @@ export default function FreezeRequest({
             account: named,
             tracedUsdt: terminalNode?.taintedValueUsdt ?? 0,
             ...(ack ? { ack } : {}),
-            href: traceHref("freeze", trace, ack),
+            href: traceHref("freeze", trace, ack, typology),
           },
         ]}
       />
