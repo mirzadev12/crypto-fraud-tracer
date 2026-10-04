@@ -42,7 +42,7 @@ const SECTIONS: NavSection[] = [
     name: "Casework",
     href: "/dashboard",
     leaves: [
-      { name: "Queue", href: "/dashboard", hint: "Today's complaints, most reachable first" },
+      { name: "Queue", href: "/dashboard", hint: "Every case read here, most reachable first" },
       { name: "Batch triage", href: "/queue", hint: "A morning of complaints at once" },
       { name: "New case", href: "/investigate", hint: "Open a wallet or a transaction" },
       { name: "Intelligence", href: "/fund-flow", hint: "Fund flow for the open case" },

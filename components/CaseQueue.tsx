@@ -191,7 +191,7 @@ export default function CaseQueue() {
         <StatCard
           label="Closed"
           value={String(stats.cold)}
-          hint="Trail enters a mixer or sanctioned address"
+          hint="Trail reached a sanctioned address"
           tone="cold"
         />
         <StatCard

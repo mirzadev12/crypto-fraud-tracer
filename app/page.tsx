@@ -107,7 +107,12 @@ export default function Home() {
 
             <Rule className="mt-10 max-w-md" />
 
-            <p className="mt-10 max-w-xl text-base leading-8 text-muted">
+            <p className="mt-10 max-w-xl text-base leading-8 text-ink">
+              A victim reports a crypto wallet. Within a minute, FineX follows the
+              stolen USDT across TRON, Ethereum and Polygon and names the exchange
+              account an officer can ask to freeze.
+            </p>
+            <p className="mt-4 max-w-xl text-base leading-8 text-muted">
               Most tools stop at the exchange. FineX carries the trail one step
               further — to the <strong className="font-semibold text-ink">customer deposit cluster</strong> the funds
               actually landed in — and states, for every case on the desk, whether
@@ -122,6 +127,17 @@ export default function Home() {
                 Case queue
               </Link>
             </div>
+            <p className="mt-6 text-xs text-faint">
+              Source code:{" "}
+              <a
+                href="https://github.com/mirzadev12/crypto-fraud-tracer"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brass underline-offset-4 hover:underline"
+              >
+                github.com/mirzadev12/crypto-fraud-tracer
+              </a>
+            </p>
           </div>
 
           <figure className="min-w-0 border border-line bg-surface">
@@ -209,7 +225,7 @@ export default function Home() {
               {
                 level: "COLD" as const,
                 headline: "Trail ends",
-                body: "The path enters a mixing service. Nothing can be followed deterministically past that point, and we do not pretend otherwise.",
+                body: "The path reaches an OFAC-sanctioned address (or a mixing service, where one is identified). There is no account there to freeze, and we do not pretend otherwise.",
               },
             ].map((c) => (
               <div key={c.level} className="border-t border-line pt-6">
@@ -289,9 +305,10 @@ export default function Home() {
               product.
             </p>
             <p>
-              <span className="text-ink">Rules, not a model.</span> An
-              asset-freezing tool cannot hand a court a black box. Every score here
-              is a rule that can be defended line by line.
+              <span className="text-ink">Rules decide; a model only ranks.</span> An
+              asset-freezing tool cannot hand a court a black box. Every finding is a
+              rule that can be defended line by line; an advisory isolation forest
+              ranks unusual wallets for a closer look and decides nothing.
             </p>
             <p>
               <span className="text-ink">No model decides anything.</span> The

@@ -11,7 +11,7 @@ import { PageHeader, buttonStyles } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Case Queue",
   description:
-    "Today's complaints, ordered by whether the stolen funds can still be reached.",
+    "Every case this server has read, ordered by whether the stolen funds can still be reached.",
 };
 
 export default function DashboardPage() {

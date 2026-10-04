@@ -61,7 +61,7 @@ const en: HelpContent = {
         {
           href: "/dashboard",
           nav: "Queue",
-          what: "Today's complaints, most urgent first — and alerts if money moves.",
+          what: "Every case read on this server, most urgent first — and alerts if money moves.",
           use: "Start here. Any wallet still holding funds is watched, and you'll see an alert at the top if the money starts to move. Turn on alerts under the watch to be told even when FineX is closed.",
         },
         {
@@ -144,7 +144,7 @@ const en: HelpContent = {
     {
       level: "COLD",
       plain: "The trail ends here.",
-      then: "It went into a mixing service or a sanctioned address. Nobody can follow it further. Write it up and close it.",
+      then: "It reached a sanctioned address (or a mixing service, if one is identified). There is no account to freeze there. Write it up and close it.",
     },
   ],
   buttons: [
