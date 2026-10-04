@@ -217,3 +217,20 @@ and write to `docs/review/2026-10-04-critic-*.md` (PS compliance, competition
 and blind spots, evaluator walkthrough and consistency). The main session fixes
 what they find, re-scores on the rubric in `2026-10-04-judge-review.md`,
 deploys, and lists every change. No video (user's instruction).
+
+### Critic 3 (walkthrough) — fixes in progress
+1. Queue "Open" on the live site waits 2+ min (no TronGrid key on Render — the
+   owner sets TRONGRID_API_KEY in the dashboard). Code fix: keep the server's
+   own traced runs in memory and serve an exact replay (`?asof=` = the run's
+   `generatedAt`) from it; register rows link with their run's `asof`.
+2. Queue copy calls the 14 script-picked wallets "today's complaints" →
+   say "reference set".
+3. Freeze request / packet print an auto amount and window as "reported" →
+   "traced, none reported" when the link carried no amount / date.
+4. "Rules, not a model" vs the advisory isolation forest → one sentence.
+5. CLOSED wording says mixer; mixer list is empty → "OFAC-listed address".
+6. Two case IDs for one wallet (year from the window) → stable per wallet.
+7. README stale (Polygon "not read", routes missing).
+8. Hero: add a problem → outcome subhead and a source-code link (public
+   mirror mirzadev12; reemrasheed2007 is private).
+Report: docs/review/2026-10-04-critic-walkthrough.md
