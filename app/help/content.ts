@@ -121,8 +121,8 @@ const en: HelpContent = {
     },
     {
       n: "3",
-      title: "Wait about half a minute",
-      body: "You will see each wallet as it is read. That is the real progress of the search, not a loading bar.",
+      title: "Wait while it reads",
+      body: "A trace takes from about ten seconds to about three minutes. A wallet with a long history takes longer to read. When we timed it on 4 Oct 2026, half the wallets took 12 seconds or less; the slowest took 179 seconds. A server with its own key to the chain service reads faster. You will see each wallet as it is read. That is the real progress of the search, not a loading bar. A case this server has already read opens at once from the queue or its permalink.",
     },
     {
       n: "4",
@@ -133,8 +133,8 @@ const en: HelpContent = {
   status: [
     {
       level: "HOT",
-      plain: "The money is still sitting somewhere.",
-      then: "Nothing has left the wallet it landed in. This is where your next hour goes.",
+      plain: "The money has not reached an exchange we can name.",
+      then: "It is still sitting in a wallet, or it is still moving through wallets we cannot name after three hops. This is where your next hour goes.",
     },
     {
       level: "WARM",
@@ -144,7 +144,7 @@ const en: HelpContent = {
     {
       level: "COLD",
       plain: "The trail ends here.",
-      then: "It reached a sanctioned address (or a mixing service, if one is identified). There is no account to freeze there. Write it up and close it.",
+      then: "It reached an address on the US sanctions list (OFAC). A mixing service would close a case the same way, but no list of mixers is included yet. There is no account to freeze there. Write it up and close it. An address that never moved any USDT is closed too, with a note to check it against the complaint.",
     },
   ],
   buttons: [
@@ -180,11 +180,11 @@ const en: HelpContent = {
     },
     {
       title: "It cannot follow money past a mixer",
-      body: "Nobody can. We mark where the trail ends and stop, rather than guess.",
+      body: "Nobody can. A trail that reaches a sanctioned address stops there and says so. It does not guess. No list of mixers is included yet, so a mixer we have no label for is not recognised.",
     },
     {
       title: "It covers USDT on TRON, Ethereum and Polygon only",
-      body: "That is where this kind of fraud money mostly moves. A 0x address is read on Ethereum unless you choose Polygon in New case; the same address on BNB Chain is not read. When money goes into a swap or a bridge, the trace stops there and says so.",
+      body: "That is where this kind of fraud money mostly moves. A 0x address is read on Ethereum unless you choose Polygon in New case; the same address on BNB Chain is not read. On Ethereum and Polygon, when money goes into a swap or a bridge, the trace stops there and says so. On TRON a swap contract is not detected yet: the trace reads it as an ordinary wallet.",
     },
     {
       title: "It never reports silence as an answer",
@@ -275,8 +275,8 @@ const hi: HelpContent = {
     },
     {
       n: "3",
-      title: "लगभग आधा मिनट रुकें",
-      body: "हर वॉलेट पढ़े जाते समय दिखता है। यह खोज की असली प्रगति है, कोई लोडिंग बार नहीं।",
+      title: "पढ़े जाने तक रुकें",
+      body: "एक ट्रेस में लगभग दस सेकंड से लगभग तीन मिनट लगते हैं। जिस वॉलेट का इतिहास लंबा हो, उसे पढ़ने में ज़्यादा समय लगता है। 4 अक्टूबर 2026 को समय मापने पर आधे वॉलेट 12 सेकंड या उससे कम में पढ़े गए; सबसे धीमे में 179 सेकंड लगे। जिस सर्वर के पास चेन सेवा की अपनी कुंजी (key) हो, वह तेज़ी से पढ़ता है। हर वॉलेट पढ़े जाते समय दिखता है। यह खोज की असली प्रगति है, कोई लोडिंग बार नहीं। जो मामला यह सर्वर पहले पढ़ चुका है, वह Queue से या उसके permalink से तुरंत खुलता है।",
     },
     {
       n: "4",
@@ -287,8 +287,8 @@ const hi: HelpContent = {
   status: [
     {
       level: "HOT",
-      plain: "पैसा अभी भी कहीं पड़ा है।",
-      then: "जिस वॉलेट में पैसा पहुँचा, वहाँ से कुछ नहीं निकला। आपका अगला घंटा इसी पर लगना चाहिए।",
+      plain: "पैसा किसी ऐसे एक्सचेंज तक नहीं पहुँचा जिसका हम नाम बता सकें।",
+      then: "पैसा या तो अभी भी किसी वॉलेट में पड़ा है, या तीन कदम (hop) के बाद भी ऐसे वॉलेटों से गुज़र रहा है जिनकी हम पहचान नहीं कर सकते। आपका अगला घंटा इसी पर लगना चाहिए।",
     },
     {
       level: "WARM",
@@ -298,7 +298,7 @@ const hi: HelpContent = {
     {
       level: "COLD",
       plain: "रास्ता यहीं खत्म होता है।",
-      then: "पैसा किसी मिक्सिंग सेवा या प्रतिबंधित पते में गया। इसके आगे कोई उसका पीछा नहीं कर सकता। इसे दर्ज करें और मामला बंद करें।",
+      then: "पैसा अमेरिकी प्रतिबंध सूची (OFAC) के किसी पते तक पहुँचा। कोई मिक्सिंग सेवा भी मामला इसी तरह बंद करती, पर मिक्सरों की कोई सूची अभी शामिल नहीं है। वहाँ फ्रीज़ करने के लिए कोई खाता नहीं है। इसे दर्ज करें और मामला बंद करें। जिस पते से कभी कोई USDT आया-गया ही नहीं, वह भी बंद होता है, इस टिप्पणी के साथ कि पते को शिकायत से मिलाकर देखें।",
     },
   ],
   buttons: [
@@ -334,11 +334,11 @@ const hi: HelpContent = {
     },
     {
       title: "यह मिक्सर के आगे पैसे का पीछा नहीं कर सकता",
-      body: "कोई नहीं कर सकता। हम बताते हैं कि रास्ता कहाँ खत्म हुआ और वहीं रुक जाते हैं, अनुमान नहीं लगाते।",
+      body: "कोई नहीं कर सकता। जो रास्ता किसी प्रतिबंधित पते तक पहुँचता है, वह वहीं रुकता है और यह बताता है। हम अनुमान नहीं लगाते। मिक्सरों की कोई सूची अभी शामिल नहीं है, इसलिए जिस मिक्सर का हमारे पास कोई लेबल नहीं है, वह पहचाना नहीं जाता।",
     },
     {
       title: "यह केवल TRON, Ethereum और Polygon पर USDT देखता है",
-      body: "इस तरह की ठगी का पैसा ज़्यादातर यहीं चलता है। 0x पता Ethereum पर पढ़ा जाता है, जब तक आप New case में Polygon न चुनें; BNB Chain पर वही पता नहीं पढ़ा जाता। जब पैसा किसी स्वैप या ब्रिज में जाता है, तो ट्रेस वहीं रुकता है और यह बताता है।",
+      body: "इस तरह की ठगी का पैसा ज़्यादातर यहीं चलता है। 0x पता Ethereum पर पढ़ा जाता है, जब तक आप New case में Polygon न चुनें; BNB Chain पर वही पता नहीं पढ़ा जाता। Ethereum और Polygon पर, जब पैसा किसी स्वैप या ब्रिज में जाता है, तो ट्रेस वहीं रुकता है और यह बताता है। TRON पर स्वैप कॉन्ट्रैक्ट अभी पहचाना नहीं जाता: ट्रेस उसे एक साधारण वॉलेट की तरह पढ़ता है।",
     },
     {
       title: "यह चुप्पी को उत्तर नहीं बताता",

@@ -58,6 +58,8 @@ export interface WalletProfile {
   retainedUsdt: number;
   /** Who funded it, largest first. The answer to "where did this come from". */
   fundedBy: Counterparty[];
+  /** How many distinct addresses paid into it, over the history read. */
+  payers?: number;
   /** Where it sent money, largest first. */
   paidOut: Counterparty[];
   /** Address-poisoning signals over the transfers read; see lib/poisoning.ts. */
@@ -193,6 +195,7 @@ export async function profileWallet(address: string, chain?: "polygon"): Promise
     sentUsdt,
     retainedUsdt: Math.max(0, receivedUsdt - sentUsdt),
     fundedBy: rank(incoming, grid.chain),
+    payers: incoming.size,
     paidOut: rank(outgoing, grid.chain),
     poisoning: poisoningSignals(subject, transfers),
   };

@@ -45,3 +45,19 @@ test("names match however they are spelled", () => {
   assert.equal(leContact("Coinswitch")?.exchange, "CoinSwitch");
   assert.equal(leContact("Not an exchange"), null);
 });
+
+test("every stated condition is worded, and every quote is in the exchange's own notes", async () => {
+  const { needText, needsAccess } = await import("../lib/le-contacts.ts");
+  const data = (await import("../data/le-contacts.json", { with: { type: "json" } })).default;
+  for (const row of data.exchanges) {
+    if (!row.found) continue;
+    assert.ok(Array.isArray(row.needs), row.exchange);
+    for (const n of row.needs) assert.ok(needText(n, row).length > 10, `${row.exchange} ${n}`);
+    // A quoted figure must be the page's own words, as the notes recorded them.
+    for (const quote of [row.leadTime, row.domain].filter(Boolean)) {
+      assert.ok(row.notes.join(" ").includes(quote), `${row.exchange}: "${quote}" is not in its notes`);
+    }
+  }
+  assert.equal(needsAccess(data.exchanges.find((e) => e.exchange === "MEXC")), true);
+  assert.equal(needsAccess(data.exchanges.find((e) => e.exchange === "CoinDCX")), false);
+});

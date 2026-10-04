@@ -108,12 +108,12 @@ export default function Home() {
             <Rule className="mt-10 max-w-md" />
 
             <p className="mt-10 max-w-xl text-base leading-8 text-ink">
-              A victim reports a crypto wallet. Within a minute, FineX follows the
+              A victim reports a crypto wallet. Within minutes, FineX follows the
               stolen USDT across TRON, Ethereum and Polygon and names the exchange
               account an officer can ask to freeze.
             </p>
             <p className="mt-4 max-w-xl text-base leading-8 text-muted">
-              Most tools stop at the exchange. FineX carries the trail one step
+              Most open tools stop at the exchange. FineX carries the trail one step
               further — to the <strong className="font-semibold text-ink">customer deposit cluster</strong> the funds
               actually landed in — and states, for every case on the desk, whether
               the money can <strong className="font-semibold text-ink">still be reached</strong>.
@@ -206,26 +206,28 @@ export default function Home() {
         <SectionHeader index="01" title="Disposition" kicker="Every case, one of three" />
         <div className="mt-16 grid gap-16 lg:grid-cols-[1fr_1.4fr]">
           <p className="max-w-sm text-sm leading-7 text-muted">
-            Hundreds of complaints arrive a day and a <strong className="font-semibold text-ink">freeze window is measured in
-            hours</strong>. A graph of wallets does not tell an investigator where the
-            next hour is worth spending. A <strong className="font-semibold text-ink">disposition</strong> does.
+            NCRP received 19,18,865 complaints in 2024 (MHA, Lok Sabha USQ 344,
+            22 Jul 2025). For a bank account the freeze window is hours; for
+            crypto, <strong className="font-semibold text-ink">how long ago the money last moved</strong> decides.
+            A graph of wallets does not tell an investigator where the next hour is
+            worth spending. A <strong className="font-semibold text-ink">disposition</strong> does.
           </p>
           <dl className="space-y-10">
             {[
               {
                 level: "HOT" as const,
-                headline: "Funds still at rest",
-                body: "No exit reached. The money is sitting at an address with no outgoing transfers.",
+                headline: "No exit yet",
+                body: "The money is still at rest, or still moving and not yet attributable after three hops. It is the case to work first.",
               },
               {
                 level: "WARM" as const,
                 headline: "Exit identified",
-                body: "The trail terminates at a likely exchange deposit cluster. The packet names it so the exchange can act.",
+                body: "The trail reaches an exchange: a likely customer deposit cluster where one is derived, otherwise the exchange's own tagged wallet. The packet names it so the exchange can act.",
               },
               {
                 level: "COLD" as const,
                 headline: "Trail ends",
-                body: "The path reaches an OFAC-sanctioned address (or a mixing service, where one is identified). There is no account there to freeze, and we do not pretend otherwise.",
+                body: "The path reaches an OFAC-sanctioned address. A labelled mixer would close a case the same way, but no mixer list ships yet. There is no account there to freeze, and we do not pretend otherwise.",
               },
             ].map((c) => (
               <div key={c.level} className="border-t border-line pt-6">
@@ -237,6 +239,19 @@ export default function Home() {
               </div>
             ))}
           </dl>
+        </div>
+        {/* One wallet at a time is a demonstration; a morning of complaints is
+            the desk. The batch screen had no mention on this page. */}
+        <div className="mt-16 flex flex-col gap-6 border-t border-line pt-6 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+          <p className="max-w-2xl text-sm leading-7 text-muted">
+            <span className="text-ink">A morning of complaints at once.</span> Paste a
+            complaint sheet carrying NCRP acknowledgement numbers: the complaints are
+            ranked by whether their money can still be reached, grouped by state,
+            with one freeze request per exchange.
+          </p>
+          <Link href="/queue" className={buttonStyles.secondary}>
+            Batch triage
+          </Link>
         </div>
       </section>
 

@@ -485,7 +485,10 @@ export default function InvestigateForm() {
                     ))}
                   </select>
                   <p className="mt-4 text-xs leading-5 text-faint">
-                    Printed on the evidence packet and the freeze request. It does not change the trace.
+                    Entered by the officer, and printed on the evidence packet and
+                    the freeze request. FineX does not detect the scam type, and it
+                    does not change the trace. A Bitcoin or Monero address is
+                    screened against the OFAC list, not traced.
                   </p>
                 </div>
               </div>
@@ -602,7 +605,12 @@ export default function InvestigateForm() {
         </ul>
         <p className="mt-4 max-w-2xl text-xs leading-5 text-faint">
           Each opens as it was read on 14 September 2026, so it shows the same
-          case today. Any other address is read live, in about half a minute.
+          case today. Any other address is read live: on the public endpoint a
+          first trace takes from about ten seconds to about three minutes,
+          depending on how much history the wallets hold (the recorded wallets,
+          re-read live on 4 Oct 2026: median 12 s, slowest 179 s), and less with
+          an API key. A case this server has already read opens at once from the
+          queue.
         </p>
       </section>
 

@@ -77,3 +77,22 @@ const COMMENCEMENT = Date.parse("2024-07-01T00:00:00.000+05:30");
 export function regimeOf(fraudDate: string): "old" | "new" {
   return Date.parse(fraudDate) < COMMENCEMENT ? "old" : "new";
 }
+
+/**
+ * Which regime a request falls under, as far as the screen can say. What
+ * decides it is whether the matter was pending on 1 July 2024 (BNSS s.531),
+ * which the FIR or complaint date answers and a fraud date does not: a fraud
+ * from May 2024 first reported in 2026 is a new-law matter. So the officer
+ * states it; the fraud date only decides whether the question needs asking.
+ *
+ *   "new"   — not pending (stated), or a fraud after the commencement.
+ *   "old"   — stated as pending on 1 July 2024: the new sections do not apply.
+ *   "check" — a fraud before the commencement, pending status not stated.
+ */
+export type Pending = "unstated" | "yes" | "no";
+
+export function regimeFor(fraudDate: string, pending: Pending): "new" | "old" | "check" {
+  if (pending === "yes") return "old";
+  if (pending === "no") return "new";
+  return regimeOf(fraudDate) === "old" ? "check" : "new";
+}

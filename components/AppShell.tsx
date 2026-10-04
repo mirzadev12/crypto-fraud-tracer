@@ -3,6 +3,10 @@ import Link from "next/link";
 import LiveStatus from "./LiveStatus";
 import Navbar from "./Navbar";
 
+/** The public repository, and its issue tracker for defects and barriers. */
+export const REPOSITORY = "https://github.com/mirzadev12/crypto-fraud-tracer";
+export const REPOSITORY_ISSUES = `${REPOSITORY}/issues`;
+
 export default function AppShell({
   children,
   wide = false,
@@ -96,6 +100,17 @@ export function Footer() {
             >
               Policies
             </Link>
+            {/* The public repository: where "open an issue" on the policies and
+                accessibility pages leads, and where every claim here can be
+                checked against the code. */}
+            <a
+              href={REPOSITORY}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="fx-option-quiet px-2 py-1 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
+            >
+              Source code
+            </a>
           </div>
         </div>
       </div>

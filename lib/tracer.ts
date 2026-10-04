@@ -21,6 +21,7 @@
  */
 
 import { createHash } from "node:crypto";
+import { DUST_FRACTION, MAX_DEPTH, TOP_OUTFLOWS } from "./trace-limits";
 import { checkAddress } from "./address";
 import type { ChainClient, Transfer } from "./chain-client";
 import { categoryOf, contractLabel, stopsTrace } from "./contracts";
@@ -34,9 +35,6 @@ import type { TraceProgress } from "./progress";
 import { TronGrid } from "./trongrid";
 import type { Label, TraceEdge, TraceNode, TraceResult, TriageLevel } from "./types";
 
-const MAX_DEPTH = 3;
-const TOP_OUTFLOWS = 5;
-const DUST_FRACTION = 0.01;
 const DAY_MS = 86_400_000;
 
 /**

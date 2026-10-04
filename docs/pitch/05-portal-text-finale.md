@@ -11,20 +11,20 @@ to paste. Figures counted from `data/` on 4 Oct 2026; re-count before pasting.
 FineX — tracing stolen crypto to the exact exchange account that can be frozen, built for Indian cyber cells
 ```
 
-## Idea description (2,000 characters)
+## Idea description (1,981 characters; limit 2,000)
 
 ```
-₹22,845 crore was reported lost to cyber fraud in India in 2024 (MHA). When a victim reports a crypto wallet, an officer has hours before the money is cashed out, and most tools stop at "the funds reached Binance". An exchange cannot freeze an exchange; it can freeze a customer's account.
+₹22,845 crore was reported lost to cyber fraud in India in 2024 (MHA). Most open tools stop at "the funds reached Binance". An exchange cannot freeze an exchange; it can freeze a customer's account.
 
-FineX traces the stolen USDT forward, hop by hop, on TRON, Ethereum and Polygon, carrying the victim's share through every transfer, and names the CUSTOMER DEPOSIT ADDRESS the money landed in — the account an exchange can identify and restrain. Each complaint is triaged CRITICAL (money still at rest), SUSPICIOUS (a freezable exchange account named) or CLOSED (sanctioned or mixer), so a cyber cell knows which of today's complaints still have recoverable money. Amounts are shown in rupees at the live USDT/INR rate on CoinDCX.
+FineX traces stolen USDT hop by hop on TRON, Ethereum and Polygon, carrying the victim's share through every transfer, and names the CUSTOMER DEPOSIT ADDRESS it landed in: the account an exchange can identify and restrain. Each complaint is triaged CRITICAL (not yet at an exchange: at rest or still moving), SUSPICIOUS (an exchange account named) or CLOSED (an OFAC-sanctioned address), so a cyber cell can paste a morning's complaint sheet and sees which still have recoverable money, by state, with one freeze request per exchange.
 
-The attribution data is ours, derived from public chains rather than bought: 241 deposit addresses across 10 exchanges on TRON, 221 across 9 on Ethereum — 80 of them at Indian exchanges CoinDCX, WazirX and CoinSwitch, which foreign tools under-label — and 103 on Polygon, with FIU-IND registration shown for Indian exchanges. 1,043 OFAC-listed addresses across 20 assets are screened.
+The attribution data is derived from public chains, not bought: 241 deposit addresses across 10 exchanges on TRON, 221 across 9 on Ethereum and 103 on Polygon. 80 are at CoinDCX, WazirX and CoinSwitch, all on Ethereum (52 active in September 2026, 28 from 2021), with FIU-IND registration shown. 1,043 OFAC-listed addresses across 20 assets are screened.
 
-Nothing on screen is hardcoded: the case register is rebuilt from the server's own live chain reads, the recorded reference cases are re-traced every six hours, and every trace is logged in a SHA-256 hash-chained audit log. Six explainable rules flag laundering patterns, and an unsupervised machine-learning model (an isolation forest) ranks unusual wallets for a closer look — advisory only, because an officer must be able to defend every finding.
+The register and every figure are computed from the server's own chain reads and the committed data files; recorded reference cases are re-read every six hours and every trace is logged in a SHA-256 hash-chained audit log. Six rules flag laundering patterns, each printed with how often it fires on unreported wallets; an isolation forest only ranks unusual wallets. Rules decide; no model does.
 
-Each case produces a tamper-evident evidence packet (a fingerprint and QR code anyone can check, and the hash of every blockchain response) and a freeze request addressed to the exchange's own law-enforcement channel. A watch alerts the officer when money that was at rest moves.
+Each case produces a tamper-evident evidence packet (a fingerprint and QR anyone can re-check against the chain), a court-preparation sheet answering counsel's likely questions from the case's own record, and a freeze request showing the exchange's own law-enforcement channel, its conditions and whether this desk has access. A watch alerts the officer when money at rest moves.
 
-Working prototype: https://crypto-fraud-tracer.onrender.com
+Prototype: https://crypto-fraud-tracer.onrender.com · Source: https://github.com/mirzadev12/crypto-fraud-tracer
 ```
 
 ## Before pasting, check

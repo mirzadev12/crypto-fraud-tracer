@@ -29,6 +29,10 @@ import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
 import { FingerprintBlock } from "./PacketFingerprint";
 import LegalBasisPicker from "./LegalBasisPicker";
 import SendingGuide from "./SendingGuide";
+import { Blank, Field, SHEET, Section } from "./sheet";
+import IssuerRequest from "./IssuerRequest";
+import AccountShare from "./AccountShare";
+import { watchTargetFor } from "@/lib/watch";
 import OutcomeRecorder from "./OutcomeRecorder";
 import { typologyLabel, type TypologyId } from "@/lib/typology";
 
@@ -57,70 +61,8 @@ import { typologyLabel, type TypologyId } from "@/lib/typology";
  * literal for the same reason the packet's are — the app tokens are dark.
  */
 
-/** Shared with the combined request (CombinedFreezeRequest), so the two documents cannot drift apart. */
-export const SHEET = {
-  ink: "text-[#141412]",
-  body: "text-[#4a4741]",
-  faint: "text-[#75726a]",
-  rule: "border-[#d9d5cb]",
-  ruleSoft: "border-[#e6e2d8]",
-};
-
-export function Section({
-  n,
-  title,
-  children,
-}: {
-  n: string;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className={`fx-print-block mt-10 border-t pt-6 ${SHEET.rule}`}>
-      <div className="flex items-baseline gap-4">
-        <span className={`font-mono text-xs tracking-[0.2em] ${SHEET.faint}`}>{n}</span>
-        <h2 className={`font-document text-xl leading-tight tracking-tight ${SHEET.ink}`}>
-          {title}
-        </h2>
-      </div>
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
-
-export function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <dt className={`font-mono text-xs uppercase tracking-[0.16em] ${SHEET.faint}`}>
-        {label}
-      </dt>
-      <dd className={`mt-1 text-sm ${SHEET.ink}`}>{children}</dd>
-    </div>
-  );
-}
-
-/** A line the issuing officer completes by hand or in the PDF. */
-export function Blank({
-  label,
-  width = "w-full",
-  value,
-}: {
-  label: string;
-  width?: string;
-  /** Filled in when the tool genuinely knows it, e.g. from a complaint sheet. */
-  value?: string;
-}) {
-  return (
-    <div className={width}>
-      <div className={`flex h-8 items-end border-b pb-1 font-mono text-sm ${SHEET.rule} ${SHEET.ink}`}>
-        {value ?? ""}
-      </div>
-      <p className={`mt-2 font-mono text-[10px] uppercase tracking-[0.16em] ${SHEET.faint}`}>
-        {label}
-      </p>
-    </div>
-  );
-}
+// The document pieces live in ./sheet; re-exported for existing imports.
+export { Blank, Field, SHEET, Section };
 
 export default function FreezeRequest({
   address,
@@ -163,8 +105,23 @@ export default function FreezeRequest({
 
   const trace = current.lookup.data;
 
-  // No exchange endpoint means there is no one to write to. Saying that plainly
-  // is better than printing a request with an empty addressee.
+  // No exchange endpoint: money at rest in a wallet nobody can name goes to the
+  // issuer of USDT instead, the one party that can still freeze it. Anything
+  // else has no one to write to, and saying so plainly is better than printing
+  // a request with an empty addressee.
+  const resting = trace.terminal ? null : watchTargetFor(trace);
+  if (resting) {
+    return (
+      <IssuerRequest
+        trace={trace}
+        resting={resting}
+        source={current.lookup.source}
+        given={{ amount, since, asOf }}
+        ack={ack}
+        typology={typology}
+      />
+    );
+  }
   if (!trace.terminal) {
     return (
       <div className="space-y-6">
@@ -242,6 +199,12 @@ export default function FreezeRequest({
 
       {/* Where this exchange takes requests, and what it needs first. */}
       <SendingGuide exchange={label.entity} />
+
+      {/* A customer deposit address is one account: how much of its inflow is
+          this case's. Not for an omnibus hot wallet, which is everyone's. */}
+      {isDeposit && terminalNode ? (
+        <AccountShare account={named} tracedUsdt={terminalNode.taintedValueUsdt} chain={trace.chain} />
+      ) : null}
 
       {/* -------------------------------------------------------------- sheet */}
       <article

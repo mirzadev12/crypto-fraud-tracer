@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { LEGAL_BASES, legalBasis, regimeOf } from "@/lib/legal-basis";
+import { LEGAL_BASES, legalBasis, regimeFor, type Pending } from "@/lib/legal-basis";
 
 /**
  * "Issued under", chosen by the officer. FineX offers only the sections the
@@ -11,8 +11,10 @@ import { LEGAL_BASES, legalBasis, regimeOf } from "@/lib/legal-basis";
  * section freezes an account. The dropdown is hidden in print; the chosen
  * citation prints in the signed blank.
  *
- * A fraud dated before 1 July 2024 (IST) falls under the old CrPC and Evidence
- * Act, so the picker warns instead of letting the new numbers pass as current.
+ * Which regime applies turns on whether the matter was pending on 1 July 2024
+ * (IST), which the FIR date answers, not the fraud date — so the officer says
+ * so (`regimeFor`). Stated as pending, the new sections are withdrawn and the
+ * line is left for the earlier provision to be written in.
  */
 
 // The document sheet's own tokens (SHEET in FreezeRequest.tsx), repeated here
@@ -21,9 +23,10 @@ const RULE = "border-[#d9d5cb]";
 
 export default function LegalBasisPicker({ fraudDate }: { fraudDate: string }) {
   const [choice, setChoice] = useState<string>("");
+  const [pending, setPending] = useState<Pending>("unstated");
   const id = useId();
-  const picked = legalBasis(choice);
-  const old = regimeOf(fraudDate) === "old";
+  const regime = regimeFor(fraudDate, pending);
+  const picked = regime === "old" ? undefined : legalBasis(choice);
 
   return (
     <div className="w-full">
@@ -36,11 +39,37 @@ export default function LegalBasisPicker({ fraudDate }: { fraudDate: string }) {
         <label htmlFor={id} className="block font-label text-[10px] uppercase tracking-[0.16em] text-[#4a4741]">
           Officer&rsquo;s choice · optional
         </label>
+        <fieldset className="mb-3">
+          <legend className="font-label text-[10px] uppercase tracking-[0.16em] text-[#4a4741]">
+            Was the matter pending on 1 July 2024?
+          </legend>
+          <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#4a4741]">
+            {(
+              [
+                ["unstated", "Not stated"],
+                ["no", "No — FIR or complaint on or after 1 July 2024"],
+                ["yes", "Yes — pending on that date"],
+              ] as const
+            ).map(([value, text]) => (
+              <label key={value} className="inline-flex cursor-pointer items-center gap-1">
+                <input
+                  type="radio"
+                  name={`${id}-pending`}
+                  value={value}
+                  checked={pending === value}
+                  onChange={() => setPending(value)}
+                />
+                {text}
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <select
           id={id}
-          value={choice}
+          value={regime === "old" ? "" : choice}
+          disabled={regime === "old"}
           onChange={(e) => setChoice(e.target.value)}
-          className="mt-1 w-full border border-[#d9d5cb] bg-white px-2 py-2 text-sm text-[#141412]"
+          className="mt-1 w-full border border-[#d9d5cb] bg-white px-2 py-2 text-sm text-[#141412] disabled:text-[#75726a]"
         >
           <option value="">Left blank, to be written in</option>
           {LEGAL_BASES.map((b) => (
@@ -57,10 +86,16 @@ export default function LegalBasisPicker({ fraudDate }: { fraudDate: string }) {
               : `Formerly ${picked.formerly}.`}
           </p>
         ) : null}
-        {old ? (
+        {regime === "check" ? (
           <p className="mt-2 text-xs leading-5 text-[#4a4741]">
-            This fraud is dated before 1 July 2024. A matter pending on that date stays under the earlier CrPC and
-            Evidence Act, so confirm which regime applies before citing any section here.
+            This fraud is dated before 1 July 2024. What decides the regime is whether the matter was pending on that
+            date, which the FIR or complaint date answers: say so above before citing any section here.
+          </p>
+        ) : regime === "old" ? (
+          <p className="mt-2 text-xs leading-5 text-[#4a4741]">
+            A matter pending on 1 July 2024 stays under the earlier CrPC and Evidence Act. The sections offered here
+            are the new laws&rsquo;, so the line is left blank for the earlier provision to be written in, once a
+            law officer confirms it.
           </p>
         ) : null}
         <p className="mt-2 text-xs leading-5 text-[#75726a]">

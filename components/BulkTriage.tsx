@@ -30,6 +30,7 @@ import {
 } from "@/lib/api";
 import { count, formatUsdt, shortAddress } from "@/lib/format";
 import { combinedHref, groupByExchange } from "@/lib/combined";
+import { ReadinessSummary, ReadinessTag } from "./ChannelReadiness";
 import { byState } from "@/lib/by-state";
 import { findLinks } from "@/lib/links";
 import { watchTargetFor } from "@/lib/watch";
@@ -299,7 +300,8 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
               One address or transaction per line — or a complaint sheet with a
               header row (acknowledgement number, wallet or transaction, amount,
               date, state), and each complaint keeps its number to the freeze request.
-              Everything is checksum-checked before any chain read.{" "}
+              Column names are matched loosely; I4C&rsquo;s own export format has
+              not been seen. Everything is checksum-checked before any chain read.{" "}
               <a
                 href="/templates/complaint-sheet-example.csv"
                 download
@@ -517,6 +519,7 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
             subtitle="Complaints whose money reached the same exchange, in one letter to it."
             framed={false}
           >
+            <ReadinessSummary exchanges={combined.map((g) => g.entity)} />
             <ul className="divide-y divide-line">
               {combined.map((group) => {
                 const accounts = new Set(group.entries.map((e) => e.trace.terminal!.address));
@@ -532,6 +535,9 @@ export default function BulkTriage({ sample }: { sample: string[] }) {
                         {group.entries.length} complaints ·{" "}
                         {accounts.size === 1 ? "1 account" : `${accounts.size} accounts`} ·{" "}
                         {formatUsdt(usdt, { symbol: false })} USDT
+                      </p>
+                      <p className="mt-1">
+                        <ReadinessTag exchange={group.entity} />
                       </p>
                     </div>
                     <Link

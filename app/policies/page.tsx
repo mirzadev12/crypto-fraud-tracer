@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AppShell from "@/components/AppShell";
+import AppShell, { REPOSITORY_ISSUES } from "@/components/AppShell";
 import { PageHeader, SectionHeader } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -50,7 +50,9 @@ export default function PoliciesPage() {
           <span className="text-ink">What this server keeps</span>, in plain files: the audit log of every trace (the
           wallet, the time, the officer ID stated at sign-in and whether a gateway verified it), the shared case file,
           the server-side watch list used to send alerts, and a push-notification key. The audit log is hash-chained
-          so it cannot be altered without showing.
+          so it cannot be altered without showing. On this demonstration host those files are not kept across deploys
+          or restarts, so the audit log, the case file and the alert list start empty after one; a deployment that
+          must keep them points <span className="font-mono text-xs">FINEX_STATE_DIR</span> at a persistent disk.
         </p>
         <p>
           <span className="text-ink">What leaves this server.</span> To trace a wallet, the server asks public
@@ -106,9 +108,17 @@ export default function PoliciesPage() {
 
       <Policy index="05" title="Contact and reporting a problem">
         <p>
-          To report a defect or a wrong attribution, open an issue on the project&rsquo;s repository. If you are a
-          victim of cyber fraud, do not use this site: call <span className="font-mono text-ink">1930</span> or
-          report at cybercrime.gov.in.
+          To report a defect or a wrong attribution,{" "}
+          <a
+            href={REPOSITORY_ISSUES}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-brass underline-offset-4 hover:underline"
+          >
+            open an issue on the project&rsquo;s repository
+          </a>
+          . If you are a victim of cyber fraud, do not use this site: call{" "}
+          <span className="font-mono text-ink">1930</span> or report at cybercrime.gov.in.
         </p>
       </Policy>
     </AppShell>

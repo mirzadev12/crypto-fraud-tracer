@@ -1,5 +1,6 @@
 "use client";
 
+import { baseRateNote } from "@/lib/rule-base-rates";
 import { ChainScope } from "./ChainScope";
 import Link from "next/link";
 import {
@@ -20,6 +21,7 @@ import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
 import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
 import { FingerprintBlock, FingerprintCheck } from "./PacketFingerprint";
 import BsaCertificate from "./BsaCertificate";
+import WitnessSheet from "./WitnessSheet";
 import { typologyLabel, type TypologyId } from "@/lib/typology";
 
 /**
@@ -339,6 +341,9 @@ export default function EvidencePacket({
                   <p className={`mt-1 break-all font-mono text-xs ${SHEET.body}`}>
                     at {f.atAddress}
                   </p>
+                  {baseRateNote(f.code) ? (
+                    <p className={`mt-1 text-xs ${SHEET.faint}`}>Base rate: {baseRateNote(f.code)}</p>
+                  ) : null}
                 </li>
               ))}
             </ol>
@@ -474,6 +479,11 @@ export default function EvidencePacket({
           </p>
         </footer>
       </article>
+
+      {/* For the officer, outside the filed packet: the questions counsel will ask. */}
+      {current.lookup.source !== "illustrative" ? (
+        <WitnessSheet trace={trace} fingerprint={fingerprint} recorded={current.lookup.source === "demo"} />
+      ) : null}
     </div>
     </ChainScope>
   );

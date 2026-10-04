@@ -101,6 +101,13 @@ function describeEvent(e: TraceProgress): { text: string; tone: string } {
   }
 }
 
+/**
+ * How long a live read runs before the log says it is still going. On 4 Oct
+ * 2026 the recorded wallets' live re-reads took a median of 12 s and at most
+ * 179 s, so a read past this mark is long, not stalled.
+ */
+const LONG_READ_MS = 45_000;
+
 function LiveTrace({ events }: { events: TimedEvent[] }) {
   const [now, setNow] = useState(0);
   useEffect(() => {
@@ -110,6 +117,13 @@ function LiveTrace({ events }: { events: TimedEvent[] }) {
 
   const start = events[0].at;
   const elapsed = Math.max(now, events[events.length - 1].at) - start;
+  // Derived from the same clock as the elapsed figure, so nothing is set in an
+  // effect. A recorded or replayed answer reads no chain and never gets here
+  // slowly, but it is excluded by name rather than by luck.
+  const answeredFromFile = events.some(
+    ({ event }) => event.type === "recorded" || event.type === "replayed",
+  );
+  const longRead = !answeredFromFile && elapsed >= LONG_READ_MS;
   let wallets = 0;
   let calls = 0;
   let hop = 0;
@@ -151,6 +165,11 @@ function LiveTrace({ events }: { events: TimedEvent[] }) {
             </div>
           ))}
         </dl>
+        {longRead ? (
+          <p role="status" className="border-t border-line px-6 py-2 text-xs leading-5 text-muted">
+            This wallet has a long history; reading continues.
+          </p>
+        ) : null}
         <ol
           className="fx-scroll max-h-72 space-y-1 overflow-y-auto px-6 py-4 font-mono text-xs whitespace-pre-wrap"
           aria-live="polite"

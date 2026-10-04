@@ -7,8 +7,11 @@ import tronDeposits from "@/data/deposit-addresses.json";
 import tronSeeds from "@/data/hot-wallets.json";
 import ethDeposits from "@/data/eth/deposit-addresses.json";
 import ethSeeds from "@/data/eth/hot-wallets.json";
-import { andList, shortAddress } from "@/lib/format";
-import { fiuRegistered } from "@/lib/fiu";
+import polygonDeposits from "@/data/polygon/deposit-addresses.json";
+import polygonSeeds from "@/data/polygon/hot-wallets.json";
+import vaspScan from "@/data/vasp-scan.json";
+import { andList, formatDate, shortAddress } from "@/lib/format";
+import { fiuListing, fiuRegistered } from "@/lib/fiu";
 import {
   CASE_PROOF,
   Designation,
@@ -24,6 +27,20 @@ export const metadata: Metadata = {
   description:
     "Who runs FineX, where the data sits, what it costs, what breaks, and which parts were AI-assisted.",
 };
+
+/* Indian exchanges, chain by chain, counted from the committed files. One
+   sentence for all three chains said "no Indian VASP is in the seed list" while
+   Ethereum's seed list held three of them; the answer differs by chain. */
+const exchangesOf = (rows: Array<{ exchange: string }>) => rows.map((r) => r.exchange);
+const indianRows = (rows: Array<{ exchange: string }>) =>
+  rows.filter((r) => fiuListing(r.exchange) !== null).length;
+const ETH_INDIAN_SEEDS = fiuRegistered(exchangesOf(ethSeeds));
+const POLYGON_INDIAN_SEEDS = fiuRegistered(exchangesOf(polygonSeeds));
+
+/* The live-trace timing, stated once so the two places that quote it agree:
+   the recorded wallets re-read live on 4 Oct 2026, without an API key. */
+const LIVE_TIMING =
+  "a first trace takes from about ten seconds to about three minutes, depending on how much history the wallets hold (the recorded wallets, re-read live on 4 Oct 2026: median 12 s, slowest 179 s), and less with an API key";
 
 /**
  * The questions a jury actually asks, answered against what the repository is —
@@ -64,7 +81,12 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         under investigation. There is no database server: the
         label tables are plain JSON files in the repository, and what a deployment
         keeps for itself — the shared case file, the audit log and the alert
-        watch — are plain files in its own directory.
+        watch — are plain files in its own directory. On this demonstration host
+        that directory is not kept across deploys or restarts, so the audit log,
+        the case file and the alert list start empty after one; a deployment
+        that must keep them points{" "}
+        <span className="font-mono text-xs">FINEX_STATE_DIR</span> at a
+        persistent disk.
       </>
     ),
   },
@@ -95,13 +117,17 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         if the trail ends somewhere we hold no label for, we say so instead of
         guessing, and the case is dispositioned on whether the funds are still at
         rest. <span className="text-ink">Cross-chain hops</span> — the trace follows
-        USDT on TRON and on Ethereum, each on its own, so where money leaves a
-        chain the trail ends at the last wallet it reached — on Ethereum at the
-        bridge itself, named from the explorer&rsquo;s tag. An address on another
-        chain can be screened against the sanctions list here, but not traced.{" "}
+        USDT on TRON, Ethereum and Polygon, each on its own, so where money leaves
+        a chain the trail ends at the last wallet it reached — on Ethereum and
+        Polygon at the bridge itself, named from the explorer&rsquo;s tag. TRON
+        recognises no bridge or swap contract yet, and reads one as an ordinary
+        wallet. An address on another chain can be screened against the
+        sanctions list here, but not traced.{" "}
         <span className="text-ink">Mixers</span> — nobody can follow a mixer
-        deterministically, so the case is closed at the entry point rather than
-        continued on speculation.
+        deterministically, so a case closes where its trail reaches a labelled
+        one rather than continuing on speculation. No mixer list ships yet; a
+        sanctioned laundering service closes a case through the OFAC list
+        instead.
       </>
     ),
   },
@@ -181,16 +207,18 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
       <ul className="space-y-4">
         <li>
           <span className="text-ink">Following money across a bridge.</span> USDT
-          is traced on TRON and on Ethereum mainnet, each on its own. On Ethereum,
-          money that enters a bridge stops the trace at the bridge, named from the
-          explorer&rsquo;s own tag, so the case says where it left; following it
-          onto the destination network is not built. On TRON we looked for a way
-          to recognise a bridge honestly and could not find one — the officially
-          documented TRON bridge addresses carry no USDT transfers at all. An
-          address from any other chain the OFAC list covers is recognised and
-          screened. Polygon runs on the same engine, with attribution data of its
-          own built from Polygon&apos;s explorer tags; BNB Chain uses the same address
-          format and would too, but no keyless data source for it exists.
+          is traced on TRON, on Ethereum mainnet and on Polygon, each on its own.
+          On Ethereum and Polygon, money that enters a bridge stops the trace at
+          the bridge, named from the explorer&rsquo;s own tag, so the case says
+          where it left; following it onto the destination network is not built.
+          On TRON we looked for a way to recognise a bridge honestly and could not
+          find one — the officially documented TRON bridge addresses carry no USDT
+          transfers at all — so a TRON bridge or swap contract is read as an
+          ordinary wallet. An address from any other chain the OFAC list covers is
+          recognised and screened. Polygon carries attribution data of its own,
+          built from Polygon&apos;s explorer tags; BNB Chain uses the same address
+          format and would run on the same engine too, but no keyless data source
+          for it exists.
         </li>
         <li>
           <span className="text-ink">NCRP and SAHYOG integration.</span> Not
@@ -210,10 +238,10 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
         </li>
         <li>
           <span className="text-ink">Indexing at scale.</span> Every trace reads
-          the chain on demand through a public API — about half a minute per
-          wallet without an API key. At scale, a TRON or Ethereum node the department runs
-          itself indexes token transfers locally: no rate limit, and no outside
-          service sees which wallets are under investigation.
+          the chain on demand through a public API, where {LIVE_TIMING}. At scale, a
+          TRON, Ethereum or Polygon node the department runs itself indexes token
+          transfers locally: no rate limit, and no outside service sees which
+          wallets are under investigation.
         </li>
         <li>
           <span className="text-ink">A TRON mixer list and a community abuse
@@ -229,10 +257,15 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
           re-setting those thresholds needs a few hundred, and is not done.
         </li>
         <li>
-          <span className="text-ink">No Indian VASP</span> is in the seed list:
-          2,500 tagged holders were scanned and not one Indian exchange is
-          publicly tagged, which is the gap a sovereign tool exists to close
-          rather than one we can close with a copied address.
+          <span className="text-ink">No Indian VASP is tagged on TRON.</span> The
+          top {vaspScan.holdersScanned.toLocaleString("en-US")} USDT holders there
+          were scanned and not one Indian exchange is publicly tagged among them,
+          which is the gap a sovereign tool exists to close rather than one we can
+          close with a copied address. On Ethereum the seed list includes{" "}
+          {andList(ETH_INDIAN_SEEDS)}, and on Polygon {andList(POLYGON_INDIAN_SEEDS)}.
+          Deposit addresses derived at Indian exchanges:{" "}
+          {indianRows(tronDeposits)} on TRON, {indianRows(ethDeposits)} on
+          Ethereum, {indianRows(polygonDeposits)} on Polygon.
         </li>
       </ul>
     ),
@@ -249,21 +282,20 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
 const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, string]> }> = [
   {
     group: "Built and running",
-    note: "Open any recorded case below and every one of these is on screen.",
+    note: "Each runs on this deployment. The recorded cases below show them on screen; the API is described on /developers.",
     items: [
       ["Blockchain transaction graph analysis", "Breadth-first tracing with taint carried hop by hop, drawn three ways."],
-      ["Automated exchange and VASP identification", `Attribution is a deterministic lookup: ${tronDeposits.length} customer deposit addresses derived on TRON across ${new Set(tronDeposits.map((r) => r.exchange)).size} exchanges from ${tronSeeds.length} tagged seeds, and ${ethDeposits.length} on Ethereum across ${new Set(ethDeposits.map((r) => r.exchange)).size} exchanges from ${ethSeeds.length} — ${andList(fiuRegistered(ethDeposits.map((r) => r.exchange)))} among them — each label carrying its confidence and evidence tier.`],
+      ["Automated exchange and VASP identification", `Attribution is a deterministic lookup: ${tronDeposits.length} customer deposit addresses derived on TRON across ${new Set(tronDeposits.map((r) => r.exchange)).size} exchanges from ${tronSeeds.length} tagged seeds, ${ethDeposits.length} on Ethereum across ${new Set(ethDeposits.map((r) => r.exchange)).size} exchanges from ${ethSeeds.length} — ${andList(fiuRegistered(ethDeposits.map((r) => r.exchange)))} among them — and ${polygonDeposits.length} on Polygon across ${new Set(polygonDeposits.map((r) => r.exchange)).size} exchanges from ${polygonSeeds.length}, each label carrying its confidence and evidence tier.`],
       ["Detection of intermediary laundering wallets", "Six behavioural rules, each stating its reason in a sentence an officer can read out."],
       ["Risk categorisation of wallets", "Every wallet that matters is classed as an exit, a chokepoint, at rest, a sanctions stop or an unresolved tail."],
       ["Automated alert generation", "A wallet found holding funds is watched: the desk re-asks the chain whether it has moved, and with alerts on the server asks every five minutes and notifies the officer's browser even when FineX is closed."],
       ["Fund-flow visualisation and dashboards", "Flow, cluster and timeline views, a case queue ordered by what can still be recovered."],
       ["Standardised investigation reports", "An evidence packet carrying the SHA-256 of every chain response, and a restraint request drafted from it."],
       ["API integrations", "Every route is described in an OpenAPI 3.1 specification (/openapi.json) and on /developers with a working example each; a permalink replays a past run exactly."],
-      ["Real-time tracing", "A recorded case answers in milliseconds. A live wallet takes about half a minute on the public endpoint, and less with an API key."],
+      ["Near-real-time tracing", `A live trace streams each wallet as it is read. On the public endpoint ${LIVE_TIMING}. A recorded case opens from its file in milliseconds — a file read, not a trace — and a case this server has already read replays at once from the queue.`],
       ["Automated investigative recommendations", "Ranked leads naming the next wallet to open, ordered by what can still be done."],
       ["Multiple blockchain ecosystems", "USDT is traced on TRON, on Ethereum mainnet and on Polygon — one engine, a chain adapter underneath; a 0x address is read on Polygon only when Polygon is chosen. An address from any other chain the OFAC list covers is recognised by its format, checksum verified where the format has one, and screened against that list, not traced."],
       ["AI/ML-assisted risk detection", "An unsupervised isolation forest ranks the unlabelled wallets on a trail by how unusual their behaviour is, with the features that set each apart. Advisory: it never names an exit or sets a status, and no accuracy is claimed."],
-      ["Identification of cross-chain fund movement", "On Ethereum, money that enters a bridge stops the trace there, with the bridge named from the explorer's own tag and the case stating that the trail left the chain. Following it onto the other network is not built — see below."],
     ],
   },
   {
@@ -276,9 +308,12 @@ const PS_COVERAGE: Array<{ group: string; note: string; items: Array<[string, st
   {
     group: "Not built, with a plan",
     items: [
-      ["Cross-chain tracing", "Each chain is traced on its own. Where money crosses a bridge the trail ends at the bridge; following it onto the destination network, and BNB Chain, which shares Ethereum's address format but has no keyless data source, are next."],
+      ["Identification of cross-chain fund movement", "Partly in place, so listed here rather than as built. On Ethereum and Polygon, money that enters a recognised bridge stops the trace there, named from the explorer's own tag, and the case says the trail left the chain. TRON recognises no bridge or swap contract, and no recorded case ends at a bridge. Next on TRON: recognising a contract from the chain's own account record, so a swap or a bridge stops the trace there too."],
+      ["Cross-chain tracing", "Each chain is traced on its own. Where money crosses a recognised bridge on Ethereum or Polygon the trail ends at the bridge; following it onto the destination network, and BNB Chain, which shares Ethereum's address format but has no keyless data source, are next."],
       ["NCRP and SAHYOG integration", "Both need access only I4C can grant. Intake already accepts what a complaint contains — a wallet or a transaction hash, singly or in batches."],
-      ["Scalable blockchain indexing", "Every trace reads a public endpoint on demand. Each kind of read can already be pointed at the agency's own TRON or Ethereum node; indexing transfers locally at scale, with no outside service seeing which wallets are under investigation, is next."],
+      ["Scalable blockchain indexing", "Every trace reads a public endpoint on demand. Each kind of read can already be pointed at the agency's own TRON, Ethereum or Polygon node; indexing transfers locally at scale, with no outside service seeing which wallets are under investigation, is next."],
+      ["Automated pattern recognition for fraud typologies", "The scam type on a case is entered by the officer and printed on the packet; FineX does not detect it from the trail. Recognising a typology needs cases labelled by type, which only confirmed complaints can supply. The route is to learn it from those, as a suggestion the officer confirms, never a finding."],
+      ["Privacy-enhancing mechanisms", "A Monero address is screened against the OFAC list by exact match only, never traced. The route is at the edges: labelling the services that swap USDT into a privacy coin, so a trace stops there and says so, as it does at a bridge on Ethereum and Polygon."],
     ],
     note: "",
   },
@@ -293,8 +328,16 @@ const WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eig
   "eighteen", "nineteen", "twenty"];
 const word = (n: number) => WORDS[n] ?? String(n);
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+/* The verb follows the count too: "one were decided against" is what a typed
+   "were" printed when the list had one such row. */
+const isAre = (n: number) => (n === 1 ? "is" : "are");
+const wasWere = (n: number) => (n === 1 ? "was" : "were");
 
-/** Read from the frozen file so this can never disagree with the register. */
+/**
+ * Read from the frozen file — case IDs included — so this can never disagree
+ * with the register. A finding about money at rest is dated: it was true when
+ * the case was recorded, and a wallet can move after that (one has).
+ */
 const REAL_CASES = (demoCases.cases as Array<{
   address: string;
   triage: string;
@@ -304,9 +347,11 @@ const REAL_CASES = (demoCases.cases as Array<{
     edges: unknown[];
     nodes: Array<{ depth: number; label: { kind: string; entity: string } | null }>;
     terminal: { label: { entity: string } } | null;
+    provenance: { generatedAt: string };
   };
 }>).map((c) => {
   const contract = c.trace.nodes.find((n) => n.depth > 0 && n.label?.kind === "contract");
+  const recorded = formatDate(c.trace.provenance.generatedAt);
   return {
     caseId: c.trace.caseId,
     address: c.address,
@@ -315,9 +360,9 @@ const REAL_CASES = (demoCases.cases as Array<{
       ? `ends at ${c.trace.terminal.label.entity}`
       : contract?.label
         ? `trail enters ${contract.label.entity}`
-        : c.trace.edges.length === 0
-          ? "funds at rest, never sent"
-          : "funds at rest",
+        : c.triage === "HOT" && c.trace.edges.length === 0
+          ? `funds at rest when recorded on ${recorded}`
+          : `no exit reached when recorded on ${recorded}`,
   };
 });
 
@@ -359,11 +404,13 @@ export default function OperationsPage() {
         />
         <p className="mt-10 max-w-3xl text-base leading-8 text-muted">
           The problem statement&rsquo;s feature list, consolidated into{" "}
-          {word(COVERAGE_TOTAL)} capabilities. {capital(word(COVERAGE_COUNTS[0]))} are
-          built and can be opened right now, {word(COVERAGE_COUNTS[1])} were
-          decided against for stated reasons, and {word(COVERAGE_COUNTS[2])} are not built — each
-          with the route to building it. Nothing here is aspirational: where a
-          line says built, a case file on this deployment shows it.
+          {word(COVERAGE_TOTAL)} capabilities. {capital(word(COVERAGE_COUNTS[0]))}{" "}
+          {isAre(COVERAGE_COUNTS[0])} built and can be opened right now,{" "}
+          {word(COVERAGE_COUNTS[1])} {wasWere(COVERAGE_COUNTS[1])} decided against
+          for stated reasons, and {word(COVERAGE_COUNTS[2])}{" "}
+          {isAre(COVERAGE_COUNTS[2])} not built — each with the route to building
+          it. Nothing here is aspirational: where a line says built, it runs on
+          this deployment.
         </p>
         <div className="mt-16 space-y-16">
           {PS_COVERAGE.map((block) => (
@@ -400,23 +447,23 @@ export default function OperationsPage() {
           title="Case files to open first"
           kicker="One of each disposition"
         />
-        {/* The register mixes two kinds of case and the contract has no field to
-            mark which is which, so it is stated here instead. Anyone reading a
-            figure off this tool is entitled to know whether it came off the
-            chain or was written to illustrate a shape. */}
+        {/* Anyone reading a figure off this tool is entitled to know whether it
+            came off the chain or was written to illustrate a shape. The
+            register holds only the first kind now; the hand-built traces that
+            remain are said to be what they are wherever they open. */}
         <div className="mt-10 border border-line bg-surface-2/40 p-6">
           <p className="font-label text-[10px] font-semibold uppercase tracking-[0.18em] text-brass">
             Which cases are real
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-muted">
-            {REAL_CASES.length} entries in the register were{" "}
+            {REAL_CASES.length} recorded cases were{" "}
             <strong className="font-semibold text-ink">captured from the chain</strong> by this
             pipeline, each carrying the SHA-256 of every response it was built
-            from. The rest are <strong className="font-semibold text-ink">illustrative</strong>:
-            valid addresses generated for this repository, never on the chain,
-            some with hand-built traces. Every trace opened anywhere says which
-            it is — the badge reads RECORDED TRACE, LIVE TRACE or ILLUSTRATIVE
-            CASE — and the three below are all real.
+            from. Their wallets were chosen by a script from public data, not
+            reported by victims. Three hand-built illustrative traces remain in
+            the repository, outside the register. Every trace opened anywhere
+            says where it came from — the badge reads LIVE TRACE, RECORDED TRACE
+            or ILLUSTRATIVE CASE — and the three below are all real.
           </p>
           <ul className="mt-4 space-y-2">
             {REAL_CASES.map((c) => (

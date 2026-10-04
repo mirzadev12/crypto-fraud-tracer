@@ -1,5 +1,6 @@
 "use client";
 
+import { baseRateNote } from "@/lib/rule-base-rates";
 import { freezable, traceHref } from "@/lib/api";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -99,6 +100,9 @@ export function RiskFlagList({
                   {f.code}
                 </code>
               </div>
+              {baseRateNote(f.code) ? (
+                <p className="mt-1 text-xs leading-5 text-faint">{baseRateNote(f.code)}</p>
+              ) : null}
               {open ? (
                 <div className="mt-4">
                   {/* Written by the rule engine, rendered verbatim — this is the
@@ -650,6 +654,11 @@ export default function TraceView({
         {freezable(trace) ? (
           <Link href={traceHref("freeze", trace, ack, typology)} className={primary}>
             Freeze request
+          </Link>
+        ) : watchTargetFor(trace) ? (
+          // Money at rest with no exchange on the trail: the issuer can still freeze it.
+          <Link href={traceHref("freeze", trace, ack, typology)} className={secondary}>
+            Request to Tether
           </Link>
         ) : null}
         <SaveCase trace={trace} source={source} className={secondary} />
