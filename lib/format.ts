@@ -14,14 +14,27 @@ const MONTHS = [
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** "29 Aug 2026, 09:21 UTC" */
+/**
+ * "29 Aug 2026, 09:21 UTC · 14:51 IST" — UTC first, so two readers anywhere
+ * agree, and Indian Standard Time beside it, because that is the clock an
+ * Indian officer, a complaint and an Indian exchange's records run on. IST is
+ * a fixed +05:30 all year, so this stays deterministic. The IST date is added
+ * when it is not the UTC date ("8 Sep 2026, 19:00 UTC · 9 Sep, 00:30 IST").
+ */
 export function formatDateTime(iso: string | null | undefined): string {
   if (!iso) return "—";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
+  const ist = new Date(d.getTime() + 330 * 60_000);
+  const sameDay =
+    ist.getUTCDate() === d.getUTCDate() && ist.getUTCMonth() === d.getUTCMonth() && ist.getUTCFullYear() === d.getUTCFullYear();
+  const istDate = sameDay
+    ? ""
+    : `${ist.getUTCDate()} ${MONTHS[ist.getUTCMonth()]}${ist.getUTCFullYear() !== d.getUTCFullYear() ? ` ${ist.getUTCFullYear()}` : ""}, `;
   return (
     `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}, ` +
-    `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`
+    `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC · ` +
+    `${istDate}${pad(ist.getUTCHours())}:${pad(ist.getUTCMinutes())} IST`
   );
 }
 
