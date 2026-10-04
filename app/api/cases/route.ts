@@ -3,7 +3,7 @@ import { checkAddress } from "@/lib/address";
 import { appendAudit, findTrace } from "@/lib/audit-store";
 import { addCase, caseFromEntry } from "@/lib/case-file";
 import { changeCases, loadCases } from "@/lib/case-store";
-import { actorOf } from "@/lib/identity";
+import { actorName, actorOf } from "@/lib/identity";
 
 /**
  * /api/cases — the shared case file. AGENTS.md §5 names `GET /api/cases` →
@@ -99,14 +99,31 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Expected { id }." }, { status: 400, headers: NO_STORE });
   }
   try {
+    const actor = actorOf(request.headers);
+    // Only the officer who saved a case removes it. An ID stated at sign-in is
+    // not proof of who is asking (behind a gateway, FINEX_IDENTITY_HEADER makes
+    // it so), but it stops one desk clearing another's case, and every removal
+    // is in the audit log either way.
+    let refusedFor: string | null = null;
     const removed = await changeCases((cases) => {
       const at = cases.findIndex((c) => c.id === id);
-      return at < 0 ? null : cases.splice(at, 1)[0];
+      if (at < 0) return null;
+      if ((cases[at].savedBy.id ?? null) !== (actor.id ?? null)) {
+        refusedFor = actorName(cases[at].savedBy);
+        return null;
+      }
+      return cases.splice(at, 1)[0];
     });
+    if (refusedFor) {
+      return NextResponse.json(
+        { error: `Only the officer who saved this case (${refusedFor}) can remove it` },
+        { status: 403, headers: NO_STORE },
+      );
+    }
     if (removed) {
       await appendAudit({
         action: "case.removed",
-        actor: actorOf(request.headers),
+        actor,
         chain: removed.chain,
         address: removed.inputAddress,
         detail: { caseId: removed.caseId, fromEntry: removed.entry, fingerprint: removed.fingerprint },

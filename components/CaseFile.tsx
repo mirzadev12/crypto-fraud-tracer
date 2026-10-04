@@ -29,6 +29,7 @@ const OPTION =
 export default function CaseFile() {
   const [reading, setReading] = useState<Reading | null>(null);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [refusal, setRefusal] = useState<string | null>(null);
 
   useEffect(() => {
     let live = true;
@@ -42,7 +43,9 @@ export default function CaseFile() {
 
   const remove = async (id: string) => {
     setRemoving(id);
-    await removeCase(id);
+    setRefusal(null);
+    const result = await removeCase(id);
+    if (!result.ok) setRefusal(`Not removed: ${result.error}.`);
     setReading(await listCases());
     setRemoving(null);
   };
@@ -84,6 +87,11 @@ export default function CaseFile() {
           </Link>
         }
       >
+        {refusal ? (
+          <p role="status" className="mt-4 text-xs leading-5 text-suspicious">
+            {refusal}
+          </p>
+        ) : null}
         <ul className="mt-4 divide-y divide-line border-y border-line">
           {reading.cases.map((c) => (
             <li key={c.id} className="group flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-4">

@@ -58,7 +58,7 @@ above the committed register.
   - **the disposition, exit and amount shown are the server's own.**
 - **Open** replays exactly that run: the same amount and window, the chain as it
   stood when it was read, and FIFO if FIFO was asked for.
-- **Remove** takes a case out of the file.
+- **Remove** takes a case out of the file. Since 4 Oct 2026 only the officer ID that saved a case can remove it (HTTP 403 otherwise); a stated ID is not proof, a gateway-verified one is.
 - **Saving and removing are logged**, with who did them.
 - **The same run saved twice is one case**, and it keeps who saved it first.
 
