@@ -84,6 +84,18 @@ export function Footer() {
             >
               API for integrators
             </Link>
+            <Link
+              href="/accessibility"
+              className="fx-option-quiet px-2 py-1 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
+            >
+              Accessibility
+            </Link>
+            <Link
+              href="/policies"
+              className="fx-option-quiet px-2 py-1 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
+            >
+              Policies
+            </Link>
           </div>
         </div>
       </div>
