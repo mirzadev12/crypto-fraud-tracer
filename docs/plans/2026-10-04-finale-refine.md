@@ -199,3 +199,21 @@ All three were approved, each reversing a rule recorded in CONTEXT.md:
   in `docs/research/2026-10-04-india-context.md`; chosen by the officer, never
   printed by default; the BSA certificate block has blanks. A law officer's
   confirmation is still advised before the finale.
+
+## Status, 4 Oct evening (final push)
+
+Live: reemrasheed2007 / mirzadev12 `main` at `6c2b3e4` (deploys so far this
+day: 602ec80 → 3f9b58d → afab7e6 → 6c2b3e4). On `finale/refine`, not yet
+deployed: hero trace reads itself (`fx-reveal`), fingerprint teleprinter
+(`fx-type`), optional BSA s.63(4) certificate on the packet (`BsaCertificate`).
+
+Done since the morning plan: legal-basis picker on the freeze request
+(`LegalBasisPicker`, `lib/legal-basis.ts`), `/policies`, `/accessibility`,
+the typology dropdown fix (opaque select), the prototype line moved to the
+footer.
+
+Final round: three critic agents (Sonnet) review the live site on three lenses
+and write to `docs/review/2026-10-04-critic-*.md` (PS compliance, competition
+and blind spots, evaluator walkthrough and consistency). The main session fixes
+what they find, re-scores on the rubric in `2026-10-04-judge-review.md`,
+deploys, and lists every change. No video (user's instruction).
