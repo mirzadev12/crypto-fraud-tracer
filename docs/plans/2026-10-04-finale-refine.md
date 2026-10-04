@@ -46,7 +46,9 @@ Nothing goes to reemrasheed2007 or Render until the user says so.
 | B1 India identity | **Done by Plan A**. |
 | A4 explorer tags | **Done**: live explorer tags for the wallets where a TRON trail left the search (`/api/tag`, `TailTags`); annotation only. |
 | Production check | 72 route × width checks on a production build (CSP on): 0 problems; check-demo 15/15. |
-| A9, A10 | Waiting for Plan B's branch and the deploy decision. |
+| Plan B | Taken over by Plan A on 4 Oct (the second account did not start). Done: B1 (statement now at the end of every page, at the user's request), B2 IST, B4 typology, B7 OpenAPI + /developers, /operations updated (ML built-advisory, security answer). Not done: B3 Hindi on main screens, B5 state tiles, B6 GIGW pages, B8 legal picker, B9 motion. |
+| **Deployed** | **4 Oct, with the user's go-ahead:** reemrasheed2007 `main` (and mirzadev12 `main`) fast-forwarded to `602ec80`; Render serves it (`/api/health`). Live checks: headers, 3 chain heads, INR from CoinDCX, live register, 40 page × width checks with 0 problems. |
+| A10 deck | Next: text-in-place edits to `Downloads/FineX - SIH 2026 - PS 26183 - Idea Presentation.pptx` for 3 chains, live data, ML (advisory), INR, Indian exchanges; portal text from `docs/pitch/05-portal-text-finale.md` (now valid: the site is live). Then the judge-style review the user asked for. |
 
 For Plan B: the audit page prints "stated, not verified" under every named actor;
 use `isSystemActor` / `actorBasis` from `lib/identity.ts` there so the scheduled
