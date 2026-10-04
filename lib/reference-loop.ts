@@ -18,6 +18,7 @@
 import "server-only";
 import { traceDraft, type TraceRun } from "./audit";
 import { appendAudit } from "./audit-store";
+import { rememberRun } from "./run-cache";
 import { DEMO_MODE, frozenTraces } from "./demo";
 import { SYSTEM_ACTOR } from "./identity";
 import { runTrace } from "./tracer";
@@ -107,6 +108,7 @@ export async function runReferencePass(): Promise<ReferenceProgress> {
         fraudDate: "auto",
         ...(w.chain === "polygon" ? { chain: "polygon" as const } : {}),
       });
+      rememberRun(trace, run);
       await appendAudit(traceDraft(SYSTEM_ACTOR, trace, run, "live"));
     } catch (err) {
       l.progress.failed++;

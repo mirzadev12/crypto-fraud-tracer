@@ -93,6 +93,11 @@ function describeEvent(e: TraceProgress): { text: string; tone: string } {
         text: `▸ recorded case ${e.caseId} — served from the frozen file`,
         tone: "text-ink",
       };
+    case "replayed":
+      return {
+        text: `▸ case ${e.caseId} — the run read ${formatDateTime(e.readAt)}, replayed without a new chain read`,
+        tone: "text-ink",
+      };
   }
 }
 

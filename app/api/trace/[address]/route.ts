@@ -5,6 +5,7 @@ import { streamTrace, wantsStream } from "@/lib/trace-stream";
 import { DEMO_MODE, answersFor, frozenTrace } from "@/lib/demo";
 import type { TraceRun } from "@/lib/audit";
 import { recordTrace } from "@/lib/audit-store";
+import { rememberRun, replayRun } from "@/lib/run-cache";
 import { limited } from "@/lib/rate-limit";
 
 /**
@@ -83,10 +84,18 @@ export async function GET(
    * the haircut capture would label a haircut figure as FIFO, which is the one
    * kind of lie this file exists to prevent, so it goes to the chain like any
    * other and fails honestly if the network is gone.
+   *
+   * Outside demo mode the same file answers a link pinned to the recorded run
+   * itself — `?asof=` its capture moment — because that run is already on
+   * file, with its hashes, and a second read could only come back the same or
+   * throttled. It is stamped recorded either way. A bare link still goes to the
+   * chain: without `asof` it asks what the wallet looks like now. Only this
+   * route does it; POST /api/trace re-derives, which scripts/rescore-cases.mjs
+   * depends on.
    */
-  if (DEMO_MODE) {
+  {
     const held = frozenTrace(address, job.chain);
-    if (held && answersFor(held.trace, job)) {
+    if (held && (DEMO_MODE || job.asOf) && answersFor(held.trace, job)) {
       await recordTrace(request, held.trace, run, "recorded");
       if (wantsStream(request)) {
         return streamTrace(async (emit) => {
@@ -100,9 +109,24 @@ export async function GET(
     }
   }
 
+  // A pinned link to a run this server has already read is answered from that
+  // run (lib/run-cache.ts): one answer, read once.
+  const kept = replayRun(job);
+  if (kept) {
+    await recordTrace(request, kept, run, "replayed");
+    if (wantsStream(request)) {
+      return streamTrace(async (emit) => {
+        emit({ type: "replayed", caseId: kept.caseId, readAt: kept.provenance.generatedAt });
+        return kept;
+      }, "live");
+    }
+    return NextResponse.json(kept, { headers: { "x-finex-provenance": "live" } });
+  }
+
   if (wantsStream(request)) {
     return streamTrace(async (emit) => {
       const result = await runTrace(job, emit);
+      rememberRun(result, run);
       await recordTrace(request, result, run, "live");
       return result;
     }, "live");
@@ -110,6 +134,7 @@ export async function GET(
 
   try {
     const result = await runTrace(job);
+    rememberRun(result, run);
     await recordTrace(request, result, run, "live");
     return NextResponse.json(result, {
       headers: { "x-finex-provenance": "live" },

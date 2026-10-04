@@ -47,6 +47,11 @@ export function runHref(
   address: string,
   run: { amount: unknown; since: unknown; asOf: string; model: unknown; chain?: unknown },
 ): string {
+  return `/trace/${encodeURIComponent(address)}?${runQuery(run)}`;
+}
+
+/** The query string of `runHref`, for a link to any of the case's pages. */
+export function runQuery(run: { amount: unknown; since: unknown; asOf: string; model: unknown; chain?: unknown }): string {
   const q = new URLSearchParams();
   if (typeof run.amount === "number" && run.amount > 0) q.set("amount", String(run.amount));
   if (typeof run.since === "string" && run.since !== "auto") q.set("since", run.since);
@@ -54,7 +59,7 @@ export function runHref(
   if (run.model === "fifo") q.set("model", "fifo");
   // A 0x address on Polygon is said in the link, or it would replay on Ethereum.
   if (run.chain === "polygon") q.set("chain", "polygon");
-  return `/trace/${encodeURIComponent(address)}?${q}`;
+  return q.toString();
 }
 
 /** The saved case for a recorded trace, or null when the entry is not a usable trace. */

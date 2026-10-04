@@ -104,7 +104,7 @@ export interface TraceParams {
 export function traceHref(
   kind: "trace" | "report" | "freeze",
   trace: Pick<TraceResult, "inputAddress" | "reportedAmountUsdt" | "fraudDate"> & {
-    provenance?: { generatedAt?: string };
+    provenance?: { generatedAt?: string; asked?: TraceResult["provenance"]["asked"] };
     chain?: TraceResult["chain"];
   },
   /** The complaint's acknowledgement number, when the case came from a complaint sheet. */
@@ -113,8 +113,15 @@ export function traceHref(
   typology?: string,
 ): string {
   const query = new URLSearchParams();
-  if (trace.reportedAmountUsdt > 0) query.set("amount", String(trace.reportedAmountUsdt));
-  if (trace.fraudDate) query.set("since", trace.fraudDate);
+  // A run that records what it was asked for replays an automatic amount or
+  // window as automatic: stating the traced amount and the derived window
+  // would turn them into figures the complaint reported, and the NEW_ADDRESS
+  // rule reads a stated window as a reported date. Older traces state both.
+  const asked = trace.provenance?.asked;
+  const amountStated = asked ? asked.amount !== "auto" : true;
+  const sinceStated = asked ? asked.since !== "auto" : true;
+  if (amountStated && trace.reportedAmountUsdt > 0) query.set("amount", String(trace.reportedAmountUsdt));
+  if (sinceStated && trace.fraudDate) query.set("since", trace.fraudDate);
   if (trace.provenance?.generatedAt) query.set("asof", trace.provenance.generatedAt);
   if (ack) query.set("ack", ack);
   if (typology) query.set("typology", typology);
@@ -255,8 +262,14 @@ export function rowChain(row: object): "polygon" | undefined {
 /** The trace, packet or freeze request for a register row, on its own chain. */
 export function caseHref(
   kind: "trace" | "report" | "freeze",
-  row: { inputAddress: string; chain?: unknown },
+  row: { inputAddress: string; chain?: unknown; pin?: unknown },
 ): string {
+  // A register row read by this server carries its own run (lib/register.ts),
+  // so opening it replays that run — from memory, at once — instead of asking
+  // the chain the question again.
+  if (typeof row.pin === "string" && row.pin) {
+    return `/${kind}/${encodeURIComponent(row.inputAddress)}?${row.pin}`;
+  }
   return `/${kind}/${encodeURIComponent(row.inputAddress)}${rowChain(row) ? "?chain=polygon" : ""}`;
 }
 
@@ -582,8 +595,20 @@ function normalizeTrace(raw: Record<string, unknown>): TraceResult {
         typeof provenance.generatedAt === "string"
           ? provenance.generatedAt
           : new Date().toISOString(),
+
+      ...(askedOf(provenance.asked) ? { asked: askedOf(provenance.asked)! } : {}),
     },
   };
+}
+
+/** `provenance.asked`, when it is well formed; anything else is dropped. */
+function askedOf(v: unknown): TraceResult["provenance"]["asked"] | null {
+  if (!isObj(v)) return null;
+  const amount: number | "auto" | null =
+    v.amount === "auto" ? "auto" : typeof v.amount === "number" && v.amount > 0 ? v.amount : null;
+  const since = typeof v.since === "string" ? v.since : null;
+  const model = v.model === "fifo" ? "fifo" : v.model === "haircut" ? "haircut" : null;
+  return amount !== null && since !== null && model ? { amount, since, model } : null;
 }
 
 /* ----------------------------------------------------------------- fetching */

@@ -1,6 +1,6 @@
 [
   {
-    "caseId": "FX-2026-6619",
+    "caseId": "FX-MCTD-PEMQ",
     "inputAddress": "TDii6vao7xyWg2rKPbCPWVRpSmne8xcqYx",
     "reportedAmountUsdt": 5535.981436,
     "fraudDate": "2026-09-09T13:09:36.000Z",
@@ -8,7 +8,7 @@
     "terminalEntity": null
   },
   {
-    "caseId": "FX-2026-6568",
+    "caseId": "FX-47XQ-Q520",
     "inputAddress": "TJjc21brTnnmKhiYHQuBD9Pxpfy7BwXHYQ",
     "reportedAmountUsdt": 500,
     "fraudDate": "2026-09-08T19:00:27.000Z",
@@ -16,7 +16,7 @@
     "terminalEntity": "Bybit"
   },
   {
-    "caseId": "FX-2026-5139",
+    "caseId": "FX-AJZY-1S6X",
     "inputAddress": "TXq2kpXz13Z16b2Fjq58NerQTmU7gkkGex",
     "reportedAmountUsdt": 7630.48,
     "fraudDate": "2026-09-08T19:12:36.000Z",
@@ -24,7 +24,7 @@
     "terminalEntity": "MEXC"
   },
   {
-    "caseId": "FX-2025-5852",
+    "caseId": "FX-9A3A-B231",
     "inputAddress": "TRWDtgCfXzTcMv8W6iJxh6umeqeF3zG7n5",
     "reportedAmountUsdt": 5000,
     "fraudDate": "2025-11-14T11:13:21.000Z",
@@ -32,7 +32,7 @@
     "terminalEntity": "ISIL KHORASAN"
   },
   {
-    "caseId": "FX-2026-5843",
+    "caseId": "FX-RT9Q-MDAC",
     "inputAddress": "TXncpWJZ8ZxUcwrpTP4SE4nNhZnKZM4QzC",
     "reportedAmountUsdt": 9795.12,
     "fraudDate": "2026-09-08T15:37:45.000Z",
@@ -40,7 +40,7 @@
     "terminalEntity": "MEXC"
   },
   {
-    "caseId": "FX-2026-3825",
+    "caseId": "FX-GVT5-X4SE",
     "inputAddress": "TVebSaNSdNHirwz46UPEzMgGy6pSQQu2aR",
     "reportedAmountUsdt": 10504.62,
     "fraudDate": "2026-09-08T06:13:51.000Z",
@@ -48,7 +48,7 @@
     "terminalEntity": "MEXC"
   },
   {
-    "caseId": "FX-2026-9749",
+    "caseId": "FX-N8E3-HXQ6",
     "inputAddress": "TUGHe9CTbZG44YvqfTSBd3mTAysCWcVNL6",
     "reportedAmountUsdt": 329.9,
     "fraudDate": "2026-06-19T13:50:21.000Z",
@@ -56,7 +56,7 @@
     "terminalEntity": "ISIL KHORASAN"
   },
   {
-    "caseId": "FX-2024-4759",
+    "caseId": "FX-Z90A-EX45",
     "inputAddress": "TTQd8Bo1nhKEVgkKJVP3SRYZ1nDNStckvj",
     "reportedAmountUsdt": 2000,
     "fraudDate": "2024-09-06T07:32:48.000Z",
@@ -64,7 +64,7 @@
     "terminalEntity": "ISIL KHORASAN"
   },
   {
-    "caseId": "FX-2025-8453",
+    "caseId": "FX-MAP9-KQRX",
     "inputAddress": "TBfVDwNS6hC2Ln2qTLTRKMMPddscFEhhrU",
     "reportedAmountUsdt": 5000,
     "fraudDate": "2025-11-14T11:16:06.000Z",
@@ -72,7 +72,7 @@
     "terminalEntity": "ISIL KHORASAN"
   },
   {
-    "caseId": "FX-2026-1956",
+    "caseId": "FX-XYX7-2YAY",
     "inputAddress": "TQGFsqQcGMSozKhjmEU9C4eA4gfbn5gQDn",
     "reportedAmountUsdt": 3482.7,
     "fraudDate": "2026-09-12T09:00:18.000Z",
@@ -80,7 +80,7 @@
     "terminalEntity": "Binance"
   },
   {
-    "caseId": "FX-2021-4112",
+    "caseId": "FX-NDSZ-ZC9V",
     "inputAddress": "0x77fB78EAC2021Cd52097168873324d3F1200E275",
     "reportedAmountUsdt": 290,
     "fraudDate": "2021-12-05T08:02:49.000Z",
@@ -88,7 +88,7 @@
     "terminalEntity": "CoinDCX"
   },
   {
-    "caseId": "FX-2025-6303",
+    "caseId": "FX-3FSG-ZNXA",
     "inputAddress": "0x16a8D032ffe880535CD3e1815fe917e96A0715dd",
     "reportedAmountUsdt": 29427.872373,
     "fraudDate": "2025-02-23T18:32:35.000Z",
@@ -96,7 +96,7 @@
     "terminalEntity": "Behzad MESRI"
   },
   {
-    "caseId": "FX-2026-9960",
+    "caseId": "FX-4VWT-8BSZ",
     "inputAddress": "0xda4E10D8B82ed53d950e2D4312A22331c515569c",
     "reportedAmountUsdt": 700,
     "fraudDate": "2026-09-24T20:23:35.000Z",
@@ -104,7 +104,7 @@
     "terminalEntity": null
   },
   {
-    "caseId": "FX-2026-4651",
+    "caseId": "FX-JECJ-H7R4",
     "inputAddress": "0x577d132eF3cCE50B38D768670ACdaC26680902D4",
     "reportedAmountUsdt": 31.297714,
     "fraudDate": "2026-09-27T07:43:33.000Z",

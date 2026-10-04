@@ -230,7 +230,10 @@ export function deriveLeads(trace: TraceResult): Lead[] {
     draft.push({
       code: "EXIT_ACCOUNT",
       title: "Send the freeze request here",
-      finding: `${formatUsdt(terminalNode.taintedValueUsdt)} reached an address attributed to a single customer deposit account at ${terminal.label.entity}.`,
+      finding:
+        terminal.address === trace.inputAddress
+          ? `The reported address is itself attributed to a single customer deposit account at ${terminal.label.entity}: the payment went straight into it.`
+          : `${formatUsdt(terminalNode.taintedValueUsdt)} reached an address attributed to a single customer deposit account at ${terminal.label.entity}.`,
       action: `A restraint request naming this address can be actioned by ${terminal.label.entity}, because it identifies one account rather than the exchange as a whole. Attribution is ${terminal.label.source === "heuristic" ? "heuristic — state the confidence in the request" : "from a public explorer tag"}.`,
       address: terminal.address,
       evidence: [
@@ -244,7 +247,10 @@ export function deriveLeads(trace: TraceResult): Lead[] {
     draft.push({
       code: "EXIT_OMNIBUS",
       title: "Ask the exchange to name the account",
-      finding: `${formatUsdt(terminalNode.taintedValueUsdt)} reached ${terminal.label.entity}'s own hot wallet, which the whole exchange transacts through.`,
+      finding:
+        terminal.address === trace.inputAddress
+          ? `The reported address is itself ${terminal.label.entity}'s own hot wallet, which the whole exchange transacts through.`
+          : `${formatUsdt(terminalNode.taintedValueUsdt)} reached ${terminal.label.entity}'s own hot wallet, which the whole exchange transacts through.`,
       action: `The receiving account cannot be identified from the chain here. ${terminal.label.entity} can identify it from the deposit transaction — request it by transaction hash and timestamp rather than by address.`,
       address: terminal.address,
       evidence: [

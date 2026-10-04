@@ -155,7 +155,8 @@ async function tracesToday(now: number): Promise<{ today: number; last: string |
     let today = 0;
     let last: string | null = null;
     for (const e of entries) {
-      if (!e || e.action !== "trace") continue;
+      // A replay opens a run already read; it is not another trace.
+      if (!e || e.action !== "trace" || e.detail.provenance === "replayed") continue;
       if (e.at.startsWith(day)) today++;
       if (!last || e.at > last) last = e.at;
     }

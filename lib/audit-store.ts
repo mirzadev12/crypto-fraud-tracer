@@ -79,7 +79,7 @@ export async function recordTrace(
   request: Request,
   trace: TraceResult,
   run: TraceRun,
-  provenance: "live" | "recorded",
+  provenance: "live" | "recorded" | "replayed",
 ): Promise<void> {
   try {
     await appendAudit(traceDraft(actorOf(request.headers), trace, run, provenance));
@@ -96,7 +96,10 @@ export async function findTrace(address: string, fingerprint: string): Promise<A
   const { entries } = await readAudit();
   for (let i = entries.length - 1; i >= 0; i--) {
     const e = entries[i];
-    if (e && e.action === "trace" && e.address === address && e.detail.fingerprint === fingerprint) return e;
+    // A replay answers from an earlier entry; the case is saved from that one.
+    if (e && e.action === "trace" && e.detail.provenance !== "replayed" && e.address === address && e.detail.fingerprint === fingerprint) {
+      return e;
+    }
   }
   return null;
 }

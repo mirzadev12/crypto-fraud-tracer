@@ -39,4 +39,6 @@ export type TraceProgress =
     }
   | { type: "scoring"; wallets: number; transfers: number }
   /** Demo mode answered from the frozen case file instead of the chain. */
-  | { type: "recorded"; caseId: string };
+  | { type: "recorded"; caseId: string }
+  /** A pinned link answered from the run this server read at `readAt`. */
+  | { type: "replayed"; caseId: string; readAt: string };

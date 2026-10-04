@@ -7,7 +7,9 @@
 // gained "ethereum", and NodeKind gained "contract" — a smart contract the
 // trace stopped at because following it would follow other people's money.
 // Nothing was renamed or removed. One more on 27 Sep 2026: `chain` gained
-// "polygon" (docs/features/11-polygon-tracing.md). Additive again.
+// "polygon" (docs/features/11-polygon-tracing.md). Additive again. And on
+// 4 Oct 2026: `provenance.asked`, optional — what the run was asked for, so a
+// link replays an automatic amount or window as automatic.
 
 export type TriageLevel = "HOT" | "WARM" | "COLD";
 export type LabelSource = "ground_truth" | "heuristic" | "sanctions" | "community";
@@ -70,6 +72,9 @@ export interface TraceResult {
     apiCalls: number;
     responseHashes: string[];        // sha256 per API response
     generatedAt: string;
+    /** What the run was asked for: a figure the officer stated, or "auto"
+        where the tool chose. Absent on traces captured before 4 Oct 2026. */
+    asked?: { amount: number | "auto"; since: string | "auto"; model: "haircut" | "fifo" };
   };
 }
 

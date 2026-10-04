@@ -371,11 +371,13 @@ export default function FreezeRequest({
             <Field label="Case reference">
               <span className="font-mono">{trace.caseId}</span>
             </Field>
-            <Field label="Date of fraud">{formatDateTime(trace.fraudDate)}</Field>
+            <Field label={since ? "Date of fraud" : "Window opened (no date reported)"}>
+              {formatDateTime(trace.fraudDate)}
+            </Field>
             <Field label="Victim-reported address">
               <code className="break-all font-mono text-xs">{trace.inputAddress}</code>
             </Field>
-            <Field label="Amount reported">
+            <Field label={amount ? "Amount reported" : "Amount traced (none reported)"}>
               <span className="font-mono tabular-nums">
                 {formatUsdt(trace.reportedAmountUsdt)}
               </span>

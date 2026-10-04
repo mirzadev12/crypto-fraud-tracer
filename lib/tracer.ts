@@ -20,6 +20,7 @@
  * address" instead of "this address exists".
  */
 
+import { createHash } from "node:crypto";
 import { checkAddress } from "./address";
 import type { ChainClient, Transfer } from "./chain-client";
 import { categoryOf, contractLabel, stopsTrace } from "./contracts";
@@ -203,12 +204,28 @@ function fifoShares(
   return shares;
 }
 
-/** Deterministic, human-quotable case reference derived from the address. */
-function caseIdFor(address: string, fraudDate: string): string {
-  let hash = 0;
-  for (const ch of address) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  const year = new Date(fraudDate).getUTCFullYear() || new Date().getUTCFullYear();
-  return `FX-${year}-${String(hash % 10000).padStart(4, "0")}`;
+const CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+
+/**
+ * Deterministic, human-quotable case reference: one per wallet per chain.
+ * Forty bits of SHA-256 over the chain and the address, in Crockford base32 (no
+ * I, L, O or U to misread aloud), as FX-XXXX-XXXX. It used to be a year and
+ * four digits: the year came from the trace's window, so one wallet traced
+ * with and without a reported date carried two references, and with ten
+ * thousand values two wallets sharing a reference was near certain within a
+ * year of complaints. Forty bits makes that negligible at any desk's volume.
+ */
+export function caseIdFor(chain: string, address: string): string {
+  const key = `${chain}:${address.startsWith("0x") ? address.toLowerCase() : address}`;
+  const digest = createHash("sha256").update(key).digest();
+  let value = 0;
+  for (let i = 0; i < 5; i++) value = value * 256 + digest[i];
+  let out = "";
+  for (let i = 0; i < 8; i++) {
+    out = CROCKFORD[value % 32] + out;
+    value = Math.floor(value / 32);
+  }
+  return `FX-${out.slice(0, 4)}-${out.slice(4)}`;
 }
 
 export async function runTrace(
@@ -290,6 +307,18 @@ export async function runTrace(
     source: "ground_truth",
   };
 
+  /*
+   * The reported address can itself be attributed. A victim told to pay
+   * straight into an exchange deposit address is the simplest case there is,
+   * and the account to name is that address. It is read — the window and the
+   * amount come from it — but, like any attributed wallet, not followed: what
+   * an exchange does with a deposit afterwards is its own bookkeeping, and
+   * scoring its sweeps would read an exchange's routine as laundering. It stays
+   * the subject on the canvas; `decide` names it as the exit.
+   */
+  const rootOwnLabel = lookupOn(chain, root);
+  const rootOwn = isTerminal(rootOwnLabel) ? rootOwnLabel : null;
+
   let queue: Array<{ address: string; depth: number; taint: number }> = [
     { address: root, depth: 0, taint: 1 },
   ];
@@ -349,6 +378,17 @@ export async function runTrace(
         if (info && stopsTrace(info)) label = contractLabel(info);
       }
       const stopHere = !isRoot && isTerminal(label);
+      const ownAnswer = isRoot && rootOwn !== null;
+      if (ownAnswer && rootOwn) {
+        emit({
+          type: "label",
+          address: item.address,
+          depth: item.depth,
+          entity: rootOwn.entity,
+          kind: rootOwn.kind,
+          source: rootOwn.source,
+        });
+      }
       if (label && !isRoot) {
         emit({
           type: "label",
@@ -452,9 +492,11 @@ export async function runTrace(
       // What this wallet actually did, before the five-largest cut below. Three
       // behavioural rules need the uncapped picture; scoring the pruned trace
       // instead is what left them unable to fire at all. See risk.ts.
+      // An attributed reported address is not followed, so its outflows are
+      // an exchange's own sweeps and are not scored as a wallet's behaviour.
       observed.set(item.address, {
-        outValues: outAll.map((t) => t.value),
-        recipients: new Set(outAll.map((t) => t.to)).size,
+        outValues: ownAnswer ? [] : outAll.map((t) => t.value),
+        recipients: ownAnswer ? 0 : new Set(outAll.map((t) => t.to)).size,
         historyComplete: !grid.wasTruncated(item.address),
       });
 
@@ -486,7 +528,7 @@ export async function runTrace(
       });
 
       // Stop at the first attributable wallet — that is the finding.
-      if (stopHere || item.depth >= MAX_DEPTH) continue;
+      if (stopHere || ownAnswer || item.depth >= MAX_DEPTH) continue;
 
       // Taint splits by share of everything that left after the money arrived,
       // so dust dropped below still counts against the denominator rather than
@@ -590,10 +632,11 @@ export async function runTrace(
     windowStart: Number.isNaN(fraudAt) ? now() : fraudAt,
     fraudDateReported: req.fraudDate !== "auto",
     chainName: chainMeta(chain).name,
+    rootOwn,
   });
 
   const result: TraceResult = {
-    caseId: caseIdFor(root, fraudIso),
+    caseId: caseIdFor(chain, root),
     inputAddress: root,
     chain,
     reportedAmountUsdt: micro(reported),
@@ -611,6 +654,13 @@ export async function runTrace(
       // it was computed: every age on screen is measured from this, and the
       // chain it read is the chain as it stood then.
       generatedAt: new Date(now()).toISOString(),
+      // What was asked, so a link to this run replays an automatic amount or
+      // window as automatic rather than as a figure somebody reported.
+      asked: {
+        amount: req.amount,
+        since: req.fraudDate,
+        model: req.model === "fifo" ? "fifo" : "haircut",
+      },
     },
   };
 
@@ -627,7 +677,7 @@ export async function runTrace(
  * The disposition. This is the differentiator: everyone traces, nobody triages.
  * Order matters — a mixer closes a case even if an exchange was also touched.
  */
-function decide(
+export function decide(
   nodes: TraceNode[],
   ctx: {
     /** How many transfers out of the reported wallet this trace followed. */
@@ -642,6 +692,8 @@ function decide(
     fraudDateReported: boolean;
     /** "Ethereum" or "Polygon": the network a bridge took the money off. */
     chainName: string;
+    /** The reported address's own attribution, when it has one that ends a trace. */
+    rootOwn?: Label | null;
   },
 ): Pick<TraceResult, "triage" | "triageReason" | "terminal"> & {
   /** The wallet named as holding the money, when the finding names one. */
@@ -650,6 +702,31 @@ function decide(
   const byTaint = [...nodes].sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt);
   const usdt = (n: number) =>
     n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+
+  // The reported address is itself attributed (see `runTrace`): the payment
+  // went straight to the answer. Worded as such, never as money that
+  // "reached" it, which would describe money moving to where it started.
+  const reportedNode = nodes.find((n) => n.depth === 0);
+  if (ctx.rootOwn && reportedNode) {
+    const own = ctx.rootOwn;
+    if (own.kind === "mixer" || own.kind === "sanctioned") {
+      return {
+        triage: "COLD" as TriageLevel,
+        triageReason: `The reported address is itself attributed to ${own.entity}; there is no exchange account behind it to freeze, so the case should be documented and closed.`,
+        terminal: { address: reportedNode.address, label: own, depositAddress: null },
+        restingAt: null,
+      };
+    }
+    const isDeposit = own.kind === "exchange_deposit";
+    return {
+      triage: "WARM" as TriageLevel,
+      triageReason: isDeposit
+        ? `The reported address is itself a likely ${own.entity} customer deposit address, so payments to it are credited to one account at ${own.entity}; a freeze request naming that address is viable.`
+        : `The reported address is itself a ${own.entity} wallet, so payments to it went straight to the exchange; ${own.entity} can be asked to identify the account a payment was credited to, by its transaction hash.`,
+      terminal: { address: reportedNode.address, label: own, depositAddress: isDeposit ? reportedNode.address : null },
+      restingAt: null,
+    };
+  }
 
   // Only wallets the money actually reached can be the finding — depth 0 is
   // the reported address itself, and a wallet carrying none of the victim's

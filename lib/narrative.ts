@@ -108,7 +108,16 @@ export function buildNarrative(
 
   /* 1 — what left, and when. */
   const subject = trace.nodes.find((n) => n.depth === 0);
-  if (subject && subject.firstSeen === null) {
+  // The reported address is itself the exit (lib/tracer.ts `decide`): there is
+  // no route to describe, only what the address is.
+  const ownExit = trace.terminal && trace.terminal.address === trace.inputAddress ? trace.terminal : null;
+  if (ownExit) {
+    sentences.push(
+      `The reported address ${trace.inputAddress} is itself attributed to ${midSentence(entityPhrase(ownExit.label))}${
+        ownExit.depositAddress ? ", a customer deposit address" : ""
+      }. It is not followed further: an attributed wallet is the answer, not a place to keep looking.`,
+    );
+  } else if (subject && subject.firstSeen === null) {
     // No history at all. A date here would only be the default window the
     // tracer opened, and would read as if something was looked for after it.
     sentences.push(`No USDT transfer is on record for ${trace.inputAddress}.`);
@@ -146,7 +155,9 @@ export function buildNarrative(
     : [...trace.nodes]
         .filter((n) => n.depth > 0 && n.label?.kind === "contract" && n.taintedValueUsdt > 0)
         .sort((a, b) => b.taintedValueUsdt - a.taintedValueUsdt)[0];
-  if (trace.terminal) {
+  if (ownExit) {
+    // Said in sentence one.
+  } else if (trace.terminal) {
     const reached = trace.nodes.find((n) => n.address === trace.terminal?.address);
     const phrase = midSentence(entityPhrase(trace.terminal.label));
     const account = trace.terminal.depositAddress;

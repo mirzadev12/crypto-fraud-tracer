@@ -31,7 +31,12 @@ function what(e: AuditEntry): { head: string; rest: string } {
   switch (e.action) {
     case "trace":
       return {
-        head: d.provenance === "recorded" ? "Traced · recorded" : "Traced · live",
+        head:
+          d.provenance === "recorded"
+            ? "Traced · recorded"
+            : d.provenance === "replayed"
+              ? "Opened · replay of a run read earlier"
+              : "Traced · live",
         rest: `${triageLabel(d.triage)} · ${typeof d.exit === "string" ? d.exit : "no exit named"} · case ${String(d.caseId)} · fingerprint ${String(d.fingerprint).slice(0, 12)}…`,
       };
     case "case.saved":

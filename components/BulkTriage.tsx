@@ -98,6 +98,8 @@ function describeProgress(event: TraceProgress): string {
       return `Scoring ${count(event.wallets, "wallet")}`;
     case "recorded":
       return `Recorded case ${event.caseId}`;
+    case "replayed":
+      return `Case ${event.caseId} — run already read, replayed`;
   }
 }
 

@@ -18,6 +18,7 @@
  */
 import "server-only";
 import { readAudit } from "./audit-store";
+import { runQuery } from "./case-file";
 import { loadCases } from "./case-store";
 import { DEMO_MODE, frozenTraces } from "./demo";
 import { actorName, isSystemActor } from "./identity";
@@ -33,6 +34,8 @@ export interface RegisterRow extends CaseSummary {
   readAt: string;
   /** Who ran it, as the audit log records it. */
   by: string | null;
+  /** The query string that replays exactly this run (lib/case-file.ts `runQuery`). */
+  pin?: string;
 }
 
 export interface Register {
@@ -63,6 +66,14 @@ function fromTrace(t: TraceResult, origin: RowOrigin): RegisterRow {
     origin,
     readAt: t.provenance.generatedAt,
     by: null,
+    // The recorded run itself: answered from the case file, live or demo.
+    pin: runQuery({
+      amount: t.reportedAmountUsdt,
+      since: t.fraudDate,
+      asOf: t.provenance.generatedAt,
+      model: "haircut",
+      chain: t.chain,
+    }),
   };
 }
 
@@ -106,6 +117,9 @@ export async function buildRegister(): Promise<Register> {
       origin: isSystemActor(e.actor) ? "reference" : "traced",
       readAt: typeof d.asOf === "string" ? d.asOf : e.at,
       by: isSystemActor(e.actor) ? null : actorName(e.actor),
+      ...(typeof d.asOf === "string"
+        ? { pin: runQuery({ amount: d.amount, since: d.since, asOf: d.asOf, model: d.model, chain: e.chain }) }
+        : {}),
     };
     const k = key(row.chain, row.inputAddress);
     const prev = latest.get(k);
@@ -126,6 +140,7 @@ export async function buildRegister(): Promise<Register> {
       origin: "saved",
       readAt: c.savedAt,
       by: actorName(c.savedBy),
+      pin: c.href.includes("?") ? c.href.slice(c.href.indexOf("?") + 1) : undefined,
     });
   }
   const traced = [...latest.values()]

@@ -148,7 +148,8 @@ export function traceDraft(
   actor: Actor,
   trace: TraceResult,
   run: TraceRun,
-  provenance: "live" | "recorded",
+  /** "replayed": a pinned link answered from a run already read (lib/run-cache.ts). */
+  provenance: "live" | "recorded" | "replayed",
 ): AuditDraft {
   return {
     action: "trace",

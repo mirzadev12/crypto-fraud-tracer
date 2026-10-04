@@ -5,6 +5,7 @@ import { streamTrace, wantsStream } from "@/lib/trace-stream";
 import { DEMO_MODE, answersFor, frozenTrace } from "@/lib/demo";
 import type { TraceRun } from "@/lib/audit";
 import { recordTrace } from "@/lib/audit-store";
+import { rememberRun, replayRun } from "@/lib/run-cache";
 import { limited } from "@/lib/rate-limit";
 
 /**
@@ -128,9 +129,24 @@ export async function POST(request: Request) {
     }
   }
 
+  // A pinned link to a run this server has already read is answered from that
+  // run (lib/run-cache.ts): one answer, read once.
+  const kept = replayRun(job);
+  if (kept) {
+    await recordTrace(request, kept, run, "replayed");
+    if (wantsStream(request)) {
+      return streamTrace(async (emit) => {
+        emit({ type: "replayed", caseId: kept.caseId, readAt: kept.provenance.generatedAt });
+        return kept;
+      }, "live");
+    }
+    return NextResponse.json(kept, { headers: { "x-finex-provenance": "live" } });
+  }
+
   if (wantsStream(request)) {
     return streamTrace(async (emit) => {
       const result = await runTrace(job, emit);
+      rememberRun(result, run);
       await recordTrace(request, result, run, "live");
       return result;
     }, "live");
@@ -138,6 +154,7 @@ export async function POST(request: Request) {
 
   try {
     const result = await runTrace(job);
+    rememberRun(result, run);
     await recordTrace(request, result, run, "live");
     return NextResponse.json(result, {
       headers: { "x-finex-provenance": "live" },

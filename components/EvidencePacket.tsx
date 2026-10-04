@@ -209,12 +209,14 @@ export default function EvidencePacket({
             <Field label="Victim-reported address">
               <code className="break-all font-mono text-sm">{trace.inputAddress}</code>
             </Field>
-            <Field label="Reported amount">
+            <Field label={amount ? "Reported amount" : "Amount traced (none reported)"}>
               <span className="font-mono tabular-nums">
                 {formatUsdt(trace.reportedAmountUsdt)}
               </span>
             </Field>
-            <Field label="Date of fraud">{formatDateTime(trace.fraudDate)}</Field>
+            <Field label={since ? "Date of fraud" : "Window opened (no date reported)"}>
+              {formatDateTime(trace.fraudDate)}
+            </Field>
             {ack ? (
               <Field label="NCRP acknowledgement number">
                 <span className="font-mono tabular-nums">{ack}</span>
