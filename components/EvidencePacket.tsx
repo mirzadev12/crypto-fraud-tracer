@@ -19,6 +19,7 @@ import { chainMeta } from "@/lib/chain-meta";
 import { FIU_SOURCE, fiuListing, fiuSentence } from "@/lib/fiu";
 import { checkHref, findingsFingerprint } from "@/lib/fingerprint";
 import { FingerprintBlock, FingerprintCheck } from "./PacketFingerprint";
+import BsaCertificate from "./BsaCertificate";
 import { typologyLabel, type TypologyId } from "@/lib/typology";
 
 /**
@@ -458,6 +459,9 @@ export default function EvidencePacket({
             </li>
           </ul>
         </Section>
+
+        {/* An optional, blank BSA s.63(4) certificate in the Schedule's form. */}
+        <BsaCertificate custodyN={custodyN} />
 
         <footer className={`mt-10 border-t pt-6 ${SHEET.rule}`}>
           <p className={`font-document text-sm italic leading-6 ${SHEET.body}`}>
