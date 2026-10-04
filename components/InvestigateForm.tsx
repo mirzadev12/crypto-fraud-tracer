@@ -464,17 +464,22 @@ export default function InvestigateForm() {
 
                 <div>
                   <label htmlFor="typology">
-                    <Designation>Type of scam · as reported · optional</Designation>
+                    <Designation>Type of scam · optional</Designation>
                   </label>
                   <select
                     id="typology"
                     value={typology}
                     onChange={(e) => setTypology(parseTypology(e.target.value) ?? "")}
-                    className={`${FIELD} mt-4 border-line text-lg focus:border-brass`}
+                    /* A solid ground, not the field's transparent one: a native
+                       dropdown list is drawn from the select's own background, so
+                       a transparent select opens a see-through list. */
+                    className={`${FIELD.replace("bg-transparent", "bg-surface")} mt-4 border-line text-lg focus:border-brass [color-scheme:dark]`}
                   >
-                    <option value="">Not stated</option>
+                    <option value="" className="bg-surface text-ink">
+                      Not stated
+                    </option>
                     {TYPOLOGIES.map((t) => (
-                      <option key={t.id} value={t.id}>
+                      <option key={t.id} value={t.id} className="bg-surface text-ink">
                         {t.label}
                       </option>
                     ))}
