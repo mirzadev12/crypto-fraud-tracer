@@ -18,6 +18,7 @@ test("nothing claims a section freezes a wallet", () => {
 test("an unknown id is refused; matters before 1 July 2024 fall to the old laws", () => {
   assert.equal(legalBasis("bnss-94").cite, "BNSS 2023, s.94");
   assert.equal(legalBasis("made-up"), undefined);
-  assert.equal(regimeOf("2024-06-30T23:59:00.000Z"), "old");
+  assert.equal(regimeOf("2024-06-30T18:00:00.000Z"), "old"); // 23:30 IST, 30 June
+  assert.equal(regimeOf("2024-06-30T23:59:00.000Z"), "new"); // already 05:29 IST, 1 July
   assert.equal(regimeOf("2024-07-01T00:00:00.000+05:30"), "new");
 });
