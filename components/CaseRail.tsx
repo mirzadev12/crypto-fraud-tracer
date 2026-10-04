@@ -17,6 +17,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { caseHref, getCases, isIllustrative } from "@/lib/api";
+import { originOf } from "@/lib/register-origin";
+import { formatDateTime } from "@/lib/format";
 import { formatUsdt, shortAddress } from "@/lib/format";
 import type { CaseSummary } from "@/lib/types";
 import { Panel, Skeleton, TriageBadge } from "@/components/ui";
@@ -101,7 +103,19 @@ export default function CaseRail({
                         <span className="font-label text-[10px] uppercase tracking-[0.16em] text-faint">
                           Illustrative
                         </span>
-                      ) : null}
+                      ) : (
+                        (() => {
+                          const o = originOf(c, formatDateTime);
+                          return o ? (
+                            <span
+                              className={`font-label text-[10px] uppercase tracking-[0.16em] ${o.recorded ? "text-faint" : "text-muted"}`}
+                              title={o.title}
+                            >
+                              {o.label}
+                            </span>
+                          ) : null;
+                        })()
+                      )}
                     </div>
                     <p
                       className={`mt-2 font-mono text-xs ${

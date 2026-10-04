@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { caseHref, getCases, isIllustrative, type Sourced } from "@/lib/api";
+import { originOf } from "@/lib/register-origin";
 import type { CaseSummary } from "@/lib/types";
-import { formatDate, formatUsdt, shortAddress } from "@/lib/format";
+import { formatDate, formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
 import {
   DataSourceBadge,
   Designation,
@@ -101,7 +102,7 @@ export default function ReportsList() {
         <DataSourceBadge
           source={state.result.source}
           note={state.result.note}
-          label="Committed register"
+          label={state.result.register?.mode === "live" ? "Live register" : "Recorded register"}
         />
       </div>
 
@@ -121,7 +122,9 @@ export default function ReportsList() {
                   >
                     Illustrative
                   </span>
-                ) : null}
+                ) : (
+                  <OriginTag c={c} />
+                )}
               </span>
 
               <span className="font-mono text-xs text-muted" title={c.inputAddress}>
@@ -160,5 +163,19 @@ export default function ReportsList() {
         its own limitations in writing. Open one to print or file it.
       </p>
     </div>
+  );
+}
+
+/** Where the row came from (lib/register-origin.ts), under its case number. */
+function OriginTag({ c }: { c: CaseSummary }) {
+  const o = originOf(c, formatDateTime);
+  if (!o) return null;
+  return (
+    <span
+      className={`block font-label text-[10px] tracking-[0.16em] ${o.recorded ? "text-faint" : "text-muted"}`}
+      title={o.title}
+    >
+      {o.label}
+    </span>
   );
 }

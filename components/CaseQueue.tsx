@@ -7,6 +7,7 @@ import { ChainScope } from "./ChainScope";
 import type { CaseSummary, TriageLevel } from "@/lib/types";
 import { formatDate, formatDateTime, formatUsdt, shortAddress } from "@/lib/format";
 import AddressChip from "./AddressChip";
+import { ORIGIN, extras } from "@/lib/register-origin";
 import Inr from "./Inr";
 import {
   DataSourceBadge,
@@ -28,23 +29,6 @@ const FILTERS: Filter[] = ["ALL", "HOT", "WARM", "COLD"];
 /** A stable empty array, so the memo dependencies below do not change every render. */
 const NO_CASES: CaseSummary[] = [];
 
-/**
- * Where a register row came from (lib/register.ts). Shown on every row, because
- * the register mixes reads of different ages and a reader must be able to tell
- * a wallet re-read an hour ago from one recorded in September.
- */
-const ORIGIN: Record<string, { label: string; title: string }> = {
-  reference: { label: "Re-read live", title: "A recorded wallet, traced again live by this server on its own schedule" },
-  traced: { label: "Traced here", title: "Traced on this server" },
-  saved: { label: "Saved", title: "Saved to the shared case file" },
-  recorded: {
-    label: "Recorded",
-    title: "Captured from the chain when the case was recorded; the live re-read has not reached it yet",
-  },
-};
-
-type RowExtras = { origin?: string; readAt?: string; by?: string | null; chain?: string };
-const extras = (c: CaseSummary) => c as CaseSummary & RowExtras;
 const rowKey = (c: CaseSummary) => `${extras(c).chain ?? chainOf(c.inputAddress)}:${c.inputAddress}`;
 
 /** Poll fast while the server is re-reading, slowly otherwise. */
