@@ -11,7 +11,7 @@ to paste. Figures counted from `data/` on 4 Oct 2026; re-count before pasting.
 FineX — tracing stolen crypto to the exact exchange account that can be frozen, built for Indian cyber cells
 ```
 
-## Idea description (≈2,300 characters)
+## Idea description (2,000 characters)
 
 ```
 ₹22,845 crore was reported lost to cyber fraud in India in 2024 (MHA). When a victim reports a crypto wallet, an officer has hours before the money is cashed out, and most tools stop at "the funds reached Binance". An exchange cannot freeze an exchange; it can freeze a customer's account.
