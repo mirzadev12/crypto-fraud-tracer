@@ -22,6 +22,17 @@
 const VIEW = { w: 760, h: 420 };
 
 /**
+ * The trace reads itself once. The subject appears, the first hop is drawn out
+ * of it, the next wallet appears where the line reaches it, and so on to the
+ * exit, which is named last. Milliseconds from load; the packets then carry on
+ * as before. Under reduced motion every `fx-reveal` / `fx-settle` is switched
+ * off in globals.css, so the finished drawing is simply there.
+ */
+const NODE_AT = [200, 1250, 2050, 2850] as const;
+const LEG_AT = [500, 1400, 2200] as const;
+const LEG_MS = 700;
+
+/**
  * The traced path, placed first so the cluster can be packed around it. It
  * reads left to right and rises to the exit, because the exit is the answer and
  * the answer should not be buried in the middle of the field.
@@ -168,25 +179,30 @@ export default function HeroTrace() {
       {/* The first hop is drawn in suspicious amber: under ten minutes between
           receipt and forwarding is the signature of an automated script, and it
           is the one thing here a reader should catch before reading any word. */}
-      <g className="fx-settle" style={{ animationDelay: "160ms" }}>
+      <g>
         {LIT.slice(0, -1).map((n, i) => (
-          <path
+          <g
             key={`leg-${i}`}
-            d={arc(n, LIT[i + 1])}
-            fill="none"
-            stroke={i === 0 ? "var(--color-suspicious)" : "var(--color-brass)"}
-            strokeWidth={2}
-            strokeDasharray="6 8"
-            strokeLinecap="round"
-            className="fx-flow"
-          />
+            className="fx-reveal"
+            style={{ animationDelay: `${LEG_AT[i]}ms`, animationDuration: `${LEG_MS}ms` }}
+          >
+            <path
+              d={arc(n, LIT[i + 1])}
+              fill="none"
+              stroke={i === 0 ? "var(--color-suspicious)" : "var(--color-brass)"}
+              strokeWidth={2}
+              strokeDasharray="6 8"
+              strokeLinecap="round"
+              className="fx-flow"
+            />
+          </g>
         ))}
 
         {/* The money itself, moving. Each leg fires after the one before it, so
             the eye is carried from the subject out to the exit. */}
         {LIT.slice(0, -1).map((n, i) => {
           const d = arc(n, LIT[i + 1]);
-          const begin = `${i * 0.55}s`;
+          const begin = `${(LEG_AT[i] + LEG_MS) / 1000 + 0.1}s`;
           return (
             <circle
               key={`packet-${i}`}
@@ -220,7 +236,8 @@ export default function HeroTrace() {
       <text
         x={236}
         y={186}
-        className="font-label"
+        className="font-label fx-settle"
+        style={{ animationDelay: "1100ms" }}
         fontSize={10}
         letterSpacing="0.16em"
         fill="var(--color-suspicious)"
@@ -236,7 +253,7 @@ export default function HeroTrace() {
           <g
             key={i}
             className="fx-settle"
-            style={{ animationDelay: `${160 + i * 130}ms` }}
+            style={{ animationDelay: `${NODE_AT[i]}ms` }}
           >
             {anchor ? (
               <circle
@@ -292,7 +309,7 @@ export default function HeroTrace() {
       })}
 
       {/* The finding, named. The largest mark on the picture is the answer. */}
-      <g className="fx-settle" style={{ animationDelay: "760ms" }}>
+      <g className="fx-settle" style={{ animationDelay: "3500ms" }}>
         <rect
           x={528}
           y={244}

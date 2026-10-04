@@ -36,6 +36,31 @@ function useOrigin(): string {
  * `checkHref`; an illustrative case has none, because there is no chain
  * record to check it against, and the block says so.
  */
+/**
+ * The fingerprint, set a character at a time when the packet opens, as if it
+ * were being computed: each character arrives in brass and settles to ink.
+ * Once, about a second and a half in all. The whole text is the accessible
+ * name and the characters are hidden from assistive technology, so a screen
+ * reader reads the hash once, not sixty-four times. Printing and reduced
+ * motion (globals.css) show the finished text.
+ */
+function Teleprinted({ text }: { text: string }) {
+  return (
+    <span aria-label={text}>
+      {Array.from(text).map((ch, i) => (
+        <span
+          key={i}
+          aria-hidden="true"
+          className="fx-type"
+          style={{ animationDelay: `${350 + i * 22}ms` }}
+        >
+          {ch}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export function FingerprintBlock({
   fingerprint,
   href,
@@ -57,7 +82,7 @@ export function FingerprintBlock({
           Findings fingerprint · SHA-256
         </p>
         <p className={`mt-1 font-mono text-sm leading-7 wrap-anywhere ${SHEET.ink}`}>
-          {groupFingerprint(fingerprint)}
+          <Teleprinted text={groupFingerprint(fingerprint)} />
         </p>
         <p className={`mt-4 text-sm leading-7 ${SHEET.body}`}>
           Computed from the findings — every wallet, transfer, amount, time, attribution and rule
