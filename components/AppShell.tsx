@@ -83,6 +83,12 @@ export function Footer() {
             >
               How this runs · operating notes
             </Link>
+            <Link
+              href="/developers"
+              className="fx-option-quiet px-2 py-1 font-label text-xs uppercase tracking-[0.2em] text-faint transition hover:text-brass"
+            >
+              API for integrators
+            </Link>
           </div>
         </div>
       </div>

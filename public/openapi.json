@@ -1,0 +1,202 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FineX API",
+    "version": "2026.10.04",
+    "summary": "Trace stolen USDT from a reported wallet to the exchange account that received it.",
+    "description": "Every route answers with JSON. Chain-reading routes are rate-limited per client (HTTP 429 with Retry-After) so one integrator cannot spend the shared chain budget. Nothing here needs a key. A wallet the chain did not answer for is reported as unread, never as empty. Attribution is a deterministic lookup; no language model is involved. Integration with NCRP or SAHYOG is designed around these routes but is not live."
+  },
+  "servers": [{ "url": "https://crypto-fraud-tracer.onrender.com", "description": "The deployed prototype" }],
+  "tags": [
+    { "name": "Trace", "description": "Follow the money from a reported wallet." },
+    { "name": "Wallet", "description": "What one address is, and who funded it." },
+    { "name": "Screen", "description": "Sanctions, issuer freezes and explorer tags." },
+    { "name": "Desk", "description": "The register, saved cases, the watch and the audit log." },
+    { "name": "Service", "description": "Health, live chain status and the USDT/INR rate." }
+  ],
+  "paths": {
+    "/api/trace": {
+      "post": {
+        "tags": ["Trace"],
+        "summary": "Trace a reported wallet",
+        "description": "Traces USDT forward from the wallet (TRON, Ethereum, or Polygon when chain is 'polygon'), up to three hops, and returns the full TraceResult: wallets, transfers, the exit and the deposit account named, risk flags, triage (HOT / WARM / COLD) and the SHA-256 of every chain response. Send Accept: application/x-ndjson to receive progress events, one JSON line each, then the result.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["address"],
+                "properties": {
+                  "address": { "type": "string", "description": "TRON (T…) or EVM (0x…) wallet." },
+                  "amount": { "type": "number", "description": "Reported loss in USDT. Omit to follow everything that left the wallet." },
+                  "fraudDate": { "type": "string", "format": "date-time", "description": "Omit to start from the wallet's first transfer." },
+                  "model": { "type": "string", "enum": ["haircut", "fifo"], "default": "haircut" },
+                  "chain": { "type": "string", "enum": ["polygon"], "description": "Only for a 0x address on Polygon; otherwise the address decides." },
+                  "asOf": { "type": "string", "format": "date-time", "description": "Read the chain as it stood at this moment, to replay a recorded run." }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "TraceResult", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TraceResult" } } } },
+          "400": { "$ref": "#/components/responses/BadInput" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    },
+    "/api/trace/{address}": {
+      "get": {
+        "tags": ["Trace"],
+        "summary": "Trace a wallet by link (the permalink)",
+        "description": "The same trace as POST, with the run pinned in the query string, so a shared link reproduces the same figures on any later day. The header x-finex-provenance says live or recorded.",
+        "parameters": [
+          { "$ref": "#/components/parameters/Address" },
+          { "name": "amount", "in": "query", "schema": { "type": "number" } },
+          { "name": "since", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "asof", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "model", "in": "query", "schema": { "type": "string", "enum": ["haircut", "fifo"] } },
+          { "$ref": "#/components/parameters/Chain" }
+        ],
+        "responses": {
+          "200": { "description": "TraceResult", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TraceResult" } } } },
+          "400": { "$ref": "#/components/responses/BadInput" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    },
+    "/api/tx/{hash}": {
+      "get": {
+        "tags": ["Trace"],
+        "summary": "Resolve a transaction to the wallet it paid",
+        "description": "For a complaint that has a transaction rather than a wallet: reads the transaction's USDT transfer (TRON or Ethereum) and returns the wallet it paid. A transaction that moved no USDT says so.",
+        "parameters": [{ "name": "hash", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "The transfer and the wallet it paid." }, "400": { "$ref": "#/components/responses/BadInput" }, "429": { "$ref": "#/components/responses/RateLimited" } }
+      }
+    },
+    "/api/wallet/{address}": {
+      "get": {
+        "tags": ["Wallet"],
+        "summary": "Profile one wallet",
+        "description": "Age, USDT in and out, and its counterparties on both sides, each run through the attribution table. A partial history is marked partial.",
+        "parameters": [{ "$ref": "#/components/parameters/Address" }, { "$ref": "#/components/parameters/Chain" }],
+        "responses": { "200": { "description": "Wallet profile." }, "400": { "$ref": "#/components/responses/BadInput" }, "429": { "$ref": "#/components/responses/RateLimited" } }
+      }
+    },
+    "/api/payers/{address}": {
+      "get": {
+        "tags": ["Wallet"],
+        "summary": "Trace backwards: who paid this wallet",
+        "description": "The wallet's payers and the exchanges that funded them, one hop back (TRON and Ethereum).",
+        "parameters": [{ "$ref": "#/components/parameters/Address" }],
+        "responses": { "200": { "description": "Payers and funding exchanges." }, "400": { "$ref": "#/components/responses/BadInput" }, "429": { "$ref": "#/components/responses/RateLimited" } }
+      }
+    },
+    "/api/screen/{address}": {
+      "get": {
+        "tags": ["Screen"],
+        "summary": "Screen any address against the OFAC SDN list",
+        "description": "Recognises the address's chain (20 assets) and checks it against the published OFAC list. Reads no chain. Listed is a finding; not listed is not a clearance.",
+        "parameters": [{ "name": "address", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Screening result." } }
+      }
+    },
+    "/api/issuer/{address}": {
+      "get": {
+        "tags": ["Screen"],
+        "summary": "Has Tether frozen this address?",
+        "description": "Reads the USDT contract's own blacklist on TRON, Ethereum or Polygon.",
+        "parameters": [{ "$ref": "#/components/parameters/Address" }, { "$ref": "#/components/parameters/Chain" }],
+        "responses": { "200": { "description": "frozen, not-frozen, or not checked." }, "429": { "$ref": "#/components/responses/RateLimited" } }
+      }
+    },
+    "/api/tag/{address}": {
+      "get": {
+        "tags": ["Screen"],
+        "summary": "A TRON address's public explorer tag, read live",
+        "description": "The explorer's own words, for wallets where a trace stopped at its search limit. An annotation, never an attribution. 502 when the explorer did not answer, which is not the same as no tag.",
+        "parameters": [{ "$ref": "#/components/parameters/Address" }],
+        "responses": { "200": { "description": "{ address, tag, readAt }" }, "502": { "description": "The explorer did not answer." }, "429": { "$ref": "#/components/responses/RateLimited" } }
+      }
+    },
+    "/api/register": {
+      "get": {
+        "tags": ["Desk"],
+        "summary": "The case register, as this server has read it",
+        "description": "Saved cases, the traces this server answered, and the recorded reference wallets re-read live every six hours. Each row says where it came from and when it was read. Reads the server's own files only.",
+        "responses": { "200": { "description": "{ mode, rows[], reference, tracesLogged }" } }
+      }
+    },
+    "/api/cases": {
+      "get": { "tags": ["Desk"], "summary": "List the shared case file", "responses": { "200": { "description": "Saved cases." } } },
+      "post": { "tags": ["Desk"], "summary": "Save a run to the case file", "description": "Built from the server's own audit record of the trace, found by its findings fingerprint; a run the server did not trace cannot be saved.", "responses": { "200": { "description": "Saved." }, "404": { "description": "No such run on this server." } } },
+      "delete": { "tags": ["Desk"], "summary": "Remove a case from the case file", "responses": { "200": { "description": "Removed." } } }
+    },
+    "/api/watch": {
+      "post": {
+        "tags": ["Desk"],
+        "summary": "Has a watched wallet moved?",
+        "description": "For each wallet sent: moved, still at rest, or not checked. An unanswered wallet is never reported as at rest.",
+        "responses": { "200": { "description": "One answer per wallet." }, "429": { "$ref": "#/components/responses/RateLimited" } }
+      }
+    },
+    "/api/alerts": {
+      "get": { "tags": ["Desk"], "summary": "The server-side watch and its push key", "responses": { "200": { "description": "Watch state." } } },
+      "post": { "tags": ["Desk"], "summary": "Turn browser alerts on for a watch list", "responses": { "200": { "description": "Subscribed." } } },
+      "delete": { "tags": ["Desk"], "summary": "Turn browser alerts off", "responses": { "200": { "description": "Unsubscribed." } } }
+    },
+    "/api/audit": {
+      "get": {
+        "tags": ["Desk"],
+        "summary": "The hash-chained audit log",
+        "description": "Every trace, save, removal and alert switch, each entry carrying the SHA-256 of the one before. format=jsonl downloads the whole log for scripts/verify-audit.mjs.",
+        "parameters": [
+          { "name": "format", "in": "query", "schema": { "type": "string", "enum": ["jsonl"] } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 100 } }
+        ],
+        "responses": { "200": { "description": "Entries and the chain check." } }
+      }
+    },
+    "/api/health": {
+      "get": { "tags": ["Service"], "summary": "How this deployment is set up", "description": "Commit served, demo mode, and where each kind of chain read goes. Reads no chain.", "responses": { "200": { "description": "Health." } } }
+    },
+    "/api/status": {
+      "get": { "tags": ["Service"], "summary": "Live chain status", "description": "Each chain's newest block, read now, the OFAC list's date, the USDT/INR rate and today's trace count. Kept 30 seconds.", "responses": { "200": { "description": "Status." } } }
+    },
+    "/api/rate": {
+      "get": { "tags": ["Service"], "summary": "USDT/INR, read live", "description": "The last traded USDT/INR on CoinDCX, with WazirX as the fallback, with its source and read time. { rate: null } when neither answered.", "responses": { "200": { "description": "{ rate, source, market, at, readAt }" } } }
+    }
+  },
+  "components": {
+    "parameters": {
+      "Address": { "name": "address", "in": "path", "required": true, "description": "TRON (T…) or EVM (0x…) address; checksums are verified.", "schema": { "type": "string" } },
+      "Chain": { "name": "chain", "in": "query", "required": false, "description": "Only 'polygon', for a 0x address on Polygon.", "schema": { "type": "string", "enum": ["polygon"] } }
+    },
+    "responses": {
+      "BadInput": { "description": "The address or a parameter is malformed.", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string" } } } } } },
+      "RateLimited": { "description": "Too many requests from this client.", "headers": { "Retry-After": { "schema": { "type": "integer" } } } }
+    },
+    "schemas": {
+      "TraceResult": {
+        "type": "object",
+        "required": ["caseId", "inputAddress", "chain", "nodes", "edges", "triage", "provenance"],
+        "properties": {
+          "caseId": { "type": "string" },
+          "inputAddress": { "type": "string" },
+          "chain": { "type": "string", "enum": ["tron", "ethereum", "polygon"] },
+          "reportedAmountUsdt": { "type": "number" },
+          "fraudDate": { "type": "string", "format": "date-time" },
+          "nodes": { "type": "array", "items": { "type": "object", "description": "address, depth, label (entity, kind, confidence, source), taintedValueUsdt, taintFraction, firstSeen, outflowCount" } },
+          "edges": { "type": "array", "items": { "type": "object", "description": "from, to, valueUsdt, txHash, timestamp, dwellSeconds" } },
+          "terminal": { "type": ["object", "null"], "description": "The exit: address, label, and depositAddress — the customer account an exchange can freeze." },
+          "riskFlags": { "type": "array", "items": { "type": "object", "description": "code, reason (plain English), address" } },
+          "triage": { "type": "string", "enum": ["HOT", "WARM", "COLD"], "description": "Shown on screen as CRITICAL, SUSPICIOUS, CLOSED." },
+          "triageReason": { "type": "string" },
+          "narrative": { "type": "string" },
+          "provenance": { "type": "object", "properties": { "apiCalls": { "type": "integer" }, "responseHashes": { "type": "array", "items": { "type": "string" } }, "generatedAt": { "type": "string", "format": "date-time" } } }
+        }
+      }
+    }
+  }
+}
