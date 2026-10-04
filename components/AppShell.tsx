@@ -12,16 +12,6 @@ export default function AppShell({
 }) {
   return (
     <div className="flex min-h-screen flex-col bg-bg text-ink">
-      {/* Who this is for, and what it is not. Stated on every page: a student
-          prototype must never be mistaken for a Government of India service,
-          and so it carries no State Emblem and no national insignia. */}
-      <div className="border-b border-line-soft bg-surface print:hidden">
-        <p className="mx-auto max-w-7xl px-6 py-1 text-xs leading-5 text-faint">
-          A prototype for the Indian Cyber Crime Coordination Centre (I4C), Ministry of Home Affairs ·
-          Smart India Hackathon 2026 ·{" "}
-          <span className="text-muted">Not an official Government of India website</span>
-        </p>
-      </div>
       <Navbar />
       <main
         id="content"
@@ -67,8 +57,13 @@ export function Footer() {
           </p>
         </div>
         <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-faint">
-            SIH 2026 · Ministry of Home Affairs / I4C
+          {/* Who this is for, and what it is not, at the end of every page: a
+              student prototype must never be mistaken for a Government of India
+              service, so it carries no State Emblem and no national insignia. */}
+          <p className="max-w-3xl text-xs leading-5 text-faint">
+            A prototype for the Indian Cyber Crime Coordination Centre (I4C), Ministry of Home
+            Affairs · Smart India Hackathon 2026 ·{" "}
+            <span className="text-muted">Not an official Government of India website</span>
           </p>
           <div className="flex flex-wrap items-center gap-6">
             <Link
