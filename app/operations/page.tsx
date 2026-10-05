@@ -189,12 +189,12 @@ const ROWS: Array<{ q: string; a: React.ReactNode }> = [
     q: "Who maintains it after the team graduates?",
     a: (
       <>
-        The maintenance surface is deliberately small and is not code. It is two
-        plain data files —{" "}
-        <span className="font-mono text-xs">data/hot-wallets.json</span>, the
-        exchange wallets we cluster against, and{" "}
-        <span className="font-mono text-xs">data/risk-lists.json</span>, the
-        sanctioned addresses — plus six rules in one file. Refreshing the label
+        The maintenance surface is deliberately small and is not code. It is a
+        handful of plain data files under{" "}
+        <span className="font-mono text-xs">data/</span> — the tagged exchange
+        wallets each chain is clustered against, the sanctions lists, each
+        exchange&apos;s law-enforcement channel and the TRON swap contracts —
+        plus six rules in one file. Refreshing the label
         tables is re-running one script and committing its output; it needs an
         analyst, not the original authors. The build plan and every design
         decision are written down in the repository rather than held by whoever
