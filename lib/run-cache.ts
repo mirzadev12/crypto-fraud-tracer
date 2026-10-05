@@ -45,8 +45,57 @@ function keyOf(
   return [chain, who, amount === "auto" ? "auto" : amount.toFixed(6), from, model, at].join("|");
 }
 
+/*
+ * Two short-lived helpers for a bare request — no `asof`, "what does this
+ * wallet look like now". Both answer with a run this server has just read, so
+ * they never state an older chain than the run's own `generatedAt` says.
+ *
+ *  - Recent: the same bare request within two minutes is answered with the run
+ *    just read. Opening a case, then its packet, then its request would
+ *    otherwise read the chain three times in a row for the same answer.
+ *  - Shared: identical requests arriving while a read is running wait for that
+ *    read instead of starting their own, which on a keyless endpoint would
+ *    only queue behind it and slow every one of them.
+ */
+const RECENT_MS = 120_000;
+type Recent = Map<string, { at: number; trace: TraceResult }>;
+type Inflight = Map<string, Promise<TraceResult>>;
+
+function recent(): Recent {
+  const g = globalThis as typeof globalThis & { __finexRecent?: Recent };
+  return (g.__finexRecent ??= new Map());
+}
+function inflight(): Inflight {
+  const g = globalThis as typeof globalThis & { __finexInflight?: Inflight };
+  return (g.__finexInflight ??= new Map());
+}
+const jobKey = (job: TraceRequest) =>
+  JSON.stringify([
+    job.chain ?? "",
+    job.address.startsWith("0x") ? job.address.toLowerCase() : job.address,
+    job.amount,
+    job.fraudDate,
+    job.model ?? "haircut",
+    job.asOf ?? "",
+  ]);
+
+/** Run a trace, or wait for the identical one already running. */
+export function sharedRun(job: TraceRequest, read: () => Promise<TraceResult>): Promise<TraceResult> {
+  const key = jobKey(job);
+  const running = inflight().get(key);
+  if (running) return running;
+  const p = read().finally(() => inflight().delete(key));
+  inflight().set(key, p);
+  return p;
+}
+
 /** Keep a run this server has just read from the chain. */
-export function rememberRun(trace: TraceResult, run: TraceRun): void {
+export function rememberRun(trace: TraceResult, run: TraceRun, job?: TraceRequest): void {
+  if (job && !job.asOf) {
+    const store = recent();
+    store.set(jobKey(job), { at: Date.now(), trace });
+    for (const [k, v] of store) if (Date.now() - v.at > RECENT_MS) store.delete(k);
+  }
   const key = keyOf(trace.chain, trace.inputAddress, run.amount, run.fraudDate, run.model, trace.provenance.generatedAt);
   if (!key) return;
   const store = runs();
@@ -61,7 +110,10 @@ export function rememberRun(trace: TraceResult, run: TraceRun): void {
 
 /** The run a pinned request asks for, when this server has read exactly it. */
 export function replayRun(job: TraceRequest): TraceResult | null {
-  if (!job.asOf) return null;
+  if (!job.asOf) {
+    const hit = recent().get(jobKey(job));
+    return hit && Date.now() - hit.at <= RECENT_MS ? hit.trace : null;
+  }
   const chain = job.chain === "polygon" ? "polygon" : job.address.startsWith("0x") ? "ethereum" : "tron";
   const key = keyOf(chain, job.address, job.amount, job.fraudDate, job.model ?? "haircut", job.asOf);
   return key ? (runs().get(key) ?? null) : null;
