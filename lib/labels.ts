@@ -77,6 +77,10 @@ const keyOf = (address: string): string => {
   return EVM.test(a) ? a.toLowerCase() : a;
 };
 
+/** Evidence names a seed by its explorer tag; "MXC" is MEXC's, which a reader would not know. */
+const explorerName = (evidence: string | undefined) =>
+  evidence?.replace(/forwarded to MXC$/, `forwarded to MEXC's tagged wallet (explorer tag "MXC")`);
+
 const LABELS = new Map<string, Label>();
 
 /* Built in reverse priority order, so each tier overwrites the one below it. */
@@ -129,8 +133,8 @@ for (const row of [...(depositAddresses as DepositRow[]), ...(ethDeposits as Eth
     confidence: row.confidence,
     source: "heuristic",
     evidence: conflict
-      ? `${row.evidence}. Caution: its gas was paid by "${conflict.split(" / ")[0]}", not by ${row.exchange} — another party may manage this address`
-      : row.evidence,
+      ? `${explorerName(row.evidence)}. Caution: its gas was paid by "${conflict.split(" / ")[0]}", not by ${row.exchange} — another party may manage this address`
+      : explorerName(row.evidence),
   });
 }
 

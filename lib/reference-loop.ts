@@ -113,7 +113,7 @@ export async function runReferencePass(): Promise<ReferenceProgress> {
         amount: "auto",
         fraudDate: "auto",
         ...(w.chain === "polygon" ? { chain: "polygon" as const } : {}),
-      });
+      }, PERIOD_MS + 30 * 60 * 1000);
       await appendAudit(traceDraft(SYSTEM_ACTOR, trace, run, "live"));
     } catch (err) {
       l.progress.failed++;

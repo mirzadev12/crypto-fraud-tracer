@@ -154,7 +154,15 @@ const en: HelpContent = {
     },
     {
       title: "Freeze request",
-      body: "The letter you send the exchange, naming the account to restrict. It only appears when there is an exchange that can act on it. Above it: where that exchange takes requests, and what it needs first. Sign it before it goes out.",
+      body: "The letter you send the exchange, naming the account to restrict. It only appears when there is an exchange that can act on it. Above it: where that exchange takes requests, what it needs first, and whether your desk can reach it yet. Sign it before it goes out.",
+    },
+    {
+      title: "Request to Tether",
+      body: "On a case where the money is still sitting in a wallet and no exchange was reached. A letter to Tether, the company that issues USDT, which can freeze USDT at any address. Tether publishes no address for these requests; the page says so, and shows whether Tether has already frozen it.",
+    },
+    {
+      title: "Prepare for court",
+      body: "Under the evidence packet. The questions a defence lawyer is likely to ask about the finding, each answered from the case itself, with what the answer does not prove. It is for you, not the court: it prints only if you tick it.",
     },
     {
       title: "Record what happened",
@@ -309,6 +317,14 @@ const hi: HelpContent = {
     {
       title: "Freeze request",
       body: "एक्सचेंज को भेजा जाने वाला पत्र, जिसमें रोका जाने वाला खाता लिखा होता है। यह तभी दिखता है जब कोई एक्सचेंज उस पर कार्रवाई कर सकता हो। इसके ऊपर लिखा है कि वह एक्सचेंज अनुरोध कहाँ लेता है और पहले क्या चाहता है। भेजने से पहले इस पर हस्ताक्षर करें।",
+    },
+    {
+      title: "Request to Tether",
+      body: "उस मामले में जहाँ पैसा अभी भी किसी वॉलेट में पड़ा है और कोई एक्सचेंज नहीं मिला। Tether को एक पत्र — वह कंपनी जो USDT जारी करती है और किसी भी पते पर USDT फ्रीज़ कर सकती है। Tether इन अनुरोधों के लिए कोई पता प्रकाशित नहीं करता; पृष्ठ यह बताता है, और यह भी दिखाता है कि क्या Tether पहले ही उसे फ्रीज़ कर चुका है।",
+    },
+    {
+      title: "Prepare for court",
+      body: "साक्ष्य पैकेट के नीचे। वे प्रश्न जो बचाव पक्ष का वकील इस निष्कर्ष के बारे में पूछ सकता है, हर एक का उत्तर मामले से ही, और साथ में यह कि वह उत्तर क्या साबित नहीं करता। यह आपके लिए है, अदालत के लिए नहीं: यह तभी छपता है जब आप इसे चुनें।",
     },
     {
       title: "Record what happened",

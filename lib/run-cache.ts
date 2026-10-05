@@ -51,14 +51,17 @@ function keyOf(
  * they never state an older chain than the run's own `generatedAt` says.
  *
  *  - Recent: the same bare request within two minutes is answered with the run
- *    just read. Opening a case, then its packet, then its request would
+ *    just read — or, for a recorded wallet, with the server's own scheduled
+ *    re-read of it (lib/reference-loop.ts, every six hours), so a batch of the
+ *    recorded wallets does not re-read fourteen histories the server read
+ *    hours ago. Either way the loader shows it as a replay with its read time. Opening a case, then its packet, then its request would
  *    otherwise read the chain three times in a row for the same answer.
  *  - Shared: identical requests arriving while a read is running wait for that
  *    read instead of starting their own, which on a keyless endpoint would
  *    only queue behind it and slow every one of them.
  */
 const RECENT_MS = 120_000;
-type Recent = Map<string, { at: number; trace: TraceResult }>;
+type Recent = Map<string, { until: number; trace: TraceResult }>;
 type Inflight = Map<string, Promise<TraceResult>>;
 
 function recent(): Recent {
@@ -90,11 +93,16 @@ export function sharedRun(job: TraceRequest, read: () => Promise<TraceResult>): 
 }
 
 /** Keep a run this server has just read from the chain. */
-export function rememberRun(trace: TraceResult, run: TraceRun, job?: TraceRequest): void {
+export function rememberRun(trace: TraceResult, run: TraceRun, job?: TraceRequest, keepMs = RECENT_MS): void {
   if (job && !job.asOf) {
     const store = recent();
-    store.set(jobKey(job), { at: Date.now(), trace });
-    for (const [k, v] of store) if (Date.now() - v.at > RECENT_MS) store.delete(k);
+    const now = Date.now();
+    // The newest read is kept, for as long as either read was to be kept.
+    const prior = store.get(jobKey(job));
+    if (!prior || prior.trace.provenance.generatedAt <= trace.provenance.generatedAt) {
+      store.set(jobKey(job), { until: Math.max(prior?.until ?? 0, now + keepMs), trace });
+    }
+    for (const [k, v] of store) if (v.until < now) store.delete(k);
   }
   const key = keyOf(trace.chain, trace.inputAddress, run.amount, run.fraudDate, run.model, trace.provenance.generatedAt);
   if (!key) return;
@@ -112,7 +120,7 @@ export function rememberRun(trace: TraceResult, run: TraceRun, job?: TraceReques
 export function replayRun(job: TraceRequest): TraceResult | null {
   if (!job.asOf) {
     const hit = recent().get(jobKey(job));
-    return hit && Date.now() - hit.at <= RECENT_MS ? hit.trace : null;
+    return hit && Date.now() <= hit.until ? hit.trace : null;
   }
   const chain = job.chain === "polygon" ? "polygon" : job.address.startsWith("0x") ? "ethereum" : "tron";
   const key = keyOf(chain, job.address, job.amount, job.fraudDate, job.model ?? "haircut", job.asOf);
