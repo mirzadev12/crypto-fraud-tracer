@@ -35,6 +35,7 @@ verified, and its limits. The numbers follow the priority list agreed on
 | 26 | Request to Tether | Money at rest with no exchange on the trail drafts a freeze request to the issuer of USDT; Tether's channel is recorded as not found | [26](26-request-to-tether.md) |
 | 27 | Account share | How much of a named deposit account's inflow this case is: a share, an upper bound, or nothing | [27](27-account-share.md) |
 | 28 | The critics' fixes | Stable case references, "traced (none reported)" labels, the pending-on-1-July-2024 question, rule base rates beside the rules, a copy truth pass, and the three review reports | [28](28-critics-fixes.md) |
+| 29 | TRON swaps stop the trace | SUN.io's routers and the pools that hold USDT end a TRON trace, named, as a DEX does on Ethereum | [29](29-tron-swap-stop.md) |
 
 Notes 22 to 28 were built on `finale/refine`, after the critics' reviews of 4 Oct
 2026 (`docs/review/`); the others on `feat/ethereum`.

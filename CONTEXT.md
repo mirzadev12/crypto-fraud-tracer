@@ -1973,3 +1973,13 @@ two parts for two Claude accounts split by file ownership, is
   user asked for it removed on 5 Oct. Feedback lines say "tell the team that runs this
   deployment". The VAPID subject in `lib/alert-store.ts` is a push-protocol field, not a
   link, and stays.
+- **TRON swap stop** (note 29, `data/tron-contracts.json`): SUN.io's routers and
+  the pools that hold USDT are `contract` labels, sourced from SUN.io and read
+  from SunSwap's factories; a TRON bridge is still an ordinary wallet. Never add
+  the USDT contract itself (SUN.io's list shows it as an example token).
+- **Bare requests share and reuse reads** (`lib/run-cache.ts`): identical
+  requests wait for the read in flight; the same bare request within two
+  minutes, or for a recorded wallet within the reference loop's six hours, is
+  answered with that read, logged and shown as a replay with its read time.
+  On 5 Oct the live batch of the 14 recorded wallets took over five minutes
+  without this.
